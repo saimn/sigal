@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; If not, see http://www.gnu.org/licenses/
 
-"""Prepare a gallery of images for Piwigo
+"""Prepare and upload a gallery of images for Piwigo
 
 This script resize images, create thumbnails with some options
 (rename images, squared thumbs, ...), and upload images to a FTP server.
@@ -29,146 +29,141 @@ __date__ = "20090628"
 __copyright__ = "Copyright (c) 2009 saimon.org"
 __license__ = "GPL"
 
-import os,sys
-import getpass
-import Image,ImageDraw
-from ftplib import FTP
+import os
+import sys
+import Image
+import ImageDraw
 from configobj import ConfigObj
+from ftp import FtpUpload
 
-class pywiUpload:
+class PywiUpload:
     "Prepare a gallery of images for Piwigo"
 
-    def __init__(self, conf=None):
+    def __init__(self, params):
         self.filepath = ""
         self.galname = ""
-        self.params = {}
-        configFile = conf if conf \
-                        else os.path.join(sys.path[0], 'pywiUpload.conf')
-        self.readParams(configFile)
+        self.params = params
 
-    def getPath(self, pathname):
+    def getpath(self, pathname):
         "return abslolute path from params dict"
         return os.path.join(self.filepath, self.params[pathname]) \
                 if self.params.has_key(pathname) else ""
 
-    def createGallery(self, path):
+    def create_gallery(self, path):
         "create image gallery"
-        imgFileList = self.listFilesInDir(path)
-        print "Found %i images in %s" % (len(imgFileList), path)
+        imglist = list_files_in_dir(path, self.params['fileExtList'])
+        print "Found %i images in %s" % (len(imglist), path)
 
         while self.galname == "":
             self.galname = raw_input('Enter gallery name: ')
 
-        self.filepath = os.path.join(os.path.dirname(imgFileList[0]),
+        self.filepath = os.path.join(os.path.dirname(imglist[0]),
                                                      self.galname)
 
         print "Create output dir ..."
         try:
-            os.makedirs(self.getPath('thumb_dir'))
+            os.makedirs(self.getpath('thumb_dir'))
         except OSError:
             pass
 
         if self.params['bigimg']:
             try:
-                os.mkdir(self.getPath('bigimg_dir'))
+                os.mkdir(self.getpath('bigimg_dir'))
             except OSError:
                 pass
 
-        outFileList = self.processImages(imgFileList)
+        return (self.galname, self.process_images(imglist))
 
-        upload = raw_input("Upload images to your FTP server ? (y/[n]) ")
-        if upload == 'y':
-            self.ftpUpload(outFileList)
-
-    def processImages(self,imgFileList):
+    def process_images(self, imglist):
         "prepare images"
-        imgFileList.sort()
-        outImgList = []
-        outThumbList = []
-        outBigImgList = []
+        imglist.sort()
+        out_imglist = []
+        out_thumblist = []
+        out_bigimglist = []
 
-        renImg = raw_input("Rename images ('name01.jpg') ? (y/[n]) ")
-        if renImg == 'y':
+        imrename = raw_input("Rename images ('name01.jpg') ? (y/[n]) ")
+        if imrename == 'y':
             count = 1
             imgname = raw_input('Enter new image name: ')
-            nfill = 2 if (len(imgFileList)<100) else 3
+            nfill = 2 if (len(imglist)<100) else 3
 
         if self.params['copyright']:
             copyrightmsg = raw_input('Enter copyright message: ')
             copyrightmsg = '\xa9 ' + copyrightmsg
 
         # loop on images
-        for f in imgFileList:
+        for f in imglist:
             filename = os.path.split(f)[1]
             im = Image.open(f)
 
-            if renImg == 'y':
+            if imrename == 'y':
                 filename = imgname+str(count).zfill(nfill)+'.jpg'
-                print "%s > %s" % (os.path.split(f)[1],filename)
+                print "%s > %s" % (os.path.split(f)[1], filename)
                 count += 1
             else:
                 print "%s" % filename
 
             if self.params['bigimg']:
-                im.save(os.path.join(self.getPath('bigimg_dir'),filename),
+                im.save(os.path.join(self.getpath('bigimg_dir'), filename),
                         quality=self.params['jpgquality'])
-                outBigImgList.append(os.path.join(self.getPath('bigimg_dir'),
+                out_bigimglist.append(os.path.join(self.getpath('bigimg_dir'),
                                                   filename))
 
             # resize image
             if im.size[0] > im.size[1]:
-                im_size = (self.params['im_width'],self.params['im_height'])
+                im_size = (self.params['im_width'], self.params['im_height'])
             else:
-                im_size = (self.params['im_height'],self.params['im_width'])
-            im2 = im.resize(im_size,Image.ANTIALIAS)
+                im_size = (self.params['im_height'], self.params['im_width'])
+            im2 = im.resize(im_size, Image.ANTIALIAS)
 
             # create thumbnail
             if self.params['squarethumb']:
                 if im.size[0] > im.size[1]:
                     offset = (im.size[0] - im.size[1])/2
-                    box = (offset,0,im.size[0]-offset,im.size[1])
+                    box = (offset, 0, im.size[0]-offset, im.size[1])
                 else:
                     offset = (im.size[1] - im.size[0])/2
-                    box = (0,offset,im.size[0],im.size[1]-offset)
+                    box = (0, offset, im.size[0], im.size[1]-offset)
 
                 im = im.crop(box)
-                thumbsize = (self.params['thumb_width'],self.params['thumb_width'])
+                thumbsize = (self.params['thumb_width'],
+                             self.params['thumb_width'])
             else:
-                thumbsize = (self.params['thumb_width'],self.params['thumb_height'])
+                thumbsize = (self.params['thumb_width'],
+                             self.params['thumb_height'])
 
-            im.thumbnail(thumbsize,Image.ANTIALIAS)
+            im.thumbnail(thumbsize, Image.ANTIALIAS)
 
             # copyright
             if self.params['copyright']:
-                draw=ImageDraw.Draw(im2)
-                draw.text((5,im2.size[1]-15),copyrightmsg)
+                draw = ImageDraw.Draw(im2)
+                draw.text((5, im2.size[1]-15), copyrightmsg)
 
             # save
-            im.save(os.path.join(self.getPath('thumb_dir'),
+            im.save(os.path.join(self.getpath('thumb_dir'),
                                  self.params['thumb_prefix']+filename),
                     quality=self.params['jpgquality'])
-            im2.save(os.path.join(self.filepath,filename),
+            im2.save(os.path.join(self.filepath, filename),
                      quality=self.params['jpgquality'])
 
-            outThumbList.append(os.path.join(self.getPath('thumb_dir'),
-                                             self.params['thumb_prefix']+filename))
-            outImgList.append(os.path.join(self.filepath,filename))
+            out_thumblist.append(os.path.join(self.getpath('thumb_dir'),
+                                             self.params['thumb_prefix']+
+                                             filename))
+            out_imglist.append(os.path.join(self.filepath, filename))
 
-            # exif metadatas
             if self.params['exif']:
-                self.processExif(f, os.path.join(self.filepath,filename))
+                self.process_exif(f, os.path.join(self.filepath, filename))
 
-        return [outImgList,outThumbList,outBigImgList]
+        return [out_imglist, out_thumblist, out_bigimglist]
 
-    def processExif(self, srcfile, dstfile):
+    def process_exif(self, src, dst):
         "copy exif metadatas from src to dest images"
-        if self.params['exif']:
-            try:
-                import pyexiv2
-            except ImportError:
-                self.params['exif']=0
-                print "Error: install pyexiv2 module to use exif metadatas."
-                return
+        try:
+            import pyexiv2
+        except ImportError:
+            self.params['exif'] = 0
+            print "Error: install pyexiv2 module to use exif metadatas."
+            return
 
         if pyexiv2.version_info[1] == 1:
             src = pyexiv2.Image(srcfile)
@@ -194,138 +189,75 @@ class pywiUpload:
             dst.write()
 
 
-    def ftpUpload(self,imgFileList):
-        "Upload images to a FTP server"
-        print "Connect to %s ..." % self.params['host']
-        try:
-            password = getpass.getpass()
-            ftp = FTP(self.params['host'],self.params['user'],password)
-        except:
-            print "FTP connexion error, abort."
-            return
-        print "Connected !"
+def list_files_in_dir(directory, file_ext_list):
+    "get list of files of particular extensions"
+    filelist = [os.path.normcase(f) for f in os.listdir(directory)]
+    return [os.path.join(directory, f) for f in filelist \
+            if os.path.splitext(f)[1] in file_ext_list]
 
-        try:
-            ftp.cwd(self.params['piwigo_dir'])
-            ftp.cwd('galleries')
-        except:
-            print "Error: wrong 'galleries' path"
+def read_params(config_file):
+    "Read params from a config file"
 
-        print "\nChoose the category in which your gallery will be uploaded:"
-        print "- enter a number to go in a sub-category"
-        print "- choose '.' for uploading in the current directory"
+    params = ConfigObj(config_file,file_error=True)
 
-        # choose upload dir
-        while 1:
-            i = 1
-            ftpdir = [f for f in ftp.nlst()
-                        if f not in self.params['fileExclude']]
-            print "\n"
-            for dir in ftpdir:
-                print "%i: %s" % (i,dir)
-                i += 1
+    # convert types
+    params["im_width"] = int(params["im_width"])
+    params["im_height"] = int(params["im_height"])
+    params["thumb_width"] = int(params["thumb_width"])
+    params["thumb_height"] = int(params["thumb_height"])
+    params["bigimg"] = int(params["bigimg"])
+    params["squarethumb"] = int(params["squarethumb"])
+    params["jpgquality"] = int(params["jpgquality"])
+    params["exif"] = int(params["exif"])
+    params["copyright"] = int(params["copyright"])
+    return params
 
-            try:
-                choice = int(raw_input("Enter directory number: ")) - 1
-                if ftpdir[choice] == '.': break
-                ftp.cwd(ftpdir[choice])
-            except:
-                print "Error: invalid choice"
 
-        print "Upload files to %s directory:" % self.galname
-        try:
-            ftp.mkd(self.galname)
-        except:
-            choice = raw_input("Directory exist, continue ? (y/[n]) ")
-            if choice != 'y':
-                ftp.close()
-                return
-
-        # upload images
-        ftp.cwd(self.galname)
-        self.fileUpload(ftp,imgFileList[0])
-
-        # upload thumbnails
-        try:
-            ftp.mkd(self.params['thumb_dir'])
-        except:
-            pass
-        ftp.cwd(self.params['thumb_dir'])
-        self.fileUpload(ftp,imgFileList[1])
-
-        # upload big images
-        if self.params['bigimg']:
-            ftp.cwd('..')
-            try:
-                ftp.mkd(self.params['bigimg_dir'])
-            except:
-                pass
-            ftp.cwd(self.params['bigimg_dir'])
-            self.fileUpload(ftp,imgFileList[2])
-
-        # close FTP connection
-        ftp.quit()
-
-    def fileUpload(self,ftp,imgFileList):
-        "Upload list of files in the current working directory of ftp"
-        for f in imgFileList:
-            print "Upload %s ..." % os.path.basename(f)
-            file = open(f, 'rb')
-            try:
-                ftp.storbinary('STOR '+os.path.basename(f), file)
-            except:
-                print "Tranfer error !"
-            file.close()
-
-    def listFilesInDir(self, directory):
-        "get list of files of particular extensions"
-        fileList = [os.path.normcase(f) for f in os.listdir(directory)]
-        return [os.path.join(directory, f) for f in fileList \
-                    if os.path.splitext(f)[1] in self.params['fileExtList']]
-
-    def readParams(self,configFile):
-        "Read params from a config file"
-        try:
-            print "Reading parameters ..."
-            self.params = ConfigObj(configFile,file_error=True)
-        except:
-            sys.exit("Config file not found, exiting ...")
-
-        # convert types
-        self.params["im_width"] = int(self.params["im_width"])
-        self.params["im_height"] = int(self.params["im_height"])
-        self.params["thumb_width"] = int(self.params["thumb_width"])
-        self.params["thumb_height"] = int(self.params["thumb_height"])
-        self.params["bigimg"] = int(self.params["bigimg"])
-        self.params["squarethumb"] = int(self.params["squarethumb"])
-        self.params["jpgquality"] = int(self.params["jpgquality"])
-        self.params["exif"] = int(self.params["exif"])
-        self.params["copyright"] = int(self.params["copyright"])
-
-if __name__ == "__main__":
+def main():
+    "main program"
     from optparse import OptionParser
 
+    # command line options
     usage = "usage: %prog [options]"
-    version="version %s, %s" % (__version__, __date__)
+    version = "version %s, %s" % (__version__, __date__)
+
     parser = OptionParser(usage=usage, version="%prog "+version)
 
     parser.add_option("-c", "--config", dest="config",
                       help="specify an alternative config file")
+
     parser.add_option("-i", "--imgpath", dest="imgpath",
                       help="specify images path")
 
     (options, args) = parser.parse_args()
 
-    if options.config:
-        gallery = pywiUpload(conf=options.config)
-    else:
-        gallery = pywiUpload()
+    # read params from config file
+    config_file = options.config if options.config \
+                  else os.path.join(sys.path[0], 'pywiUpload.conf')
 
-    if options.imgpath:
-        path = options.imgpath
-    else:
-        path = os.getcwd()
+    print "Reading parameters ..."
+    params = read_params(config_file)
 
-    gallery.createGallery(path)
+    # create gallery
+    gallery = PywiUpload(params)
 
-    print "Finished !\n"
+    path = options.imgpath if options.imgpath else os.getcwd()
+    (galleryname, out_filelist) = gallery.create_gallery(path)
+
+    # upload
+    if raw_input("Upload images to your FTP server ? (y/[n]) ") == 'y':
+        ftp = FtpUpload(params["host"], params["user"], \
+                        params["piwigo_dir"] + '/galleries')
+        if params["bigimg"]:
+            ftp.upload(out_filelist, galleryname, params["thumb_dir"],
+                        params["bigimg_dir"])
+        else:
+            ftp.upload(out_filelist, galleryname, params["thumb_dir"])
+        ftp.close()
+
+    return 0
+
+
+if __name__ == '__main__':
+    status = main()
+    sys.exit(status)
