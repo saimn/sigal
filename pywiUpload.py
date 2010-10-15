@@ -24,9 +24,9 @@ This script resize images, create thumbnails with some options
 """
 
 __author__ = "Saimon (contact at saimon.org)"
-__version__ = "0.7"
-__date__ = "20090628"
-__copyright__ = "Copyright (c) 2009 saimon.org"
+__version__ = "0.8"
+__date__ = "20100722"
+__copyright__ = "Copyright (C) 2009 saimon.org"
 __license__ = "GPL"
 
 import os
@@ -156,7 +156,7 @@ class PywiUpload:
 
         return [out_imglist, out_thumblist, out_bigimglist]
 
-    def process_exif(self, src, dst):
+    def process_exif(self, srcfile, dstfile):
         "copy exif metadatas from src to dest images"
         try:
             import pyexiv2
