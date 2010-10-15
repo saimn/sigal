@@ -1,0 +1,62 @@
+===================================================
+pywiUpload - Prepare a gallery of images for Piwigo
+===================================================
+
+This Python script prepares a gallery of images for Piwigo gallery
+script (see http://www.piwigo.org/). It resizes images, creates
+thumbnails with some options (rename images, squared thumbs, ...), and
+upload images to a FTP server.
+
+Dependencies
+------------
+
+- Python Imaging Library (PIL) 
+- exiv2 (for exif datas)
+- ConfigObj
+
+on Ubuntu:
+    > sudo apt-get install python-imaging python-pyexiv2 python-configobj
+
+on Fedora (as root):
+    > yum install python-imaging pyexiv2 ?
+
+The script should also work on other system (Windows, Mac) but this has not be
+tested yet.
+
+Installation
+------------
+
+- unzip files where you want
+
+Usage
+-----
+
+go in the directory of images to process and launch the script:
+    > cd /path/to/images
+    > python /path/to/pywiUpload/pywiUpload.py
+
+Options:
+- launch the script with the directory of images to process in argument:
+    > cd /path/to/pywiUpload/
+    > python pywiUpload.py -i /path/to/images
+- you can also provides a config file (useful if you have different settings)
+    > cd /path/to/pywiUpload/
+    > python pywiUpload.py -c mypywiUpload.conf -i /path/to/images
+
+Settings
+--------
+
+Adapt setting to your needs in the configuration file (pywiUpload.conf):
+- Size of images and thumbnails
+- JPG quality
+- Thumbnails prefix
+- FTP parameters
+
+Options
+-------
+
+Some features are optionnal (1=enable / 0=disable):
+- Add a copyright on the images
+- Keep big images
+- Keep exif datas
+- Make squared thumbnails
