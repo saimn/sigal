@@ -23,7 +23,7 @@ This script resize images, create thumbnails with some options
 (rename images, squared thumbs, ...), and upload images to a FTP server.
 """
 
-__author__ = "Saimon (contact at saimon.org)"
+__author__ = "Saimon (contact at saimon dot org)"
 __version__ = "0.8"
 __date__ = "20100722"
 __copyright__ = "Copyright (C) 2009 saimon.org"
@@ -34,7 +34,7 @@ import sys
 import Image
 import ImageDraw
 from configobj import ConfigObj
-from ftp import FtpUpload
+from lib.ftp import FtpUpload
 
 class PywiUpload:
     "Prepare a gallery of images for Piwigo"
