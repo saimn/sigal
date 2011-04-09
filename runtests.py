@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 
 # pywiUpload - Piwigo gallery generator
-# Copyright (C) 2009-2010 - saimon.org
+# Copyright (C) 2009-2011 - saimon.org
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ additionnal information for debugging purpose.
 import os
 import sys
 import pywiUpload
-from lib.image import Gallery
+from pywiupload.image import Gallery
 
 if __name__ == '__main__':
     # read params from config file

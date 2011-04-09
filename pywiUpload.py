@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 
 # pywiUpload - Piwigo gallery generator
-# Copyright (C) 2009 - saimon.org
+# Copyright (C) 2009-2011 - saimon.org
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,8 +33,8 @@ import os
 import sys
 from configobj import ConfigObj
 from optparse import OptionParser
-from lib.ftp import FtpUpload
-from lib.image import Gallery
+from pywiupload.ftp import FtpUpload
+from pywiupload.image import Gallery
 
 
 def read_params(config_file):
