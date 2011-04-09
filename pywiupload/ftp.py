@@ -1,8 +1,8 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 # -*- coding:utf-8 -*-
 
 # pywiUpload - Piwigo gallery generator
-# Copyright (C) 2009 - saimon.org
+# Copyright (C) 2009, 2011 - saimon.org
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
