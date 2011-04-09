@@ -66,6 +66,8 @@ def main():
 
     parser.add_option("-c", "--config", dest="config",
                       help="specify an alternative config file")
+    parser.add_option("-f", "--ftp-upload", dest="ftp_upload",
+                      help="upload file using ftp")
 
     (options, args) = parser.parse_args()
 
@@ -96,7 +98,8 @@ def main():
     out_filelist = gallery.create_gallery(input_dir, output_dir)
 
     # upload
-    if raw_input("Upload images to your FTP server ? (y/[n]) ") == 'y':
+    if options.ftp_upload:
+        galleryname = raw_input("Enter directory name :")
         ftp = FtpUpload(params["host"], params["user"], \
                         params["piwigo_dir"] + '/galleries')
         if params["bigimg"]:
