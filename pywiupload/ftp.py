@@ -36,6 +36,7 @@ class FtpUpload:
         self.ftp = ftplib.FTP(host, user, password)
         self.ftp.cwd(basedir)
 
+    # FIXME: galname
     def upload(self, imgfilelist, galname, thumb_dir, bigimg_dir=None):
         "Upload images to a FTP server"
 

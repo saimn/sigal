@@ -34,7 +34,6 @@ class Gallery:
 
     def __init__(self, params):
         self.filepath = ""
-        self.galname = ""
         self.params = params
 
     def getpath(self, pathname):
@@ -42,18 +41,14 @@ class Gallery:
         return os.path.join(self.filepath, self.params[pathname]) \
                 if self.params.has_key(pathname) else ""
 
-    def create_gallery(self, path):
+    def create_gallery(self, input_dir, output_dir):
         "create image gallery"
-        imglist = get_filelist(path, self.params['fileExtList'])
-        print "Found %i images in %s" % (len(imglist), path)
+        imglist = get_filelist(input_dir, self.params['fileExtList'])
+        print "Found %i images in %s" % (len(imglist), input_dir)
 
-        while self.galname == "":
-            self.galname = raw_input('Enter gallery name: ')
+        self.filepath = output_dir
 
-        self.filepath = os.path.join(os.path.dirname(imglist[0]),
-                                                     self.galname)
-
-        print "Create output dir ..."
+        print "Create output directories ..."
         try:
             os.makedirs(self.getpath('thumb_dir'))
         except OSError:
@@ -65,7 +60,7 @@ class Gallery:
             except OSError:
                 pass
 
-        return (self.galname, self.process_images(imglist))
+        return self.process_images(imglist)
 
     def process_images(self, imglist):
         "prepare images"

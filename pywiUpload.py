@@ -59,7 +59,7 @@ def main():
     "main program"
 
     # command line options
-    usage = "usage: %prog [options]"
+    usage = "usage: %prog [options] inputdir outputdir"
     version = "version %s, %s" % (__version__, __date__)
 
     parser = OptionParser(usage=usage, version="%prog "+version)
@@ -67,10 +67,22 @@ def main():
     parser.add_option("-c", "--config", dest="config",
                       help="specify an alternative config file")
 
-    parser.add_option("-i", "--imgpath", dest="imgpath",
-                      help="specify images path")
-
     (options, args) = parser.parse_args()
+
+    if len(args) != 2:
+        parser.print_help()
+        sys.exit()
+
+    input_dir = args[0]
+    output_dir = args[1]
+
+    if not os.path.isdir(input_dir):
+        print "Directory %s does not exist." % input_dir
+        sys.exit(1)
+
+    if not os.path.isdir(output_dir):
+        print "Create %s" % output_dir
+        os.makedirs(output_dir)
 
     # read params from config file
     config_file = options.config if options.config \
@@ -81,9 +93,7 @@ def main():
 
     # create gallery
     gallery = Gallery(params)
-
-    path = options.imgpath if options.imgpath else os.getcwd()
-    (galleryname, out_filelist) = gallery.create_gallery(path)
+    out_filelist = gallery.create_gallery(input_dir, output_dir)
 
     # upload
     if raw_input("Upload images to your FTP server ? (y/[n]) ") == 'y':
