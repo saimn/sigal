@@ -12,13 +12,12 @@ Dependencies
 
 - Python Imaging Library (PIL)
 - exiv2 (for exif datas)
-- ConfigObj
 
 on Ubuntu :
-    > sudo apt-get install python-imaging python-pyexiv2 python-configobj
+    > sudo apt-get install python-imaging python-pyexiv2
 
 on Fedora :
-    > yum install python-imaging pyexiv2 python-configobj
+    > yum install python-imaging pyexiv2
 
 The script should also work on other system (Windows, Mac) but this has not be
 tested yet.

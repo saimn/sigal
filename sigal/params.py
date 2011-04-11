@@ -32,7 +32,7 @@ CONFIGDEFAULTS = {
     'square_thumb': 1,
     'jpg_quality': 90,
     'exif': 1,
-    'copyright': 0,
+    'copyright': '',
     'thumb_dir': "thumbnail",
     'bigimg_dir': "pwg_high",
     'fileExtList': ".jpg,.jpeg,.JPG,.JPEG,.png"

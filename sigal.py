@@ -44,8 +44,10 @@ def main():
 
     parser = OptionParser(usage=usage, version="%prog "+version)
 
-    # parser.add_option("-c", "--config", dest="config",
-    #                   help="specify an alternative config file")
+    parser.add_option("-c", "--copyright", dest="copyright",
+                      help="copyright message added to the images")
+    parser.add_option("-r", "--rename", dest="rename",
+                      help="rename files - specify the basename for renaming")
 
     (options, args) = parser.parse_args()
 
@@ -60,16 +62,19 @@ def main():
         print "Directory %s does not exist." % input_dir
         sys.exit(1)
 
-    if not os.path.isdir(output_dir):
-        print "Create %s" % output_dir
-        os.makedirs(output_dir)
+    # if not os.path.isdir(output_dir):
+    #     print "Create %s" % output_dir
+    #     os.makedirs(output_dir)
 
     print ":: Reading parameters ..."
     params = read_params(input_dir)
 
+    if options.copyright:
+        params.set('sigal', 'copyright', options.copyright)
+
     # create gallery
     gallery = Gallery(params)
-    out_filelist = gallery.create_gallery(input_dir, output_dir)
+    out_filelist = gallery.build(input_dir, output_dir)
 
     return 0
 

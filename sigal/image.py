@@ -30,7 +30,7 @@ from utils import get_filelist
 
 
 class Gallery:
-    "Prepare a gallery of images for Piwigo"
+    "Prepare a gallery of images"
 
     def __init__(self, params):
         self.imsize = self.getsize(params.get('sigal', 'img_size'))
@@ -44,7 +44,7 @@ class Gallery:
 
         self.jpgquality = params.getint('sigal', 'jpg_quality')
         self.exif = params.getint('sigal', 'exif')
-        self.copyright = params.getint('sigal', 'copyright')
+        self.copyright = params.get('sigal', 'copyright')
         self.fileExtList = params.get('sigal', 'fileExtList')
 
     def getsize(self, string):
@@ -53,7 +53,7 @@ class Gallery:
             size[0], size[1] = size[1], size[0]
         return tuple(size)
 
-    def create_gallery(self, input_dir, output_dir):
+    def build(self, input_dir, output_dir):
         "create image gallery"
         imglist = get_filelist(input_dir, self.fileExtList)
         print "Found %i images in %s" % (len(imglist), input_dir)
@@ -70,7 +70,15 @@ class Gallery:
         except OSError:
             pass
 
+        if self.copyright:
+            self.copyright = '\xa9 ' + self.copyright
+
         return self.process_images(imglist)
+
+    def add_copyright(self, img):
+        "add copyright to image"
+        draw = ImageDraw.Draw(img)
+        draw.text((5, img.size[1]-15), self.copyright)
 
     def process_images(self, imglist):
         "prepare images"
@@ -84,10 +92,6 @@ class Gallery:
             count = 1
             imgname = raw_input('Enter new image name: ')
             nfill = 2 if (len(imglist)<100) else 3
-
-        if self.copyright:
-            copyrightmsg = raw_input('Enter copyright message: ')
-            copyrightmsg = '\xa9 ' + copyrightmsg
 
         # loop on images
         for f in imglist:
@@ -130,10 +134,8 @@ class Gallery:
 
             im.thumbnail(thumb_size, Image.ANTIALIAS)
 
-            # copyright
             if self.copyright:
-                draw = ImageDraw.Draw(im2)
-                draw.text((5, im2.size[1]-15), copyrightmsg)
+                self.add_copyright(im2)
 
             # save
             im.save(os.path.join(self.thumb_dir, self.thumb_prefix+filename),
