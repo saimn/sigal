@@ -31,29 +31,10 @@ __license__ = "GPL"
 
 import os
 import sys
-from configobj import ConfigObj
 from optparse import OptionParser
 from sigal.ftp import FtpUpload
 from sigal.image import Gallery
-
-
-def read_params(config_file):
-    "Read params from a config file"
-
-    params = ConfigObj(config_file,file_error=True)
-
-    # convert types
-    params["im_width"] = int(params["im_width"])
-    params["im_height"] = int(params["im_height"])
-    params["thumb_width"] = int(params["thumb_width"])
-    params["thumb_height"] = int(params["thumb_height"])
-    params["bigimg"] = int(params["bigimg"])
-    params["squarethumb"] = int(params["squarethumb"])
-    params["jpgquality"] = int(params["jpgquality"])
-    params["exif"] = int(params["exif"])
-    params["copyright"] = int(params["copyright"])
-    return params
-
+from sigal.params import read_params
 
 def main():
     "main program"

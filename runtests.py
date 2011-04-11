@@ -25,15 +25,15 @@ additionnal information for debugging purpose.
 
 import os
 import sys
-import sigal
 from sigal.image import Gallery
+from sigal.params import read_params
 
 if __name__ == '__main__':
     # read params from config file
     config_file = os.path.join(sys.path[0], 'sigal.conf')
 
     print ":: Reading parameters ..."
-    params = sigal.read_params(config_file)
+    params = read_params(config_file)
 
     print "\n".join(["%s=%s" % (k, v) for k, v in params.items()])
     print "\n"
