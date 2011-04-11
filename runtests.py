@@ -29,14 +29,13 @@ from sigal.image import Gallery
 from sigal.params import read_params
 
 if __name__ == '__main__':
-    # read params from config file
-    config_file = os.path.join(sys.path[0], 'sigal.conf')
-
     print ":: Reading parameters ..."
-    params = read_params(config_file)
+    params = read_params("./test")
 
-    print "\n".join(["%s=%s" % (k, v) for k, v in params.items()])
-    print "\n"
+    print ":: params :"
+    print params.items('sigal')
+    # print "\n".join(["%s=%s" % (k, v) for k, v in params.items()])
+    # print "\n"
 
     # create gallery
     gallery = Gallery(params)

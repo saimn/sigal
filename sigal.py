@@ -44,8 +44,8 @@ def main():
 
     parser = OptionParser(usage=usage, version="%prog "+version)
 
-    parser.add_option("-c", "--config", dest="config",
-                      help="specify an alternative config file")
+    # parser.add_option("-c", "--config", dest="config",
+    #                   help="specify an alternative config file")
 
     (options, args) = parser.parse_args()
 
@@ -64,12 +64,8 @@ def main():
         print "Create %s" % output_dir
         os.makedirs(output_dir)
 
-    # read params from config file
-    config_file = options.config if options.config \
-                  else os.path.join(sys.path[0], 'sigal.conf')
-
-    print "Reading parameters ..."
-    params = read_params(config_file)
+    print ":: Reading parameters ..."
+    params = read_params(input_dir)
 
     # create gallery
     gallery = Gallery(params)

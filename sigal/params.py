@@ -19,21 +19,35 @@
 
 """Parameters utils"""
 
-from configobj import ConfigObj
+import os
+import ConfigParser
 
-def read_params(config_file):
+CONFIGFILE = '~/.sigal/config'
+SOURCEDIR_CONFIGFILE = 'sigal.conf'
+CONFIGDEFAULTS = {
+    'img_size': '640x480',
+    'thumb_prefix': '',
+    'thumb_size': '150x112',
+    'big_img': 1,
+    'square_thumb': 1,
+    'jpg_quality': 90,
+    'exif': 1,
+    'copyright': 0,
+    'thumb_dir': "thumbnail",
+    'bigimg_dir': "pwg_high",
+    'fileExtList': ".jpg,.jpeg,.JPG,.JPEG,.png"
+    }
+
+def read_params(source_dir):
     "Read params from a config file"
 
-    params = ConfigObj(config_file,file_error=True)
+    # Read configuration file
+    config = ConfigParser.ConfigParser(defaults = CONFIGDEFAULTS)
+    config.read(os.path.expanduser(CONFIGFILE))
 
-    # convert types
-    params["im_width"] = int(params["im_width"])
-    params["im_height"] = int(params["im_height"])
-    params["thumb_width"] = int(params["thumb_width"])
-    params["thumb_height"] = int(params["thumb_height"])
-    params["bigimg"] = int(params["bigimg"])
-    params["squarethumb"] = int(params["squarethumb"])
-    params["jpgquality"] = int(params["jpgquality"])
-    params["exif"] = int(params["exif"])
-    params["copyright"] = int(params["copyright"])
-    return params
+    # Load a config file in the source_dir root
+    sourcedir_configfile = os.path.join(source_dir, SOURCEDIR_CONFIGFILE)
+    if os.path.isfile(sourcedir_configfile):
+        config.read(sourcedir_configfile)
+
+    return config

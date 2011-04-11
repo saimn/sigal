@@ -33,32 +33,42 @@ class Gallery:
     "Prepare a gallery of images for Piwigo"
 
     def __init__(self, params):
-        self.filepath = ""
-        self.params = params
+        self.imsize = self.getsize(params.get('sigal', 'img_size'))
+        self.bigimg = params.getint('sigal', 'big_img')
+        self.bigimg_dir = params.get('sigal', 'bigimg_dir')
 
-    def getpath(self, pathname):
-        "return abslolute path from params dict"
-        return os.path.join(self.filepath, self.params[pathname]) \
-                if self.params.has_key(pathname) else ""
+        self.thumb_size = self.getsize(params.get('sigal', 'thumb_size'))
+        self.thumb_dir = params.get('sigal', 'thumb_dir')
+        self.thumb_prefix = params.get('sigal', 'thumb_prefix')
+        self.square_thumb = params.getint('sigal', 'square_thumb')
+
+        self.jpgquality = params.getint('sigal', 'jpg_quality')
+        self.exif = params.getint('sigal', 'exif')
+        self.copyright = params.getint('sigal', 'copyright')
+        self.fileExtList = params.get('sigal', 'fileExtList')
+
+    def getsize(self, string):
+        size = [int(i) for i in string.split("x")]
+        if size[1] > size[0]:
+            size[0], size[1] = size[1], size[0]
+        return tuple(size)
 
     def create_gallery(self, input_dir, output_dir):
         "create image gallery"
-        imglist = get_filelist(input_dir, self.params['fileExtList'])
+        imglist = get_filelist(input_dir, self.fileExtList)
         print "Found %i images in %s" % (len(imglist), input_dir)
 
-        self.filepath = output_dir
+        self.output_dir = output_dir
+        self.bigimg_dir = os.path.join(self.output_dir, self.bigimg_dir)
+        self.thumb_dir = os.path.join(self.output_dir, self.thumb_dir)
 
         print "Create output directories ..."
         try:
-            os.makedirs(self.getpath('thumb_dir'))
+            os.makedirs(self.thumb_dir)
+            if self.bigimg:
+                os.mkdir(self.bigimg_dir)
         except OSError:
             pass
-
-        if self.params['bigimg']:
-            try:
-                os.mkdir(self.getpath('bigimg_dir'))
-            except OSError:
-                pass
 
         return self.process_images(imglist)
 
@@ -75,7 +85,7 @@ class Gallery:
             imgname = raw_input('Enter new image name: ')
             nfill = 2 if (len(imglist)<100) else 3
 
-        if self.params['copyright']:
+        if self.copyright:
             copyrightmsg = raw_input('Enter copyright message: ')
             copyrightmsg = '\xa9 ' + copyrightmsg
 
@@ -91,21 +101,19 @@ class Gallery:
             else:
                 print "%s" % filename
 
-            if self.params['bigimg']:
-                im.save(os.path.join(self.getpath('bigimg_dir'), filename),
-                        quality=self.params['jpgquality'])
-                out_bigimglist.append(os.path.join(self.getpath('bigimg_dir'),
-                                                  filename))
+            if self.bigimg:
+                im.save(os.path.join(self.bigimg_dir, filename),
+                        quality=self.jpgquality)
+                out_bigimglist.append(os.path.join(self.bigimg_dir, filename))
 
             # resize image
             if im.size[0] > im.size[1]:
-                im_size = (self.params['im_width'], self.params['im_height'])
+                im2 = im.resize(self.imsize, Image.ANTIALIAS)
             else:
-                im_size = (self.params['im_height'], self.params['im_width'])
-            im2 = im.resize(im_size, Image.ANTIALIAS)
+                im2 = im.resize([self.imsize[1], self.imsize[0]], Image.ANTIALIAS)
 
             # create thumbnail
-            if self.params['squarethumb']:
+            if self.square_thumb:
                 if im.size[0] > im.size[1]:
                     offset = (im.size[0] - im.size[1])/2
                     box = (offset, 0, im.size[0]-offset, im.size[1])
@@ -114,33 +122,31 @@ class Gallery:
                     box = (0, offset, im.size[0], im.size[1]-offset)
 
                 im = im.crop(box)
-                thumbsize = (self.params['thumb_width'],
-                             self.params['thumb_width'])
+                thumb_size = [self.thumb_size[0], self.thumb_size[0]]
+            elif im.size[0] > im.size[1]:
+                thumb_size = self.thumb_size
             else:
-                thumbsize = (self.params['thumb_width'],
-                             self.params['thumb_height'])
+                thumb_size = [self.thumb_size[1], self.thumb_size[0]]
 
-            im.thumbnail(thumbsize, Image.ANTIALIAS)
+            im.thumbnail(thumb_size, Image.ANTIALIAS)
 
             # copyright
-            if self.params['copyright']:
+            if self.copyright:
                 draw = ImageDraw.Draw(im2)
                 draw.text((5, im2.size[1]-15), copyrightmsg)
 
             # save
-            im.save(os.path.join(self.getpath('thumb_dir'),
-                                 self.params['thumb_prefix']+filename),
-                    quality=self.params['jpgquality'])
-            im2.save(os.path.join(self.filepath, filename),
-                     quality=self.params['jpgquality'])
+            im.save(os.path.join(self.thumb_dir, self.thumb_prefix+filename),
+                    quality=self.jpgquality)
+            im2.save(os.path.join(self.output_dir, filename),
+                     quality=self.jpgquality)
 
-            out_thumblist.append(os.path.join(self.getpath('thumb_dir'),
-                                             self.params['thumb_prefix']+
-                                             filename))
-            out_imglist.append(os.path.join(self.filepath, filename))
+            out_thumblist.append(os.path.join(self.thumb_dir,
+                                             self.thumb_prefix+filename))
+            out_imglist.append(os.path.join(self.output_dir, filename))
 
-            if self.params['exif']:
-                self.process_exif(f, os.path.join(self.filepath, filename))
+            if self.exif:
+                self.process_exif(f, os.path.join(self.output_dir, filename))
 
         return [out_imglist, out_thumblist, out_bigimglist]
 
@@ -149,7 +155,7 @@ class Gallery:
         try:
             import pyexiv2
         except ImportError:
-            self.params['exif'] = 0
+            self.exif = 0
             print "Error: install pyexiv2 module to use exif metadatas."
             return
 
