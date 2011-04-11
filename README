@@ -3,7 +3,7 @@ sigal - simple gallery generator
 
 This python script prepares a gallery of images for [Piwigo]() gallery script.
 It resizes images, creates thumbnails with some options (rename images,
-squared thumbs, ...), and upload images to a FTP server.
+squared thumbs, ...).
 
 [Piwigo]: http://www.piwigo.org/
 
@@ -36,7 +36,6 @@ Adapt setting to your needs in the configuration file (`sigal.conf`):
 - Size of images and thumbnails
 - JPG quality
 - Thumbnails prefix
-- FTP parameters
 
 Options
 -------

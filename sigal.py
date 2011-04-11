@@ -20,19 +20,18 @@
 """Prepare and upload a gallery of images for Piwigo
 
 This script resize images, create thumbnails with some options
-(rename images, squared thumbs, ...), and upload images to a FTP server.
+(rename images, squared thumbs, ...).
 """
 
 __author__ = "Saimon (contact at saimon dot org)"
-__version__ = "0.8"
-__date__ = "20100722"
-__copyright__ = "Copyright (C) 2009 - saimon.org"
+__version__ = "0.1-dev"
+__date__ = "20110411"
+__copyright__ = "Copyright (C) 2009-2011 - saimon.org"
 __license__ = "GPL"
 
 import os
 import sys
 from optparse import OptionParser
-from sigal.ftp import FtpUpload
 from sigal.image import Gallery
 from sigal.params import read_params
 
@@ -47,8 +46,6 @@ def main():
 
     parser.add_option("-c", "--config", dest="config",
                       help="specify an alternative config file")
-    parser.add_option("-f", "--ftp-upload", dest="ftp_upload",
-                      help="upload file using ftp")
 
     (options, args) = parser.parse_args()
 
@@ -77,18 +74,6 @@ def main():
     # create gallery
     gallery = Gallery(params)
     out_filelist = gallery.create_gallery(input_dir, output_dir)
-
-    # upload
-    if options.ftp_upload:
-        galleryname = raw_input("Enter directory name :")
-        ftp = FtpUpload(params["host"], params["user"], \
-                        params["piwigo_dir"] + '/galleries')
-        if params["bigimg"]:
-            ftp.upload(out_filelist, galleryname, params["thumb_dir"],
-                        params["bigimg_dir"])
-        else:
-            ftp.upload(out_filelist, galleryname, params["thumb_dir"])
-        ftp.close()
 
     return 0
 
