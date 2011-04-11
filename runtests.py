@@ -1,7 +1,7 @@
 #! /usr/bin/env python2
 # -*- coding:utf-8 -*-
 
-# pywiUpload - Piwigo gallery generator
+# sigal - Piwigo gallery generator
 # Copyright (C) 2009-2011 - saimon.org
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; If not, see http://www.gnu.org/licenses/
 
-"""Run tests for pywiUpload
+"""Run tests for sigal
 
 This script allows to test quickly the creation of a gallery, and prints
 additionnal information for debugging purpose.
@@ -25,15 +25,15 @@ additionnal information for debugging purpose.
 
 import os
 import sys
-import pywiUpload
-from pywiupload.image import Gallery
+import sigal
+from sigal.image import Gallery
 
 if __name__ == '__main__':
     # read params from config file
-    config_file = os.path.join(sys.path[0], 'pywiUpload.conf')
+    config_file = os.path.join(sys.path[0], 'sigal.conf')
 
     print ":: Reading parameters ..."
-    params = pywiUpload.read_params(config_file)
+    params = sigal.read_params(config_file)
 
     print "\n".join(["%s=%s" % (k, v) for k, v in params.items()])
     print "\n"

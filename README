@@ -1,7 +1,7 @@
-pywiUpload - Prepare a gallery of images for Piwigo
-===================================================
+sigal - simple gallery generator
+================================
 
-This Python script prepares a gallery of images for [Piwigo]() gallery script.
+This python script prepares a gallery of images for [Piwigo]() gallery script.
 It resizes images, creates thumbnails with some options (rename images,
 squared thumbs, ...), and upload images to a FTP server.
 
@@ -14,39 +14,25 @@ Dependencies
 - exiv2 (for exif datas)
 - ConfigObj
 
-on Ubuntu:
+on Ubuntu :
     > sudo apt-get install python-imaging python-pyexiv2 python-configobj
 
-on Fedora (as root):
+on Fedora :
     > yum install python-imaging pyexiv2 python-configobj
 
 The script should also work on other system (Windows, Mac) but this has not be
 tested yet.
 
-Installation
-------------
-
-- unzip files where you want
-
 Usage
 -----
 
 go in the directory of images to process and launch the script:
-    > cd /path/to/images
-    > /path/to/pywiUpload/pywiUpload.py
-
-Options:
-- launch the script with the directory of images to process in argument:
-    > cd /path/to/pywiUpload/
-    > ./pywiUpload.py -i /path/to/images
-- you can also provides a config file (useful if you have different settings)
-    > cd /path/to/pywiUpload/
-    > ./pywiUpload.py -c mypywiUpload.conf -i /path/to/images
+    > /path/to/sigal/sigal.py input_dir output_dir
 
 Settings
 --------
 
-Adapt setting to your needs in the configuration file (`pywiUpload.conf`):
+Adapt setting to your needs in the configuration file (`sigal.conf`):
 - Size of images and thumbnails
 - JPG quality
 - Thumbnails prefix

@@ -1,7 +1,7 @@
 #! /usr/bin/env python2
 # -*- coding:utf-8 -*-
 
-# pywiUpload - Piwigo gallery generator
+# sigal - Piwigo gallery generator
 # Copyright (C) 2009-2011 Simon - saimon.org
 #
 # This program is free software; you can redistribute it and/or modify
