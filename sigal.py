@@ -72,7 +72,7 @@ def main():
 
     # create gallery
     gallery = Gallery(params)
-    out_filelist = gallery.build(input_dir, output_dir)
+    gallery.build(input_dir, output_dir)
 
     return 0
 

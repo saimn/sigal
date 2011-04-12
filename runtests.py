@@ -39,11 +39,10 @@ if __name__ == '__main__':
 
     # create gallery
     gallery = Gallery(params)
+    gallery.build("./test", "./output")
 
-    filelist = gallery.build("./test", "./output")
-
-    print "images     : %s" % filelist[0]
-    print "thumbnails : %s" % filelist[1]
-    print "big images : %s" % filelist[2]
+    # print "images     : %s" % filelist[0]
+    # print "thumbnails : %s" % filelist[1]
+    # print "big images : %s" % filelist[2]
 
     sys.exit(0)

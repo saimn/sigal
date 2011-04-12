@@ -27,13 +27,6 @@ import Image
 import ImageDraw
 
 
-def get_filelist(directory, extensions):
-    "get list of files of particular extensions"
-    filelist = [os.path.normcase(f) for f in os.listdir(directory)]
-    return [os.path.join(directory, f) for f in filelist \
-            if os.path.splitext(f)[1] in extensions]
-
-
 class Gallery:
     "Prepare a gallery of images"
 
@@ -53,44 +46,54 @@ class Gallery:
         self.fileExtList = params.get('sigal', 'fileExtList')
 
     def getsize(self, string):
+        "split size string to a tuple of int"
         size = [int(i) for i in string.split("x")]
         if size[1] > size[0]:
             size[0], size[1] = size[1], size[0]
         return tuple(size)
 
+    def get_filelist(self):
+        "get the list of directories with files of particular extensions"
+        for dirpath, dirnames, filenames in os.walk(self.input_dir):
+            # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
+            imglist = [os.path.join(dirpath, f) for f in filenames \
+                       if os.path.splitext(f)[1] in self.fileExtList]
+            if len(imglist) != 0:
+                yield dirpath, dirnames, imglist
+
     def build(self, input_dir, output_dir):
         "create image gallery"
-        imglist = get_filelist(input_dir, self.fileExtList)
-        print "Found %i images in %s" % (len(imglist), input_dir)
 
-        self.output_dir = output_dir
-        self.bigimg_dir = os.path.join(self.output_dir, self.bigimg_dir)
-        self.thumb_dir = os.path.join(self.output_dir, self.thumb_dir)
-
-        print "Create output directories ..."
-        try:
-            os.makedirs(self.thumb_dir)
-            if self.bigimg:
-                os.mkdir(self.bigimg_dir)
-        except OSError:
-            pass
+        self.input_dir = os.path.abspath(input_dir)
+        self.output_dir = os.path.abspath(output_dir)
 
         if self.copyright:
             self.copyright = '\xa9 ' + self.copyright
 
-        return self.process_images(imglist)
+        # loop on directories
+        for dirpath, dirnames, imglist in self.get_filelist():
+            print "%s / %i images" % (dirpath, len(imglist))
 
-    def add_copyright(self, img):
-        "add copyright to image"
-        draw = ImageDraw.Draw(img)
-        draw.text((5, img.size[1]-15), self.copyright)
+            img_dir = dirpath.replace(self.input_dir, self.output_dir)
+            thumb_dir = os.path.join(img_dir, self.thumb_dir)
 
-    def process_images(self, imglist):
+            try:
+                os.makedirs(thumb_dir)
+            except OSError:
+                pass
+
+            if self.bigimg:
+                bigimg_dir = os.path.join(img_dir, self.bigimg_dir)
+                try:
+                    os.mkdir(bigimg_dir)
+                except OSError:
+                    pass
+
+            self.process_images(imglist, img_dir, thumb_dir, bigimg_dir=bigimg_dir)
+
+    def process_images(self, imglist, img_dir, thumb_dir, bigimg_dir=''):
         "prepare images"
-        imglist.sort()
-        out_imglist = []
-        out_thumblist = []
-        out_bigimglist = []
+        # imglist.sort()
 
         # loop on images
         for f in imglist:
@@ -99,9 +102,8 @@ class Gallery:
             print "%s" % filename
 
             if self.bigimg:
-                bigimg_name = os.path.join(self.bigimg_dir, filename)
-                im.save(bigimg_name, quality=self.jpgquality)
-                out_bigimglist.append(bigimg_name)
+                im.save(os.path.join(bigimg_dir, filename),
+                        quality=self.jpgquality)
 
             # resize image
             if im.size[0] > im.size[1]:
@@ -131,18 +133,20 @@ class Gallery:
                 self.add_copyright(im2)
 
             # save
-            thumb_name = os.path.join(self.thumb_dir, self.thumb_prefix+filename)
-            im_name = os.path.join(self.output_dir, filename)
-            im.save(thumb_name, quality=self.jpgquality)
-            im2.save(im_name, quality=self.jpgquality)
+            im.save(os.path.join(thumb_dir, self.thumb_prefix+filename),
+                    quality=self.jpgquality)
 
-            out_thumblist.append(thumb_name)
-            out_imglist.append(im_name)
+            im_name = os.path.join(img_dir, filename)
+            im2.save(im_name, quality=self.jpgquality)
 
             if self.exif:
                 self.copy_exif(f, im_name)
 
-        return [out_imglist, out_thumblist, out_bigimglist]
+
+    def add_copyright(self, img):
+        "add copyright to image"
+        draw = ImageDraw.Draw(img)
+        draw.text((5, img.size[1]-15), self.copyright)
 
     def copy_exif(self, srcfile, dstfile):
         "copy exif metadatas from src to dest images"
