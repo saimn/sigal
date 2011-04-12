@@ -20,7 +20,7 @@
 """Prepare and upload a gallery of images for Piwigo
 
 This script resize images, create thumbnails with some options
-(rename images, squared thumbs, ...).
+(squared thumbs, ...).
 """
 
 __author__ = "Saimon (contact at saimon dot org)"
@@ -46,8 +46,6 @@ def main():
 
     parser.add_option("-c", "--copyright", dest="copyright",
                       help="copyright message added to the images")
-    parser.add_option("-r", "--rename", dest="rename",
-                      help="rename files - specify the basename for renaming")
 
     (options, args) = parser.parse_args()
 

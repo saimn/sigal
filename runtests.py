@@ -40,7 +40,7 @@ if __name__ == '__main__':
     # create gallery
     gallery = Gallery(params)
 
-    filelist = gallery.build("./test", "./test/output")
+    filelist = gallery.build("./test", "./output")
 
     print "images     : %s" % filelist[0]
     print "thumbnails : %s" % filelist[1]

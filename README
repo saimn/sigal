@@ -2,8 +2,7 @@ sigal - simple gallery generator
 ================================
 
 This python script prepares a gallery of images for [Piwigo]() gallery script.
-It resizes images, creates thumbnails with some options (rename images,
-squared thumbs, ...).
+It resizes images, creates thumbnails with some options (squared thumbs, ...).
 
 [Piwigo]: http://www.piwigo.org/
 

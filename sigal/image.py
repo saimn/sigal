@@ -19,8 +19,7 @@
 
 """Create a gallery of images.
 
-Resize images, create thumbnails with some options (rename images, squared
-thumbs, ...).
+Resize images, create thumbnails with some options (squared thumbs, ...).
 """
 
 import os
@@ -87,28 +86,16 @@ class Gallery:
         out_thumblist = []
         out_bigimglist = []
 
-        imrename = raw_input("Rename images ('name01.jpg') ? (y/[n]) ")
-        if imrename == 'y':
-            count = 1
-            imgname = raw_input('Enter new image name: ')
-            nfill = 2 if (len(imglist)<100) else 3
-
         # loop on images
         for f in imglist:
             filename = os.path.split(f)[1]
             im = Image.open(f)
-
-            if imrename == 'y':
-                filename = imgname+str(count).zfill(nfill)+'.jpg'
-                print "%s > %s" % (os.path.split(f)[1], filename)
-                count += 1
-            else:
-                print "%s" % filename
+            print "%s" % filename
 
             if self.bigimg:
-                im.save(os.path.join(self.bigimg_dir, filename),
-                        quality=self.jpgquality)
-                out_bigimglist.append(os.path.join(self.bigimg_dir, filename))
+                bigimg_name = os.path.join(self.bigimg_dir, filename)
+                im.save(bigimg_name, quality=self.jpgquality)
+                out_bigimglist.append(bigimg_name)
 
             # resize image
             if im.size[0] > im.size[1]:
@@ -138,21 +125,20 @@ class Gallery:
                 self.add_copyright(im2)
 
             # save
-            im.save(os.path.join(self.thumb_dir, self.thumb_prefix+filename),
-                    quality=self.jpgquality)
-            im2.save(os.path.join(self.output_dir, filename),
-                     quality=self.jpgquality)
+            thumb_name = os.path.join(self.thumb_dir, self.thumb_prefix+filename)
+            im_name = os.path.join(self.output_dir, filename)
+            im.save(thumb_name, quality=self.jpgquality)
+            im2.save(im_name, quality=self.jpgquality)
 
-            out_thumblist.append(os.path.join(self.thumb_dir,
-                                             self.thumb_prefix+filename))
-            out_imglist.append(os.path.join(self.output_dir, filename))
+            out_thumblist.append(thumb_name)
+            out_imglist.append(im_name)
 
             if self.exif:
-                self.process_exif(f, os.path.join(self.output_dir, filename))
+                self.copy_exif(f, im_name)
 
         return [out_imglist, out_thumblist, out_bigimglist]
 
-    def process_exif(self, srcfile, dstfile):
+    def copy_exif(self, srcfile, dstfile):
         "copy exif metadatas from src to dest images"
         try:
             import pyexiv2
