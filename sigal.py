@@ -60,9 +60,9 @@ def main():
         print "Directory %s does not exist." % input_dir
         sys.exit(1)
 
-    # if not os.path.isdir(output_dir):
-    #     print "Create %s" % output_dir
-    #     os.makedirs(output_dir)
+    if not os.path.isdir(output_dir):
+        print "Create %s" % output_dir
+        os.makedirs(output_dir)
 
     print ":: Reading parameters ..."
     params = read_params(input_dir)

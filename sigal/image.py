@@ -25,7 +25,13 @@ Resize images, create thumbnails with some options (squared thumbs, ...).
 import os
 import Image
 import ImageDraw
-from utils import get_filelist
+
+
+def get_filelist(directory, extensions):
+    "get list of files of particular extensions"
+    filelist = [os.path.normcase(f) for f in os.listdir(directory)]
+    return [os.path.join(directory, f) for f in filelist \
+            if os.path.splitext(f)[1] in extensions]
 
 
 class Gallery:

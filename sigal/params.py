@@ -28,13 +28,13 @@ CONFIGDEFAULTS = {
     'img_size': '640x480',
     'thumb_prefix': '',
     'thumb_size': '150x112',
+    'thumb_dir': "thumbnail",
+    'square_thumb': 0,
     'big_img': 1,
-    'square_thumb': 1,
+    'bigimg_dir': "pwg_high",
     'jpg_quality': 90,
     'exif': 1,
     'copyright': '',
-    'thumb_dir': "thumbnail",
-    'bigimg_dir': "pwg_high",
     'fileExtList': ".jpg,.jpeg,.JPG,.JPEG,.png"
     }
 
