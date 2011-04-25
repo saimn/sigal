@@ -33,9 +33,9 @@ if __name__ == '__main__':
     params = read_params("./test")
 
     print ":: params :"
-    print params.items('sigal')
-    # print "\n".join(["%s=%s" % (k, v) for k, v in params.items()])
-    # print "\n"
+    for i,j in params.items('sigal'):
+        print "%s\t = %s" % (i,j)
+    print "\n"
 
     # create gallery
     gallery = Gallery(params)
