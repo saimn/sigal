@@ -52,7 +52,7 @@ class Gallery:
             size[0], size[1] = size[1], size[0]
         return tuple(size)
 
-    def get_filelist(self):
+    def filelist(self):
         "get the list of directories with files of particular extensions"
         for dirpath, dirnames, filenames in os.walk(self.input_dir):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
@@ -67,37 +67,49 @@ class Gallery:
         self.input_dir = os.path.abspath(input_dir)
         self.output_dir = os.path.abspath(output_dir)
 
+        if not os.path.isdir(self.output_dir):
+            print "Create output directory %s" % self.output_dir
+            os.makedirs(self.output_dir)
+
         if self.copyright:
             self.copyright = '\xa9 ' + self.copyright
 
         # loop on directories
-        for dirpath, dirnames, imglist in self.get_filelist():
+        for dirpath, dirnames, imglist in self.filelist():
             print "%s / %i images" % (dirpath, len(imglist))
 
             img_dir = dirpath.replace(self.input_dir, self.output_dir)
-            thumb_dir = os.path.join(img_dir, self.thumb_dir)
 
-            try:
-                os.makedirs(thumb_dir)
-            except OSError:
-                pass
+            if not os.path.isdir(img_dir):
+                os.mkdir(img_dir)
 
-            if self.bigimg:
-                bigimg_dir = os.path.join(img_dir, self.bigimg_dir)
-                try:
-                    os.mkdir(bigimg_dir)
-                except OSError:
-                    pass
+            if len(imglist) != 0:
+                thumb_dir = os.path.join(img_dir, self.thumb_dir)
+                if not os.path.isdir(thumb_dir):
+                    os.mkdir(thumb_dir)
 
-            self.process_images(imglist, img_dir, thumb_dir, bigimg_dir=bigimg_dir)
+                if self.bigimg:
+                    bigimg_dir = os.path.join(img_dir, self.bigimg_dir)
+                    if not os.path.isdir(bigimg_dir):
+                        os.mkdir(bigimg_dir)
 
-    def process_images(self, imglist, img_dir, thumb_dir, bigimg_dir=''):
-        "prepare images"
+                self.process_dir(imglist, img_dir, thumb_dir, bigimg_dir=bigimg_dir)
+
+    def process_dir(self, imglist, img_dir, thumb_dir, bigimg_dir=''):
+        "prepare images for a directory"
         # imglist.sort()
 
         # loop on images
         for f in imglist:
             filename = os.path.split(f)[1]
+
+            im_name = os.path.join(img_dir, filename)
+            thumb_name = os.path.join(thumb_dir, self.thumb_prefix+filename)
+
+            if os.path.isfile(im_name) and os.path.isfile(thumb_name):
+                print "%s exists - skipping" % filename
+                continue
+
             im = Image.open(f)
             print "%s" % filename
 
@@ -111,37 +123,37 @@ class Gallery:
             else:
                 im2 = im.resize([self.imsize[1], self.imsize[0]], Image.ANTIALIAS)
 
-            # create thumbnail
-            if self.square_thumb:
-                if im.size[0] > im.size[1]:
-                    offset = (im.size[0] - im.size[1])/2
-                    box = (offset, 0, im.size[0]-offset, im.size[1])
-                else:
-                    offset = (im.size[1] - im.size[0])/2
-                    box = (0, offset, im.size[0], im.size[1]-offset)
-
-                im = im.crop(box)
-                thumb_size = [self.thumb_size[0], self.thumb_size[0]]
-            elif im.size[0] > im.size[1]:
-                thumb_size = self.thumb_size
-            else:
-                thumb_size = [self.thumb_size[1], self.thumb_size[0]]
-
-            im.thumbnail(thumb_size, Image.ANTIALIAS)
-
             if self.copyright:
                 self.add_copyright(im2)
 
-            # save
-            im.save(os.path.join(thumb_dir, self.thumb_prefix+filename),
-                    quality=self.jpgquality)
+            # create thumbnail
+            self.make_thumb(im)
 
-            im_name = os.path.join(img_dir, filename)
+            # save
+            im.save(thumb_name, quality=self.jpgquality)
             im2.save(im_name, quality=self.jpgquality)
 
             if self.exif:
                 self.copy_exif(f, im_name)
 
+    def make_thumb(self, img):
+        "create thumbnail image for img"
+        if self.square_thumb:
+            if img.size[0] > img.size[1]:
+                offset = (img.size[0] - img.size[1])/2
+                box = (offset, 0, img.size[0]-offset, img.size[1])
+            else:
+                offset = (img.size[1] - img.size[0])/2
+                box = (0, offset, img.size[0], img.size[1]-offset)
+
+            im = img.crop(box)
+            thumb_size = [self.thumb_size[0], self.thumb_size[0]]
+        elif img.size[0] > img.size[1]:
+            thumb_size = self.thumb_size
+        else:
+            thumb_size = [self.thumb_size[1], self.thumb_size[0]]
+
+        img.thumbnail(thumb_size, Image.ANTIALIAS)
 
     def add_copyright(self, img):
         "add copyright to image"
