@@ -61,11 +61,12 @@ class Gallery:
             if len(imglist) != 0:
                 yield dirpath, dirnames, imglist
 
-    def build(self, input_dir, output_dir):
+    def build(self, input_dir, output_dir, force=False):
         "create image gallery"
 
         self.input_dir = os.path.abspath(input_dir)
         self.output_dir = os.path.abspath(output_dir)
+        self.force = force
 
         if not os.path.isdir(self.output_dir):
             print "Create output directory %s" % self.output_dir
@@ -106,7 +107,8 @@ class Gallery:
             im_name = os.path.join(img_dir, filename)
             thumb_name = os.path.join(thumb_dir, self.thumb_prefix+filename)
 
-            if os.path.isfile(im_name) and os.path.isfile(thumb_name):
+            if os.path.isfile(im_name) and os.path.isfile(thumb_name) and \
+               not self.force:
                 print "%s exists - skipping" % filename
                 continue
 

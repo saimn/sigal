@@ -46,6 +46,8 @@ def main():
 
     parser.add_option("-c", "--copyright", dest="copyright",
                       help="copyright message added to the images")
+    parser.add_option("-f", "--force", dest="force",
+                      help="force the reprocessing of existing images and thumbnails")
 
     (options, args) = parser.parse_args()
 
@@ -68,7 +70,7 @@ def main():
 
     # create gallery
     gallery = Gallery(params)
-    gallery.build(input_dir, output_dir)
+    gallery.build(input_dir, output_dir, force=options.force)
 
     return 0
 
