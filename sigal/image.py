@@ -57,7 +57,7 @@ class Gallery:
         for dirpath, dirnames, filenames in os.walk(self.input_dir):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
             imglist = [os.path.join(dirpath, f) for f in filenames \
-                       if os.path.splitext(f)[1] in self.fileExtList]
+                       if os.path.splitext(f)[1] in self.fileExtList.split(',')]
             if len(imglist) != 0:
                 yield dirpath, dirnames, imglist
 
@@ -89,6 +89,7 @@ class Gallery:
                 if not os.path.isdir(thumb_dir):
                     os.mkdir(thumb_dir)
 
+                bigimg_dir = ''
                 if self.bigimg:
                     bigimg_dir = os.path.join(img_dir, self.bigimg_dir)
                     if not os.path.isdir(bigimg_dir):
@@ -112,8 +113,8 @@ class Gallery:
                 print "%s exists - skipping" % filename
                 continue
 
-            im = Image.open(f)
             print "%s" % filename
+            im = Image.open(f)
 
             if self.bigimg:
                 im.save(os.path.join(bigimg_dir, filename),
