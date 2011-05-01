@@ -34,6 +34,7 @@ import sys
 from optparse import OptionParser
 from sigal.image import Gallery
 from sigal.params import read_params
+from sigal.theme import Theme
 
 def main():
     "main program"
@@ -71,6 +72,9 @@ def main():
     # create gallery
     gallery = Gallery(params)
     gallery.build(input_dir, output_dir, force=options.force)
+
+    r = Theme(params, output_dir)
+    r.render()
 
     return 0
 

@@ -27,6 +27,7 @@ import os
 import sys
 from sigal.image import Gallery
 from sigal.params import read_params
+from sigal.theme import Theme
 
 if __name__ == '__main__':
     print ":: Reading parameters ..."
@@ -45,4 +46,6 @@ if __name__ == '__main__':
     # print "thumbnails : %s" % filelist[1]
     # print "big images : %s" % filelist[2]
 
+    r = Theme(params, "./output")
+    r.render()
     sys.exit(0)
