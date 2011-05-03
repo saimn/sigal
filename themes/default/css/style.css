@@ -1,3 +1,17 @@
 #images li {
   display: inline;
 }
+
+
+#albums ul {
+  list-style-type: none;
+}
+
+#albums li {
+  display: inline-block;
+}
+
+.album_thumb {}
+.album_title {
+  display: block;
+}
