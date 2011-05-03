@@ -27,6 +27,14 @@ class Theme():
         self.theme_dir = os.path.join('themes', theme)
         self.template = env.get_template(tpl)
 
+        self.meta = {}
+        self.meta['title'] = params.get('album', 'title') \
+                             if params.has_option('album', 'title') else ''
+        self.meta['author'] = params.get('album', 'author') \
+                              if params.has_option('album', 'author') else ''
+        self.meta['description'] = params.get('album', 'description') \
+                              if params.has_option('album', 'description') else ''
+
 
     def filelist(self):
         "get the list of directories with files of particular extensions"
@@ -39,6 +47,15 @@ class Theme():
                            if os.path.splitext(f)[1] in self.fileExtList]
                 dirlist = [d for d in dirnames if d not in ignored_dir]
                 yield dirpath, dirlist, imglist
+
+    def find_representative(self, path):
+        """ find the representative image for a given album/path
+        at the moment, this is the first image found.
+        """
+
+        files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) \
+                 and os.path.splitext(f)[1] in self.fileExtList]
+        return files[0]
 
     def render(self):
 
@@ -61,16 +78,20 @@ class Theme():
 
             albums = []
             for d in dirnames:
-                album = {'path': d+"/"+INDEX_PAGE,
-                         'name': d
+                alb_thumb = self.find_representative(os.path.join(dirpath, d))
+                album = {'path': os.path.join(d, INDEX_PAGE),
+                         'name': d,
+                         'thumb': os.path.join(d, self.thumb_dir,
+                                               self.thumb_prefix+alb_thumb),
                          }
                 albums.append(album)
                 # print album
 
-            page = self.template.render(title=dirpath, images=images,
+            page = self.template.render(self.meta,
+                                        images=images,
                                         albums=albums, theme=theme)
 
             # save
-            f = open(dirpath+"/"+INDEX_PAGE,"w")
+            f = open(os.path.join(dirpath, INDEX_PAGE),"w")
             f.write(page)
             f.close()

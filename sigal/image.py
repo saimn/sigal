@@ -77,7 +77,7 @@ class Gallery:
 
         # loop on directories
         for dirpath, dirnames, imglist in self.filelist():
-            print "%s / %i images" % (dirpath, len(imglist))
+            print ":: %s - %i images" % (dirpath, len(imglist))
 
             img_dir = dirpath.replace(self.input_dir, self.output_dir)
 
