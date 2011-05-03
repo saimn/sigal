@@ -10,6 +10,7 @@ import sigal.image
 
 DEFAULT_THEME = "default"
 INDEX_PAGE = "index.html"
+IGNORED_DIR = ['css', 'js', 'img']
 
 class Theme():
     """ Generate html """
@@ -21,6 +22,9 @@ class Theme():
         self.thumb_dir = params.get('sigal', 'thumb_dir')
         self.thumb_prefix = params.get('sigal', 'thumb_prefix')
         self.fileExtList = params.get('sigal', 'fileExtList')
+
+        if params.has_option('sigal', 'theme'):
+            theme = params.get('sigal', 'theme')
 
         env = Environment(loader=PackageLoader('sigal',
                                                os.path.join('..', 'themes', theme)))
@@ -38,14 +42,14 @@ class Theme():
 
     def filelist(self):
         "get the list of directories with files of particular extensions"
-        ignored_dir = [self.thumb_dir, self.bigimg_dir, 'css']
+        ignored = [self.thumb_dir, self.bigimg_dir] + IGNORED_DIR
 
         for dirpath, dirnames, filenames in os.walk(self.path):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
-            if os.path.split(dirpath)[1] not in ignored_dir:
+            if os.path.split(dirpath)[1] not in ignored:
                 imglist = [f for f in filenames \
                            if os.path.splitext(f)[1] in self.fileExtList]
-                dirlist = [d for d in dirnames if d not in ignored_dir]
+                dirlist = [d for d in dirnames if d not in ignored]
                 yield dirpath, dirlist, imglist
 
     def find_representative(self, path):
