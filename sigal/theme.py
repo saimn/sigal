@@ -70,6 +70,11 @@ class Theme():
         for dirpath, dirnames, imglist in self.filelist():
 
             theme = { 'path': os.path.relpath(self.path, dirpath) }
+            home_path = os.path.join(os.path.relpath(self.path, dirpath), INDEX_PAGE)
+
+            gallery_name = ""
+            if dirpath != self.path:
+                gallery_name = os.path.basename(dirpath).replace('_',' ').replace('-',' ').capitalize()
 
             images = []
             for i in imglist:
@@ -91,8 +96,8 @@ class Theme():
                 albums.append(album)
                 # print album
 
-            page = self.template.render(self.meta,
-                                        images=images,
+            page = self.template.render(self.meta, gallery_name=gallery_name,
+                                        home_path=home_path, images=images,
                                         albums=albums, theme=theme)
 
             # save
