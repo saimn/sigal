@@ -12,11 +12,13 @@ import sigal.image
 DEFAULT_THEME = "default"
 INDEX_PAGE = "index.html"
 IGNORED_DIR = ['css', 'js', 'img']
+DESCRIPTION_FILE = "album_description"
 
 class Theme():
     """ Generate html pages for each directory of images """
 
     def __init__(self, params, path, theme=DEFAULT_THEME, tpl=INDEX_PAGE):
+        self.data = {}
         self.path = path
         self.bigimg = params.getint('sigal', 'big_img')
         self.bigimg_dir = params.get('sigal', 'bigimg_dir')
@@ -32,26 +34,40 @@ class Theme():
         self.theme_dir = os.path.join('themes', theme)
         self.template = env.get_template(tpl)
 
-        self.meta = {}
-        self.meta['title'] = params.get('album', 'title') \
-                             if params.has_option('album', 'title') else ''
-        self.meta['author'] = params.get('album', 'author') \
-                              if params.has_option('album', 'author') else ''
-        self.meta['description'] = params.get('album', 'description') \
-                              if params.has_option('album', 'description') else ''
-
-
-    def filelist(self):
+    def directory_list(self):
         "get the list of directories with files of particular extensions"
         ignored = [self.thumb_dir, self.bigimg_dir] + IGNORED_DIR
 
         for dirpath, dirnames, filenames in os.walk(self.path):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
             if os.path.split(dirpath)[1] not in ignored:
-                imglist = [f for f in filenames \
-                           if os.path.splitext(f)[1] in self.fileExtList]
-                dirlist = [d for d in dirnames if d not in ignored]
-                yield dirpath, dirlist, imglist
+                self.data[dirpath] = {}
+                self.data[dirpath]['img'] = [f for f in filenames \
+                                             if os.path.splitext(f)[1] in self.fileExtList]
+                self.data[dirpath]['subdir'] = [d for d in dirnames if d not in ignored]
+
+    def get_metadata(self, path):
+
+        descfile = os.path.join(path, ALBUM_DESCRIPTION)
+        if not os.path.isfile(descfile):
+            return
+
+        with open(descfile, 'r') as f:
+            for l in f:
+                if "album_name" in l:
+                    self.data[path]['title'] = l.split('=')[1]
+                if "album_description" in l:
+                    self.data[path]['description'] = l.split('=')[1]
+
+
+        # self.meta = {}
+        # self.meta['title'] = params.get('album', 'title') \
+        #                      if params.has_option('album', 'title') else ''
+        # self.meta['author'] = params.get('album', 'author') \
+        #                       if params.has_option('album', 'author') else ''
+        # self.meta['description'] = params.get('album', 'description') \
+        #                       if params.has_option('album', 'description') else ''
+
 
     def find_representative(self, path):
         """ find the representative image for a given album/path
@@ -75,18 +91,24 @@ class Theme():
         copy_tree(os.path.abspath(self.theme_dir),
                   os.path.abspath(self.path))
 
+        self.directory_list()
+        self.get_metadata()
+
         # loop on directories
-        for dirpath, dirnames, imglist in self.filelist():
+        for dirpath in self.data.keys():
+
+            print self.data[dirpath]
 
             theme = { 'path': os.path.relpath(self.path, dirpath) }
             home_path = os.path.join(os.path.relpath(self.path, dirpath), INDEX_PAGE)
 
             gallery_name = ""
             if dirpath != self.path:
-                gallery_name = os.path.basename(dirpath).replace('_',' ').replace('-',' ').capitalize()
+                gallery_name = os.path.basename(dirpath).replace('_',' ').\
+                               replace('-',' ').capitalize()
 
             images = []
-            for i in imglist:
+            for i in self.data[dirpath]['img']:
                 image = {
                     'file': i,
                     'thumb': os.path.join(self.thumb_dir, self.thumb_prefix+i)
@@ -95,7 +117,7 @@ class Theme():
                 # print image
 
             albums = []
-            for d in dirnames:
+            for d in self.data[dirpath]['subdir']:
                 alb_thumb = self.find_representative(os.path.join(dirpath, d))
                 album = {'path': os.path.join(d, INDEX_PAGE),
                          'name': d,
