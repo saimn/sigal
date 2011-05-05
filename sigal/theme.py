@@ -4,6 +4,7 @@
 """render theme for sigal"""
 
 import os
+import Image
 from distutils.dir_util import copy_tree
 from jinja2 import Environment, PackageLoader
 import sigal.image
@@ -13,7 +14,7 @@ INDEX_PAGE = "index.html"
 IGNORED_DIR = ['css', 'js', 'img']
 
 class Theme():
-    """ Generate html """
+    """ Generate html pages for each directory of images """
 
     def __init__(self, params, path, theme=DEFAULT_THEME, tpl=INDEX_PAGE):
         self.path = path
@@ -59,6 +60,14 @@ class Theme():
 
         files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) \
                  and os.path.splitext(f)[1] in self.fileExtList]
+
+        for f in files:
+            # find and return the first landscape image
+            im = Image.open(os.path.join(path, f))
+            if im.size[0] > im.size[1]:
+                return f
+
+        # else simply return the 1st image
         return files[0]
 
     def render(self):
