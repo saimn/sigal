@@ -53,7 +53,6 @@ class Theme():
                                              if os.path.splitext(f)[1] in self.fileExtList]
                 self.data[dirpath]['subdir'] = [d for d in dirnames if d not in ignored]
 
-
     def get_meta_value(self, data):
         """
         Return the value for a line like:
@@ -68,7 +67,6 @@ class Theme():
             data = data[:-1]
 
         return data
-
 
     def get_metadata(self, path):
         """
@@ -89,7 +87,6 @@ class Theme():
                     self.data[path]['description'] = self.get_meta_value(l)
                 if "album_representative" in l:
                     self.data[path]['representative'] = self.get_meta_value(l)
-
 
     def find_representative(self, path):
         """
@@ -114,6 +111,7 @@ class Theme():
         Render the html page
         """
 
+        # copy static files in the output dir
         copy_tree(os.path.abspath(self.theme_dir), os.path.abspath(self.path))
 
         self.directory_list()
@@ -154,7 +152,7 @@ class Theme():
 
                 album = {
                     'path': os.path.join(d, INDEX_PAGE),
-                    'name': self.data[dirpath]['title'],
+                    'title': self.data[os.path.join(dirpath, d)]['title'],
                     'thumb': os.path.join(d, self.thumb_dir,
                                           self.thumb_prefix+alb_thumb),
                     }
