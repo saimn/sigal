@@ -45,8 +45,9 @@ class Theme():
         for dirpath, dirnames, filenames in os.walk(self.path):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
             if os.path.split(dirpath)[1] not in ignored:
-                # sort images by name
-                filenames.sort()
+                # sort images and sub-albums by name
+                filenames.sort(key=str.lower)
+                dirnames.sort(key=str.lower)
 
                 self.data[dirpath] = {}
                 self.data[dirpath]['img'] = [f for f in filenames \
