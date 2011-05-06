@@ -25,7 +25,9 @@ Resize images, create thumbnails with some options (squared thumbs, ...).
 import os
 import Image
 import ImageDraw
+from shutil import copy2
 
+DESCRIPTION_FILE = "album_description"
 
 class Gallery:
     "Prepare a gallery of images"
@@ -43,7 +45,7 @@ class Gallery:
         self.jpgquality = params.getint('sigal', 'jpg_quality')
         self.exif = params.getint('sigal', 'exif')
         self.copyright = params.get('sigal', 'copyright')
-        self.fileExtList = params.get('sigal', 'fileExtList')
+        self.fileExtList = params.get('sigal', 'fileExtList').split(',')
 
     def getsize(self, string):
         "split size string to a tuple of int"
@@ -57,9 +59,8 @@ class Gallery:
         for dirpath, dirnames, filenames in os.walk(self.input_dir):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
             imglist = [os.path.join(dirpath, f) for f in filenames \
-                       if os.path.splitext(f)[1] in self.fileExtList.split(',')]
-            if len(imglist) != 0:
-                yield dirpath, dirnames, imglist
+                       if os.path.splitext(f)[1] in self.fileExtList]
+            yield dirpath, dirnames, imglist
 
     def build(self, input_dir, output_dir, force=False):
         "create image gallery"
@@ -83,6 +84,10 @@ class Gallery:
 
             if not os.path.isdir(img_dir):
                 os.mkdir(img_dir)
+
+            descfile = os.path.join(dirpath, DESCRIPTION_FILE)
+            if os.path.isfile(descfile):
+                copy2(descfile, img_dir)
 
             if len(imglist) != 0:
                 thumb_dir = os.path.join(img_dir, self.thumb_dir)
