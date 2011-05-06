@@ -16,6 +16,7 @@ DEFAULT_THEME = "default"
 INDEX_PAGE = "index.html"
 IGNORED_DIR = ['css', 'js', 'img']
 DESCRIPTION_FILE = "album_description"
+SIGAL_LINK = "https://github.com/saimn/sigal"
 
 class Theme():
     """ Generate html pages for each directory of images """
@@ -120,6 +121,8 @@ class Theme():
         gallery_name = self.data[self.path]['title']
         self.data[self.path]['title'] = ''
 
+        sigal_link='<a href="%s">sigal</a>' % SIGAL_LINK
+
         # loop on directories
         for dirpath in self.data.keys():
             theme = { 'path': os.path.relpath(self.path, dirpath) }
@@ -156,7 +159,8 @@ class Theme():
 
             page = self.template.render(self.data[dirpath], gallery_name=gallery_name,
                                         home_path=home_path, images=images,
-                                        albums=albums, theme=theme).encode('utf-8')
+                                        albums=albums, theme=theme,
+                                        sigal_link=sigal_link).encode('utf-8')
 
             # save
             f = open(os.path.join(dirpath, INDEX_PAGE),"w")
