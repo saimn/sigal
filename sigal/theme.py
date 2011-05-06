@@ -33,9 +33,9 @@ class Theme():
         if params.has_option('sigal', 'theme'):
             theme = params.get('sigal', 'theme')
 
-        env = Environment(loader=PackageLoader('sigal',
-                                               os.path.join('..', 'themes', theme)))
         self.theme_dir = os.path.join('themes', theme)
+        env = Environment(loader=PackageLoader('sigal',
+                                               os.path.join('..', self.theme_dir)))
         self.template = env.get_template(tpl)
 
     def directory_list(self):
@@ -45,6 +45,9 @@ class Theme():
         for dirpath, dirnames, filenames in os.walk(self.path):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
             if os.path.split(dirpath)[1] not in ignored:
+                # sort images by name
+                filenames.sort()
+
                 self.data[dirpath] = {}
                 self.data[dirpath]['img'] = [f for f in filenames \
                                              if os.path.splitext(f)[1] in self.fileExtList]
