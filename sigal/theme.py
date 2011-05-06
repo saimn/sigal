@@ -154,7 +154,7 @@ class Theme():
 
                 album = {
                     'path': os.path.join(d, INDEX_PAGE),
-                    'name': d,
+                    'name': self.data[dirpath]['title'],
                     'thumb': os.path.join(d, self.thumb_dir,
                                           self.thumb_prefix+alb_thumb),
                     }
