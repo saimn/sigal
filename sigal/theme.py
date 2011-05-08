@@ -17,6 +17,7 @@ INDEX_PAGE = "index.html"
 IGNORED_DIR = ['css', 'js', 'img']
 DESCRIPTION_FILE = "album_description"
 SIGAL_LINK = "https://github.com/saimn/sigal"
+PATH_SEP = u" » "
 
 
 def do_link(link, title):
@@ -29,7 +30,7 @@ class Theme():
 
     def __init__(self, params, path, theme=DEFAULT_THEME, tpl=INDEX_PAGE):
         self.data = {}
-        self.path = path
+        self.path = os.path.normpath(path)
         self.bigimg = params.getint('sigal', 'big_img')
         self.bigimg_dir = params.get('sigal', 'bigimg_dir')
         self.thumb_dir = params.get('sigal', 'thumb_dir')
@@ -50,6 +51,7 @@ class Theme():
 
         for dirpath, dirnames, filenames in os.walk(self.path):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
+            dirpath = os.path.normpath(dirpath)
             if os.path.split(dirpath)[1] not in ignored:
                 # sort images and sub-albums by name
                 filenames.sort(key=str.lower)
@@ -139,14 +141,14 @@ class Theme():
             home_path = os.path.join(os.path.relpath(self.path, dirpath), INDEX_PAGE)
 
             # paths to upper directories (with titles and links)
-            tmp_path = os.path.abspath(dirpath)
+            tmp_path = dirpath
             paths = do_link(INDEX_PAGE, self.data[tmp_path]['title'])
 
             while tmp_path != self.path:
-                tmp_path = os.path.abspath(os.path.join(tmp_path, '..'))
+                tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
                 tmp_link = os.path.relpath(tmp_path, dirpath) + "/" + INDEX_PAGE
                 paths = do_link(tmp_link, self.data[tmp_path]['title']) + \
-                        u" » " + paths
+                        PATH_SEP + paths
 
             images = []
             for i in self.data[dirpath]['img']:
