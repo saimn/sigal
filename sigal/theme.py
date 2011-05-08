@@ -18,6 +18,12 @@ IGNORED_DIR = ['css', 'js', 'img']
 DESCRIPTION_FILE = "album_description"
 SIGAL_LINK = "https://github.com/saimn/sigal"
 
+
+def do_link(link, title):
+    "return html link"
+    return '<a href="%s">%s</a>' % (link, title)
+
+
 class Theme():
     """ Generate html pages for each directory of images """
 
@@ -115,24 +121,32 @@ class Theme():
         # copy static files in the output dir
         copy_tree(os.path.abspath(self.theme_dir), os.path.abspath(self.path))
 
+        sigal_link = do_link(SIGAL_LINK, "sigal")
+
         self.directory_list()
+
         for dirpath in self.data.keys():
+            # default: get title from directory name
+            self.data[dirpath]['title'] = os.path.basename(dirpath).replace('_',' ').\
+                                          replace('-',' ').capitalize()
+
             self.get_metadata(dirpath)
             # print self.data[dirpath]
-
-        gallery_name = self.data[self.path]['title']
-        self.data[self.path]['title'] = ''
-
-        sigal_link='<a href="%s">sigal</a>' % SIGAL_LINK
 
         # loop on directories
         for dirpath in self.data.keys():
             theme = { 'path': os.path.relpath(self.path, dirpath) }
             home_path = os.path.join(os.path.relpath(self.path, dirpath), INDEX_PAGE)
 
-            if not self.data[dirpath].has_key('title'):
-                self.data[dirpath]['title'] = os.path.basename(dirpath).replace('_',' ').\
-                                              replace('-',' ').capitalize()
+            # paths to upper directories (with titles and links)
+            tmp_path = os.path.abspath(dirpath)
+            paths = do_link(INDEX_PAGE, self.data[tmp_path]['title'])
+
+            while tmp_path != self.path:
+                tmp_path = os.path.abspath(os.path.join(tmp_path, '..'))
+                tmp_link = os.path.relpath(tmp_path, dirpath) + "/" + INDEX_PAGE
+                paths = do_link(tmp_link, self.data[tmp_path]['title']) + \
+                        u" » " + paths
 
             images = []
             for i in self.data[dirpath]['img']:
@@ -159,12 +173,12 @@ class Theme():
                     }
                 albums.append(album)
 
-            page = self.template.render(self.data[dirpath], gallery_name=gallery_name,
+            page = self.template.render(self.data[dirpath], paths=paths,
                                         home_path=home_path, images=images,
                                         albums=albums, theme=theme,
                                         sigal_link=sigal_link).encode('utf-8')
 
-            # save
+            # save page
             f = open(os.path.join(dirpath, INDEX_PAGE),"w")
             f.write(page)
             f.close()
