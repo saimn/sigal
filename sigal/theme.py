@@ -160,16 +160,20 @@ class Theme():
 
             albums = []
             for d in self.data[dirpath]['subdir']:
-                alb_thumb = ''
-                if self.data[dirpath].has_key('representative'):
-                    alb_thumb = self.data[dirpath]['representative']
 
-                if not alb_thumb or not os.path.isfile(alb_thumb):
-                    alb_thumb = self.find_representative(os.path.join(dirpath, d))
+                dpath = os.path.join(dirpath, d)
+
+                alb_thumb = ''
+                if self.data[dpath].has_key('representative'):
+                    alb_thumb = self.data[dpath]['representative']
+
+                if not alb_thumb or \
+                   not os.path.isfile(os.path.join(dpath, alb_thumb)):
+                    alb_thumb = self.find_representative(dpath)
 
                 album = {
                     'path': os.path.join(d, INDEX_PAGE),
-                    'title': self.data[os.path.join(dirpath, d)]['title'],
+                    'title': self.data[dpath]['title'],
                     'thumb': os.path.join(d, self.thumb_dir,
                                           self.thumb_prefix+alb_thumb),
                     }
