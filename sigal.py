@@ -1,8 +1,8 @@
 #! /usr/bin/env python2
 # -*- coding:utf-8 -*-
 
-# sigal - Piwigo gallery generator
-# Copyright (C) 2009-2011 - saimon.org
+# sigal - simple static gallery generator
+# Copyright (C) 2009-2011 - Simon C. (saimon.org)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,15 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; If not, see http://www.gnu.org/licenses/
 
-"""Prepare and upload a gallery of images for Piwigo
+"""
+sigal - simple static gallery generator
+=======================================
 
-This script resize images, create thumbnails with some options
-(squared thumbs, ...).
+sigal is yet another python script to prepare a static gallery of images:
+
+* resize images, create thumbnails with some options (squared thumbs, ...).
+* generate html pages.
 """
 
 __author__ = "Saimon (contact at saimon dot org)"
 __version__ = "0.1-dev"
-__date__ = "20110411"
+__date__ = "20110513"
 __copyright__ = "Copyright (C) 2009-2011 - saimon.org"
 __license__ = "GPL"
 

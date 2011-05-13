@@ -1,8 +1,8 @@
 #! /usr/bin/env python2
 # -*- coding:utf-8 -*-
 
-# sigal - Piwigo gallery generator
-# Copyright (C) 2009-2011 Simon - saimon.org
+# sigal - simple static gallery generator
+# Copyright (C) 2009-2011 - Simon C. (saimon.org)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; If not, see http://www.gnu.org/licenses/
 
-"""Create a gallery of images.
-
-Resize images, create thumbnails with some options (squared thumbs, ...).
+"""
+Prepare images: resize images, and create thumbnails with some options
+(squared thumbs, ...).
 """
 
 import os
@@ -30,7 +30,7 @@ from shutil import copy2
 DESCRIPTION_FILE = "album_description"
 
 class Gallery:
-    "Prepare a gallery of images"
+    "Prepare images"
 
     def __init__(self, params):
         self.imsize = self.getsize(params.get('sigal', 'img_size'))
@@ -104,7 +104,6 @@ class Gallery:
 
     def process_dir(self, imglist, img_dir, thumb_dir, bigimg_dir=''):
         "prepare images for a directory"
-        # imglist.sort()
 
         # loop on images
         for f in imglist:

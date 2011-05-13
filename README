@@ -1,45 +1,57 @@
-sigal - simple gallery generator
-================================
+sigal - yet another simple static gallery generator
+===================================================
 
-This python script prepares a gallery of images for [Piwigo]() gallery script.
-It resizes images, creates thumbnails with some options (squared thumbs, ...).
+sigal is yet another python script to prepare a static gallery of images:
 
-[Piwigo]: http://www.piwigo.org/
+* resize images, create thumbnails with some options (squared thumbs, ...).
+* generate html pages using jinja2 templates.
 
 Dependencies
 ------------
 
 - Python Imaging Library (PIL)
-- exiv2 (for exif datas)
-
-on Ubuntu :
-    > sudo apt-get install python-imaging python-pyexiv2
-
-on Fedora :
-    > yum install python-imaging pyexiv2
-
-The script should also work on other system (Windows, Mac) but this has not be
-tested yet.
+- Jinja2
+- exiv2 (optionnal, used to copy exif metadatas)
 
 Usage
 -----
 
-go in the directory of images to process and launch the script:
-    > /path/to/sigal/sigal.py input_dir output_dir
+    $ sigal [options] input_dir output_dir
+
+Options:
+    --version             show program's version number and exit
+    -h, --help            show this help message and exit
+    -c COPYRIGHT, --copyright=COPYRIGHT
+                          copyright message added to the images
+    -f FORCE, --force=FORCE
+                          force the reprocessing of existing images and
+                          thumbnails
 
 Settings
 --------
 
-Adapt setting to your needs in the configuration file (`sigal.conf`):
-- Size of images and thumbnails
-- JPG quality
-- Thumbnails prefix
+Options can be set globally in `~/.config/sigal/sigal.conf` and in the source
+directory `input_dir/sigal.conf`.
 
-Options
--------
+* size of resized image:
+	img_size = 640x480
+* prefix for thumbnails name:
+	thumb_prefix = TN-
+* thumbnail size and directory:
+	thumb_size = 150x112
+        thumb_dir = thumbnail
+* keep big image:
+	big_img = 1
+	bigimg_dir = original
+* generate squared thumbnails:
+	square_thumb = 1
+* jpeg quality:
+	jpg_quality = 90
+* keep exif metadatas in output image:
+	exif = 1
+* add a copyright text on the image:
+	copyright = the copyright msg
 
-Some features are optionnal (1=enable / 0=disable):
-- Add a copyright on the images
-- Keep big images
-- Keep exif datas
-- Make squared thumbnails
+Album information
+-----------------
+
