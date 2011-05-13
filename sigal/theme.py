@@ -18,7 +18,8 @@ IGNORED_DIR = ['css', 'js', 'img']
 DESCRIPTION_FILE = "album_description"
 SIGAL_LINK = "https://github.com/saimn/sigal"
 PATH_SEP = u" » "
-
+THEMES_PATH = os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                            '..', 'themes'))
 
 def do_link(link, title):
     "return html link"
@@ -40,9 +41,9 @@ class Theme():
         if params.has_option('sigal', 'theme'):
             theme = params.get('sigal', 'theme')
 
-        self.theme_dir = os.path.join('themes', theme)
-        env = Environment(loader=PackageLoader('sigal',
-                                               os.path.join('..', self.theme_dir)))
+        self.theme_path = os.path.join(THEMES_PATH, theme)
+        self.theme_rel_path = os.path.relpath(self.theme_path, os.path.dirname(__file__))
+        env = Environment(loader=PackageLoader('sigal', self.theme_rel_path))
         self.template = env.get_template(tpl)
 
     def directory_list(self):
@@ -121,7 +122,7 @@ class Theme():
         """
 
         # copy static files in the output dir
-        copy_tree(os.path.abspath(self.theme_dir), os.path.abspath(self.path))
+        copy_tree(self.theme_path, os.path.abspath(self.path))
 
         sigal_link = do_link(SIGAL_LINK, "sigal")
 
