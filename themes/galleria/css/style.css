@@ -1,0 +1,126 @@
+/* reset */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td { margin: 0; padding: 0; border: 0; outline: 0; font-size: 100%; vertical-align: baseline; background: transparent; }
+body { line-height: 1; }
+ol, ul { list-style: none; }
+blockquote, q { quotes: none; }
+table { border-collapse: collapse; border-spacing: 0; }
+
+
+body {
+  font: 75% Molengo, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #242424;
+  color: #aaa;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+a, a:link, a:visited {
+  color: #999;
+  text-decoration: underline;
+}
+a:hover {
+  color: #dadada;
+}
+
+#container {
+  margin: 0 auto;
+  text-align: left;
+  width: 960px;
+}
+
+/* header */
+
+header {
+  padding: 3em 0;
+  color: #dadada;
+}
+
+header h1 {
+  font-size: 2.2em;
+  font-weight: bold;
+  margin-left: 20px;
+  color: #eee;
+}
+header h1 a, header h1 a:link, header h1 a:visited {
+  color: #eee;
+  text-shadow: 0 2px 0 #000;
+  text-decoration: none;
+}
+header h1 a:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* gallery */
+
+#main ul {
+  list-style-type: none;
+  margin-left: 20px;
+}
+#main ul li {
+  display: inline-block;
+  margin: 0 40px 30px 0;
+  text-align: center;
+}
+#main ul li:nth-child(3n+3) {
+  margin-right: 0;
+}
+
+#albums ul {}
+#albums ul li {}
+#albums ul li a img {
+  opacity: 1;
+  -webkit-transition: opacity 0.2s ease-in;
+  -moz-transition-property: opacity;
+  -moz-transition-duration: 0.2s;
+  -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  -o-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+#albums ul li a:hover img {
+  opacity: .5;
+}
+
+.album_thumb {}
+.album_title {
+  display: block;
+  color: #dadada;
+  font-size: 1.3em;
+  font-variant: small-caps;
+  font-weight: bold;
+}
+
+#description {
+  font-size: 1.2em;
+  margin: 0 1.5em 2em;
+  padding: 1em 2em;
+  background: #282828;
+  background: rgba(0, 0, 0, 0.15);
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+}
+
+#gallery {
+    line-height: 0;
+    margin: 0 0 40px -10px;
+    width: 980px;
+}
+
+footer {
+  clear: both;
+  display: block;
+  font-size: 1em;
+  margin: 1em 0;
+  text-align: center;
+}
+footer a:link, footer a:visited {
+  font-weight: bold;
+  text-decoration: none;
+}
+footer a:hover {
+  border-bottom: 1px solid;
+  text-decoration: none;
+}

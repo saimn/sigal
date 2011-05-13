@@ -1,0 +1,192 @@
+.galleria-container {
+  position: relative;
+  overflow: hidden;
+}
+.galleria-container img {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+.galleria-stage {
+  background: #222;
+  background: rgba( 0, 0, 0, .15 );
+  position: absolute;
+  top: 0;
+  bottom: 80px;
+  left: 10px;
+  right: 10px;
+  overflow: hidden;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+}
+.galleria-thumbnails-container {
+  height: 70px;
+  bottom: 0;
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  z-index: 2;
+}
+.galleria-carousel .galleria-thumbnails-list {
+  margin-left: 40px;
+  margin-right: 40px;
+}
+.galleria-thumbnails .galleria-image {
+  height: 60px;
+  width: 90px;
+  background: transparent;
+  margin: 0 10px 0 0;
+  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  -o-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  float: left;
+  cursor: pointer;
+}
+.galleria-counter {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  text-align: right;
+  z-index: 2;
+}
+.galleria-loader {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: none;
+  background: url(classic-loader.gif) no-repeat 2px 2px;
+}
+.galleria-info {
+  width: 50%;
+  top: 15px;
+  left: 25px;
+  z-index: 2;
+  position: absolute;
+}
+.galleria-info-text {
+  background: #000;
+  background: rgba(0, 0, 0, .5);
+  padding: 15px;
+  display: none;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+}
+.galleria-info-title {
+  font-size: 1.4em;
+  line-height: 1.4em;
+  font-weight: bold;
+  margin: 0;
+  color: #fff;
+}
+.galleria-info-description {
+  font-size: 1.3em;
+  line-height: 1.2em;
+  margin: 0;
+  color: #bbb;
+}
+.galleria-info-title+.galleria-info-description { margin-top: 7px; }
+.galleria-info-close {
+  width: 9px;
+  height: 9px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-position: -753px -11px;
+  opacity: .5;
+  cursor: pointer;
+  display: none;
+}
+.galleria-info-link {
+  background-position: -669px -5px;
+  opacity: .2;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  background-color: #111;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+}
+.galleria-info-link:hover,
+.galleria-info-close:hover {
+  opacity: .35;
+}
+.galleria-image-nav {
+  position: absolute;
+  top: 50%;
+  margin-top: -15px;
+  width: 100%;
+  height: 31px;
+  left: 0;
+}
+.galleria-image-nav-left,
+.galleria-image-nav-right {
+  opacity: .7;
+  cursor: pointer;
+  width: 16px;
+  height: 31px;
+  position: absolute;
+  left: 10px;
+  z-index: 2;
+}
+.galleria-image-nav-right {
+  left: auto;
+  right: 10px;
+  background-position: -300px 0;
+  z-index: 2;
+}
+.galleria-image-nav-left:hover,
+.galleria-image-nav-right:hover { opacity: .5; }
+.galleria-thumb-nav-left,
+.galleria-thumb-nav-right {
+  cursor: pointer;
+  display: none;
+  background-position: -497px 15px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 60px;
+  width: 23px;
+  z-index: 3;
+  opacity: .4;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+}
+.galleria-thumb-nav-right {
+  background-position: -575px 15px;
+  border-right: none;
+  right: 0;
+  left: auto;
+}
+.galleria-thumbnails-container .disabled,
+.galleria-thumbnails-container .disabled:hover {
+  opacity: .1;
+  cursor: default;
+}
+.galleria-thumb-nav-left:hover,
+.galleria-thumb-nav-right:hover {
+  opacity: 1;
+  background-color: #111;
+  background-color: rgba(0,0,0,.15);
+}
+.galleria-thumb-nav-left.disabled:hover,
+.galleria-thumb-nav-right.disabled:hover { background-color: transparent; }
+.galleria-carousel .galleria-thumb-nav-left,
+.galleria-carousel .galleria-thumb-nav-right { display:block; }
+.galleria-thumb-nav-left,
+.galleria-thumb-nav-right,
+.galleria-info-link,
+.galleria-info-close,
+.galleria-image-nav-left,
+.galleria-image-nav-right {
+  background-image: url( classic-map.png );
+  background-repeat: no-repeat;
+}
