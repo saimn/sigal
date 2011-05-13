@@ -127,24 +127,24 @@ class Gallery:
 
             # resize image
             if im.size[0] > im.size[1]:
-                im2 = im.resize(self.imsize, Image.ANTIALIAS)
+                im_resized = im.resize(self.imsize, Image.ANTIALIAS)
             else:
-                im2 = im.resize([self.imsize[1], self.imsize[0]], Image.ANTIALIAS)
+                im_resized = im.resize([self.imsize[1], self.imsize[0]],
+                                       Image.ANTIALIAS)
 
             if self.copyright:
-                self.add_copyright(im2)
-
-            # create thumbnail
-            self.make_thumb(im)
+                self.add_copyright(im_resized)
 
             # save
-            im.save(thumb_name, quality=self.jpgquality)
-            im2.save(im_name, quality=self.jpgquality)
+            im_resized.save(im_name, quality=self.jpgquality)
+
+            # create thumbnail
+            self.make_thumb(im, thumb_name)
 
             if self.exif:
                 self.copy_exif(f, im_name)
 
-    def make_thumb(self, img):
+    def make_thumb(self, img, thumb_name):
         "create thumbnail image for img"
         if self.square_thumb:
             if img.size[0] > img.size[1]:
@@ -154,7 +154,7 @@ class Gallery:
                 offset = (img.size[1] - img.size[0])/2
                 box = (0, offset, img.size[0], img.size[1]-offset)
 
-            im = img.crop(box)
+            img = img.crop(box)
             thumb_size = [self.thumb_size[0], self.thumb_size[0]]
         elif img.size[0] > img.size[1]:
             thumb_size = self.thumb_size
@@ -162,6 +162,7 @@ class Gallery:
             thumb_size = [self.thumb_size[1], self.thumb_size[0]]
 
         img.thumbnail(thumb_size, Image.ANTIALIAS)
+        img.save(thumb_name, quality=self.jpgquality)
 
     def add_copyright(self, img):
         "add copyright to image"
