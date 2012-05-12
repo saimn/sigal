@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 
 # sigal - simple static gallery generator
-# Copyright (C) 2009-2011 - Simon C. (saimon.org)
+# Copyright (C) 2009-2012 - Simon C. (saimon.org)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ This script allows to test quickly the creation of a gallery, and prints
 additionnal information for debugging purpose.
 """
 
-import os
 import sys
 from sigal.image import Gallery
 from sigal.params import read_params
