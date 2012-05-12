@@ -1,2 +1,2 @@
 include README LICENSE
-recursive-include themes/default *
+recursive-include themes *

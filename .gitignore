@@ -1,5 +1,7 @@
+*.egg-info
 *~
 *.pyc
+*_flymake
 MANIFEST
 dist/
 output/
