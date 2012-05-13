@@ -1,2 +1,2 @@
-include README LICENSE
-recursive-include themes *
+include README.rst LICENSE
+recursive-include sigal/themes *
