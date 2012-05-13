@@ -44,8 +44,8 @@ def read_settings(source_dir):
     config = ConfigParser.ConfigParser(defaults=_DEFAULT_CONFIG)
 
     # Load a config file in the source_dir root
-    config = os.path.join(source_dir, CONFIG_FILE)
-    if os.path.isfile(config):
-        config.read(config)
+    local_config = os.path.join(source_dir, CONFIG_FILE)
+    if os.path.isfile(local_config):
+        config.read(local_config)
 
     return config
