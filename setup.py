@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 
 from setuptools import setup
+import sigal
 import sys
 
 requires = ['PIL', 'jinja2', 'docutils']
@@ -15,7 +16,7 @@ entry_points = {
 
 setup(
     name = 'sigal',
-    version = '0.1',
+    version = sigal.__version__,
     description = 'simple static gallery generator',
     long_description = open('README.rst').read(),
     url = 'https://github.com/saimn/sigal',
