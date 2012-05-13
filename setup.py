@@ -4,9 +4,14 @@
 from setuptools import setup
 import sys
 
-requires = ['imaging', 'jinja2', 'docutils']
+requires = ['PIL', 'jinja2', 'docutils']
 if sys.version_info < (2,7):
     requires.append('argparse')
+
+entry_points = {
+    'console_scripts':
+        ['sigal = sigal:main']
+    }
 
 setup(
     name = 'sigal',
@@ -19,6 +24,6 @@ setup(
     license = 'GPLv3',
     include_package_data = True,
     install_requires  =  requires,
+    entry_points = entry_points,
     packages = ['sigal'],
-    scripts = ['bin/sigal'],
     )
