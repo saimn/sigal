@@ -17,14 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; If not, see http://www.gnu.org/licenses/
 
-"""Parameters utils"""
-
 import os
 import ConfigParser
 
-CONFIGFILE = '~/.config/sigal/sigal.conf'
-SOURCEDIR_CONFIGFILE = 'sigal.conf'
-CONFIGDEFAULTS = {
+CONFIG_FILE = 'sigal.conf'
+
+_DEFAULT_CONFIG = {
     'img_size': '640x480',
     'thumb_prefix': '',
     'thumb_size': '150x112',
@@ -38,16 +36,16 @@ CONFIGDEFAULTS = {
     'fileExtList': ".jpg,.jpeg,.JPG,.JPEG,.png"
     }
 
+
 def read_params(source_dir):
-    "Read params from a config file"
+    "Read params from a config file in the source_dir root"
 
     # Read configuration file
-    config = ConfigParser.ConfigParser(defaults = CONFIGDEFAULTS)
-    config.read(os.path.expanduser(CONFIGFILE))
+    config = ConfigParser.ConfigParser(defaults=_DEFAULT_CONFIG)
 
     # Load a config file in the source_dir root
-    sourcedir_configfile = os.path.join(source_dir, SOURCEDIR_CONFIGFILE)
-    if os.path.isfile(sourcedir_configfile):
-        config.read(sourcedir_configfile)
+    config = os.path.join(source_dir, CONFIG_FILE)
+    if os.path.isfile(config):
+        config.read(config)
 
     return config
