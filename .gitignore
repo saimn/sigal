@@ -3,5 +3,7 @@
 *.pyc
 *_flymake
 MANIFEST
+.ropeproject/
+build/
 dist/
 output/
