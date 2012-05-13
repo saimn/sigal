@@ -12,7 +12,7 @@ setup(
     name = 'sigal',
     version = '0.1',
     description = 'simple static gallery generator',
-    long_description = open('README').read(),
+    long_description = open('README.rst').read(),
     url = 'https://github.com/saimn/sigal',
     author = 'Simon C.',
     author_email = 'contact@saimon.org',
