@@ -32,20 +32,20 @@ DESCRIPTION_FILE = "album_description"
 class Gallery:
     "Prepare images"
 
-    def __init__(self, params):
-        self.imsize = self.getsize(params.get('sigal', 'img_size'))
-        self.bigimg = params.getint('sigal', 'big_img')
-        self.bigimg_dir = params.get('sigal', 'bigimg_dir')
+    def __init__(self, settings):
+        self.imsize = self.getsize(settings.get('sigal', 'img_size'))
+        self.bigimg = settings.getint('sigal', 'big_img')
+        self.bigimg_dir = settings.get('sigal', 'bigimg_dir')
 
-        self.thumb_size = self.getsize(params.get('sigal', 'thumb_size'))
-        self.thumb_dir = params.get('sigal', 'thumb_dir')
-        self.thumb_prefix = params.get('sigal', 'thumb_prefix')
-        self.square_thumb = params.getint('sigal', 'square_thumb')
+        self.thumb_size = self.getsize(settings.get('sigal', 'thumb_size'))
+        self.thumb_dir = settings.get('sigal', 'thumb_dir')
+        self.thumb_prefix = settings.get('sigal', 'thumb_prefix')
+        self.square_thumb = settings.getint('sigal', 'square_thumb')
 
-        self.jpgquality = params.getint('sigal', 'jpg_quality')
-        self.exif = params.getint('sigal', 'exif')
-        self.copyright = params.get('sigal', 'copyright')
-        self.fileExtList = params.get('sigal', 'fileExtList').split(',')
+        self.jpgquality = settings.getint('sigal', 'jpg_quality')
+        self.exif = settings.getint('sigal', 'exif')
+        self.copyright = settings.get('sigal', 'copyright')
+        self.fileExtList = settings.get('sigal', 'fileExtList').split(',')
 
     def getsize(self, string):
         "split size string to a tuple of int"

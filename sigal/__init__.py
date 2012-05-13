@@ -36,7 +36,7 @@ import os
 import sys
 import argparse
 from sigal.image import Gallery
-from sigal.params import read_params
+from sigal.settings import read_settings
 from sigal.theme import Theme
 
 def main():
@@ -58,15 +58,15 @@ def main():
         print "Directory %s does not exist." % args.input_dir
         sys.exit(1)
 
-    print ":: Reading parameters ..."
-    params = read_params(args.input_dir)
+    print ":: Reading settings ..."
+    settings = read_settings(args.input_dir)
 
     if args.copyright:
-        params.set('sigal', 'copyright', args.copyright)
+        settings.set('sigal', 'copyright', args.copyright)
 
     # create gallery
-    gallery = Gallery(params)
+    gallery = Gallery(settings)
     gallery.build(args.input_dir, args.output_dir, force=args.force)
 
-    r = Theme(params, args.output_dir)
+    r = Theme(settings, args.output_dir)
     r.render()

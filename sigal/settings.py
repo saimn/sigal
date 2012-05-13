@@ -37,8 +37,8 @@ _DEFAULT_CONFIG = {
     }
 
 
-def read_params(source_dir):
-    "Read params from a config file in the source_dir root"
+def read_settings(source_dir):
+    "Read settings from a config file in the source_dir root"
 
     # Read configuration file
     config = ConfigParser.ConfigParser(defaults=_DEFAULT_CONFIG)

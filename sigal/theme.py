@@ -44,17 +44,17 @@ def do_link(link, title):
 class Theme():
     """ Generate html pages for each directory of images """
 
-    def __init__(self, params, path, theme=DEFAULT_THEME, tpl=INDEX_PAGE):
+    def __init__(self, settings, path, theme=DEFAULT_THEME, tpl=INDEX_PAGE):
         self.data = {}
         self.path = os.path.normpath(path)
-        self.bigimg = params.getint('sigal', 'big_img')
-        self.bigimg_dir = params.get('sigal', 'bigimg_dir')
-        self.thumb_dir = params.get('sigal', 'thumb_dir')
-        self.thumb_prefix = params.get('sigal', 'thumb_prefix')
-        self.fileExtList = params.get('sigal', 'fileExtList').split(',')
+        self.bigimg = settings.getint('sigal', 'big_img')
+        self.bigimg_dir = settings.get('sigal', 'bigimg_dir')
+        self.thumb_dir = settings.get('sigal', 'thumb_dir')
+        self.thumb_prefix = settings.get('sigal', 'thumb_prefix')
+        self.fileExtList = settings.get('sigal', 'fileExtList').split(',')
 
-        if params.has_option('sigal', 'theme'):
-            theme = params.get('sigal', 'theme')
+        if settings.has_option('sigal', 'theme'):
+            theme = settings.get('sigal', 'theme')
 
         self.theme_path = os.path.join(THEMES_PATH, theme)
         self.theme_rel_path = os.path.relpath(self.theme_path, os.path.dirname(__file__))
