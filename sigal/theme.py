@@ -26,7 +26,6 @@ import codecs
 import Image
 from distutils.dir_util import copy_tree
 from jinja2 import Environment, PackageLoader
-import sigal.image
 
 DEFAULT_THEME = "default"
 INDEX_PAGE = "index.html"
@@ -34,8 +33,8 @@ IGNORED_DIR = ['css', 'js', 'img']
 DESCRIPTION_FILE = "album_description"
 SIGAL_LINK = "https://github.com/saimn/sigal"
 PATH_SEP = u" » "
-THEMES_PATH = os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                            '..', 'themes'))
+THEMES_PATH = os.path.normpath(os.path.join(
+        os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
 def do_link(link, title):
     "return html link"
