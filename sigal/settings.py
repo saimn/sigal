@@ -20,20 +20,19 @@
 import os
 import ConfigParser
 
-CONFIG_FILE = 'sigal.conf'
-
 _DEFAULT_CONFIG = {
     'img_size': '640x480',
     'thumb_prefix': '',
     'thumb_size': '150x112',
-    'thumb_dir': "thumbnail",
+    'thumb_dir': 'thumbnail',
     'square_thumb': 0,
     'big_img': 0,
-    'bigimg_dir': "big",
+    'bigimg_dir': 'big',
     'jpg_quality': 90,
     'exif': 1,
     'copyright': '',
-    'fileExtList': ".jpg,.jpeg,.JPG,.JPEG,.png"
+    'fileExtList': '.jpg,.jpeg,.JPG,.JPEG,.png',
+    'theme': 'default'
     }
 
 
@@ -45,16 +44,15 @@ def get_size(string):
     return tuple(size)
 
 
-def read_settings(source_dir):
+def read_settings(filename=None):
     "Read settings from a config file in the source_dir root"
 
-    # Read configuration file
+    # Read the default configuration
     config = ConfigParser.ConfigParser(defaults=_DEFAULT_CONFIG)
 
-    # Load a config file in the source_dir root
-    local_config = os.path.join(source_dir, CONFIG_FILE)
-    if os.path.isfile(local_config):
-        config.read(local_config)
+    # Load the config file
+    if filename and os.path.isfile(filename):
+        config.read(filename)
 
     settings = dict(config.items('sigal'))
     settings['jpg_quality'] = int(settings['jpg_quality'])

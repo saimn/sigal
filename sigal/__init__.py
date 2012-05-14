@@ -39,6 +39,8 @@ from sigal.image import Gallery
 from sigal.settings import read_settings
 from sigal.theme import Theme
 
+_DEFAULT_CONFIG_FILE = 'sigal.conf'
+
 def main():
     "main program"
 
@@ -59,7 +61,7 @@ def main():
         sys.exit(1)
 
     print ":: Reading settings ..."
-    settings = read_settings(args.input_dir)
+    settings = read_settings(os.path.join(args.input_dir, _DEFAULT_CONFIG_FILE))
 
     if args.copyright:
         settings['copyright'] = args.copyright
