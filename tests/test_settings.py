@@ -4,7 +4,7 @@
 import os
 import unittest
 
-from sigal.settings import read_settings
+from sigal.settings import read_settings, get_size
 
 class TestSettings(unittest.TestCase):
     "Read a settings file and check that the configuration is well done."
@@ -15,8 +15,10 @@ class TestSettings(unittest.TestCase):
         default_conf = os.path.join(self.path, 'sample', 'sigal.conf')
         self.settings = read_settings(default_conf)
 
-    def test_img_size(self):
+    def test_get_size(self):
         "Test that image sizes are correctly read"
+        self.assertTupleEqual(get_size('640x480'), (640, 480))
+        self.assertTupleEqual(get_size('480x640'), (640, 480))
         self.assertTupleEqual(self.settings['img_size'], (640, 480))
         self.assertTupleEqual(self.settings['thumb_size'], (150, 112))
 
