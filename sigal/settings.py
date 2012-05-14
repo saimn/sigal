@@ -37,6 +37,14 @@ _DEFAULT_CONFIG = {
     }
 
 
+def get_size(string):
+    "split size string to a tuple of int"
+    size = [int(i) for i in string.split("x")]
+    if size[1] > size[0]:
+        size[0], size[1] = size[1], size[0]
+    return tuple(size)
+
+
 def read_settings(source_dir):
     "Read settings from a config file in the source_dir root"
 
@@ -48,4 +56,10 @@ def read_settings(source_dir):
     if os.path.isfile(local_config):
         config.read(local_config)
 
-    return config
+    settings = dict(config.items('sigal'))
+    settings['jpg_quality'] = int(settings['jpg_quality'])
+    settings['fileextlist'] = settings['fileextlist'].split(',')
+    settings['img_size']    = get_size(settings['img_size'])
+    settings['thumb_size']  = get_size(settings['thumb_size'])
+
+    return settings

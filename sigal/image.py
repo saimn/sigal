@@ -33,33 +33,14 @@ class Gallery:
     "Prepare images"
 
     def __init__(self, settings):
-        self.imsize = self.getsize(settings.get('sigal', 'img_size'))
-        self.bigimg = settings.getint('sigal', 'big_img')
-        self.bigimg_dir = settings.get('sigal', 'bigimg_dir')
-
-        self.thumb_size = self.getsize(settings.get('sigal', 'thumb_size'))
-        self.thumb_dir = settings.get('sigal', 'thumb_dir')
-        self.thumb_prefix = settings.get('sigal', 'thumb_prefix')
-        self.square_thumb = settings.getint('sigal', 'square_thumb')
-
-        self.jpgquality = settings.getint('sigal', 'jpg_quality')
-        self.exif = settings.getint('sigal', 'exif')
-        self.copyright = settings.get('sigal', 'copyright')
-        self.fileExtList = settings.get('sigal', 'fileExtList').split(',')
-
-    def getsize(self, string):
-        "split size string to a tuple of int"
-        size = [int(i) for i in string.split("x")]
-        if size[1] > size[0]:
-            size[0], size[1] = size[1], size[0]
-        return tuple(size)
+        self.settings = settings
 
     def filelist(self):
         "get the list of directories with files of particular extensions"
         for dirpath, dirnames, filenames in os.walk(self.input_dir):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
             imglist = [os.path.join(dirpath, f) for f in filenames \
-                       if os.path.splitext(f)[1] in self.fileExtList]
+                       if os.path.splitext(f)[1] in self.settings['fileextlist']]
             yield dirpath, dirnames, imglist
 
     def build(self, input_dir, output_dir, force=False):
@@ -73,8 +54,8 @@ class Gallery:
             print "Create output directory %s" % self.output_dir
             os.makedirs(self.output_dir)
 
-        if self.copyright:
-            self.copyright = '\xa9 ' + self.copyright
+        if self.settings['copyright']:
+            self.settings['copyright'] = '\xa9 ' + self.settings['copyright']
 
         # loop on directories
         for dirpath, dirnames, imglist in self.filelist():
@@ -90,13 +71,14 @@ class Gallery:
                 copy2(descfile, img_dir)
 
             if len(imglist) != 0:
-                thumb_dir = os.path.join(img_dir, self.thumb_dir)
+                thumb_dir = os.path.join(img_dir, self.settings['thumb_dir'])
                 if not os.path.isdir(thumb_dir):
                     os.mkdir(thumb_dir)
 
                 bigimg_dir = ''
-                if self.bigimg:
-                    bigimg_dir = os.path.join(img_dir, self.bigimg_dir)
+                if self.settings['big_img']:
+                    bigimg_dir = os.path.join(img_dir,
+                                              self.settings['bigimg_dir'])
                     if not os.path.isdir(bigimg_dir):
                         os.mkdir(bigimg_dir)
 
@@ -110,7 +92,8 @@ class Gallery:
             filename = os.path.split(f)[1]
 
             im_name = os.path.join(img_dir, filename)
-            thumb_name = os.path.join(thumb_dir, self.thumb_prefix+filename)
+            thumb_name = os.path.join(thumb_dir,
+                                      self.settings['thumb_prefix'] + filename)
 
             if os.path.isfile(im_name) and os.path.isfile(thumb_name) and \
                not self.force:
@@ -120,32 +103,34 @@ class Gallery:
             print "%s" % filename
             im = Image.open(f)
 
-            if self.bigimg:
+            if self.settings['big_img']:
                 im.save(os.path.join(bigimg_dir, filename),
-                        quality=self.jpgquality)
+                        quality=self.settings['jpg_quality'])
 
             # resize image
             if im.size[0] > im.size[1]:
-                im_resized = im.resize(self.imsize, Image.ANTIALIAS)
+                im_resized = im.resize(self.settings['img_size'],
+                                       Image.ANTIALIAS)
             else:
-                im_resized = im.resize([self.imsize[1], self.imsize[0]],
+                im_resized = im.resize([self.settings['img_size'][1],
+                                        self.settings['img_size'][0]],
                                        Image.ANTIALIAS)
 
-            if self.copyright:
+            if self.settings['copyright']:
                 self.add_copyright(im_resized)
 
             # save
-            im_resized.save(im_name, quality=self.jpgquality)
+            im_resized.save(im_name, quality=self.settings['jpg_quality'])
 
             # create thumbnail
             self.make_thumb(im, thumb_name)
 
-            if self.exif:
+            if self.settings['exif']:
                 self.copy_exif(f, im_name)
 
     def make_thumb(self, img, thumb_name):
         "create thumbnail image for img"
-        if self.square_thumb:
+        if self.settings['square_thumb']:
             if img.size[0] > img.size[1]:
                 offset = (img.size[0] - img.size[1])/2
                 box = (offset, 0, img.size[0]-offset, img.size[1])
@@ -154,26 +139,28 @@ class Gallery:
                 box = (0, offset, img.size[0], img.size[1]-offset)
 
             img = img.crop(box)
-            thumb_size = [self.thumb_size[0], self.thumb_size[0]]
+            thumb_size = [self.settings['thumb_size'][0],
+                          self.settings['thumb_size'][0]]
         elif img.size[0] > img.size[1]:
-            thumb_size = self.thumb_size
+            thumb_size = self.settings['thumb_size']
         else:
-            thumb_size = [self.thumb_size[1], self.thumb_size[0]]
+            thumb_size = [self.settings['thumb_size'][1],
+                          self.settings['thumb_size'][0]]
 
         img.thumbnail(thumb_size, Image.ANTIALIAS)
-        img.save(thumb_name, quality=self.jpgquality)
+        img.save(thumb_name, quality=self.settings['jpg_quality'])
 
     def add_copyright(self, img):
         "add copyright to image"
         draw = ImageDraw.Draw(img)
-        draw.text((5, img.size[1]-15), self.copyright)
+        draw.text((5, img.size[1]-15), self.settings['copyright'])
 
     def copy_exif(self, srcfile, dstfile):
         "copy exif metadatas from src to dest images"
         try:
             import pyexiv2
         except ImportError:
-            self.exif = 0
+            self.settings['exif'] = 0
             print "Error: install pyexiv2 module to use exif metadatas."
             return
 

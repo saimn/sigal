@@ -46,15 +46,11 @@ class Theme():
 
     def __init__(self, settings, path, theme=DEFAULT_THEME, tpl=INDEX_PAGE):
         self.data = {}
+        self.settings = settings
         self.path = os.path.normpath(path)
-        self.bigimg = settings.getint('sigal', 'big_img')
-        self.bigimg_dir = settings.get('sigal', 'bigimg_dir')
-        self.thumb_dir = settings.get('sigal', 'thumb_dir')
-        self.thumb_prefix = settings.get('sigal', 'thumb_prefix')
-        self.fileExtList = settings.get('sigal', 'fileExtList').split(',')
 
-        if settings.has_option('sigal', 'theme'):
-            theme = settings.get('sigal', 'theme')
+        if settings['theme']:
+            theme = settings['theme']
 
         self.theme_path = os.path.join(THEMES_PATH, theme)
         self.theme_rel_path = os.path.relpath(self.theme_path, os.path.dirname(__file__))
@@ -63,7 +59,8 @@ class Theme():
 
     def directory_list(self):
         "get the list of directories with files of particular extensions"
-        ignored = [self.thumb_dir, self.bigimg_dir] + IGNORED_DIR
+        ignored = [self.settings['thumb_dir'],
+                   self.settings['bigimg_dir']] + IGNORED_DIR
 
         for dirpath, dirnames, filenames in os.walk(self.path):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
@@ -75,8 +72,10 @@ class Theme():
 
                 self.data[dirpath] = {}
                 self.data[dirpath]['img'] = [f for f in filenames \
-                                             if os.path.splitext(f)[1] in self.fileExtList]
-                self.data[dirpath]['subdir'] = [d for d in dirnames if d not in ignored]
+                                             if os.path.splitext(f)[1] in \
+                                                 self.settings['fileextlist']]
+                self.data[dirpath]['subdir'] = [d for d in dirnames \
+                                                    if d not in ignored]
 
     def get_meta_value(self, data):
         """
@@ -120,7 +119,7 @@ class Theme():
         """
 
         files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) \
-                 and os.path.splitext(f)[1] in self.fileExtList]
+                 and os.path.splitext(f)[1] in self.settings['fileextlist']]
 
         for f in files:
             # find and return the first landscape image
@@ -170,7 +169,8 @@ class Theme():
             for i in self.data[dirpath]['img']:
                 image = {
                     'file': i,
-                    'thumb': os.path.join(self.thumb_dir, self.thumb_prefix+i)
+                    'thumb': os.path.join(self.settings['thumb_dir'],
+                                          self.settings['thumb_prefix'] + i)
                     }
                 images.append(image)
 
@@ -190,8 +190,8 @@ class Theme():
                 album = {
                     'path': os.path.join(d, INDEX_PAGE),
                     'title': self.data[dpath]['title'],
-                    'thumb': os.path.join(d, self.thumb_dir,
-                                          self.thumb_prefix+alb_thumb),
+                    'thumb': os.path.join(d, self.settings['thumb_dir'],
+                                          self.settings['thumb_prefix'] + alb_thumb),
                     }
                 albums.append(album)
 

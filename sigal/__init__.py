@@ -62,7 +62,7 @@ def main():
     settings = read_settings(args.input_dir)
 
     if args.copyright:
-        settings.set('sigal', 'copyright', args.copyright)
+        settings['copyright'] = args.copyright
 
     # create gallery
     gallery = Gallery(settings)
