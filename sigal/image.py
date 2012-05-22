@@ -24,10 +24,59 @@ Prepare images: resize images, and create thumbnails with some options
 
 import os
 
-from PIL import Image, ImageDraw
+from PIL import Image as PImage
+from PIL import ImageDraw as PImageDraw
 from shutil import copy2
 
 DESCRIPTION_FILE = "album_description"
+
+
+class Image:
+    "Handle Images: resize, thumbnail, ..."
+
+    def __init__(self, filename):
+        self.filename = filename
+        self.imgname = os.path.split(filename)[1]
+        self.img = PImage.open(filename)
+
+    def save(self, filename, quality=90):
+        self.img.save(filename, quality=quality)
+
+    def resize(self, size):
+        "resize image"
+        if self.img.size[0] > self.img.size[1]:
+            self.img = self.img.resize(size, PImage.ANTIALIAS)
+        else:
+            self.img = self.img.resize([size[1], size[0]], PImage.ANTIALIAS)
+
+    def add_copyright(self, text):
+        "add copyright to image"
+        draw = PImageDraw.Draw(self.img)
+        draw.text((5, self.img.size[1]-15), text)
+
+    def thumbnail(self, filename, size, square=False, quality=90):
+        "create thumbnail image for img"
+
+        nx, ny = self.img.size
+
+        if square:
+            if nx > ny:
+                offset = (nx - ny)/2
+                box = (offset, 0, nx-offset, ny)
+            else:
+                offset = (ny - nx)/2
+                box = (0, offset, nx, ny-offset)
+
+            self.img = self.img.crop(box)
+            thumb_size = [size[0], size[0]]
+        elif nx > ny:
+            thumb_size = size
+        else:
+            thumb_size = [size[1], size[0]]
+
+        self.img.thumbnail(thumb_size, PImage.ANTIALIAS)
+        self.img.save(filename, quality=quality)
+
 
 class Gallery:
     "Prepare images"
@@ -92,6 +141,7 @@ class Gallery:
             filename = os.path.split(f)[1]
 
             im_name = os.path.join(img_dir, filename)
+
             thumb_name = os.path.join(thumb_dir,
                                       self.settings['thumb_prefix'] + filename)
 
@@ -101,59 +151,26 @@ class Gallery:
                 continue
 
             print "%s" % filename
-            im = Image.open(f)
+            img = Image(filename)
 
             if self.settings['big_img']:
-                im.save(os.path.join(bigimg_dir, filename),
-                        quality=self.settings['jpg_quality'])
+                img.save(os.path.join(bigimg_dir, filename),
+                         quality=self.settings['jpg_quality'])
 
-            # resize image
-            if im.size[0] > im.size[1]:
-                im_resized = im.resize(self.settings['img_size'],
-                                       Image.ANTIALIAS)
-            else:
-                im_resized = im.resize([self.settings['img_size'][1],
-                                        self.settings['img_size'][0]],
-                                       Image.ANTIALIAS)
+            img.resize(self.settings['img_size'])
 
             if self.settings['copyright']:
-                self.add_copyright(im_resized)
+                img.add_copyright(self.settings['copyright'])
 
-            # save
-            im_resized.save(im_name, quality=self.settings['jpg_quality'])
+            img.save(im_name, quality=self.settings['jpg_quality'])
 
-            # create thumbnail
-            self.make_thumb(im, thumb_name)
+            img.thumbnail(thumb_name, self.settings['thumb_size'],
+                          square=self.settings['square_thumb'],
+                          quality=self.settings['jpg_quality'])
 
             if self.settings['exif']:
                 self.copy_exif(f, im_name)
 
-    def make_thumb(self, img, thumb_name):
-        "create thumbnail image for img"
-        if self.settings['square_thumb']:
-            if img.size[0] > img.size[1]:
-                offset = (img.size[0] - img.size[1])/2
-                box = (offset, 0, img.size[0]-offset, img.size[1])
-            else:
-                offset = (img.size[1] - img.size[0])/2
-                box = (0, offset, img.size[0], img.size[1]-offset)
-
-            img = img.crop(box)
-            thumb_size = [self.settings['thumb_size'][0],
-                          self.settings['thumb_size'][0]]
-        elif img.size[0] > img.size[1]:
-            thumb_size = self.settings['thumb_size']
-        else:
-            thumb_size = [self.settings['thumb_size'][1],
-                          self.settings['thumb_size'][0]]
-
-        img.thumbnail(thumb_size, Image.ANTIALIAS)
-        img.save(thumb_name, quality=self.settings['jpg_quality'])
-
-    def add_copyright(self, img):
-        "add copyright to image"
-        draw = ImageDraw.Draw(img)
-        draw.text((5, img.size[1]-15), self.settings['copyright'])
 
     def copy_exif(self, srcfile, dstfile):
         "copy exif metadatas from src to dest images"
