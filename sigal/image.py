@@ -23,8 +23,8 @@ Prepare images: resize images, and create thumbnails with some options
 """
 
 import os
-import Image
-import ImageDraw
+
+from PIL import Image, ImageDraw
 from shutil import copy2
 
 DESCRIPTION_FILE = "album_description"
@@ -32,8 +32,9 @@ DESCRIPTION_FILE = "album_description"
 class Gallery:
     "Prepare images"
 
-    def __init__(self, settings):
+    def __init__(self, settings, input_dir):
         self.settings = settings
+        self.input_dir = os.path.abspath(input_dir)
 
     def filelist(self):
         "get the list of directories with files of particular extensions"
@@ -43,10 +44,9 @@ class Gallery:
                        if os.path.splitext(f)[1] in self.settings['fileextlist']]
             yield dirpath, dirnames, imglist
 
-    def build(self, input_dir, output_dir, force=False):
+    def build(self, output_dir, force=False):
         "create image gallery"
 
-        self.input_dir = os.path.abspath(input_dir)
         self.output_dir = os.path.abspath(output_dir)
         self.force = force
 

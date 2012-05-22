@@ -67,8 +67,8 @@ def main():
         settings['copyright'] = args.copyright
 
     # create gallery
-    gallery = Gallery(settings)
-    gallery.build(args.input_dir, args.output_dir, force=args.force)
+    gallery = Gallery(settings, args.input_dir)
+    gallery.build(args.output_dir, force=args.force)
 
     r = Theme(settings, args.output_dir)
     r.render()
