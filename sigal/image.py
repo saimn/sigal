@@ -151,7 +151,7 @@ class Gallery:
                 continue
 
             print "%s" % filename
-            img = Image(filename)
+            img = Image(f)
 
             if self.settings['big_img']:
                 img.save(os.path.join(bigimg_dir, filename),
