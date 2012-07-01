@@ -20,7 +20,7 @@ class TestSettings(unittest.TestCase):
         self.assertTupleEqual(get_size('640x480'), (640, 480))
         self.assertTupleEqual(get_size('480x640'), (640, 480))
         self.assertTupleEqual(self.settings['img_size'], (640, 480))
-        self.assertTupleEqual(self.settings['thumb_size'], (150, 112))
+        self.assertTupleEqual(self.settings['thumb_size'], (200, 150))
 
     def test_fileextlist(self):
         self.assertListEqual(self.settings['fileextlist'],
