@@ -1,14 +1,28 @@
-#images li {
-  display: inline;
+body {
+  font: 100%/1.4 "PT Sans", sans-serif;
 }
 
-
-#albums ul {
-  list-style-type: none;
+h1, h2, h3, h4, h5, h6 {
+  font-family: "PT Sans", sans-serif;
 }
 
-#albums li {
-  display: inline-block;
+header h1 {
+  margin-top: 40px;
+  margin-bottom: 0;
+}
+
+.thumbnail {
+  text-align: center;
+}
+.thumbnail img {
+  margin: 0 5px 5px 0;
+  border: 10px solid #fff;
+  border-radius: 2px 2px 2px 2px;
+  box-shadow: 0 0 3px #B1B1B1;
+  padding: 0 0 2px;
+}
+.thumbnail img:hover {
+    box-shadow: 0 0 5px #818181;
 }
 
 .album_thumb {}
