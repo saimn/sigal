@@ -4,7 +4,7 @@
 from setuptools import setup
 import sys
 
-requires = ['PIL', 'jinja2', 'docutils']
+requires = ['Pillow', 'jinja2', 'docutils']
 if sys.version_info < (2,7):
     requires.append('argparse')
 
