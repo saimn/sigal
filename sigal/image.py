@@ -24,8 +24,8 @@ Prepare images: resize images, and create thumbnails with some options
 
 import os
 
-from PIL import Image as PImage
-from PIL import ImageDraw as PImageDraw
+from PIL import Image as PILImage
+from PIL import ImageDraw as PILImageDraw
 from shutil import copy2
 
 DESCRIPTION_FILE = "album_description"
@@ -37,7 +37,7 @@ class Image:
     def __init__(self, filename):
         self.filename = filename
         self.imgname = os.path.split(filename)[1]
-        self.img = PImage.open(filename)
+        self.img = PILImage.open(filename)
 
     def save(self, filename, quality=90):
         self.img.save(filename, quality=quality)
@@ -45,13 +45,13 @@ class Image:
     def resize(self, size):
         "resize image"
         if self.img.size[0] > self.img.size[1]:
-            self.img = self.img.resize(size, PImage.ANTIALIAS)
+            self.img = self.img.resize(size, PILImage.ANTIALIAS)
         else:
-            self.img = self.img.resize([size[1], size[0]], PImage.ANTIALIAS)
+            self.img = self.img.resize([size[1], size[0]], PILImage.ANTIALIAS)
 
     def add_copyright(self, text):
         "add copyright to image"
-        draw = PImageDraw.Draw(self.img)
+        draw = PILImageDraw.Draw(self.img)
         draw.text((5, self.img.size[1]-15), text)
 
     def thumbnail(self, filename, size, square=False, quality=90):
@@ -74,7 +74,7 @@ class Image:
         else:
             thumb_size = [size[1], size[0]]
 
-        self.img.thumbnail(thumb_size, PImage.ANTIALIAS)
+        self.img.thumbnail(thumb_size, PILImage.ANTIALIAS)
         self.img.save(filename, quality=quality)
 
 
