@@ -138,8 +138,6 @@ class Theme():
         # copy static files in the output dir
         copy_tree(self.theme_path, os.path.abspath(self.path))
 
-        sigal_link = do_link(SIGAL_LINK, "sigal")
-
         self.directory_list()
 
         for dirpath in self.data.keys():
@@ -198,7 +196,7 @@ class Theme():
             page = self.template.render(self.data[dirpath], paths=paths,
                                         home_path=home_path, images=images,
                                         albums=albums, theme=theme,
-                                        sigal_link=sigal_link).encode('utf-8')
+                                        sigal_link=SIGAL_LINK).encode('utf-8')
 
             # save page
             f = open(os.path.join(dirpath, INDEX_PAGE),"w")
