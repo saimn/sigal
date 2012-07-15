@@ -52,8 +52,13 @@ class Theme():
         if settings['theme']:
             theme = settings['theme']
 
+        self.ctx = {}
+        self.ctx['sigal_link'] = SIGAL_LINK
+
         self.theme_path = os.path.join(THEMES_PATH, theme)
-        self.theme_rel_path = os.path.relpath(self.theme_path, os.path.dirname(__file__))
+        self.theme_rel_path = os.path.relpath(self.theme_path,
+                                              os.path.dirname(__file__))
+
         env = Environment(loader=PackageLoader('sigal', self.theme_rel_path))
         self.template = env.get_template(tpl)
 
@@ -150,29 +155,32 @@ class Theme():
 
         # loop on directories
         for dirpath in self.data.keys():
-            theme = { 'path': os.path.relpath(self.path, dirpath) }
-            home_path = os.path.join(os.path.relpath(self.path, dirpath), INDEX_PAGE)
+            self.ctx['theme'] = { 'path': os.path.relpath(self.path, dirpath) }
+            self.ctx['home_path'] = os.path.join(os.path.relpath(self.path, dirpath),
+                                                 INDEX_PAGE)
 
             # paths to upper directories (with titles and links)
             tmp_path = dirpath
-            paths = do_link(INDEX_PAGE, self.data[tmp_path]['title'])
+            self.ctx['paths'] = do_link(INDEX_PAGE,
+                                        self.data[tmp_path]['title'])
 
             while tmp_path != self.path:
                 tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
                 tmp_link = os.path.relpath(tmp_path, dirpath) + "/" + INDEX_PAGE
-                paths = do_link(tmp_link, self.data[tmp_path]['title']) + \
-                        PATH_SEP + paths
+                self.ctx['paths'] = do_link(tmp_link,
+                                            self.data[tmp_path]['title']) + \
+                                            PATH_SEP + self.ctx['paths']
 
-            images = []
+            self.ctx['images'] = []
             for i in self.data[dirpath]['img']:
                 image = {
                     'file': i,
                     'thumb': os.path.join(self.settings['thumb_dir'],
                                           self.settings['thumb_prefix'] + i)
                     }
-                images.append(image)
+                self.ctx['images'].append(image)
 
-            albums = []
+            self.ctx['albums'] = []
             for d in self.data[dirpath]['subdir']:
 
                 dpath = os.path.join(dirpath, d)
@@ -191,12 +199,10 @@ class Theme():
                     'thumb': os.path.join(d, self.settings['thumb_dir'],
                                           self.settings['thumb_prefix'] + alb_thumb),
                     }
-                albums.append(album)
+                self.ctx['albums'].append(album)
 
-            page = self.template.render(self.data[dirpath], paths=paths,
-                                        home_path=home_path, images=images,
-                                        albums=albums, theme=theme,
-                                        sigal_link=SIGAL_LINK).encode('utf-8')
+            page = self.template.render(self.data[dirpath],
+                                        **self.ctx).encode('utf-8')
 
             # save page
             f = open(os.path.join(dirpath, INDEX_PAGE),"w")
