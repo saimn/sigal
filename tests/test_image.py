@@ -7,8 +7,8 @@ import unittest
 from sigal.image import Gallery
 from sigal.settings import read_settings
 
-class TestSettings(unittest.TestCase):
-    "Read a settings file and check that the configuration is well done."
+class TestGallery(unittest.TestCase):
+    "Test the Gallery class."
 
     def setUp(self):
         "Read the sample config file"
