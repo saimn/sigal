@@ -24,12 +24,13 @@ Generate html pages for each directory of images
 import os
 import codecs
 import Image
+
 from distutils.dir_util import copy_tree
+from fnmatch import fnmatch
 from jinja2 import Environment, PackageLoader
 
 DEFAULT_THEME = "default"
 INDEX_PAGE = "index.html"
-IGNORED_DIR = ['css', 'js', 'img']
 DESCRIPTION_FILE = "album_description"
 SIGAL_LINK = "https://github.com/saimn/sigal"
 PATH_SEP = u" » "
@@ -48,29 +49,26 @@ class Generator():
         self.data = {}
         self.settings = settings
         self.path = os.path.normpath(path)
+        self.theme = settings['theme'] or theme
+        self.theme_path = os.path.join(THEMES_PATH, self.theme)
+        theme_rel_path = os.path.relpath(self.theme_path,
+                                         os.path.dirname(__file__))
 
-        if settings['theme']:
-            theme = settings['theme']
+        env = Environment(loader=PackageLoader('sigal', theme_rel_path))
+        self.template = env.get_template(tpl)
 
         self.ctx = {}
         self.ctx['sigal_link'] = SIGAL_LINK
 
-        self.theme_path = os.path.join(THEMES_PATH, theme)
-        self.theme_rel_path = os.path.relpath(self.theme_path,
-                                              os.path.dirname(__file__))
-
-        env = Environment(loader=PackageLoader('sigal', self.theme_rel_path))
-        self.template = env.get_template(tpl)
-
     def directory_list(self):
         "get the list of directories with files of particular extensions"
-        ignored = [self.settings['thumb_dir'],
-                   self.settings['bigimg_dir']] + IGNORED_DIR
+        ignored = ['theme', self.settings['thumb_dir'],
+                   self.settings['bigimg_dir']]
 
         for dirpath, dirnames, filenames in os.walk(self.path):
-            # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
             dirpath = os.path.normpath(dirpath)
-            if os.path.split(dirpath)[1] not in ignored:
+            if os.path.split(dirpath)[1] not in ignored and \
+                    not fnmatch(dirpath, '*theme*'):
                 # sort images and sub-albums by name
                 filenames.sort(key=str.lower)
                 dirnames.sort(key=str.lower)
@@ -141,7 +139,8 @@ class Generator():
         """
 
         # copy static files in the output dir
-        copy_tree(self.theme_path, os.path.abspath(self.path))
+        theme_outpath = os.path.join(os.path.abspath(self.path), 'theme')
+        copy_tree(self.theme_path, theme_outpath)
 
         self.directory_list()
 
@@ -155,7 +154,10 @@ class Generator():
 
         # loop on directories
         for dirpath in self.data.keys():
-            self.ctx['theme'] = { 'path': os.path.relpath(self.path, dirpath) }
+            self.ctx['theme'] = {
+                'name': self.theme,
+                'path': os.path.relpath(theme_outpath, dirpath)
+                }
             self.ctx['home_path'] = os.path.join(os.path.relpath(self.path, dirpath),
                                                  INDEX_PAGE)
 
