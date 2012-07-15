@@ -37,7 +37,7 @@ import sys
 import argparse
 from sigal.image import Gallery
 from sigal.settings import read_settings
-from sigal.theme import Theme
+from sigal.generator import Generator
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf'
 
@@ -70,5 +70,5 @@ def main():
     gallery = Gallery(settings, args.input_dir)
     gallery.build(args.output_dir, force=args.force)
 
-    r = Theme(settings, args.output_dir)
-    r.render()
+    r = Generator(settings, args.output_dir)
+    r.generate()

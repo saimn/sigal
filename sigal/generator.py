@@ -41,7 +41,7 @@ def do_link(link, title):
     return '<a href="%s">%s</a>' % (link, title)
 
 
-class Theme():
+class Generator():
     """ Generate html pages for each directory of images """
 
     def __init__(self, settings, path, theme=DEFAULT_THEME, tpl=INDEX_PAGE):
@@ -135,7 +135,7 @@ class Theme():
         # else simply return the 1st image
         return files[0]
 
-    def render(self):
+    def generate(self):
         """
         Render the html page
         """
