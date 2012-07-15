@@ -49,8 +49,6 @@ def main():
     parser.add_argument('output_dir', help='output directory')
     parser.add_argument('--version', action='version',
                         version="%(prog)s version " + __version__)
-    parser.add_argument('-c', '--copyright',
-                        help="copyright message added to the images")
     parser.add_argument("-f", "--force", action='store_true',
                         help="force the reprocessing of existing images")
 
@@ -62,9 +60,6 @@ def main():
 
     print ":: Reading settings ..."
     settings = read_settings(os.path.join(args.input_dir, _DEFAULT_CONFIG_FILE))
-
-    if args.copyright:
-        settings['copyright'] = args.copyright
 
     # create gallery
     gallery = Gallery(settings, args.input_dir)

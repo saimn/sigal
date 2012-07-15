@@ -44,6 +44,7 @@ class Image:
 
     def resize(self, size):
         "resize image"
+
         if self.img.size[0] > self.img.size[1]:
             self.img = self.img.resize(size, PILImage.ANTIALIAS)
         else:
@@ -51,8 +52,9 @@ class Image:
 
     def add_copyright(self, text):
         "add copyright to image"
+
         draw = PILImageDraw.Draw(self.img)
-        draw.text((5, self.img.size[1]-15), text)
+        draw.text((5, self.img.size[1]-15), '\xa9 ' + text)
 
     def thumbnail(self, filename, size, square=False, quality=90):
         "create thumbnail image for img"
@@ -102,9 +104,6 @@ class Gallery:
         if not os.path.isdir(self.output_dir):
             print "Create output directory %s" % self.output_dir
             os.makedirs(self.output_dir)
-
-        if self.settings['copyright']:
-            self.settings['copyright'] = '\xa9 ' + self.settings['copyright']
 
         # loop on directories
         for dirpath, dirnames, imglist in self.filelist():
