@@ -29,7 +29,7 @@ _DEFAULT_CONFIG = {
     'big_img': 0,
     'bigimg_dir': 'big',
     'jpg_quality': 90,
-    'exif': 1,
+    'exif': 0,
     'copyright': '',
     'fileExtList': '.jpg,.jpeg,.JPG,.JPEG,.png',
     'theme': 'default'
