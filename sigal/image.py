@@ -54,7 +54,7 @@ class Image:
         "add copyright to image"
 
         draw = PILImageDraw.Draw(self.img)
-        draw.text((5, self.img.size[1]-15), '\xa9 ' + text)
+        draw.text((5, self.img.size[1] - 15), '\xa9 ' + text)
 
     def thumbnail(self, filename, size, square=False, quality=90):
         "create thumbnail image for img"
@@ -63,11 +63,11 @@ class Image:
 
         if square:
             if nx > ny:
-                offset = (nx - ny)/2
-                box = (offset, 0, nx-offset, ny)
+                offset = (nx - ny) / 2
+                box = (offset, 0, nx - offset, ny)
             else:
-                offset = (ny - nx)/2
-                box = (0, offset, nx, ny-offset)
+                offset = (ny - nx) / 2
+                box = (0, offset, nx, ny - offset)
 
             self.img = self.img.crop(box)
             thumb_size = [size[0], size[0]]
@@ -89,6 +89,7 @@ class Gallery:
 
     def filelist(self):
         "get the list of directories with files of particular extensions"
+
         for dirpath, dirnames, filenames in os.walk(self.input_dir):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
             imglist = [os.path.join(dirpath, f) for f in filenames \
@@ -130,7 +131,8 @@ class Gallery:
                     if not os.path.isdir(bigimg_dir):
                         os.mkdir(bigimg_dir)
 
-                self.process_dir(imglist, img_dir, thumb_dir, bigimg_dir=bigimg_dir)
+                self.process_dir(imglist, img_dir, thumb_dir,
+                                 bigimg_dir=bigimg_dir)
 
     def process_dir(self, imglist, img_dir, thumb_dir, bigimg_dir=''):
         "prepare images for a directory"
@@ -170,9 +172,9 @@ class Gallery:
             if self.settings['exif']:
                 self.copy_exif(f, im_name)
 
-
     def copy_exif(self, srcfile, dstfile):
         "copy exif metadatas from src to dest images"
+
         try:
             import pyexiv2
         except ImportError:

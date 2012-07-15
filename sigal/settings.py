@@ -57,7 +57,7 @@ def read_settings(filename=None):
     settings = dict(config.items('sigal'))
     settings['jpg_quality'] = int(settings['jpg_quality'])
     settings['fileextlist'] = settings['fileextlist'].split(',')
-    settings['img_size']    = get_size(settings['img_size'])
-    settings['thumb_size']  = get_size(settings['thumb_size'])
+    settings['img_size'] = get_size(settings['img_size'])
+    settings['thumb_size'] = get_size(settings['thumb_size'])
 
     return settings

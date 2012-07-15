@@ -41,6 +41,7 @@ from sigal.generator import Generator
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf'
 
+
 def main():
     "main program"
 
@@ -59,7 +60,8 @@ def main():
         sys.exit(1)
 
     print ":: Reading settings ..."
-    settings = read_settings(os.path.join(args.input_dir, _DEFAULT_CONFIG_FILE))
+    settings = read_settings(os.path.join(args.input_dir,
+                                          _DEFAULT_CONFIG_FILE))
 
     # create gallery
     gallery = Gallery(settings, args.input_dir)

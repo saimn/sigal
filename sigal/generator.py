@@ -37,6 +37,7 @@ PATH_SEP = u" » "
 THEMES_PATH = os.path.normpath(os.path.join(
         os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
+
 def do_link(link, title):
     "return html link"
     return '<a href="%s">%s</a>' % (link, title)
@@ -121,7 +122,8 @@ class Generator():
         at the moment, this is the first image found.
         """
 
-        files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) \
+        files = [f for f in os.listdir(path)
+                 if os.path.isfile(os.path.join(path, f))
                  and os.path.splitext(f)[1] in self.settings['fileextlist']]
 
         for f in files:
@@ -146,8 +148,9 @@ class Generator():
 
         for dirpath in self.data.keys():
             # default: get title from directory name
-            self.data[dirpath]['title'] = os.path.basename(dirpath).replace('_',' ').\
-                                          replace('-',' ').capitalize()
+            self.data[dirpath]['title'] = os.path.basename(dirpath).\
+                                          replace('_', ' ').\
+                                          replace('-', ' ').capitalize()
 
             self.get_metadata(dirpath)
             # print self.data[dirpath]
@@ -158,7 +161,8 @@ class Generator():
                 'name': self.theme,
                 'path': os.path.relpath(theme_outpath, dirpath)
                 }
-            self.ctx['home_path'] = os.path.join(os.path.relpath(self.path, dirpath),
+            self.ctx['home_path'] = os.path.join(os.path.relpath(self.path,
+                                                                 dirpath),
                                                  INDEX_PAGE)
 
             # paths to upper directories (with titles and links)
@@ -168,8 +172,8 @@ class Generator():
 
             while tmp_path != self.path:
                 tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
-                tmp_link = os.path.relpath(tmp_path, dirpath) + "/" + INDEX_PAGE
-                self.ctx['paths'] = do_link(tmp_link,
+                link = os.path.relpath(tmp_path, dirpath) + "/" + INDEX_PAGE
+                self.ctx['paths'] = do_link(link,
                                             self.data[tmp_path]['title']) + \
                                             PATH_SEP + self.ctx['paths']
 
@@ -188,7 +192,7 @@ class Generator():
                 dpath = os.path.join(dirpath, d)
 
                 alb_thumb = ''
-                if self.data[dpath].has_key('representative'):
+                if 'representative' in self.data[dpath]:
                     alb_thumb = self.data[dpath]['representative']
 
                 if not alb_thumb or \
@@ -199,7 +203,8 @@ class Generator():
                     'path': os.path.join(d, INDEX_PAGE),
                     'title': self.data[dpath]['title'],
                     'thumb': os.path.join(d, self.settings['thumb_dir'],
-                                          self.settings['thumb_prefix'] + alb_thumb),
+                                          self.settings['thumb_prefix'] +
+                                          alb_thumb),
                     }
                 self.ctx['albums'].append(album)
 
@@ -207,6 +212,6 @@ class Generator():
                                         **self.ctx).encode('utf-8')
 
             # save page
-            f = open(os.path.join(dirpath, INDEX_PAGE),"w")
+            f = open(os.path.join(dirpath, INDEX_PAGE), 'w')
             f.write(page)
             f.close()
