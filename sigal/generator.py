@@ -23,8 +23,8 @@ Generate html pages for each directory of images
 
 import os
 import codecs
-import Image
 
+from PIL import Image
 from distutils.dir_util import copy_tree
 from fnmatch import fnmatch
 from jinja2 import Environment, PackageLoader
