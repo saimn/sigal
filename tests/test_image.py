@@ -26,4 +26,4 @@ class TestGallery(unittest.TestCase):
         reflist = [os.path.join(self.path, 'sample', 'dir2', f)
                    for f in ['test1.jpg', 'test2.jpg']]
         dirpath, dirnames, imglist = file_generator.next()
-        self.assertListEqual(imglist, reflist)
+        self.assertItemsEqual(imglist, reflist)
