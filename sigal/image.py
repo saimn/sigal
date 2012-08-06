@@ -25,7 +25,7 @@ Prepare images: resize images, and create thumbnails with some options
 import os
 
 from PIL import Image as PILImage
-from PIL import ImageDraw as PILImageDraw
+from PIL import ImageDraw, ImageOps
 from shutil import copy2
 
 DESCRIPTION_FILE = "album_description"
@@ -53,30 +53,17 @@ class Image:
     def add_copyright(self, text):
         "add copyright to image"
 
-        draw = PILImageDraw.Draw(self.img)
+        draw = ImageDraw.Draw(self.img)
         draw.text((5, self.img.size[1] - 15), '\xa9 ' + text)
 
-    def thumbnail(self, filename, size, square=False, quality=90):
-        "create thumbnail image for img"
+    def thumbnail(self, filename, box, fit=True, quality=90):
+        "Create a thumbnail image"
 
-        nx, ny = self.img.size
-
-        if square:
-            if nx > ny:
-                offset = (nx - ny) / 2
-                box = (offset, 0, nx - offset, ny)
-            else:
-                offset = (ny - nx) / 2
-                box = (0, offset, nx, ny - offset)
-
-            self.img = self.img.crop(box)
-            thumb_size = [size[0], size[0]]
-        elif nx > ny:
-            thumb_size = size
+        if fit:
+            self.img = ImageOps.fit(self.img, box, PILImage.ANTIALIAS)
         else:
-            thumb_size = [size[1], size[0]]
+            self.img.thumbnail(box, PILImage.ANTIALIAS)
 
-        self.img.thumbnail(thumb_size, PILImage.ANTIALIAS)
         self.img.save(filename, quality=quality)
 
 
@@ -166,7 +153,7 @@ class Gallery:
             img.save(im_name, quality=self.settings['jpg_quality'])
 
             img.thumbnail(thumb_name, self.settings['thumb_size'],
-                          square=self.settings['square_thumb'],
+                          fit=self.settings['thumb_fit'],
                           quality=self.settings['jpg_quality'])
 
             if self.settings['exif']:

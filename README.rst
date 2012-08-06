@@ -56,11 +56,11 @@ directory `input_dir/sigal.conf`.
     thumb_prefix = TN-
     # thumbnail size
     thumb_size = 150x112
+    # crop the image to fill the box
+    thumb_fit = 1
     # keep big image
     big_img = 1
     bigimg_dir = original
-    # generate squared thumbnails
-    square_thumb = 1
     # jpeg quality
     jpg_quality = 90
     # keep exif metadatas in output image

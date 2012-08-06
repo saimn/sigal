@@ -25,7 +25,7 @@ _DEFAULT_CONFIG = {
     'thumb_prefix': '',
     'thumb_size': '150x112',
     'thumb_dir': 'thumbnail',
-    'square_thumb': 0,
+    'thumb_fit': 1,
     'big_img': 0,
     'bigimg_dir': 'big',
     'jpg_quality': 90,
