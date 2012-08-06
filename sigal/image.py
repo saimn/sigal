@@ -28,6 +28,11 @@ from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
 from shutil import copy2
 
+try:
+    import pyexiv2
+except ImportError:
+    pass
+
 DESCRIPTION_FILE = "album_description"
 
 
@@ -157,37 +162,31 @@ class Gallery:
                           quality=self.settings['jpg_quality'])
 
             if self.settings['exif']:
-                self.copy_exif(f, im_name)
+                copy_exif(f, im_name)
 
-    def copy_exif(self, srcfile, dstfile):
-        "copy exif metadatas from src to dest images"
 
+def copy_exif(srcfile, dstfile):
+    "copy the exif metadatas from src to dest images"
+
+    if pyexiv2.version_info[1] == 1:
+        src = pyexiv2.Image(srcfile)
+        dst = pyexiv2.Image(dstfile)
+        src.readMetadata()
+        dst.readMetadata()
         try:
-            import pyexiv2
-        except ImportError:
-            self.settings['exif'] = 0
-            print "Error: install pyexiv2 module to use exif metadatas."
+            src.copyMetadataTo(dst)
+        except:
+            print "Error: metadata not copied for %s." % srcfile
             return
-
-        if pyexiv2.version_info[1] == 1:
-            src = pyexiv2.Image(srcfile)
-            dst = pyexiv2.Image(dstfile)
-            src.readMetadata()
-            dst.readMetadata()
-            try:
-                src.copyMetadataTo(dst)
-            except:
-                print "Error: metadata not copied for %s." % srcfile
-                return
-            dst.writeMetadata()
-        else:
-            src = pyexiv2.ImageMetadata(srcfile)
-            dst = pyexiv2.ImageMetadata(dstfile)
-            src.read()
-            dst.read()
-            try:
-                src.copy(dst)
-            except:
-                print "Error: metadata not copied for %s." % srcfile
-                return
-            dst.write()
+        dst.writeMetadata()
+    else:
+        src = pyexiv2.ImageMetadata(srcfile)
+        dst = pyexiv2.ImageMetadata(dstfile)
+        src.read()
+        dst.read()
+        try:
+            src.copy(dst)
+        except:
+            print "Error: metadata not copied for %s." % srcfile
+            return
+        dst.write()

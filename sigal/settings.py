@@ -60,4 +60,11 @@ def read_settings(filename=None):
     settings['img_size'] = get_size(settings['img_size'])
     settings['thumb_size'] = get_size(settings['thumb_size'])
 
+    if settings['exif']:
+        try:
+            import pyexiv2
+        except ImportError:
+            settings['exif'] = 0
+            print "Error: install pyexiv2 module to use exif metadatas."
+
     return settings
