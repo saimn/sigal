@@ -48,12 +48,25 @@ class Image:
         self.img.save(filename, quality=quality)
 
     def resize(self, size):
-        "resize image"
+        """Resize the image
+
+        - check if the image format is portrait or landscape and adjust `size`.
+        - compute the width and height ratio, and keep the min to resize the
+          image inside the `size` box without distorting it.
+        """
 
         if self.img.size[0] > self.img.size[1]:
-            self.img = self.img.resize(size, PILImage.ANTIALIAS)
+            newsize = size
         else:
-            self.img = self.img.resize([size[1], size[0]], PILImage.ANTIALIAS)
+            newsize = (size[1], size[0])
+
+        wratio = newsize[0] / float(self.img.size[0])
+        hratio = newsize[1] / float(self.img.size[1])
+        ratio = min(wratio, hratio)
+        newsize = (int(ratio*self.img.size[0]), int(ratio*self.img.size[1]))
+
+        if ratio < 1:
+            self.img = self.img.resize(newsize, PILImage.ANTIALIAS)
 
     def add_copyright(self, text):
         "add copyright to image"
