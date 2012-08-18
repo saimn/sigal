@@ -35,7 +35,6 @@ Optional arguments
 ============================= ==============================================
  ``-h|--help``                show this help message and exit
  ``--version``                show program's version number and exit
- ``-c|--copyright COPYRIGHT`` copyright message added to the images
  ``-f|--force``               force the reprocessing of existing images and
                               thumbnails
 ============================= ==============================================
@@ -43,8 +42,7 @@ Optional arguments
 Settings
 --------
 
-Options can be set globally in `~/.config/sigal/sigal.conf` and in the source
-directory `input_dir/sigal.conf`.
+The configuration for the gallery must be set in `<input_dir>/sigal.conf`.
 
 ::
 
@@ -55,7 +53,7 @@ directory `input_dir/sigal.conf`.
     # prefix for thumbnails name
     thumb_prefix = TN-
     # thumbnail size
-    thumb_size = 150x112
+    thumb_size = 200x150
     # crop the image to fill the box
     thumb_fit = 1
     # keep big image
@@ -75,9 +73,9 @@ Album information
 Information on an album can be given in a file named `album_description` (else
 the directory's name is used) ::
 
-	album_name = "An example gallery"
-        album_description = "And a cool description."
-        album_representative = "test1.jpg"
+    album_name = "An example gallery"
+    album_description = "And a cool description."
+    album_representative = "test1.jpg"
 
 Credits
 -------
