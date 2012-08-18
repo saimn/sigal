@@ -87,29 +87,6 @@ class Generator():
                                                     if d not in ignored]
 
 
-    def get_metadata(self, path):
-        """
-        Get album metadata from DESCRIPTION_FILE:
-          - album_name
-          - album_description
-          - album_representative
-        """
-        descfile = os.path.join(path, DESCRIPTION_FILE)
-        if not os.path.isfile(descfile):
-            return
-
-        md = markdown.Markdown(extensions = ['meta'])
-
-        with codecs.open(descfile, "r", "utf-8") as f:
-            text = f.read()
-
-        html = md.convert(text)
-
-        self.data[path]['title'] = md.Meta.get('title', [''])[0]
-        self.data[path]['description'] = html
-        self.data[path]['representative'] = md.Meta.get('representative', [''])[0]
-
-
     def find_representative(self, path):
         """
         find the representative image for a given album/path
@@ -141,12 +118,7 @@ class Generator():
         self.directory_list()
 
         for dirpath in self.data.keys():
-            # default: get title from directory name
-            self.data[dirpath]['title'] = os.path.basename(dirpath).\
-                                          replace('_', ' ').\
-                                          replace('-', ' ').capitalize()
-
-            self.get_metadata(dirpath)
+            self.data[dirpath].update(get_metadata(dirpath))
 
         # loop on directories
         for dirpath in self.data.keys():
@@ -183,10 +155,7 @@ class Generator():
             for d in self.data[dirpath]['subdir']:
 
                 dpath = os.path.join(dirpath, d)
-
-                alb_thumb = ''
-                if self.data[dpath]['representative']:
-                    alb_thumb = self.data[dpath]['representative']
+                alb_thumb = self.data[dpath].get('representative', '')
 
                 if not alb_thumb or \
                    not os.path.isfile(os.path.join(dpath, alb_thumb)):
@@ -208,3 +177,35 @@ class Generator():
             f = open(os.path.join(dirpath, INDEX_PAGE), 'w')
             f.write(page)
             f.close()
+
+
+def get_metadata(path):
+    """ Get album metadata from DESCRIPTION_FILE:
+
+    - title
+    - representative image
+    - description
+    """
+
+    descfile = os.path.join(path, DESCRIPTION_FILE)
+    meta = {}
+
+    if not os.path.isfile(descfile):
+        # default: get title from directory name
+        meta['title'] = os.path.basename(path).replace('_', ' ').\
+            replace('-', ' ').capitalize()
+    else:
+        md = markdown.Markdown(extensions = ['meta'])
+
+        with codecs.open(descfile, "r", "utf-8") as f:
+            text = f.read()
+
+        html = md.convert(text)
+
+        meta = {
+            'title': md.Meta.get('title', [''])[0],
+            'description': html,
+            'representative': md.Meta.get('representative', [''])[0]
+            }
+
+    return meta
