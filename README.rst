@@ -12,8 +12,9 @@ sigal is yet another python script to build a static gallery of images:
 Dependencies
 ------------
 
-- Python Imaging Library (PIL)
+- Python Imaging Library (PIL / Pillow)
 - Jinja2
+- Python Markdown
 - pyexiv2 (optionnal, used to copy exif metadatas)
 
 Usage
@@ -21,7 +22,7 @@ Usage
 
 ::
 
-    $ sigal [-h] [--version] [-c COPYRIGHT] [-f] input_dir output_dir
+    $ sigal [-h] [--version] [-f] input_dir output_dir
 
 Required arguments:
 
@@ -30,7 +31,7 @@ Required arguments:
  ``output_dir``   output directory
 ================ =====================
 
-Optional arguments
+Optional arguments:
 
 ============================= ==============================================
  ``-h|--help``                show this help message and exit
@@ -70,12 +71,16 @@ The configuration for the gallery must be set in `<input_dir>/sigal.conf`.
 Album information
 -----------------
 
-Information on an album can be given in a file named `album_description` (else
-the directory's name is used) ::
+Information on an album can be given in a file using the markdown syntax,
+named `index.mkd` ::
 
-    album_name = "An example gallery"
-    album_description = "And a cool description."
-    album_representative = "test1.jpg"
+    Title: Another example gallery
+    Representative: test2.jpg
+
+    And a *cool* description.
+
+If this file does not exist the directory's name is used for the title, and
+the first image of the directory is used as representative.
 
 Credits
 -------
