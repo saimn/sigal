@@ -37,7 +37,7 @@ try:
 except ImportError:
     pass
 
-DESCRIPTION_FILE = "album_description"
+DESCRIPTION_FILE = "index.md"
 
 
 class Image:

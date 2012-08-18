@@ -27,6 +27,7 @@ Generate html pages for each directory of images
 
 import os
 import codecs
+import markdown
 
 from PIL import Image
 from distutils.dir_util import copy_tree
@@ -35,7 +36,7 @@ from jinja2 import Environment, PackageLoader
 
 DEFAULT_THEME = "default"
 INDEX_PAGE = "index.html"
-DESCRIPTION_FILE = "album_description"
+DESCRIPTION_FILE = "index.md"
 SIGAL_LINK = "https://github.com/saimn/sigal"
 PATH_SEP = u" » "
 THEMES_PATH = os.path.normpath(os.path.join(
@@ -85,20 +86,6 @@ class Generator():
                 self.data[dirpath]['subdir'] = [d for d in dirnames \
                                                     if d not in ignored]
 
-    def get_meta_value(self, data):
-        """
-        Return the value for a line like:
-           key = "value"
-        """
-        data = data.split('=')[1].strip()
-
-        # Strip quotes
-        if data[0] == '"':
-            data = data[1:]
-        if data[-1] == '"':
-            data = data[:-1]
-
-        return data
 
     def get_metadata(self, path):
         """
@@ -111,14 +98,17 @@ class Generator():
         if not os.path.isfile(descfile):
             return
 
+        md = markdown.Markdown(extensions = ['meta'])
+
         with codecs.open(descfile, "r", "utf-8") as f:
-            for l in f:
-                if "album_name" in l:
-                    self.data[path]['title'] = self.get_meta_value(l)
-                if "album_description" in l:
-                    self.data[path]['description'] = self.get_meta_value(l)
-                if "album_representative" in l:
-                    self.data[path]['representative'] = self.get_meta_value(l)
+            text = f.read()
+
+        html = md.convert(text)
+
+        self.data[path]['title'] = md.Meta.get('title', [''])[0]
+        self.data[path]['description'] = html
+        self.data[path]['representative'] = md.Meta.get('representative', [''])[0]
+
 
     def find_representative(self, path):
         """
@@ -157,7 +147,6 @@ class Generator():
                                           replace('-', ' ').capitalize()
 
             self.get_metadata(dirpath)
-            # print self.data[dirpath]
 
         # loop on directories
         for dirpath in self.data.keys():
@@ -196,7 +185,7 @@ class Generator():
                 dpath = os.path.join(dirpath, d)
 
                 alb_thumb = ''
-                if 'representative' in self.data[dpath]:
+                if self.data[dpath]['representative']:
                     alb_thumb = self.data[dpath]['representative']
 
                 if not alb_thumb or \
