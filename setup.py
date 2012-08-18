@@ -21,7 +21,7 @@ setup(
     url = 'https://github.com/saimn/sigal',
     author = 'Simon C.',
     author_email = 'contact@saimon.org',
-    license = 'GPLv3',
+    license = 'MIT',
     include_package_data = True,
     install_requires  =  requires,
     entry_points = entry_points,
