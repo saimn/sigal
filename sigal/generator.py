@@ -56,11 +56,16 @@ class Generator():
         self.settings = settings
         self.path = os.path.normpath(path)
         self.theme = settings['theme'] or theme
-        self.theme_path = os.path.join(THEMES_PATH, self.theme)
-        theme_rel_path = os.path.relpath(self.theme_path,
-                                         os.path.dirname(__file__))
 
-        env = Environment(loader=PackageLoader('sigal', theme_rel_path))
+        # search the theme in sigal/theme if the given one does not exists
+        if not os.path.exists(self.theme):
+            theme_path = os.path.join(THEMES_PATH, self.theme)
+            self.theme = theme_path
+            if not os.path.exists(theme_path):
+                raise Exception("Impossible to find the theme %s" % self.theme)
+
+        theme_relpath = os.path.relpath(self.theme, os.path.dirname(__file__))
+        env = Environment(loader=PackageLoader('sigal', theme_relpath))
         self.template = env.get_template(tpl)
 
         self.ctx = {}
@@ -113,7 +118,8 @@ class Generator():
 
         # copy static files in the output dir
         theme_outpath = os.path.join(os.path.abspath(self.path), 'theme')
-        copy_tree(self.theme_path, theme_outpath)
+        copy_tree(self.theme, theme_outpath)
+        self.ctx['theme'] = { 'name': os.path.basename(self.theme) }
 
         self.directory_list()
 
@@ -122,13 +128,9 @@ class Generator():
 
         # loop on directories
         for dirpath in self.data.keys():
-            self.ctx['theme'] = {
-                'name': self.theme,
-                'path': os.path.relpath(theme_outpath, dirpath)
-                }
-            self.ctx['home_path'] = os.path.join(os.path.relpath(self.path,
-                                                                 dirpath),
-                                                 INDEX_PAGE)
+            self.ctx['theme']['path'] = os.path.relpath(theme_outpath, dirpath)
+            dir_relpath = os.path.relpath(self.path, dirpath)
+            self.ctx['home_path'] = os.path.join(dir_relpath, INDEX_PAGE)
 
             # paths to upper directories (with titles and links)
             tmp_path = dirpath
