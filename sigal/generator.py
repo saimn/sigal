@@ -28,11 +28,12 @@ Generate html pages for each directory of images
 import os
 import codecs
 import markdown
+import PIL
 
-from PIL import Image
 from distutils.dir_util import copy_tree
 from fnmatch import fnmatch
 from jinja2 import Environment, PackageLoader
+from sigal.image import Image
 
 DEFAULT_THEME = "default"
 INDEX_PAGE = "index.html"
@@ -73,8 +74,10 @@ class Generator():
 
     def directory_list(self):
         "get the list of directories with files of particular extensions"
-        ignored = ['theme', self.settings['thumb_dir'],
-                   self.settings['bigimg_dir']]
+
+        ignored = ['theme', self.settings['bigimg_dir']]
+        if self.settings['thumb_dir']:
+            ignored.append(self.settings['thumb_dir'])
 
         for dirpath, dirnames, filenames in os.walk(self.path):
             dirpath = os.path.normpath(dirpath)
@@ -104,7 +107,7 @@ class Generator():
 
         for f in files:
             # find and return the first landscape image
-            im = Image.open(os.path.join(path, f))
+            im = PIL.Image.open(os.path.join(path, f))
             if im.size[0] > im.size[1]:
                 return f
 
@@ -163,12 +166,20 @@ class Generator():
                    not os.path.isfile(os.path.join(dpath, alb_thumb)):
                     alb_thumb = self.find_representative(dpath)
 
+                thumb_name = os.path.join(self.settings['thumb_dir'],
+                                          self.settings['thumb_prefix'] + alb_thumb)
+                thumb_path = os.path.join(dpath, thumb_name)
+
+                if not os.path.exists(thumb_path):
+                    img = Image(os.path.join(dpath, alb_thumb))
+                    img.thumbnail(thumb_path, self.settings['thumb_size'],
+                                  fit=self.settings['thumb_fit'],
+                                  quality=self.settings['jpg_quality'])
+
                 album = {
                     'path': os.path.join(d, INDEX_PAGE),
                     'title': self.data[dpath]['title'],
-                    'thumb': os.path.join(d, self.settings['thumb_dir'],
-                                          self.settings['thumb_prefix'] +
-                                          alb_thumb),
+                    'thumb': os.path.join(d, thumb_name)
                     }
                 self.ctx['albums'].append(album)
 

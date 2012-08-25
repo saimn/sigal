@@ -26,9 +26,10 @@ import ConfigParser
 
 _DEFAULT_CONFIG = {
     'img_size': '640x480',
-    'thumb_prefix': '',
+    'make_thumbs': 1,
+    'thumb_prefix': 'TN-',
     'thumb_size': '150x112',
-    'thumb_dir': 'thumbnail',
+    'thumb_dir': '',
     'thumb_fit': 1,
     'big_img': 0,
     'bigimg_dir': 'big',
@@ -59,10 +60,15 @@ def read_settings(filename=None):
         config.read(filename)
 
     settings = dict(config.items('sigal'))
-    settings['jpg_quality'] = int(settings['jpg_quality'])
     settings['fileextlist'] = settings['fileextlist'].split(',')
     settings['img_size'] = get_size(settings['img_size'])
     settings['thumb_size'] = get_size(settings['thumb_size'])
+
+    settings['jpg_quality'] = config.getint('sigal', 'jpg_quality')
+    settings['big_img'] = config.getboolean('sigal', 'big_img')
+    settings['exif'] = config.getboolean('sigal', 'exif')
+    settings['make_thumbs'] = config.getboolean('sigal', 'make_thumbs')
+    settings['thumb_fit'] = config.getboolean('sigal', 'thumb_fit')
 
     if settings['exif']:
         try:

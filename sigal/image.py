@@ -129,22 +129,20 @@ class Gallery:
                 copy2(descfile, img_dir)
 
             if len(imglist) != 0:
-                thumb_dir = os.path.join(img_dir, self.settings['thumb_dir'])
-                if not os.path.isdir(thumb_dir):
-                    os.mkdir(thumb_dir)
+                self.process_dir(imglist, img_dir)
 
-                bigimg_dir = ''
-                if self.settings['big_img']:
-                    bigimg_dir = os.path.join(img_dir,
-                                              self.settings['bigimg_dir'])
-                    if not os.path.isdir(bigimg_dir):
-                        os.mkdir(bigimg_dir)
-
-                self.process_dir(imglist, img_dir, thumb_dir,
-                                 bigimg_dir=bigimg_dir)
-
-    def process_dir(self, imglist, img_dir, thumb_dir, bigimg_dir=''):
+    def process_dir(self, imglist, img_dir):
         "prepare images for a directory"
+
+        thumb_dir = os.path.join(img_dir, self.settings['thumb_dir'])
+        if not os.path.isdir(thumb_dir):
+            os.mkdir(thumb_dir)
+
+        if self.settings['big_img']:
+            bigimg_dir = os.path.join(img_dir,
+                                      self.settings['bigimg_dir'])
+            if not os.path.isdir(bigimg_dir):
+                os.mkdir(bigimg_dir)
 
         # loop on images
         for f in imglist:
@@ -152,11 +150,7 @@ class Gallery:
 
             im_name = os.path.join(img_dir, filename)
 
-            thumb_name = os.path.join(thumb_dir,
-                                      self.settings['thumb_prefix'] + filename)
-
-            if os.path.isfile(im_name) and os.path.isfile(thumb_name) and \
-               not self.force:
+            if os.path.isfile(im_name) and not self.force:
                 print "%s exists - skipping" % filename
                 continue
 
@@ -174,9 +168,12 @@ class Gallery:
 
             img.save(im_name, quality=self.settings['jpg_quality'])
 
-            img.thumbnail(thumb_name, self.settings['thumb_size'],
-                          fit=self.settings['thumb_fit'],
-                          quality=self.settings['jpg_quality'])
+            if self.settings['make_thumbs']:
+                thumb_name = os.path.join(thumb_dir,
+                                          self.settings['thumb_prefix'] + filename)
+                img.thumbnail(thumb_name, self.settings['thumb_size'],
+                              fit=self.settings['thumb_fit'],
+                              quality=self.settings['jpg_quality'])
 
             if self.settings['exif']:
                 copy_exif(f, im_name)
