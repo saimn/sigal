@@ -119,7 +119,8 @@ class Gallery:
 
         # loop on directories
         for dirpath, dirnames, imglist in self.filelist():
-            self.logger.warning("%s - %i images" % (dirpath, len(imglist)))
+            self.logger.warning("%s - %i images",
+                                os.path.relpath(dirpath, self.input_dir), len(imglist))
 
             img_dir = dirpath.replace(self.input_dir, self.output_dir)
 
