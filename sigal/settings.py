@@ -21,8 +21,10 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os
 import ConfigParser
+import logging
+import os
+
 
 _DEFAULT_CONFIG = {
     'img_size': '640x480',
@@ -52,6 +54,8 @@ def get_size(string):
 def read_settings(filename=None):
     "Read settings from a config file in the source_dir root"
 
+    logger = logging.getLogger(__name__)
+
     # Read the default configuration
     config = ConfigParser.ConfigParser(defaults=_DEFAULT_CONFIG)
 
@@ -75,6 +79,6 @@ def read_settings(filename=None):
             import pyexiv2
         except ImportError:
             settings['exif'] = 0
-            print "Error: install pyexiv2 module to use exif metadatas."
+            logger.error("Error: install pyexiv2 module to use exif metadatas.")
 
     return settings

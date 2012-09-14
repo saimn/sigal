@@ -26,6 +26,7 @@ Prepare images: resize images, and create thumbnails with some options
 (squared thumbs, ...).
 """
 
+import logging
 import os
 
 from PIL import Image as PILImage
@@ -95,6 +96,7 @@ class Gallery:
     def __init__(self, settings, input_dir):
         self.settings = settings
         self.input_dir = os.path.abspath(input_dir)
+        self.logger = logging.getLogger(__name__)
 
     def filelist(self):
         "get the list of directories with files of particular extensions"
@@ -112,12 +114,12 @@ class Gallery:
         self.force = force
 
         if not os.path.isdir(self.output_dir):
-            print "Create output directory %s" % self.output_dir
+            self.logger.info("Create output directory %s", self.output_dir)
             os.makedirs(self.output_dir)
 
         # loop on directories
         for dirpath, dirnames, imglist in self.filelist():
-            print ":: %s - %i images" % (dirpath, len(imglist))
+            self.logger.warning("%s - %i images" % (dirpath, len(imglist)))
 
             img_dir = dirpath.replace(self.input_dir, self.output_dir)
 
@@ -151,10 +153,10 @@ class Gallery:
             im_name = os.path.join(img_dir, filename)
 
             if os.path.isfile(im_name) and not self.force:
-                print "%s exists - skipping" % filename
+                self.logger.info("%s exists - skipping", filename)
                 continue
 
-            print "%s" % filename
+            self.logger.info(filename)
             img = Image(f)
 
             if self.settings['big_img']:
@@ -182,6 +184,8 @@ class Gallery:
 def copy_exif(srcfile, dstfile):
     "copy the exif metadatas from src to dest images"
 
+    logger = logging.getLogger(__name__)
+
     if pyexiv2.version_info[1] == 1:
         src = pyexiv2.Image(srcfile)
         dst = pyexiv2.Image(dstfile)
@@ -190,7 +194,7 @@ def copy_exif(srcfile, dstfile):
         try:
             src.copyMetadataTo(dst)
         except:
-            print "Error: metadata not copied for %s." % srcfile
+            logger.error("metadata not copied for %s.", srcfile)
             return
         dst.writeMetadata()
     else:
@@ -201,6 +205,6 @@ def copy_exif(srcfile, dstfile):
         try:
             src.copy(dst)
         except:
-            print "Error: metadata not copied for %s." % srcfile
+            logger.error("metadata not copied for %s.", srcfile)
             return
         dst.write()

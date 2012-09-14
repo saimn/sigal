@@ -36,14 +36,34 @@ __version__ = "0.1-dev"
 __copyright__ = "Copyright (C) 2009-2012 - saimon.org"
 __license__ = "MIT"
 
+import argparse
+import logging
 import os
 import sys
-import argparse
+
 from sigal.image import Gallery
 from sigal.settings import read_settings
 from sigal.generator import Generator
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf'
+
+def init_logging(level=logging.INFO):
+    """ Logging config
+
+    Set the level and create a more detailed formatter for debug mode.
+    """
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(level)
+
+    if level == logging.DEBUG:
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    else:
+        formatter = logging.Formatter('%(message)s')
+
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 
 def main():
@@ -56,14 +76,24 @@ def main():
                         version="%(prog)s version " + __version__)
     parser.add_argument("-f", "--force", action='store_true',
                         help="force the reprocessing of existing images")
+    parser.add_argument('-v', '--verbose', action='store_const',
+                        const=logging.INFO, dest='verbosity',
+                        help='Show all messages.')
+    parser.add_argument('-d', '--debug', action='store_const',
+                        const=logging.DEBUG, dest='verbosity',
+                        help='Show all message, including debug messages.')
 
     args = parser.parse_args()
+    level = args.verbosity or logging.WARNING
+    init_logging(level=level)
+
+    logger = logging.getLogger(__name__)
 
     if not os.path.isdir(args.input_dir):
-        print "Directory %s does not exist." % args.input_dir
+        logger.error("Input directory %s does not exist.", args.input_dir)
         sys.exit(1)
 
-    print ":: Reading settings ..."
+    logger.info("Reading settings ...")
     settings = read_settings(os.path.join(args.input_dir,
                                           _DEFAULT_CONFIG_FILE))
 
