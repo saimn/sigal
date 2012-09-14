@@ -29,6 +29,7 @@ Prepare images: resize images, and create thumbnails with some options
 import logging
 import os
 
+from clint.textui import progress
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
 from shutil import copy2
@@ -148,7 +149,7 @@ class Gallery:
                 os.mkdir(bigimg_dir)
 
         # loop on images
-        for f in imglist:
+        for f in progress.bar(imglist):
             filename = os.path.split(f)[1]
 
             im_name = os.path.join(img_dir, filename)

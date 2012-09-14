@@ -4,7 +4,7 @@
 from setuptools import setup
 import sys
 
-requires = ['PIL', 'jinja2', 'Markdown']
+requires = ['PIL', 'jinja2', 'Markdown', 'clint']
 if sys.version_info < (2,7):
     requires.append('argparse')
 
