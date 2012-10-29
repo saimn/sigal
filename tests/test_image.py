@@ -4,7 +4,7 @@
 import os
 import unittest
 
-from sigal.image import Gallery
+from sigal.gallery import Gallery
 from sigal.settings import read_settings
 
 
