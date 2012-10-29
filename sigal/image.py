@@ -69,7 +69,8 @@ class Image:
         wratio = newsize[0] / float(self.img.size[0])
         hratio = newsize[1] / float(self.img.size[1])
         ratio = min(wratio, hratio)
-        newsize = (int(ratio*self.img.size[0]), int(ratio*self.img.size[1]))
+        newsize = (int(ratio * self.img.size[0]),
+                   int(ratio * self.img.size[1]))
 
         if ratio < 1:
             self.img = self.img.resize(newsize, PILImage.ANTIALIAS)
@@ -104,7 +105,7 @@ class Gallery:
 
         for dirpath, dirnames, filenames in os.walk(self.input_dir):
             # filelist = [os.path.normcase(f) for f in os.listdir(dir)]
-            imglist = [os.path.join(dirpath, f) for f in filenames \
+            imglist = [os.path.join(dirpath, f) for f in filenames
                        if os.path.splitext(f)[1] in self.settings['fileextlist']]
             yield dirpath, dirnames, imglist
 
@@ -121,7 +122,8 @@ class Gallery:
         # loop on directories
         for dirpath, dirnames, imglist in self.filelist():
             self.logger.warning("%s - %i images",
-                                os.path.relpath(dirpath, self.input_dir), len(imglist))
+                                os.path.relpath(dirpath, self.input_dir),
+                                len(imglist))
 
             img_dir = dirpath.replace(self.input_dir, self.output_dir)
 
@@ -174,7 +176,8 @@ class Gallery:
 
             if self.settings['make_thumbs']:
                 thumb_name = os.path.join(thumb_dir,
-                                          self.settings['thumb_prefix'] + filename)
+                                          self.settings['thumb_prefix'] +
+                                          filename)
                 img.thumbnail(thumb_name, self.settings['thumb_size'],
                               fit=self.settings['thumb_fit'],
                               quality=self.settings['jpg_quality'])

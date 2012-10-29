@@ -41,7 +41,7 @@ DESCRIPTION_FILE = "index.md"
 SIGAL_LINK = "https://github.com/saimn/sigal"
 PATH_SEP = u" » "
 THEMES_PATH = os.path.normpath(os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), 'themes'))
+    os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
 
 def do_link(link, title):
@@ -88,12 +88,11 @@ class Generator():
                 dirnames.sort(key=str.lower)
 
                 self.data[dirpath] = {}
-                self.data[dirpath]['img'] = [f for f in filenames \
-                                             if os.path.splitext(f)[1] in \
-                                                 self.settings['fileextlist']]
-                self.data[dirpath]['subdir'] = [d for d in dirnames \
-                                                    if d not in ignored]
-
+                self.data[dirpath]['img'] = [f for f in filenames
+                                             if os.path.splitext(f)[1] in
+                                             self.settings['fileextlist']]
+                self.data[dirpath]['subdir'] = [d for d in dirnames
+                                                if d not in ignored]
 
     def find_representative(self, path):
         """
@@ -122,7 +121,7 @@ class Generator():
         # copy static files in the output dir
         theme_outpath = os.path.join(os.path.abspath(self.path), 'theme')
         copy_tree(self.theme, theme_outpath)
-        self.ctx['theme'] = { 'name': os.path.basename(self.theme) }
+        self.ctx['theme'] = {'name': os.path.basename(self.theme)}
 
         self.directory_list()
 
@@ -145,7 +144,7 @@ class Generator():
                 link = os.path.relpath(tmp_path, dirpath) + "/" + INDEX_PAGE
                 self.ctx['paths'] = do_link(link,
                                             self.data[tmp_path]['title']) + \
-                                            PATH_SEP + self.ctx['paths']
+                    PATH_SEP + self.ctx['paths']
 
             self.ctx['images'] = []
             for i in self.data[dirpath]['img']:
@@ -167,7 +166,8 @@ class Generator():
                     alb_thumb = self.find_representative(dpath)
 
                 thumb_name = os.path.join(self.settings['thumb_dir'],
-                                          self.settings['thumb_prefix'] + alb_thumb)
+                                          self.settings['thumb_prefix'] +
+                                          alb_thumb)
                 thumb_path = os.path.join(dpath, thumb_name)
 
                 if not os.path.exists(thumb_path):
@@ -208,7 +208,7 @@ def get_metadata(path):
         meta['title'] = os.path.basename(path).replace('_', ' ').\
             replace('-', ' ').capitalize()
     else:
-        md = markdown.Markdown(extensions = ['meta'])
+        md = markdown.Markdown(extensions=['meta'])
 
         with codecs.open(descfile, "r", "utf-8") as f:
             text = f.read()

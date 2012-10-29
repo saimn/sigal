@@ -41,11 +41,14 @@ import logging
 import os
 import sys
 
+from logging import Formatter
+
 from sigal.image import Gallery
 from sigal.settings import read_settings
 from sigal.generator import Generator
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf'
+
 
 def init_logging(level=logging.INFO):
     """ Logging config
@@ -57,9 +60,9 @@ def init_logging(level=logging.INFO):
     logger.setLevel(level)
 
     if level == logging.DEBUG:
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        formatter = Formatter('%(asctime)s - %(levelname)s - %(message)s')
     else:
-        formatter = logging.Formatter('%(message)s')
+        formatter = Formatter('%(message)s')
 
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
@@ -69,7 +72,8 @@ def init_logging(level=logging.INFO):
 def main():
     "main program"
 
-    parser = argparse.ArgumentParser(description='simple static gallery generator.')
+    parser = argparse.ArgumentParser(
+        description='simple static gallery generator.')
     parser.add_argument('input_dir', help='input directory')
     parser.add_argument('output_dir', help='output directory')
     parser.add_argument('--version', action='version',

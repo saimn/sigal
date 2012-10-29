@@ -7,6 +7,7 @@ import unittest
 from sigal.image import Gallery
 from sigal.settings import read_settings
 
+
 class TestGallery(unittest.TestCase):
     "Test the Gallery class."
 

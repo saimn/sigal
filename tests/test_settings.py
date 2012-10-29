@@ -6,6 +6,7 @@ import unittest
 
 from sigal.settings import read_settings, get_size
 
+
 class TestSettings(unittest.TestCase):
     "Read a settings file and check that the configuration is well done."
 

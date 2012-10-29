@@ -79,6 +79,6 @@ def read_settings(filename=None):
             import pyexiv2
         except ImportError:
             settings['exif'] = 0
-            logger.error("Error: install pyexiv2 module to use exif metadatas.")
+            logger.error("Error: install pyexiv2 module to use exif metadatas")
 
     return settings
