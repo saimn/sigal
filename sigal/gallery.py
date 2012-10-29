@@ -35,9 +35,11 @@ DESCRIPTION_FILE = "index.md"
 class Gallery:
     "Prepare images"
 
-    def __init__(self, settings, input_dir):
+    def __init__(self, settings, input_dir, output_dir, force=False):
         self.settings = settings
+        self.force = force
         self.input_dir = os.path.abspath(input_dir)
+        self.output_dir = os.path.abspath(output_dir)
         self.logger = logging.getLogger(__name__)
 
     def filelist(self):
@@ -49,11 +51,8 @@ class Gallery:
                        if os.path.splitext(f)[1] in self.settings['fileextlist']]
             yield dirpath, dirnames, imglist
 
-    def build(self, output_dir, force=False):
+    def build(self):
         "create image gallery"
-
-        self.output_dir = os.path.abspath(output_dir)
-        self.force = force
 
         if not os.path.isdir(self.output_dir):
             self.logger.info("Create output directory %s", self.output_dir)

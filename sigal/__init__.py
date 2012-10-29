@@ -102,8 +102,9 @@ def main():
                                           _DEFAULT_CONFIG_FILE))
 
     # create gallery
-    gallery = Gallery(settings, args.input_dir)
-    gallery.build(args.output_dir, force=args.force)
+    gallery = Gallery(settings, args.input_dir, args.output_dir,
+                      force=args.force)
+    gallery.build()
 
     r = Generator(settings, args.output_dir)
     r.generate()

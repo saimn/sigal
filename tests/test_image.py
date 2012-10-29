@@ -16,7 +16,8 @@ class TestGallery(unittest.TestCase):
         self.path = os.path.dirname(__file__)
         default_conf = os.path.join(self.path, 'sample', 'sigal.conf')
         settings = read_settings(default_conf)
-        self.gallery = Gallery(settings, os.path.join(self.path, 'sample'))
+        self.gallery = Gallery(settings, os.path.join(self.path, 'sample'),
+                               os.path.join(self.path, 'output'))
 
     def test_filelist(self):
         file_generator = self.gallery.filelist()
