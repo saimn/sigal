@@ -25,7 +25,6 @@ import ConfigParser
 import logging
 import os
 
-
 _DEFAULT_CONFIG = {
     'img_size': '640x480',
     'make_thumbs': 1,
@@ -38,13 +37,14 @@ _DEFAULT_CONFIG = {
     'jpg_quality': 90,
     'exif': 0,
     'copyright': '',
-    'fileExtList': '.jpg,.jpeg,.JPG,.JPEG,.png',
+    'ext_list': '.jpg,.jpeg,.JPG,.JPEG,.png',
     'theme': 'default'
-    }
+}
 
 
 def get_size(string):
     "split size string to a tuple of int"
+
     size = [int(i) for i in string.split("x")]
     if size[1] > size[0]:
         size[0], size[1] = size[1], size[0]
@@ -64,10 +64,9 @@ def read_settings(filename=None):
         config.read(filename)
 
     settings = dict(config.items('sigal'))
-    settings['fileextlist'] = settings['fileextlist'].split(',')
+    settings['ext_list'] = settings['ext_list'].split(',')
     settings['img_size'] = get_size(settings['img_size'])
     settings['thumb_size'] = get_size(settings['thumb_size'])
-
     settings['jpg_quality'] = config.getint('sigal', 'jpg_quality')
     settings['big_img'] = config.getboolean('sigal', 'big_img')
     settings['exif'] = config.getboolean('sigal', 'exif')

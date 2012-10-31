@@ -61,7 +61,7 @@ class Gallery:
             self.paths[relpath] = {
                 'img': [
                     f for f in filenames
-                    if os.path.splitext(f)[1] in self.settings['fileextlist']],
+                    if os.path.splitext(f)[1] in self.settings['ext_list']],
                 'subdir': dirnames
             }
             self.paths[relpath].update(get_metadata(path))

@@ -43,8 +43,8 @@ import sys
 
 from logging import Formatter
 
-from sigal.gallery import Gallery
-from sigal.settings import read_settings
+from .gallery import Gallery
+from .settings import read_settings
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf'
 
@@ -88,8 +88,8 @@ def main():
 
     args = parser.parse_args()
     level = args.verbosity or logging.WARNING
-    init_logging(level=level)
 
+    init_logging(level=level)
     logger = logging.getLogger(__name__)
 
     if not os.path.isdir(args.input_dir):

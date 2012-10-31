@@ -23,8 +23,8 @@ class TestSettings(unittest.TestCase):
         self.assertTupleEqual(self.settings['img_size'], (640, 480))
         self.assertTupleEqual(self.settings['thumb_size'], (200, 150))
 
-    def test_fileextlist(self):
-        self.assertListEqual(self.settings['fileextlist'],
+    def test_ext_list(self):
+        self.assertListEqual(self.settings['ext_list'],
                              ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'])
 
     def test_type_conversion(self):

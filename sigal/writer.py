@@ -31,9 +31,9 @@ import os
 from os.path import abspath
 from distutils.dir_util import copy_tree
 from jinja2 import Environment, PackageLoader
-from sigal.image import Image
 
-DEFAULT_THEME = "default"
+from .image import Image
+
 INDEX_PAGE = "index.html"
 SIGAL_LINK = "https://github.com/saimn/sigal"
 PATH_SEP = u" » "
@@ -49,7 +49,7 @@ def do_link(link, title):
 class Writer():
     """ Generate html pages for each directory of images """
 
-    def __init__(self, settings, output_dir, theme=DEFAULT_THEME):
+    def __init__(self, settings, output_dir, theme='default'):
         self.settings = settings
         self.output_dir = os.path.abspath(output_dir)
         self.theme = settings['theme'] or theme
@@ -103,15 +103,13 @@ class Writer():
                            PATH_SEP + ctx['paths']
 
         for i in paths[relpath]['img']:
-            image = {
+            ctx['images'].append({
                 'file': i,
                 'thumb': os.path.join(self.settings['thumb_dir'],
                                       self.settings['thumb_prefix'] + i)
-                }
-            ctx['images'].append(image)
+            })
 
         for d in paths[relpath]['subdir']:
-
             dpath = os.path.normpath(os.path.join(relpath, d))
             alb_thumb = paths[dpath]['representative']
             thumb_name = os.path.join(self.settings['thumb_dir'],
@@ -127,12 +125,11 @@ class Writer():
                               fit=self.settings['thumb_fit'],
                               quality=self.settings['jpg_quality'])
 
-            album = {
+            ctx['albums'].append({
                 'path': os.path.join(d, INDEX_PAGE),
                 'title': paths[dpath]['title'],
                 'thumb': os.path.join(d, thumb_name)
-                }
-            ctx['albums'].append(album)
+            })
 
         page = self.template.render(paths[relpath], **ctx).encode('utf-8')
 
