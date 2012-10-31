@@ -25,6 +25,8 @@
 Generate html pages for each directory of images
 """
 
+from __future__ import absolute_import
+
 import copy
 import os
 

@@ -31,6 +31,8 @@ sigal is yet another python script to prepare a static gallery of images:
 * generate html pages.
 """
 
+from __future__ import absolute_import
+
 __author__ = "Saimon (contact at saimon dot org)"
 __version__ = "0.1-dev"
 __copyright__ = "Copyright (C) 2009-2012 - saimon.org"

@@ -26,6 +26,8 @@ Prepare images: resize images, and create thumbnails with some options
 (squared thumbs, ...).
 """
 
+from __future__ import division
+
 import logging
 import os
 
@@ -57,8 +59,8 @@ class Image:
         else:
             newsize = (size[1], size[0])
 
-        wratio = newsize[0] / float(self.img.size[0])
-        hratio = newsize[1] / float(self.img.size[1])
+        wratio = newsize[0] / self.img.size[0]
+        hratio = newsize[1] / self.img.size[1]
         ratio = min(wratio, hratio)
         newsize = (int(ratio * self.img.size[0]),
                    int(ratio * self.img.size[1]))
