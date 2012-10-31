@@ -46,7 +46,7 @@ def do_link(link, title):
     return '<a href="%s">%s</a>' % (link, title)
 
 
-class Generator():
+class Writer():
     """ Generate html pages for each directory of images """
 
     def __init__(self, settings, output_dir, theme=DEFAULT_THEME):
@@ -80,7 +80,7 @@ class Generator():
         self.theme_path = os.path.join(self.output_dir, 'theme')
         copy_tree(self.theme, self.theme_path)
 
-    def generate(self, paths, relpath):
+    def write(self, paths, relpath):
         """
         Render the html page
         """

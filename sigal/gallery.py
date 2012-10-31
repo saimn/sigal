@@ -30,7 +30,7 @@ import PIL
 from clint.textui import progress
 
 from .image import Image, copy_exif
-from .generator import Generator
+from .writer import Writer
 
 DESCRIPTION_FILE = "index.md"
 
@@ -44,7 +44,7 @@ class Gallery:
         self.input_dir = os.path.abspath(input_dir)
         self.output_dir = os.path.abspath(output_dir)
         self.logger = logging.getLogger(__name__)
-        self.writer = Generator(settings, output_dir)
+        self.writer = Writer(settings, output_dir)
 
     def build_paths(self):
         "get the list of directories with images"
@@ -109,7 +109,7 @@ class Gallery:
             if len(imglist) != 0:
                 self.process_dir(imglist, img_out)
 
-            self.writer.generate(self.paths, path)
+            self.writer.write(self.paths, path)
 
     def process_dir(self, imglist, img_out):
         "Process images for a directory"

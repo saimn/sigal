@@ -45,7 +45,6 @@ from logging import Formatter
 
 from sigal.gallery import Gallery
 from sigal.settings import read_settings
-from sigal.generator import Generator
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf'
 
