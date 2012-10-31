@@ -25,23 +25,20 @@
 Generate html pages for each directory of images
 """
 
+import copy
 import os
-import codecs
-import markdown
-import PIL
 
+from os.path import abspath
 from distutils.dir_util import copy_tree
-from fnmatch import fnmatch
 from jinja2 import Environment, PackageLoader
 from sigal.image import Image
 
 DEFAULT_THEME = "default"
 INDEX_PAGE = "index.html"
-DESCRIPTION_FILE = "index.md"
 SIGAL_LINK = "https://github.com/saimn/sigal"
 PATH_SEP = u" » "
 THEMES_PATH = os.path.normpath(os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'themes'))
+    abspath(os.path.dirname(__file__)), 'themes'))
 
 
 def do_link(link, title):
@@ -52,10 +49,9 @@ def do_link(link, title):
 class Generator():
     """ Generate html pages for each directory of images """
 
-    def __init__(self, settings, path, theme=DEFAULT_THEME, tpl=INDEX_PAGE):
-        self.data = {}
+    def __init__(self, settings, output_dir, theme=DEFAULT_THEME):
         self.settings = settings
-        self.path = os.path.normpath(path)
+        self.output_dir = os.path.abspath(output_dir)
         self.theme = settings['theme'] or theme
 
         # search the theme in sigal/theme if the given one does not exists
@@ -67,158 +63,80 @@ class Generator():
 
         theme_relpath = os.path.relpath(self.theme, os.path.dirname(__file__))
         env = Environment(loader=PackageLoader('sigal', theme_relpath))
-        self.template = env.get_template(tpl)
+        self.template = env.get_template(INDEX_PAGE)
 
-        self.ctx = {}
-        self.ctx['sigal_link'] = SIGAL_LINK
+        self.copy_assets()
 
-    def directory_list(self):
-        "get the list of directories with files of particular extensions"
+        self.ctx = {
+            'sigal_link': SIGAL_LINK,
+            'theme': {'name': os.path.basename(self.theme)},
+            'images': [],
+            'albums': [],
+        }
 
-        ignored = ['theme', self.settings['bigimg_dir']]
-        if self.settings['thumb_dir']:
-            ignored.append(self.settings['thumb_dir'])
+    def copy_assets(self):
+        "copy the theme files in the output dir"
 
-        for dirpath, dirnames, filenames in os.walk(self.path):
-            dirpath = os.path.normpath(dirpath)
-            if os.path.split(dirpath)[1] not in ignored and \
-                    not fnmatch(dirpath, '*theme*'):
-                # sort images and sub-albums by name
-                filenames.sort(key=str.lower)
-                dirnames.sort(key=str.lower)
+        self.theme_path = os.path.join(self.output_dir, 'theme')
+        copy_tree(self.theme, self.theme_path)
 
-                self.data[dirpath] = {}
-                self.data[dirpath]['img'] = [f for f in filenames
-                                             if os.path.splitext(f)[1] in
-                                             self.settings['fileextlist']]
-                self.data[dirpath]['subdir'] = [d for d in dirnames
-                                                if d not in ignored]
-
-    def find_representative(self, path):
-        """
-        find the representative image for a given album/path
-        at the moment, this is the first image found.
-        """
-
-        files = [f for f in os.listdir(path)
-                 if os.path.isfile(os.path.join(path, f))
-                 and os.path.splitext(f)[1] in self.settings['fileextlist']]
-
-        for f in files:
-            # find and return the first landscape image
-            im = PIL.Image.open(os.path.join(path, f))
-            if im.size[0] > im.size[1]:
-                return f
-
-        # else simply return the 1st image
-        return files[0]
-
-    def generate(self):
+    def generate(self, paths, relpath):
         """
         Render the html page
         """
 
-        # copy static files in the output dir
-        theme_outpath = os.path.join(os.path.abspath(self.path), 'theme')
-        copy_tree(self.theme, theme_outpath)
-        self.ctx['theme'] = {'name': os.path.basename(self.theme)}
+        path = os.path.join(self.output_dir, relpath)
 
-        self.directory_list()
+        ctx = copy.deepcopy(self.ctx)
+        ctx['theme']['path'] = os.path.relpath(self.theme_path, path)
+        ctx['home_path'] = os.path.join(
+            os.path.relpath(self.output_dir, path), INDEX_PAGE)
 
-        for dirpath in self.data.keys():
-            self.data[dirpath].update(get_metadata(dirpath))
+        # paths to upper directories (with titles and links)
+        tmp_path = relpath
+        ctx['paths'] = do_link(INDEX_PAGE, paths[tmp_path]['title'])
 
-        # loop on directories
-        for dirpath in self.data.keys():
-            self.ctx['theme']['path'] = os.path.relpath(theme_outpath, dirpath)
-            dir_relpath = os.path.relpath(self.path, dirpath)
-            self.ctx['home_path'] = os.path.join(dir_relpath, INDEX_PAGE)
+        while tmp_path != '.':
+            tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
+            link = os.path.relpath(tmp_path, relpath) + "/" + INDEX_PAGE
+            ctx['paths'] = do_link(link, paths[tmp_path]['title']) + \
+                           PATH_SEP + ctx['paths']
 
-            # paths to upper directories (with titles and links)
-            tmp_path = dirpath
-            self.ctx['paths'] = do_link(INDEX_PAGE,
-                                        self.data[tmp_path]['title'])
+        for i in paths[relpath]['img']:
+            image = {
+                'file': i,
+                'thumb': os.path.join(self.settings['thumb_dir'],
+                                      self.settings['thumb_prefix'] + i)
+                }
+            ctx['images'].append(image)
 
-            while tmp_path != self.path:
-                tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
-                link = os.path.relpath(tmp_path, dirpath) + "/" + INDEX_PAGE
-                self.ctx['paths'] = do_link(link,
-                                            self.data[tmp_path]['title']) + \
-                    PATH_SEP + self.ctx['paths']
+        for d in paths[relpath]['subdir']:
 
-            self.ctx['images'] = []
-            for i in self.data[dirpath]['img']:
-                image = {
-                    'file': i,
-                    'thumb': os.path.join(self.settings['thumb_dir'],
-                                          self.settings['thumb_prefix'] + i)
-                    }
-                self.ctx['images'].append(image)
+            dpath = os.path.normpath(os.path.join(relpath, d))
+            alb_thumb = paths[dpath]['representative']
+            thumb_name = os.path.join(self.settings['thumb_dir'],
+                                      self.settings['thumb_prefix'] +
+                                      alb_thumb)
+            thumb_path = os.path.join(self.output_dir, dpath, thumb_name)
 
-            self.ctx['albums'] = []
-            for d in self.data[dirpath]['subdir']:
+            # generate the thumbnail if it is missing (if
+            # settings['make_thumbs'] is False)
+            if not os.path.exists(thumb_path):
+                img = Image(os.path.join(self.output_dir, dpath, alb_thumb))
+                img.thumbnail(thumb_path, self.settings['thumb_size'],
+                              fit=self.settings['thumb_fit'],
+                              quality=self.settings['jpg_quality'])
 
-                dpath = os.path.join(dirpath, d)
-                alb_thumb = self.data[dpath].get('representative', '')
+            album = {
+                'path': os.path.join(d, INDEX_PAGE),
+                'title': paths[dpath]['title'],
+                'thumb': os.path.join(d, thumb_name)
+                }
+            ctx['albums'].append(album)
 
-                if not alb_thumb or \
-                   not os.path.isfile(os.path.join(dpath, alb_thumb)):
-                    alb_thumb = self.find_representative(dpath)
+        page = self.template.render(paths[relpath], **ctx).encode('utf-8')
 
-                thumb_name = os.path.join(self.settings['thumb_dir'],
-                                          self.settings['thumb_prefix'] +
-                                          alb_thumb)
-                thumb_path = os.path.join(dpath, thumb_name)
-
-                if not os.path.exists(thumb_path):
-                    img = Image(os.path.join(dpath, alb_thumb))
-                    img.thumbnail(thumb_path, self.settings['thumb_size'],
-                                  fit=self.settings['thumb_fit'],
-                                  quality=self.settings['jpg_quality'])
-
-                album = {
-                    'path': os.path.join(d, INDEX_PAGE),
-                    'title': self.data[dpath]['title'],
-                    'thumb': os.path.join(d, thumb_name)
-                    }
-                self.ctx['albums'].append(album)
-
-            page = self.template.render(self.data[dirpath],
-                                        **self.ctx).encode('utf-8')
-
-            # save page
-            f = open(os.path.join(dirpath, INDEX_PAGE), 'w')
-            f.write(page)
-            f.close()
-
-
-def get_metadata(path):
-    """ Get album metadata from DESCRIPTION_FILE:
-
-    - title
-    - representative image
-    - description
-    """
-
-    descfile = os.path.join(path, DESCRIPTION_FILE)
-    meta = {}
-
-    if not os.path.isfile(descfile):
-        # default: get title from directory name
-        meta['title'] = os.path.basename(path).replace('_', ' ').\
-            replace('-', ' ').capitalize()
-    else:
-        md = markdown.Markdown(extensions=['meta'])
-
-        with codecs.open(descfile, "r", "utf-8") as f:
-            text = f.read()
-
-        html = md.convert(text)
-
-        meta = {
-            'title': md.Meta.get('title', [''])[0],
-            'description': html,
-            'representative': md.Meta.get('representative', [''])[0]
-            }
-
-    return meta
+        # save page
+        f = open(os.path.join(path, INDEX_PAGE), 'w')
+        f.write(page)
+        f.close()
