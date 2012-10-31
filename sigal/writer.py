@@ -27,6 +27,7 @@ Generate html pages for each directory of images
 
 from __future__ import absolute_import
 
+import codecs
 import copy
 import os
 
@@ -133,9 +134,8 @@ class Writer():
                 'thumb': os.path.join(d, thumb_name)
             })
 
-        page = self.template.render(paths[relpath], **ctx).encode('utf-8')
+        # generate html page and save
+        page = self.template.render(paths[relpath], **ctx)
 
-        # save page
-        f = open(os.path.join(path, INDEX_PAGE), 'w')
-        f.write(page)
-        f.close()
+        with codecs.open(os.path.join(path, INDEX_PAGE), 'w', 'utf-8') as f:
+            f.write(page)
