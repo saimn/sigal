@@ -35,7 +35,13 @@ from PIL import ImageDraw, ImageOps
 
 
 class Image:
-    "Handle Images: resize, thumbnail, ..."
+    """ Image container
+
+    resize, thumbnail, ...
+
+    :param filename: path to an image
+
+    """
 
     def __init__(self, filename):
         self.filename = filename
@@ -46,11 +52,14 @@ class Image:
         self.img.save(filename, quality=quality)
 
     def resize(self, size):
-        """Resize the image
+        """ Resize the image
 
         - check if the image format is portrait or landscape and adjust `size`.
         - compute the width and height ratio, and keep the min to resize the
           image inside the `size` box without distorting it.
+
+        :param size: tuple with the (with, height) to resize
+
         """
 
         if self.img.size[0] > self.img.size[1]:
@@ -68,7 +77,7 @@ class Image:
             self.img = self.img.resize(newsize, PILImage.ANTIALIAS)
 
     def add_copyright(self, text):
-        "add copyright to image"
+        "Add a copyright to the image"
 
         draw = ImageDraw.Draw(self.img)
         draw.text((5, self.img.size[1] - 15), '\xa9 ' + text)
@@ -85,7 +94,7 @@ class Image:
 
 
 def copy_exif(srcfile, dstfile):
-    "copy the exif metadatas from src to dest images"
+    "Copy the exif metadatas from src to dest images"
 
     logger = logging.getLogger(__name__)
 

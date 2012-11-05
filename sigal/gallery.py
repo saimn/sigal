@@ -48,7 +48,7 @@ class Gallery:
         self.writer = Writer(settings, output_dir)
 
     def build_paths(self):
-        "get the list of directories with images"
+        "Build the list of directories with images"
 
         self.paths = {}
 
@@ -74,9 +74,6 @@ class Gallery:
                     alb_thumb = self.find_representative(relpath)
                     self.paths[relpath]['representative'] = alb_thumb
 
-        # import json
-        # print json.dumps(self.paths, indent=4)
-
     def find_representative(self, path):
         "Find the representative image for a given path"
 
@@ -90,7 +87,7 @@ class Gallery:
         return self.paths[path]['img'][0]
 
     def build(self):
-        "Create image gallery"
+        "Create the image gallery"
 
         self.logger.info("Generate gallery in %s ...", self.output_dir)
         self.build_paths()
@@ -125,7 +122,6 @@ class Gallery:
         # loop on images
         for f in progress.bar(imglist):
             filename = os.path.split(f)[1]
-
             im_name = os.path.join(img_out, filename)
 
             if os.path.isfile(im_name) and not self.force:

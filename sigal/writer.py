@@ -44,7 +44,7 @@ THEMES_PATH = os.path.normpath(os.path.join(
 
 
 def do_link(link, title):
-    "return html link"
+    "Return a html link"
     return '<a href="%s">%s</a>' % (link, title)
 
 
@@ -77,7 +77,7 @@ class Writer():
         }
 
     def copy_assets(self):
-        "copy the theme files in the output dir"
+        "Copy the theme files in the output dir"
 
         self.theme_path = os.path.join(self.output_dir, 'theme')
         copy_tree(self.theme, self.theme_path)
