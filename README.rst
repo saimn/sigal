@@ -33,39 +33,56 @@ Required arguments:
 
 Optional arguments:
 
-============================= ==============================================
- ``-h|--help``                show this help message and exit
- ``--version``                show program's version number and exit
- ``-f|--force``               force the reprocessing of existing images and
-                              thumbnails
-============================= ==============================================
+=================== ==============================================
+ ``-h|--help``	     Show this help message and exit
+ ``--version``	     Show program's version number and exit
+ ``-f|--force``	     Force the reprocessing of existing images and thumbnails
+ ``-v, --verbose``   Show all messages.
+ ``-d, --debug``     Show all message, including debug messages.
+=================== ==============================================
 
 Settings
 --------
 
-The configuration for the gallery must be set in `<input_dir>/sigal.conf`.
+The configuration for the gallery must be set in ``<input_dir>/sigal.conf``.
 
 ::
 
+    [sigal]
+
     # theme
     theme = default
+
     # size of resized image
     img_size = 640x480
+
+    # generate thumbnails
+    make_thumbs = 1
+
+    # directory of the thumbnails
+    thumb_dir = thumbnail
+
     # prefix for thumbnails name
-    thumb_prefix = TN-
+    thumb_prefix = tn-
+
     # thumbnail size
     thumb_size = 200x150
+
     # crop the image to fill the box
     thumb_fit = 1
+
     # keep big image
     big_img = 1
     bigimg_dir = original
+
     # jpeg quality
     jpg_quality = 90
+
     # keep exif metadatas in output image
     exif = 1
+
     # add a copyright text on the image
-    copyright = the copyright msg
+    copyright = An example copyright message
 
 
 Album information
