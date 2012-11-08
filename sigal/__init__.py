@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-# Copyright (c) 2009-2012 - Simon C. (saimon.org)
+# Copyright (c) 2009-2012 - Simon Conseil
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -32,9 +32,8 @@ sigal is yet another python script to prepare a static gallery of images:
 
 from __future__ import absolute_import
 
-__author__ = "Saimon (contact at saimon dot org)"
+__author__ = "Simon Conseil"
 __version__ = "0.1-dev"
-__copyright__ = "Copyright (C) 2009-2012 - saimon.org"
 __license__ = "MIT"
 
 import argparse
