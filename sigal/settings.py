@@ -26,16 +26,16 @@ import os
 
 _DEFAULT_CONFIG = {
     'img_size': '640x480',
-    'make_thumbs': 1,
+    'make_thumbs': '1',
     'thumb_prefix': '',
     'thumb_suffix': '',
     'thumb_size': '150x112',
     'thumb_dir': '',
-    'thumb_fit': 1,
-    'big_img': 0,
-    'bigimg_dir': 'big',
-    'jpg_quality': 90,
-    'exif': 0,
+    'thumb_fit': '1',
+    'keep_orig': '0',
+    'orig_dir': 'original',
+    'jpg_quality': '90',
+    'exif': '0',
     'copyright': '',
     'ext_list': '.jpg,.jpeg,.JPG,.JPEG,.png',
     'theme': 'default'
@@ -76,7 +76,7 @@ def read_settings(filename=None):
     settings['img_size'] = get_size(settings['img_size'])
     settings['thumb_size'] = get_size(settings['thumb_size'])
     settings['jpg_quality'] = config.getint('sigal', 'jpg_quality')
-    settings['big_img'] = config.getboolean('sigal', 'big_img')
+    settings['keep_orig'] = config.getboolean('sigal', 'keep_orig')
     settings['exif'] = config.getboolean('sigal', 'exif')
     settings['make_thumbs'] = config.getboolean('sigal', 'make_thumbs')
     settings['thumb_fit'] = config.getboolean('sigal', 'thumb_fit')

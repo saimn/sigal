@@ -117,9 +117,9 @@ class Gallery:
         # Create thumbnails directory and optionally the one for original img
         check_or_create_dir(os.path.join(img_out, self.settings['thumb_dir']))
 
-        if self.settings['big_img']:
-            bigimg_dir = os.path.join(img_out, self.settings['bigimg_dir'])
-            check_or_create_dir(bigimg_dir)
+        if self.settings['keep_orig']:
+            orig_dir = os.path.join(img_out, self.settings['orig_dir'])
+            check_or_create_dir(orig_dir)
 
         # loop on images
         for f in progress.bar(imglist):
@@ -133,8 +133,8 @@ class Gallery:
             self.logger.info(filename)
             img = Image(f)
 
-            if self.settings['big_img']:
-                img.save(os.path.join(bigimg_dir, filename),
+            if self.settings['keep_orig']:
+                img.save(os.path.join(orig_dir, filename),
                          quality=self.settings['jpg_quality'])
 
             img.resize(self.settings['img_size'])
