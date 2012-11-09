@@ -68,7 +68,8 @@ class Gallery:
             self.paths[relpath].update(get_metadata(path))
 
             if relpath != '.':
-                alb_thumb = self.paths[relpath]['representative']
+                alb_thumb = self.paths[relpath].setdefault('representative',
+                                                           '')
                 if (not alb_thumb) or \
                    (not os.path.isfile(os.path.join(path, alb_thumb))):
                     alb_thumb = self.find_representative(relpath)
@@ -189,4 +190,4 @@ def check_or_create_dir(path):
     "Create the directory if it does not exist"
 
     if not os.path.isdir(path):
-        os.mkdir(path)
+        os.makedirs(path)
