@@ -26,10 +26,16 @@
       </header>
 
       <div id="main" role="main" class="sixteen columns">
+        <div id="breadcumb">
+          <p>{{ paths }}</p>
+        </div>
+
         {% if albums %}
         <div id="albums" class="row">
           {% for album in albums %}
-          <div class="four columns thumbnail">
+          <div class="four columns thumbnail
+                      {% if loop.index % 4 == 1 %}alpha{% endif%}
+                      {% if loop.index % 4 == 0 %}omega{% endif%}">
             <a href="{{ album.path }}">
               <img src="{{ album.thumb }}" class="album_thumb"
                    alt="{{ album.name }}" title="{{ album.name }}" /></a>
@@ -41,11 +47,13 @@
 
         {% if images %}
         <div id="gallery" class="row">
-          <p>{{ paths }}</p>
           {% for image in images %}
-          <div class="four columns thumbnail">
+          <div class="four columns thumbnail
+                      {% if loop.index % 4 == 1 %}alpha{% endif%}
+                      {% if loop.index % 4 == 0 %}omega{% endif%}">
             <a href="{{ image.file }}">
-              <img src="{{ image.thumb }}" alt="{{ image.file }}" /></a>
+              <img src="{{ image.thumb }}" alt="{{ image.file }}"
+                   title="{{ image.file }}" /></a>
           </div>
           {% endfor %}
         </div>
