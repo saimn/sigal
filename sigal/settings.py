@@ -30,7 +30,7 @@ _DEFAULT_CONFIG = {
     'thumb_prefix': '',
     'thumb_suffix': '',
     'thumb_size': '150x112',
-    'thumb_dir': '',
+    'thumb_dir': 'thumbnails',
     'thumb_fit': '1',
     'keep_orig': '0',
     'orig_dir': 'original',

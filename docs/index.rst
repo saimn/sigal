@@ -72,48 +72,16 @@ Optional arguments:
 ``-d, --debug``
   Show all message, including debug messages
 
+
 Configuration
 -------------
 
 The configuration for the gallery must be set in ``<input_dir>/sigal.conf``.
+An example file with explanations on the settings is available in
+``tests/sample/sigal.conf`` and is shown below:
 
-.. code-block:: ini
-
-    [sigal]
-
-    # theme
-    theme = default
-
-    # size of resized image
-    img_size = 640x480
-
-    # generate thumbnails
-    make_thumbs = 1
-
-    # directory of the thumbnails
-    thumb_dir = thumbnail
-
-    # prefix for thumbnails name
-    thumb_prefix = tn-
-
-    # thumbnail size
-    thumb_size = 200x150
-
-    # crop the image to fill the box
-    thumb_fit = 1
-
-    # keep big image
-    big_img = 1
-    bigimg_dir = original
-
-    # jpeg quality
-    jpg_quality = 90
-
-    # keep exif metadatas in output image
-    exif = 1
-
-    # add a copyright text on the image
-    copyright = An example copyright message
+.. literalinclude:: ../tests/sample/sigal.conf
+   :language: ini
 
 
 Album information
@@ -130,11 +98,13 @@ named `index.mkd` ::
 If this file does not exist the directory's name is used for the title, and
 the first image of the directory is used as representative.
 
+
 Credits
 -------
 
 * galleria: http://galleria.aino.se/
 * WordPress Photography Theme: http://thethemefoundry.com/photography/
+
 
 Changelog
 ---------
