@@ -64,7 +64,8 @@ class Writer():
             if not os.path.exists(theme_path):
                 raise Exception("Impossible to find the theme %s" % self.theme)
 
-        theme_relpath = os.path.relpath(self.theme, os.path.dirname(__file__))
+        theme_relpath = os.path.relpath(os.path.join(self.theme, 'templates'),
+                                        os.path.dirname(__file__))
         env = Environment(loader=PackageLoader('sigal', theme_relpath))
         self.template = env.get_template(INDEX_PAGE)
 
@@ -80,8 +81,8 @@ class Writer():
     def copy_assets(self):
         "Copy the theme files in the output dir"
 
-        self.theme_path = os.path.join(self.output_dir, 'theme')
-        copy_tree(self.theme, self.theme_path)
+        self.theme_path = os.path.join(self.output_dir, 'static')
+        copy_tree(os.path.join(self.theme, 'static'), self.theme_path)
 
     def write(self, paths, relpath):
         """
