@@ -27,7 +27,8 @@ import os
 _DEFAULT_CONFIG = {
     'img_size': '640x480',
     'make_thumbs': 1,
-    'thumb_prefix': 'TN-',
+    'thumb_prefix': '',
+    'thumb_suffix': '',
     'thumb_size': '150x112',
     'thumb_dir': '',
     'thumb_fit': 1,
@@ -42,12 +43,20 @@ _DEFAULT_CONFIG = {
 
 
 def get_size(string):
-    "split size string to a tuple of int"
+    "Split size string to a tuple of int"
 
     size = [int(i) for i in string.split("x")]
     if size[1] > size[0]:
         size[0], size[1] = size[1], size[0]
     return tuple(size)
+
+
+def get_thumb(settings, filename):
+    "Return the path to the thumb"
+
+    name, ext = os.path.splitext(filename)
+    return os.path.join(settings['thumb_dir'], settings['thumb_prefix'] +
+                        name + settings['thumb_suffix'] + ext)
 
 
 def read_settings(filename=None):

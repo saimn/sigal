@@ -35,6 +35,7 @@ from distutils.dir_util import copy_tree
 from jinja2 import Environment, PackageLoader
 
 from .image import Image
+from .settings import get_thumb
 
 INDEX_PAGE = "index.html"
 SIGAL_LINK = "https://github.com/saimn/sigal"
@@ -107,16 +108,13 @@ class Writer():
         for i in paths[relpath]['img']:
             ctx['images'].append({
                 'file': i,
-                'thumb': os.path.join(self.settings['thumb_dir'],
-                                      self.settings['thumb_prefix'] + i)
+                'thumb': get_thumb(self.settings, i)
             })
 
         for d in paths[relpath]['subdir']:
             dpath = os.path.normpath(os.path.join(relpath, d))
             alb_thumb = paths[dpath]['representative']
-            thumb_name = os.path.join(self.settings['thumb_dir'],
-                                      self.settings['thumb_prefix'] +
-                                      alb_thumb)
+            thumb_name = get_thumb(self.settings, alb_thumb)
             thumb_path = os.path.join(self.output_dir, dpath, thumb_name)
 
             # generate the thumbnail if it is missing (if

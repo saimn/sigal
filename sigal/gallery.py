@@ -31,6 +31,7 @@ import PIL
 from clint.textui import progress
 
 from .image import Image, copy_exif
+from .settings import get_thumb
 from .writer import Writer
 
 DESCRIPTION_FILE = "index.md"
@@ -113,8 +114,8 @@ class Gallery:
     def process_dir(self, imglist, img_out):
         "Process images for a directory"
 
-        thumb_dir = os.path.join(img_out, self.settings['thumb_dir'])
-        check_or_create_dir(thumb_dir)
+        # Create thumbnails directory and optionally the one for original img
+        check_or_create_dir(os.path.join(img_out, self.settings['thumb_dir']))
 
         if self.settings['big_img']:
             bigimg_dir = os.path.join(img_out, self.settings['bigimg_dir'])
@@ -144,8 +145,8 @@ class Gallery:
             img.save(im_name, quality=self.settings['jpg_quality'])
 
             if self.settings['make_thumbs']:
-                thumb_name = os.path.join(
-                    thumb_dir, self.settings['thumb_prefix'] + filename)
+                thumb_name = os.path.join(img_out,
+                                          get_thumb(self.settings, filename))
                 img.thumbnail(thumb_name, self.settings['thumb_size'],
                               fit=self.settings['thumb_fit'],
                               quality=self.settings['jpg_quality'])
