@@ -7,7 +7,7 @@ table { border-collapse: collapse; border-spacing: 0; }
 
 
 body {
-  font: 75% Molengo, sans-serif;
+  font: 14px/1.5 Molengo, sans-serif;
   margin: 0;
   padding: 0;
   background-color: #242424;
@@ -54,21 +54,19 @@ header h1 a:hover {
 
 /* gallery */
 
-#main ul {
+#albums ul {
   list-style-type: none;
   margin-left: 20px;
 }
-#main ul li {
+#albums ul li {
   display: inline-block;
   margin: 0 40px 30px 0;
   text-align: center;
 }
-#main ul li:nth-child(3n+3) {
+#albums ul li:nth-child(3n+3) {
   margin-right: 0;
 }
 
-#albums ul {}
-#albums ul li {}
 #albums ul li a img {
   opacity: 1;
   -webkit-transition: opacity 0.2s ease-in;
@@ -107,6 +105,7 @@ header h1 a:hover {
     line-height: 0;
     margin: 0 0 40px -10px;
     width: 980px;
+    height: 600px;
 }
 
 footer {

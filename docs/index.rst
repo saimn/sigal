@@ -103,7 +103,6 @@ Credits
 -------
 
 * galleria: http://galleria.aino.se/
-* WordPress Photography Theme: http://thethemefoundry.com/photography/
 
 
 Changelog
