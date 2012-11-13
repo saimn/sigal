@@ -14,12 +14,12 @@ and it allows to build a static gallery of images with the following features:
 * relative links for a portable output,
 * MIT licensed.
 
-Links
+Links :
 
-* Latest documentation on `readthedocs.org`_
+* Latest documentation on the `website`_
 * Source, issues and pull requests on `Github`_
 * Releases on `PyPI`_
 
-.. _readthedocs.org: http://sigal.rtfd.org/
+.. _website: http://sigal.saimon.org/
 .. _Github: https://github.com/saimn/sigal/
 .. _PyPI: http://pypi.python.org/pypi/sigal

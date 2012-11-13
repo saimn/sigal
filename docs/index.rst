@@ -7,19 +7,33 @@ and it allows to build a static gallery of images with the following features:
 
 * process directories recursively,
 * resize images and create thumbnails,
-* generate html pages using jinja2 templates,
+* generate HTML pages using jinja2 templates,
 * relative links for a portable output,
 * MIT licensed.
 
-Links
+Links :
 
-* Latest documentation on `readthedocs.org`_
+* Latest documentation on the `website`_
 * Source, issues and pull requests on `Github`_
 * Releases on `PyPI`_
 
-.. _readthedocs.org: http://sigal.rtfd.org/
+.. _website: http://sigal.saimon.org/
 .. _Github: https://github.com/saimn/sigal/
 .. _PyPI: http://pypi.python.org/pypi/sigal
+
+Themes & Demo
+-------------
+
+Sigal comes with two themes, based on the `colorbox`_ and `galleria`_
+Javascript libraries:
+
+- `colorbox demo`_
+- `galleria demo`_
+
+.. _galleria: http://galleria.io/
+.. _colorbox: http://www.jacklmoore.com/colorbox
+.. _galleria demo: http://saimon.org/sigal-demo/galleria/
+.. _colorbox demo: http://saimon.org/sigal-demo/colorbox/
 
 Installation
 ------------
@@ -38,7 +52,7 @@ Dependencies
 - Python Imaging Library (PIL / Pillow)
 - Jinja2
 - Python Markdown
-- pyexiv2 (optionnal, used to copy exif metadatas)
+- pyexiv2 (optional, used to copy exif metadatas)
 
 How to Use
 ----------
@@ -106,13 +120,6 @@ named ``index.mkd`` :
 
 If this file does not exist the directory's name is used for the title, and
 the first image of the directory is used as representative.
-
-
-Credits
--------
-
-* galleria: http://galleria.aino.se/
-
 
 Changelog
 ---------
