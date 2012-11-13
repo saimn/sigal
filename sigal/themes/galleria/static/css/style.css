@@ -23,7 +23,7 @@ a:hover {
   color: #dadada;
 }
 
-#container {
+.container {
   margin: 0 auto;
   text-align: left;
   width: 960px;
@@ -90,22 +90,13 @@ header h1 a:hover {
   font-weight: bold;
 }
 
-#description {
-  font-size: 1.2em;
-  margin: 0 1.5em 2em;
-  padding: 1em 2em;
-  background: #282828;
-  background: rgba(0, 0, 0, 0.15);
-  -moz-border-radius: 6px;
-  -webkit-border-radius: 6px;
-  border-radius: 6px;
-}
+#description {}
 
 #gallery {
-    line-height: 0;
-    margin: 0 0 40px -10px;
-    width: 980px;
-    height: 600px;
+  line-height: 0;
+  margin: 0 0 40px -10px;
+  width: 980px;
+  height: 600px;
 }
 
 footer {
