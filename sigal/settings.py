@@ -38,7 +38,7 @@ _DEFAULT_CONFIG = {
     'exif': '0',
     'copyright': '',
     'ext_list': '.jpg,.jpeg,.JPG,.JPEG,.png',
-    'theme': 'default'
+    'theme': 'colorbox'
 }
 
 
