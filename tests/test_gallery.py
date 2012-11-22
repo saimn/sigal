@@ -2,7 +2,11 @@
 # -*- coding:utf-8 -*-
 
 import os
-import unittest
+
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from sigal.gallery import Gallery, get_metadata
 from sigal.settings import read_settings

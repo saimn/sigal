@@ -2,7 +2,11 @@
 # -*- coding:utf-8 -*-
 
 import os
-import unittest
+
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from sigal.settings import read_settings, get_size
 
