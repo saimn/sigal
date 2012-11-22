@@ -1,0 +1,8 @@
+language: python
+python:
+    - "2.7"
+    - "2.6"
+install:
+    - pip install nose unittest2 --use-mirrors
+    - pip install . --use-mirrors
+script: nosetests
