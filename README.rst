@@ -1,6 +1,10 @@
 sigal - yet another simple static gallery generator
 ===================================================
 
+.. image:: https://secure.travis-ci.org/saimn/sigal.png?branch=master
+   :target: https://travis-ci.org/saimn/sigal
+   :alt: Travis-ci: continuous integration status.
+
 Sigal is yet another simple static gallery generator. It's written in Python
 and it allows to build a static gallery of images with the following features:
 
