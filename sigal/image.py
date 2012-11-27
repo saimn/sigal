@@ -100,25 +100,13 @@ def copy_exif(srcfile, dstfile):
 
     import pyexiv2
 
-    if pyexiv2.version_info[1] == 1:
-        src = pyexiv2.Image(srcfile)
-        dst = pyexiv2.Image(dstfile)
-        src.readMetadata()
-        dst.readMetadata()
-        try:
-            src.copyMetadataTo(dst)
-        except:
-            logger.error("metadata not copied for %s.", srcfile)
-            return
-        dst.writeMetadata()
-    else:
-        src = pyexiv2.ImageMetadata(srcfile)
-        dst = pyexiv2.ImageMetadata(dstfile)
-        src.read()
-        dst.read()
-        try:
-            src.copy(dst)
-        except:
-            logger.error("metadata not copied for %s.", srcfile)
-            return
-        dst.write()
+    src = pyexiv2.ImageMetadata(srcfile)
+    dst = pyexiv2.ImageMetadata(dstfile)
+    src.read()
+    dst.read()
+    try:
+        src.copy(dst)
+    except:
+        logger.error("metadata not copied for %s.", srcfile)
+        return
+    dst.write()
