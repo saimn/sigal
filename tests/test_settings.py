@@ -1,4 +1,3 @@
-#! /usr/bin/env python2
 # -*- coding:utf-8 -*-
 
 import os
@@ -6,7 +5,7 @@ import os
 try:
     import unittest2 as unittest
 except ImportError:
-    import unittest
+    import unittest  # NOQA
 
 from sigal.settings import read_settings, get_size
 
