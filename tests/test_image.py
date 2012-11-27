@@ -17,6 +17,27 @@ except ImportError:
 from sigal.image import copy_exif, Image
 
 CURRENT_DIR = os.path.dirname(__file__)
+TEST_IMAGE = 'exo20101028-b-full.jpg'
+
+
+class TestImage(unittest.TestCase):
+    "Test the Image class."
+
+    def setUp(self):
+        self.temp_path = mkdtemp()
+        self.srcfile = os.path.join(CURRENT_DIR, 'sample', 'dir2', TEST_IMAGE)
+        self.dstfile = os.path.join(self.temp_path, TEST_IMAGE)
+        self.img = Image(self.srcfile)
+
+    def tearDown(self):
+        rmtree(self.temp_path)
+
+    def test_imgname(self):
+        self.assertEqual(self.img.imgname, TEST_IMAGE)
+
+    def test_save(self):
+        self.img.save(self.dstfile)
+        self.assertTrue(os.path.isfile(self.dstfile))
 
 
 @unittest.skipUnless(pyexiv2, "pyexiv2 isn't installed")
@@ -25,9 +46,8 @@ class TestExif(unittest.TestCase):
 
     def setUp(self):
         self.temp_path = mkdtemp()
-        self.srcfile = os.path.join(CURRENT_DIR,
-                                    'sample/dir2/exo20101028-b-full.jpg')
-        self.dstfile = os.path.join(self.temp_path, 'exo20101028-b-full.jpg')
+        self.srcfile = os.path.join(CURRENT_DIR, 'sample', 'dir2', TEST_IMAGE)
+        self.dstfile = os.path.join(self.temp_path, TEST_IMAGE)
 
         img = Image(self.srcfile)
         img.save(self.dstfile)
