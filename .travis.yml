@@ -2,6 +2,9 @@ language: python
 python:
     - "2.7"
     - "2.6"
+before_install:
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq python-pyexiv2
 install:
     - pip install nose unittest2 --use-mirrors
     - pip install . --use-mirrors
