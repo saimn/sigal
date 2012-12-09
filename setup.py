@@ -2,7 +2,6 @@
 
 import sys
 from setuptools import setup, find_packages
-from sigal import __version__
 
 requires = ['PIL', 'jinja2', 'Markdown', 'clint']
 if sys.version_info < (2, 7):
@@ -17,7 +16,7 @@ with open('README.rst') as f:
 
 setup(
     name='sigal',
-    version=__version__,
+    version='0.1-dev',
     url='https://github.com/saimn/sigal',
     license='MIT',
     author='Simon Conseil',
