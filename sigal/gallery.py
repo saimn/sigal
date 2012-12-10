@@ -51,10 +51,11 @@ class Gallery:
     def build_paths(self):
         "Build the list of directories with images"
 
-        self.paths = {}
+        self.paths = {'paths_list': []}
 
         for path, dirnames, filenames in os.walk(self.input_dir):
             relpath = os.path.relpath(path, self.input_dir)
+            self.paths['paths_list'].append(relpath)
 
             # sort images and sub-albums by name
             filenames.sort(key=str.lower)
@@ -95,8 +96,9 @@ class Gallery:
         self.build_paths()
         check_or_create_dir(self.output_dir)
 
-        # loop on directories
-        for path in self.paths.keys():
+        # loop on directories in reversed order, to process subdirectories
+        # before their parent
+        for path in reversed(self.paths['paths_list']):
             imglist = [os.path.join(self.input_dir, path, f)
                        for f in self.paths[path]['img']]
 

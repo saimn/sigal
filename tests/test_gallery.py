@@ -29,7 +29,10 @@ class TestGallery(unittest.TestCase):
     def test_filelist(self):
         paths = self.gal.paths
 
-        self.assertItemsEqual(paths.keys(), ['.', 'dir1', 'dir2', 'dir1/test'])
+        self.assertItemsEqual(paths.keys(),
+                              ['paths_list', '.', 'dir1', 'dir2', 'dir1/test'])
+        self.assertListEqual(paths['paths_list'],
+                             ['.', 'dir1', 'dir1/test', 'dir2'])
 
         self.assertListEqual(paths['.']['img'], [])
         self.assertItemsEqual(paths['.']['subdir'], ['dir1', 'dir2'])
