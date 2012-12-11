@@ -28,7 +28,7 @@ import markdown
 import os
 import PIL
 
-from clint.textui import progress
+from clint.textui import progress, colored
 
 from .image import Image, copy_exif
 from .settings import get_thumb
@@ -96,24 +96,28 @@ class Gallery:
         self.build_paths()
         check_or_create_dir(self.output_dir)
 
+        # Compute the label with for the progress bar. The max value is 48
+        # character = 80 - 32 for the progress bar.
+        label_width = max((len(p) for p in self.paths['paths_list'])) + 1
+        label_width = min(label_width, 48)
+
         # loop on directories in reversed order, to process subdirectories
         # before their parent
         for path in reversed(self.paths['paths_list']):
             imglist = [os.path.join(self.input_dir, path, f)
                        for f in self.paths[path]['img']]
 
-            self.logger.warning("%s - %i images", path, len(imglist))
-
             # output dir for the current path
             img_out = os.path.join(self.output_dir, path)
             check_or_create_dir(img_out)
 
             if len(imglist) != 0:
-                self.process_dir(imglist, img_out)
+                self.process_dir(imglist, img_out, path,
+                                 label_width=label_width)
 
             self.writer.write(self.paths, path)
 
-    def process_dir(self, imglist, img_out):
+    def process_dir(self, imglist, img_out, dirname, label_width=20):
         "Process images for a directory"
 
         # Create thumbnails directory and optionally the one for original img
@@ -123,8 +127,17 @@ class Gallery:
             orig_dir = os.path.join(img_out, self.settings['orig_dir'])
             check_or_create_dir(orig_dir)
 
+        # use progressbar if level is > INFO
+        if self.logger.getEffectiveLevel() > 20:
+            label = colored.green(dirname.ljust(label_width))
+            img_iterator = progress.bar(imglist, label=label)
+        else:
+            img_iterator = iter(imglist)
+            self.logger.info(":: Processing '%s' [%i images]",
+                             colored.green(dirname), len(imglist))
+
         # loop on images
-        for f in progress.bar(imglist):
+        for f in img_iterator:
             filename = os.path.split(f)[1]
             im_name = os.path.join(img_out, filename)
 
