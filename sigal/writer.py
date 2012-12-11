@@ -21,13 +21,14 @@
 # IN THE SOFTWARE.
 
 """
-Generate html pages for each directory of images
+Generate html pages for each directory of images.
 """
 
 from __future__ import absolute_import
 
 import codecs
 import copy
+import logging
 import os
 
 from os.path import abspath
@@ -50,20 +51,21 @@ def do_link(link, title):
 
 
 class Writer():
-    """ Generate html pages for each directory of images """
+    """Generate html pages for each directory of images."""
 
     def __init__(self, settings, output_dir, theme='default'):
         self.settings = settings
         self.output_dir = os.path.abspath(output_dir)
         self.theme = settings['theme'] or theme
+        self.logger = logging.getLogger(__name__)
 
         # search the theme in sigal/theme if the given one does not exists
         if not os.path.exists(self.theme):
-            theme_path = os.path.join(THEMES_PATH, self.theme)
-            self.theme = theme_path
-            if not os.path.exists(theme_path):
+            self.theme = os.path.join(THEMES_PATH, self.theme)
+            if not os.path.exists(self.theme):
                 raise Exception("Impossible to find the theme %s" % self.theme)
 
+        self.logger.info("Theme path : %s", self.theme)
         theme_relpath = os.path.relpath(os.path.join(self.theme, 'templates'),
                                         os.path.dirname(__file__))
         env = Environment(loader=PackageLoader('sigal', theme_relpath))
@@ -79,17 +81,16 @@ class Writer():
         }
 
     def copy_assets(self):
-        "Copy the theme files in the output dir"
+        """Copy the theme files in the output dir."""
 
         self.theme_path = os.path.join(self.output_dir, 'static')
         copy_tree(os.path.join(self.theme, 'static'), self.theme_path)
 
     def write(self, paths, relpath):
-        """
-        Render the html page
-        """
+        """Render the html page."""
 
         path = os.path.join(self.output_dir, relpath)
+        self.logger.info("Output path : %s", path)
 
         ctx = copy.deepcopy(self.ctx)
         ctx['theme']['path'] = os.path.relpath(self.theme_path, path)
@@ -107,16 +108,15 @@ class Writer():
                            PATH_SEP + ctx['paths']
 
         for i in paths[relpath]['img']:
-            ctx['images'].append({
-                'file': i,
-                'thumb': get_thumb(self.settings, i)
-            })
+            ctx['images'].append({'file': i,
+                                  'thumb': get_thumb(self.settings, i)})
 
         for d in paths[relpath]['subdir']:
             dpath = os.path.normpath(os.path.join(relpath, d))
             alb_thumb = paths[dpath]['representative']
             thumb_name = get_thumb(self.settings, alb_thumb)
             thumb_path = os.path.join(self.output_dir, dpath, thumb_name)
+            self.logger.debug("Representative path : %s", thumb_path)
 
             # generate the thumbnail if it is missing (if
             # settings['make_thumbs'] is False)
