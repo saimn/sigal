@@ -59,7 +59,7 @@ def init_logging(level=logging.INFO):
     logger.setLevel(level)
 
     if level == logging.DEBUG:
-        formatter = Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        formatter = Formatter('%(levelname)s - %(message)s')
     else:
         formatter = Formatter('%(message)s')
 
