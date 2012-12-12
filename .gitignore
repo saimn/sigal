@@ -3,6 +3,7 @@
 *.pyc
 *_flymake
 .coverage
+.sass-cache/
 .ropeproject/
 nose.cfg
 MANIFEST
