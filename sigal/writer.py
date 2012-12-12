@@ -53,10 +53,10 @@ def do_link(link, title):
 class Writer():
     """Generate html pages for each directory of images."""
 
-    def __init__(self, settings, output_dir, theme='default'):
+    def __init__(self, settings, output_dir, theme=None):
         self.settings = settings
         self.output_dir = os.path.abspath(output_dir)
-        self.theme = settings['theme'] or theme
+        self.theme = theme or settings['theme']
         self.logger = logging.getLogger(__name__)
 
         # search the theme in sigal/theme if the given one does not exists

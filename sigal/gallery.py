@@ -40,13 +40,14 @@ DESCRIPTION_FILE = "index.md"
 class Gallery:
     "Prepare images"
 
-    def __init__(self, settings, input_dir, output_dir, force=False):
+    def __init__(self, settings, input_dir, output_dir, force=False,
+                 theme=None):
         self.settings = settings
         self.force = force
         self.input_dir = os.path.abspath(input_dir)
         self.output_dir = os.path.abspath(output_dir)
         self.logger = logging.getLogger(__name__)
-        self.writer = Writer(settings, output_dir)
+        self.writer = Writer(settings, output_dir, theme=theme)
 
     def build_paths(self):
         "Build the list of directories with images"

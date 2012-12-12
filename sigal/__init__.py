@@ -78,13 +78,16 @@ def main():
     parser.add_argument('--version', action='version',
                         version="%(prog)s version " + __version__)
     parser.add_argument("-f", "--force", action='store_true',
-                        help="force the reprocessing of existing images")
+                        help="Force the reprocessing of existing images.")
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.INFO, dest='verbosity',
                         help='Show all messages.')
     parser.add_argument('-d', '--debug', action='store_const',
                         const=logging.DEBUG, dest='verbosity',
                         help='Show all message, including debug messages.')
+    parser.add_argument("-t", "--theme", action='store',
+                        help="Specify a theme directory, or a theme name for "
+                             "the themes delivered with Sigal.")
 
     args = parser.parse_args()
     level = args.verbosity or logging.WARNING
@@ -102,5 +105,5 @@ def main():
 
     # create gallery
     gallery = Gallery(settings, args.input_dir, args.output_dir,
-                      force=args.force)
+                      force=args.force, theme=args.theme)
     gallery.build()
