@@ -30,10 +30,13 @@ import codecs
 import copy
 import logging
 import os
+import sys
 
-from os.path import abspath
+from clint.textui import colored
 from distutils.dir_util import copy_tree
 from jinja2 import Environment, PackageLoader
+from jinja2.exceptions import TemplateNotFound
+from os.path import abspath
 
 from .image import Image
 from .settings import get_thumb
@@ -69,7 +72,13 @@ class Writer():
         theme_relpath = os.path.relpath(os.path.join(self.theme, 'templates'),
                                         os.path.dirname(__file__))
         env = Environment(loader=PackageLoader('sigal', theme_relpath))
-        self.template = env.get_template(INDEX_PAGE)
+
+        try:
+            self.template = env.get_template(INDEX_PAGE)
+        except TemplateNotFound:
+            self.logger.error(colored.red('ERROR:') +
+                              ' The index.html template was not found.')
+            sys.exit(1)
 
         self.copy_assets()
 
