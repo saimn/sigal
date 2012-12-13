@@ -18,15 +18,11 @@
   <body>
     <div class="container">
       <header class="sixteen columns">
-          <h1>{{ title }}</h1>
+          <h1>{{ paths }}</h1>
           <hr>
       </header>
 
       <div id="main" role="main" class="sixteen columns">
-        <div id="breadcumb">
-          <p>{{ paths }}</p>
-        </div>
-
         {% if albums %}
         <div id="albums" class="row">
           {% for album in albums %}
