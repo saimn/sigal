@@ -1,6 +1,6 @@
 /* -*- scss-compile-at-save: nil -*- */
 
-@import "normalize.css";
+@import "normalize";
 
 body {
   font: 16px/1.5 Molengo, sans-serif;
@@ -92,7 +92,7 @@ header {
   height: 600px;
 }
 
-@import "../js/galleria.classic.css";
+@import "../js/galleria.classic";
 
 /* footer */
 
