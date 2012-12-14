@@ -37,7 +37,8 @@ _DEFAULT_CONFIG = {
     'copy_exif': False,
     'copyright': '',
     'ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
-    'theme': 'colorbox'
+    'theme': 'colorbox',
+    'google_analytics': ''
 }
 
 

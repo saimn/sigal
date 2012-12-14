@@ -100,12 +100,16 @@ class Writer():
         """Render the html page."""
 
         path = os.path.join(self.output_dir, relpath)
+        index_url = os.path.relpath(self.output_dir, path) + '/'
         self.logger.info("Output path : %s", path)
 
         ctx = copy.deepcopy(self.ctx)
+        ctx.update({
+            'settings': self.settings,
+            'index_url': index_url,
+            'index_link': link(index_url, paths['.']['title'])
+        })
         ctx['theme']['url'] = os.path.relpath(self.theme_path, path)
-        ctx['index_url'] = os.path.relpath(self.output_dir, path) + '/'
-        ctx['index_link'] = link(ctx['index_url'], paths['.']['title'])
 
         # paths to upper directories (with titles and links)
         if relpath != '.':

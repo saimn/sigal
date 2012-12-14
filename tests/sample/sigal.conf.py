@@ -39,3 +39,6 @@ copy_exif = True
 
 # add a copyright text on the image (default: '')
 copyright = "An example copyright message"
+
+# Google Analytics tracking code (UA-xxxx-x)
+# google_analytics = ''

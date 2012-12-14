@@ -68,6 +68,7 @@
       </footer>
     </div>
 
+    {% if images %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script>!window.jQuery && document.write(unescape('%3Cscript src="{{ theme.url }}/js/jquery-1.8.2.min.js"%3E%3C/script%3E'))</script>
     <script src="{{ theme.url }}/js/jquery.colorbox.min.js"></script>
@@ -81,5 +82,7 @@
         scalePhotos: true
       });
     </script>
+    {% endif %}
+    {% include 'analytics.html' %}
   </body>
 </html>
