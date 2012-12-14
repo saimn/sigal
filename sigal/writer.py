@@ -71,7 +71,8 @@ class Writer():
         self.logger.info("Theme path : %s", self.theme)
         theme_relpath = os.path.relpath(os.path.join(self.theme, 'templates'),
                                         os.path.dirname(__file__))
-        env = Environment(loader=PackageLoader('sigal', theme_relpath))
+        env = Environment(loader=PackageLoader('sigal', theme_relpath),
+                          trim_blocks=True)
 
         try:
             self.template = env.get_template(INDEX_PAGE)
