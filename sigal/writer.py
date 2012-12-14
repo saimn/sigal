@@ -103,16 +103,15 @@ class Writer():
 
         ctx = copy.deepcopy(self.ctx)
         ctx['theme']['path'] = os.path.relpath(self.theme_path, path)
-        ctx['home_path'] = os.path.join(
-            os.path.relpath(self.output_dir, path), INDEX_PAGE)
+        ctx['index_url'] = os.path.relpath(self.output_dir, path) + '/'
 
         # paths to upper directories (with titles and links)
         tmp_path = relpath
-        ctx['paths'] = do_link(INDEX_PAGE, paths[tmp_path]['title'])
+        ctx['paths'] = do_link('.', paths[tmp_path]['title'])
 
         while tmp_path != '.':
             tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
-            link = os.path.relpath(tmp_path, relpath) + "/" + INDEX_PAGE
+            link = os.path.relpath(tmp_path, relpath) + '/'
             ctx['paths'] = do_link(link, paths[tmp_path]['title']) + \
                            PATH_SEP + ctx['paths']
 
@@ -136,7 +135,7 @@ class Writer():
                               quality=self.settings['jpg_quality'])
 
             ctx['albums'].append({
-                'path': os.path.join(d, INDEX_PAGE),
+                'path': d + '/',
                 'title': paths[dpath]['title'],
                 'thumb': os.path.join(d, thumb_name)
             })
