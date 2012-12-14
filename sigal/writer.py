@@ -48,9 +48,9 @@ THEMES_PATH = os.path.normpath(os.path.join(
     abspath(os.path.dirname(__file__)), 'themes'))
 
 
-def do_link(link, title):
+def link(url, title):
     "Return a html link"
-    return '<a href="%s">%s</a>' % (link, title)
+    return '<a href="%s">%s</a>' % (url, title)
 
 
 class Writer():
@@ -107,12 +107,12 @@ class Writer():
 
         # paths to upper directories (with titles and links)
         tmp_path = relpath
-        ctx['paths'] = do_link('.', paths[tmp_path]['title'])
+        ctx['paths'] = link('.', paths[tmp_path]['title'])
 
         while tmp_path != '.':
             tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
-            link = os.path.relpath(tmp_path, relpath) + '/'
-            ctx['paths'] = do_link(link, paths[tmp_path]['title']) + \
+            url = os.path.relpath(tmp_path, relpath) + '/'
+            ctx['paths'] = link(url, paths[tmp_path]['title']) + \
                            PATH_SEP + ctx['paths']
 
         for i in paths[relpath]['img']:
