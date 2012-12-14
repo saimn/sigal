@@ -35,7 +35,7 @@ keep_orig = True
 # jpg_quality = 90
 
 # keep exif metadatas in output image (default: False)
-exif = True
+copy_exif = True
 
 # add a copyright text on the image (default: '')
 copyright = "An example copyright message"

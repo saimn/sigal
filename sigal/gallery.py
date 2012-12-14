@@ -167,7 +167,7 @@ class Gallery:
                               fit=self.settings['thumb_fit'],
                               quality=self.settings['jpg_quality'])
 
-            if self.settings['exif']:
+            if self.settings['copy_exif']:
                 copy_exif(f, im_name)
 
 
