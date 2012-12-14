@@ -7,7 +7,7 @@ try:
 except ImportError:
     import unittest  # NOQA
 
-from sigal.settings import read_settings, get_size
+from sigal.settings import read_settings
 
 
 class TestSettings(unittest.TestCase):
@@ -16,19 +16,13 @@ class TestSettings(unittest.TestCase):
     def setUp(self):
         "Read the sample config file"
         self.path = os.path.abspath(os.path.dirname(__file__))
-        default_conf = os.path.join(self.path, 'sample', 'sigal.conf')
+        default_conf = os.path.join(self.path, 'sample', 'sigal.conf.py')
         self.settings = read_settings(default_conf)
 
-    def test_get_size(self):
+    def test_sizes(self):
         "Test that image sizes are correctly read"
-        self.assertTupleEqual(get_size('640x480'), (640, 480))
-        self.assertTupleEqual(get_size('480x640'), (640, 480))
         self.assertTupleEqual(self.settings['img_size'], (640, 480))
         self.assertTupleEqual(self.settings['thumb_size'], (200, 150))
 
-    def test_ext_list(self):
-        self.assertListEqual(self.settings['ext_list'],
-                             ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'])
-
-    def test_type_conversion(self):
-        self.assertEqual(self.settings['jpg_quality'], 90)
+    def test_settings(self):
+        self.assertEqual(self.settings['thumb_suffix'], '.tn')

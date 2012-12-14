@@ -20,7 +20,7 @@ class TestGallery(unittest.TestCase):
     def setUp(cls):
         """Read the sample config file."""
 
-        default_conf = os.path.join(CURRENT_DIR, 'sample', 'sigal.conf')
+        default_conf = os.path.join(CURRENT_DIR, 'sample', 'sigal.conf.py')
         settings = read_settings(default_conf)
         cls.gal = Gallery(settings, os.path.join(CURRENT_DIR, 'sample'),
                           os.path.join(CURRENT_DIR, 'output'))

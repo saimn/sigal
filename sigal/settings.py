@@ -20,39 +20,29 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import ConfigParser
 import logging
 import os
 
 _DEFAULT_CONFIG = {
-    'img_size': '640x480',
-    'make_thumbs': '1',
+    'img_size': (640, 480),
+    'make_thumbs': True,
     'thumb_prefix': '',
     'thumb_suffix': '',
-    'thumb_size': '150x112',
+    'thumb_size': (150, 112),
     'thumb_dir': 'thumbnails',
-    'thumb_fit': '1',
-    'keep_orig': '0',
+    'thumb_fit': True,
+    'keep_orig': False,
     'orig_dir': 'original',
-    'jpg_quality': '90',
-    'exif': '0',
+    'jpg_quality': 90,
+    'exif': False,
     'copyright': '',
-    'ext_list': '.jpg,.jpeg,.JPG,.JPEG,.png',
+    'ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
     'theme': 'colorbox'
 }
 
 
-def get_size(string):
-    "Split size string to a tuple of int"
-
-    size = [int(i) for i in string.split("x")]
-    if size[1] > size[0]:
-        size[0], size[1] = size[1], size[0]
-    return tuple(size)
-
-
 def get_thumb(settings, filename):
-    "Return the path to the thumb"
+    """Return the path to the thumb."""
 
     name, ext = os.path.splitext(filename)
     return os.path.join(settings['thumb_dir'], settings['thumb_prefix'] +
@@ -60,26 +50,23 @@ def get_thumb(settings, filename):
 
 
 def read_settings(filename=None):
-    "Read settings from a config file in the source_dir root"
+    """Read settings from a config file in the source_dir root."""
 
     logger = logging.getLogger(__name__)
 
-    # Read the default configuration
-    config = ConfigParser.ConfigParser(defaults=_DEFAULT_CONFIG)
+    settings = _DEFAULT_CONFIG.copy()
+    if filename:
+        tempdict = {}
+        execfile(filename, tempdict)
+        settings.update(tempdict)
 
-    # Load the config file
-    if filename and os.path.isfile(filename):
-        config.read(filename)
-
-    settings = dict(config.items('sigal'))
-    settings['ext_list'] = settings['ext_list'].split(',')
-    settings['img_size'] = get_size(settings['img_size'])
-    settings['thumb_size'] = get_size(settings['thumb_size'])
-    settings['jpg_quality'] = config.getint('sigal', 'jpg_quality')
-    settings['keep_orig'] = config.getboolean('sigal', 'keep_orig')
-    settings['exif'] = config.getboolean('sigal', 'exif')
-    settings['make_thumbs'] = config.getboolean('sigal', 'make_thumbs')
-    settings['thumb_fit'] = config.getboolean('sigal', 'thumb_fit')
+    for key in ('img_size', 'thumb_size'):
+        size = settings[key]
+        if size[1] > size[0]:
+            size[0], size[1] = size[1], size[0]
+            settings[key] = size
+            logger.warning("The %s setting should be specified with the "
+                           "largest value first.", key)
 
     if settings['exif']:
         try:

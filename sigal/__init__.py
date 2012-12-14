@@ -46,7 +46,7 @@ from logging import Formatter
 from .gallery import Gallery
 from .settings import read_settings
 
-_DEFAULT_CONFIG_FILE = 'sigal.conf'
+_DEFAULT_CONFIG_FILE = 'sigal.conf.py'
 
 
 def init_logging(level=logging.INFO):

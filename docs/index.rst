@@ -76,12 +76,12 @@ Optional arguments:
 Configuration
 -------------
 
-The configuration for the gallery must be set in ``<input_dir>/sigal.conf``.
+The configuration for the gallery must be set in ``<input_dir>/sigal.conf.py``.
 An example file with explanations on the settings is available in
-``tests/sample/sigal.conf`` and is shown below:
+``tests/sample/sigal.conf.py`` and is shown below:
 
-.. literalinclude:: ../tests/sample/sigal.conf
-   :language: ini
+.. literalinclude:: ../tests/sample/sigal.conf.py
+   :language: python
 
 
 Album information
