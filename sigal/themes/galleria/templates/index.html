@@ -18,8 +18,10 @@
   <body>
     <div class="container">
       <header>
-          <h1>{{ paths }}</h1>
-        <!-- <h1><a href="{{ index_url }}">{{ gallery_name }}</a>{% if title %} - {{ title }}{% endif %}</h1> -->
+          <h1>{{ index_link }}</h1>
+          {% if breadcumb %}
+          <h2>» {{ breadcumb }}</h2>
+          {% endif %}
       </header>
 
       <div id="main" role="main">

@@ -18,7 +18,10 @@
   <body>
     <div class="container">
       <header class="sixteen columns">
-          <h1>{{ paths }}</h1>
+          <h1>{{ index_link }}</h1>
+          {% if breadcumb %}
+          <h2>» {{ breadcumb }}</h2>
+          {% endif %}
           <hr>
       </header>
 

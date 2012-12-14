@@ -87,6 +87,7 @@ class Writer():
             'theme': {'name': os.path.basename(self.theme)},
             'images': [],
             'albums': [],
+            'breadcumb': ''
         }
 
     def copy_assets(self):
@@ -104,16 +105,22 @@ class Writer():
         ctx = copy.deepcopy(self.ctx)
         ctx['theme']['url'] = os.path.relpath(self.theme_path, path)
         ctx['index_url'] = os.path.relpath(self.output_dir, path) + '/'
+        ctx['index_link'] = link(ctx['index_url'], paths['.']['title'])
 
         # paths to upper directories (with titles and links)
-        tmp_path = relpath
-        ctx['paths'] = link('.', paths[tmp_path]['title'])
+        if relpath != '.':
+            tmp_path = relpath
+            breadcumb = [link('.', paths[tmp_path]['title'])]
 
-        while tmp_path != '.':
-            tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
-            url = os.path.relpath(tmp_path, relpath) + '/'
-            ctx['paths'] = link(url, paths[tmp_path]['title']) + \
-                           PATH_SEP + ctx['paths']
+            while True:
+                tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
+                if tmp_path == '.':
+                    break
+
+                url = os.path.relpath(tmp_path, relpath) + '/'
+                breadcumb.append(link(url, paths[tmp_path]['title']))
+
+            ctx['breadcumb'] = PATH_SEP.join(reversed(breadcumb))
 
         for i in paths[relpath]['img']:
             ctx['images'].append({'file': i,

@@ -17,11 +17,12 @@ ul {
   padding-left: 20px;
 }
 
-header h1 {
+header {
   margin-top: 40px;
-  margin-bottom: 0;
 
-  a { text-decoration: none; }
+  h1 { margin-bottom: 10px; }
+  h2 { margin-top: 10px; }
+  h1 a, h2 a { text-decoration: none; }
 }
 
 .thumbnail {
