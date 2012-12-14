@@ -102,7 +102,7 @@ class Writer():
         self.logger.info("Output path : %s", path)
 
         ctx = copy.deepcopy(self.ctx)
-        ctx['theme']['path'] = os.path.relpath(self.theme_path, path)
+        ctx['theme']['url'] = os.path.relpath(self.theme_path, path)
         ctx['index_url'] = os.path.relpath(self.output_dir, path) + '/'
 
         # paths to upper directories (with titles and links)
@@ -135,7 +135,7 @@ class Writer():
                               quality=self.settings['jpg_quality'])
 
             ctx['albums'].append({
-                'path': d + '/',
+                'url': d + '/',
                 'title': paths[dpath]['title'],
                 'thumb': os.path.join(d, thumb_name)
             })
