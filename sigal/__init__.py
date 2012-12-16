@@ -85,7 +85,10 @@ def main():
     parser.add_argument('-d', '--debug', action='store_const',
                         const=logging.DEBUG, dest='verbosity',
                         help='Show all message, including debug messages.')
-    parser.add_argument("-t", "--theme", action='store',
+    parser.add_argument("-c", "--config",
+                        help="Configuration file (default: "
+                        "<input_dir>/sigal.conf.py).")
+    parser.add_argument("-t", "--theme",
                         help="Specify a theme directory, or a theme name for "
                              "the themes delivered with Sigal.")
 
@@ -100,8 +103,12 @@ def main():
         sys.exit(1)
 
     logger.info("Reading settings ...")
-    settings = read_settings(os.path.join(args.input_dir,
-                                          _DEFAULT_CONFIG_FILE))
+    settings_file = args.config or os.path.join(args.input_dir,
+                                                _DEFAULT_CONFIG_FILE)
+    if not os.path.isfile(settings_file):
+        logger.error("Settings file not found (%s)", settings_file)
+        sys.exit(1)
+    settings = read_settings(settings_file)
 
     # create gallery
     gallery = Gallery(settings, args.input_dir, args.output_dir,
