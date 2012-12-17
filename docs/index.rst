@@ -45,32 +45,39 @@ How to Use
 
 ::
 
-    $ sigal [-h] [--version] [-f] input_dir output_dir
+    $ sigal [-h] [--version] [-f] [-v] [-d] [-c CONFIG] [-t THEME]
+            input_dir [output_dir]
 
 Required arguments:
 
 ``input_dir``
   input directory
 
-``output_dir``
-  output directory
-
 Optional arguments:
 
+``output_dir``
+  output directory (default: ``_build/``)
+
 ``-h|--help``
-  Show this help message and exit
+  show this help message and exit
 
 ``--version``
-  Show program's version number and exit
+  show program's version number and exit
 
 ``-f|--force``
-  Force the reprocessing of existing images and thumbnails
+  force the reprocessing of existing images and thumbnails
 
 ``-v, --verbose``
-  Show all messages
+  show all messages
 
 ``-d, --debug``
-  Show all message, including debug messages
+  show all message, including debug messages
+
+``-c CONFIG, --config CONFIG``
+  configuration file (default: ``<input_dir>/sigal.conf.py``)
+
+``-t THEME, --theme THEME``
+  specify a theme directory, or a theme name for the themes included with Sigal
 
 
 Configuration
@@ -88,7 +95,9 @@ Album information
 -----------------
 
 Information on an album can be given in a file using the markdown syntax,
-named `index.mkd` ::
+named ``index.mkd`` :
+
+::
 
     Title: Another example gallery
     Representative: test2.jpg
