@@ -74,23 +74,24 @@ def main():
     parser = argparse.ArgumentParser(
         description='simple static gallery generator.')
     parser.add_argument('input_dir', help='input directory')
-    parser.add_argument('output_dir', help='output directory')
+    parser.add_argument('output_dir', nargs='?', default='_build',
+                        help='output directory (default: _build/)')
     parser.add_argument('--version', action='version',
                         version="%(prog)s version " + __version__)
     parser.add_argument("-f", "--force", action='store_true',
-                        help="Force the reprocessing of existing images.")
+                        help="force the reprocessing of existing images")
     parser.add_argument('-v', '--verbose', action='store_const',
                         const=logging.INFO, dest='verbosity',
-                        help='Show all messages.')
+                        help='show all messages')
     parser.add_argument('-d', '--debug', action='store_const',
                         const=logging.DEBUG, dest='verbosity',
-                        help='Show all message, including debug messages.')
+                        help='show all message, including debug messages')
     parser.add_argument("-c", "--config",
-                        help="Configuration file (default: "
-                        "<input_dir>/sigal.conf.py).")
+                        help="configuration file (default: "
+                        "<input_dir>/sigal.conf.py)")
     parser.add_argument("-t", "--theme",
-                        help="Specify a theme directory, or a theme name for "
-                             "the themes delivered with Sigal.")
+                        help="specify a theme directory, or a theme name for "
+                             "the themes included with Sigal")
 
     args = parser.parse_args()
     level = args.verbosity or logging.WARNING
