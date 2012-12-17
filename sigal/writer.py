@@ -34,7 +34,8 @@ import sys
 
 from clint.textui import colored
 from distutils.dir_util import copy_tree
-from jinja2 import Environment, PackageLoader
+from jinja2 import (Environment, PackageLoader, FileSystemLoader, ChoiceLoader,
+                    PrefixLoader)
 from jinja2.exceptions import TemplateNotFound
 from os.path import abspath
 
@@ -69,10 +70,20 @@ class Writer():
                 raise Exception("Impossible to find the theme %s" % self.theme)
 
         self.logger.info("Theme path : %s", self.theme)
-        theme_relpath = os.path.relpath(os.path.join(self.theme, 'templates'),
-                                        os.path.dirname(__file__))
-        env = Environment(loader=PackageLoader('sigal', theme_relpath),
-                          trim_blocks=True)
+        theme_relpath = os.path.join(self.theme, 'templates')
+        theme_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  'themes')
+        default_loader = FileSystemLoader(os.path.join(theme_path, 'default',
+                                                       'templates'))
+
+        env = Environment(
+            loader=ChoiceLoader([
+                FileSystemLoader(theme_relpath),
+                default_loader,  # implicit inheritance
+                PrefixLoader({'!default': default_loader})  # explicit one
+            ]),
+            trim_blocks=True,
+        )
 
         try:
             self.template = env.get_template(INDEX_PAGE)
