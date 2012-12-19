@@ -128,7 +128,7 @@ Changelog
 Version 0.2
 ~~~~~~~~~~~
 
-Released on 2012-12-xx.
+Released on 2012-12-20.
 
 - Improve the bundled themes (update galleria, new colorbox theme).
 - Improve the CLI (new arguments, nicer output).
