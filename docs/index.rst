@@ -124,6 +124,18 @@ the first image of the directory is used as representative.
 Changelog
 ---------
 
+
+Version 0.2
+~~~~~~~~~~~
+
+Released on 2012-12-xx.
+
+- Improve the bundled themes (update galleria, new colorbox theme).
+- Improve the CLI (new arguments, nicer output).
+- Change the licence to MIT.
+- Change the description file to a markdown syntax file.
+- Change the settings file to a python file, and add more settings.
+
 Version 0.1
 ~~~~~~~~~~~
 
