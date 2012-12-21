@@ -5,3 +5,7 @@ recursive-exclude docs *.pyo
 prune docs/_build
 prune docs/_themes/.git
 recursive-include sigal/themes *
+prune sigal/themes/.sass-cache
+prune sigal/themes/colorbox/static/css/.sass-cache
+prune sigal/themes/galleria/static/css/.sass-cache
+recursive-include tests/sample *
