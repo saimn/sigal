@@ -63,6 +63,9 @@ class Writer():
         self.theme = theme or settings['theme']
         self.logger = logging.getLogger(__name__)
 
+        # optionally add index.html to the URLs
+        self.url_ext = INDEX_PAGE if settings['index_in_url'] else ''
+
         # search the theme in sigal/theme if the given one does not exists
         if not os.path.exists(self.theme):
             self.theme = os.path.join(THEMES_PATH, self.theme)
@@ -112,7 +115,7 @@ class Writer():
         """Render the html page."""
 
         path = os.path.join(self.output_dir, relpath)
-        index_url = os.path.relpath(self.output_dir, path) + '/'
+        index_url = os.path.relpath(self.output_dir, path) + '/' + self.url_ext
         self.logger.info("Output path : %s", path)
 
         ctx = copy.deepcopy(self.ctx)
@@ -126,14 +129,14 @@ class Writer():
         # paths to upper directories (with titles and links)
         if relpath != '.':
             tmp_path = relpath
-            breadcumb = [link('.', paths[tmp_path]['title'])]
+            breadcumb = [link((self.url_ext or '.'), paths[tmp_path]['title'])]
 
             while True:
                 tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
                 if tmp_path == '.':
                     break
 
-                url = os.path.relpath(tmp_path, relpath) + '/'
+                url = os.path.relpath(tmp_path, relpath) + '/' + self.url_ext
                 breadcumb.append(link(url, paths[tmp_path]['title']))
 
             ctx['breadcumb'] = PATH_SEP.join(reversed(breadcumb))
@@ -158,7 +161,7 @@ class Writer():
                               quality=self.settings['jpg_quality'])
 
             ctx['albums'].append({
-                'url': d + '/',
+                'url': d + '/' + self.url_ext,
                 'title': paths[dpath]['title'],
                 'thumb': os.path.join(d, thumb_name)
             })

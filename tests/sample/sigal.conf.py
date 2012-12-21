@@ -36,6 +36,9 @@ keep_orig = True
 # Jpeg quality
 # jpg_quality = 90
 
+# Add index.html to the URLs
+# index_in_url = False
+
 # Keep exif metadatas in output image (default: False)
 copy_exif = True
 
