@@ -39,6 +39,10 @@ keep_orig = True
 # Add index.html to the URLs
 # index_in_url = False
 
+# A list of links (tuples (title, URL))
+links = [('Example link', 'http://example.org'),
+         ('Another link', 'http://example.org')]
+
 # Keep exif metadatas in output image (default: False)
 copy_exif = True
 

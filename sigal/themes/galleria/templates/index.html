@@ -18,10 +18,21 @@
   <body>
     <div class="container">
       <header>
-          <h1>{{ index_link }}</h1>
-          {% if breadcumb %}
-          <h2>» {{ breadcumb }}</h2>
-          {% endif %}
+        <h1>{{ index_link }}</h1>
+
+        {% if settings.links %}
+        <nav id="menu">
+          <ul>
+            {% for title, link in settings.links %}
+            <li><a href="{{ link }}">{{ title }}</a></li>
+            {% endfor %}
+          </ul>
+        </nav>
+        {% endif %}
+
+        {% if breadcumb %}
+        <h2>{{ breadcumb }}</h2>
+        {% endif %}
       </header>
 
       <div id="main" role="main">
