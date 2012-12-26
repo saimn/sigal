@@ -32,7 +32,6 @@ import os
 
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
-from PIL.ExifTags import TAGS
 
 EXIF_ORIENTATION_TAG = 274
 
