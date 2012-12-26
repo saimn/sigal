@@ -32,6 +32,9 @@ import os
 
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
+from PIL.ExifTags import TAGS
+
+EXIF_ORIENTATION_TAG = 274
 
 
 class Image:
@@ -61,6 +64,15 @@ class Image:
         :param size: tuple with the (with, height) to resize
 
         """
+
+        exif = self.img._getexif()
+        orient = exif.get(EXIF_ORIENTATION_TAG)
+        if orient == 3:
+            self.img.rotate(180)
+        elif orient == 6:
+            self.img.rotate(270)
+        elif orient == 8:
+            self.img.rotate(90)
 
         if self.img.size[0] > self.img.size[1]:
             newsize = size
