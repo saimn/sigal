@@ -33,6 +33,8 @@ import os
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
 
+
+# EXIF specs Orientation constant
 EXIF_ORIENTATION_TAG = 274
 
 class Image:
@@ -49,6 +51,15 @@ class Image:
         self.imgname = os.path.split(filename)[1]
         self.img = PILImage.open(filename)
 
+        exif = self.img._getexif()
+        orientation = exif.get(EXIF_ORIENTATION_TAG)
+
+        # see: http://www.impulseadventure.com/photo/exif-orientation.html
+        rotate_map = {3: 180, 6: -90, 8: 90}
+        rotation = rotate_map.get(orientation)
+        if rotation:
+            self.img = self.img.rotate(rotation)
+
     def save(self, filename, quality=90):
         self.img.save(filename, quality=quality)
 
@@ -62,14 +73,6 @@ class Image:
         :param size: tuple with the (with, height) to resize
 
         """
-
-        exif = self.img._getexif()
-        orientation = exif.get(EXIF_ORIENTATION_TAG)
-
-        rotate_map = {3:180, 6:-90, 8:90}
-        rotation = rotate_map.get(orientation)
-        if rotation:
-            self.img = self.img.rotate(rotation)
 
         if self.img.size[0] > self.img.size[1]:
             newsize = size
