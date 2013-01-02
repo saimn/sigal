@@ -35,6 +35,7 @@ Javascript libraries:
 .. _galleria demo: http://saimon.org/sigal-demo/galleria/
 .. _colorbox demo: http://saimon.org/sigal-demo/colorbox/
 
+
 Installation
 ------------
 
@@ -53,6 +54,7 @@ Dependencies
 - Jinja2
 - Python Markdown
 - pyexiv2 (optional, used to copy exif metadatas)
+
 
 How to Use
 ----------
@@ -121,9 +123,19 @@ named ``index.mkd`` :
 If this file does not exist the directory's name is used for the title, and
 the first image of the directory is used as representative.
 
+
 Changelog
 ---------
 
+Version 0.3
+~~~~~~~~~~~
+
+Released on 2013-xx-xx.
+
+- Fix packaging issues.
+- Add a setting to optionally add `index.html` to the URLs.
+- Add a setting to specify a list of links and adapt the themes to show the
+  links.
 
 Version 0.2
 ~~~~~~~~~~~
