@@ -29,6 +29,7 @@ import os
 import PIL
 
 from clint.textui import progress, colored
+from os.path import join
 
 from .image import Image, copy_exif
 from .settings import get_thumb
@@ -74,7 +75,7 @@ class Gallery:
                 alb_thumb = self.paths[relpath].setdefault('representative',
                                                            '')
                 if (not alb_thumb) or \
-                   (not os.path.isfile(os.path.join(path, alb_thumb))):
+                   (not os.path.isfile(join(path, alb_thumb))):
                     alb_thumb = self.find_representative(relpath)
                     self.paths[relpath]['representative'] = alb_thumb
 
@@ -83,7 +84,7 @@ class Gallery:
 
         for f in self.paths[path]['img']:
             # find and return the first landscape image
-            im = PIL.Image.open(os.path.join(self.input_dir, path, f))
+            im = PIL.Image.open(join(self.input_dir, path, f))
             if im.size[0] > im.size[1]:
                 return f
 
@@ -105,11 +106,11 @@ class Gallery:
         # loop on directories in reversed order, to process subdirectories
         # before their parent
         for path in reversed(self.paths['paths_list']):
-            imglist = [os.path.join(self.input_dir, path, f)
+            imglist = [join(self.input_dir, path, f)
                        for f in self.paths[path]['img']]
 
             # output dir for the current path
-            img_out = os.path.join(self.output_dir, path)
+            img_out = join(self.output_dir, path)
             check_or_create_dir(img_out)
 
             if len(imglist) != 0:
@@ -118,15 +119,43 @@ class Gallery:
 
             self.writer.write(self.paths, path)
 
-    def process_dir(self, imglist, img_out, dirname, label_width=20):
-        "Process images for a directory"
+    def process_image(self, filepath, outpath):
+        """Process one image: resize, create thumbnail, copy exif."""
 
-        # Create thumbnails directory and optionally the one for original img
-        check_or_create_dir(os.path.join(img_out, self.settings['thumb_dir']))
+        filename = os.path.split(filepath)[1]
+        outname = join(outpath, filename)
+
+        self.logger.info(filename)
+        img = Image(filepath)
 
         if self.settings['keep_orig']:
-            orig_dir = os.path.join(img_out, self.settings['orig_dir'])
-            check_or_create_dir(orig_dir)
+            img.save(join(outpath, self.settings['orig_dir'], filename),
+                     quality=self.settings['jpg_quality'])
+
+        img.resize(self.settings['img_size'])
+
+        if self.settings['copyright']:
+            img.add_copyright(self.settings['copyright'])
+
+        img.save(outname, quality=self.settings['jpg_quality'])
+
+        if self.settings['make_thumbs']:
+            thumb_name = join(outpath, get_thumb(self.settings, filename))
+            img.thumbnail(thumb_name, self.settings['thumb_size'],
+                          fit=self.settings['thumb_fit'],
+                          quality=self.settings['jpg_quality'])
+
+        if self.settings['copy_exif']:
+            copy_exif(filepath, outname)
+
+    def process_dir(self, imglist, outpath, dirname, label_width=20):
+        """Process a list of images in a directory."""
+
+        # Create thumbnails directory and optionally the one for original img
+        check_or_create_dir(join(outpath, self.settings['thumb_dir']))
+
+        if self.settings['keep_orig']:
+            check_or_create_dir(join(outpath, self.settings['orig_dir']))
 
         # use progressbar if level is > INFO
         if self.logger.getEffectiveLevel() > 20:
@@ -140,35 +169,12 @@ class Gallery:
         # loop on images
         for f in img_iterator:
             filename = os.path.split(f)[1]
-            im_name = os.path.join(img_out, filename)
+            outname = join(outpath, filename)
 
-            if os.path.isfile(im_name) and not self.force:
+            if os.path.isfile(outname) and not self.force:
                 self.logger.info("%s exists - skipping", filename)
-                continue
-
-            self.logger.info(filename)
-            img = Image(f)
-
-            if self.settings['keep_orig']:
-                img.save(os.path.join(orig_dir, filename),
-                         quality=self.settings['jpg_quality'])
-
-            img.resize(self.settings['img_size'])
-
-            if self.settings['copyright']:
-                img.add_copyright(self.settings['copyright'])
-
-            img.save(im_name, quality=self.settings['jpg_quality'])
-
-            if self.settings['make_thumbs']:
-                thumb_name = os.path.join(img_out,
-                                          get_thumb(self.settings, filename))
-                img.thumbnail(thumb_name, self.settings['thumb_size'],
-                              fit=self.settings['thumb_fit'],
-                              quality=self.settings['jpg_quality'])
-
-            if self.settings['copy_exif']:
-                copy_exif(f, im_name)
+            else:
+                self.process_image(f, outpath)
 
 
 def get_metadata(path):
@@ -179,7 +185,7 @@ def get_metadata(path):
     - description
     """
 
-    descfile = os.path.join(path, DESCRIPTION_FILE)
+    descfile = join(path, DESCRIPTION_FILE)
     meta = {}
 
     if not os.path.isfile(descfile):
