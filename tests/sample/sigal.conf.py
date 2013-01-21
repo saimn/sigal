@@ -33,8 +33,10 @@ keep_orig = True
 # Subdirectory for original images
 # orig_dir = 'original'
 
-# Jpeg quality
-# jpg_quality = 90
+# Jpeg options
+# jpg_options = {'quality': 85,
+#                'optimize': True,
+#                'progressive': True}
 
 # Add index.html to the URLs
 # index_in_url = False

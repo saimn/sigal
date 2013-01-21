@@ -130,20 +130,20 @@ class Gallery:
 
         if self.settings['keep_orig']:
             img.save(join(outpath, self.settings['orig_dir'], filename),
-                     quality=self.settings['jpg_quality'])
+                     **self.settings['jpg_options'])
 
         img.resize(self.settings['img_size'])
 
         if self.settings['copyright']:
             img.add_copyright(self.settings['copyright'])
 
-        img.save(outname, quality=self.settings['jpg_quality'])
+        img.save(outname, **self.settings['jpg_options'])
 
         if self.settings['make_thumbs']:
             thumb_name = join(outpath, get_thumb(self.settings, filename))
             img.thumbnail(thumb_name, self.settings['thumb_size'],
                           fit=self.settings['thumb_fit'],
-                          quality=self.settings['jpg_quality'])
+                          quality=self.settings['jpg_options']['quality'])
 
         if self.settings['copy_exif']:
             copy_exif(filepath, outname)

@@ -33,7 +33,7 @@ _DEFAULT_CONFIG = {
     'thumb_fit': True,
     'keep_orig': False,
     'orig_dir': 'original',
-    'jpg_quality': 90,
+    'jpg_options': {'quality': 85, 'optimize': True, 'progressive': True},
     'copy_exif': False,
     'copyright': '',
     'ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],

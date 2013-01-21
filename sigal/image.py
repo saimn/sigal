@@ -29,10 +29,9 @@ from __future__ import division
 
 import logging
 import os
-
+from exceptions import IOError
 from PIL import Image as PILImage
-from PIL import ImageDraw, ImageOps
-
+from PIL import ImageDraw, ImageOps, ImageFile
 
 # EXIF specs Orientation constant
 EXIF_ORIENTATION_TAG = 274
@@ -62,11 +61,23 @@ class Image:
             if rotation:
                 self.img = self.img.rotate(rotation)
 
-    def save(self, filename, quality=90):
-        self.img.save(filename, quality=quality)
+    def save(self, filename, **kwargs):
+        """Save the image.
+
+        Pass a dict with PIL options (quality, optimize, progressive).
+        Enlarge the MAXBLOCK buffer of ImageFile if there is an error (for the
+        progressive mode).
+
+        """
+
+        try:
+            self.img.save(filename, "JPEG", **kwargs)
+        except IOError:
+            ImageFile.MAXBLOCK = self.img.size[0] * self.img.size[1]
+            self.img.save(filename, "JPEG", **kwargs)
 
     def resize(self, size):
-        """ Resize the image
+        """Resize the image.
 
         - check if the image format is portrait or landscape and adjust `size`.
         - compute the width and height ratio, and keep the min to resize the
