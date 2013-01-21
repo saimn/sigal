@@ -53,13 +53,14 @@ class Image:
         self.img = PILImage.open(filename)
 
         exif = self.img._getexif()
-        orientation = exif.get(EXIF_ORIENTATION_TAG)
+        if exif:
+            orientation = exif.get(EXIF_ORIENTATION_TAG)
 
-        # see: http://www.impulseadventure.com/photo/exif-orientation.html
-        rotate_map = {3: 180, 6: -90, 8: 90}
-        rotation = rotate_map.get(orientation)
-        if rotation:
-            self.img = self.img.rotate(rotation)
+            # see: http://www.impulseadventure.com/photo/exif-orientation.html
+            rotate_map = {3: 180, 6: -90, 8: 90}
+            rotation = rotate_map.get(orientation)
+            if rotation:
+                self.img = self.img.rotate(rotation)
 
     def save(self, filename, quality=90):
         self.img.save(filename, quality=quality)
