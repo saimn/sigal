@@ -62,7 +62,8 @@ def read_settings(filename=None):
     if filename:
         tempdict = {}
         execfile(filename, tempdict)
-        settings.update(tempdict)
+        settings.update((k, v) for k, v in tempdict.iteritems()
+                        if k not in ['__builtins__'])
 
     for key in ('img_size', 'thumb_size'):
         size = settings[key]

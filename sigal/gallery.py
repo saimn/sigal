@@ -26,8 +26,10 @@ import codecs
 import logging
 import markdown
 import os
+import sys
 
 from clint.textui import progress, colored
+from multiprocessing import Pool
 from os.path import join
 from PIL import Image as PILImage
 
@@ -134,9 +136,10 @@ class Gallery(object):
     "Prepare images"
 
     def __init__(self, settings, input_dir, output_dir, force=False,
-                 theme=None):
+                 theme=None, ncpu=1):
         self.settings = settings
         self.force = force
+        self.ncpu = ncpu
         self.input_dir = os.path.abspath(input_dir)
         self.output_dir = os.path.abspath(output_dir)
         self.logger = logging.getLogger(__name__)
@@ -173,35 +176,6 @@ class Gallery(object):
 
             self.writer.write(self.db, path)
 
-    def process_image(self, filepath, outpath):
-        """Process one image: resize, create thumbnail, copy exif."""
-
-        filename = os.path.split(filepath)[1]
-        outname = join(outpath, filename)
-
-        self.logger.info(filename)
-        img = Image(filepath)
-
-        if self.settings['keep_orig']:
-            img.save(join(outpath, self.settings['orig_dir'], filename),
-                     **self.settings['jpg_options'])
-
-        img.resize(self.settings['img_size'])
-
-        if self.settings['copyright']:
-            img.add_copyright(self.settings['copyright'])
-
-        img.save(outname, **self.settings['jpg_options'])
-
-        if self.settings['make_thumbs']:
-            thumb_name = join(outpath, get_thumb(self.settings, filename))
-            img.thumbnail(thumb_name, self.settings['thumb_size'],
-                          fit=self.settings['thumb_fit'],
-                          quality=self.settings['jpg_options']['quality'])
-
-        if self.settings['copy_exif']:
-            copy_exif(filepath, outname)
-
     def process_dir(self, imglist, outpath, dirname, label_width=20):
         """Process a list of images in a directory."""
 
@@ -220,15 +194,63 @@ class Gallery(object):
             self.logger.info(":: Processing '%s' [%i images]",
                              colored.green(dirname), len(imglist))
 
-        # loop on images
-        for f in img_iterator:
-            filename = os.path.split(f)[1]
-            outname = join(outpath, filename)
+        pool = Pool(processes=self.ncpu)
 
-            if os.path.isfile(outname) and not self.force:
-                self.logger.info("%s exists - skipping", filename)
-            else:
-                self.process_image(f, outpath)
+        try:
+            # loop on images
+            for f in img_iterator:
+                filename = os.path.split(f)[1]
+                outname = join(outpath, filename)
+                self.logger.info(filename)
+
+                if os.path.isfile(outname) and not self.force:
+                    self.logger.info("%s exists - skipping", filename)
+                else:
+                    self.logger.info(filename)
+                    pool.apply_async(worker_image,
+                                     (f, outpath, self.settings)).get(9999)
+
+            pool.close()
+            pool.join()
+        except KeyboardInterrupt:
+            pool.terminate()
+            sys.exit('Interrupted')
+
+
+def worker_image(*args):
+    try:
+        return process_image(*args)
+    except KeyboardInterrupt:
+        return 'KeyboardException'
+
+
+def process_image(filepath, outpath, settings):
+    """Process one image: resize, create thumbnail, copy exif."""
+
+    filename = os.path.split(filepath)[1]
+    outname = join(outpath, filename)
+
+    img = Image(filepath)
+
+    if settings['keep_orig']:
+        img.save(join(outpath, settings['orig_dir'], filename),
+                 **settings['jpg_options'])
+
+    img.resize(settings['img_size'])
+
+    if settings['copyright']:
+        img.add_copyright(settings['copyright'])
+
+    img.save(outname, **settings['jpg_options'])
+
+    if settings['make_thumbs']:
+        thumb_name = join(outpath, get_thumb(settings, filename))
+        img.thumbnail(thumb_name, settings['thumb_size'],
+                      fit=settings['thumb_fit'],
+                      quality=settings['jpg_options']['quality'])
+
+    if settings['copy_exif']:
+        copy_exif(filepath, outname)
 
 
 def get_metadata(path):
