@@ -111,7 +111,7 @@ Album information
 -----------------
 
 Information on an album can be given in a file using the markdown syntax,
-named ``index.mkd`` :
+named ``index.md`` :
 
 ::
 
@@ -136,6 +136,8 @@ Released on 2013-xx-xx.
 - Add a setting to optionally add `index.html` to the URLs.
 - Add a setting to specify a list of links and adapt the themes to show the
   links.
+- Use EXIF info to fix orientation.
+- Replace the jpg_quality setting with a dict of options.
 
 Version 0.2
 ~~~~~~~~~~~
