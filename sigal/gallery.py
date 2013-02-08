@@ -53,22 +53,26 @@ class Gallery:
     def build_paths(self):
         "Build the list of directories with images"
 
-        self.paths = {'paths_list': []}
+        self.paths = {'paths_list': [], 'skipped_dir': []}
 
         for path, dirnames, filenames in os.walk(self.input_dir):
             relpath = os.path.relpath(path, self.input_dir)
-            self.paths['paths_list'].append(relpath)
 
             # sort images and sub-albums by name
             filenames.sort(key=str.lower)
             dirnames.sort(key=str.lower)
 
-            self.paths[relpath] = {
-                'img': [
-                    f for f in filenames
-                    if os.path.splitext(f)[1] in self.settings['ext_list']],
-                'subdir': dirnames
-            }
+            images = [f for f in filenames
+                      if os.path.splitext(f)[1] in self.settings['ext_list']]
+
+            # skip this directory if it doesn't contain images
+            if relpath != '.' and not images:
+                self.paths['skipped_dir'].append(relpath)
+                self.logger.info("Directory '%s' is empty", relpath)
+                continue
+
+            self.paths['paths_list'].append(relpath)
+            self.paths[relpath] = {'img': images, 'subdir': dirnames}
             self.paths[relpath].update(get_metadata(path))
 
             if relpath != '.':
@@ -78,6 +82,12 @@ class Gallery:
                    (not os.path.isfile(join(path, alb_thumb))):
                     alb_thumb = self.find_representative(relpath)
                     self.paths[relpath]['representative'] = alb_thumb
+
+        # cleanup: remove skipped directories
+        for path in self.paths['paths_list']:
+            subdir = iter(self.paths[path]['subdir'])
+            self.paths[path]['subdir'] = [
+                d for d in subdir if d not in self.paths['skipped_dir']]
 
     def find_representative(self, path):
         "Find the representative image for a given path"
