@@ -100,7 +100,12 @@ def main():
     logger = logging.getLogger(__name__)
 
     if not os.path.isdir(args.input_dir):
-        logger.error("Input directory %s does not exist.", args.input_dir)
+        logger.error("Input directory '%s' does not exist.", args.input_dir)
+        sys.exit(1)
+
+    if not os.path.relpath(args.output_dir, args.input_dir).startswith('..'):
+        logger.error("Output directory should be outside of the input "
+                     "directory.")
         sys.exit(1)
 
     logger.info("Reading settings ...")
