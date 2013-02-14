@@ -37,7 +37,7 @@ from PIL import ImageDraw, ImageOps, ImageFile
 EXIF_ORIENTATION_TAG = 274
 
 
-class Image:
+class Image(object):
     """ Image container
 
     resize, thumbnail, ...

@@ -54,7 +54,7 @@ def link(url, title):
     return '<a href="%s">%s</a>' % (url, title)
 
 
-class Writer():
+class Writer(object):
     """Generate html pages for each directory of images."""
 
     def __init__(self, settings, output_dir, theme=None):

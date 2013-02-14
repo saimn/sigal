@@ -38,7 +38,7 @@ from .writer import Writer
 DESCRIPTION_FILE = "index.md"
 
 
-class Gallery:
+class Gallery(object):
     "Prepare images"
 
     def __init__(self, settings, input_dir, output_dir, force=False,
