@@ -34,24 +34,16 @@ import sys
 
 from clint.textui import colored
 from distutils.dir_util import copy_tree
-from jinja2 import (Environment, PackageLoader, FileSystemLoader, ChoiceLoader,
-                    PrefixLoader)
+from jinja2 import Environment, FileSystemLoader, ChoiceLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
-from os.path import abspath
 
 from .image import Image
 from .settings import get_thumb
 
 INDEX_PAGE = "index.html"
 SIGAL_LINK = "https://github.com/saimn/sigal"
-PATH_SEP = u" » "
 THEMES_PATH = os.path.normpath(os.path.join(
-    abspath(os.path.dirname(__file__)), 'themes'))
-
-
-def link(url, title):
-    "Return a html link"
-    return '<a href="%s">%s</a>' % (url, title)
+    os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
 
 class Writer(object):
@@ -74,10 +66,8 @@ class Writer(object):
 
         self.logger.info("Theme path : %s", self.theme)
         theme_relpath = os.path.join(self.theme, 'templates')
-        theme_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                  'themes')
-        default_loader = FileSystemLoader(os.path.join(theme_path, 'default',
-                                                       'templates'))
+        default_loader = FileSystemLoader(
+            os.path.join(THEMES_PATH, 'default', 'templates'))
 
         env = Environment(
             loader=ChoiceLoader([
@@ -111,6 +101,22 @@ class Writer(object):
         self.theme_path = os.path.join(self.output_dir, 'static')
         copy_tree(os.path.join(self.theme, 'static'), self.theme_path)
 
+    def get_breadcumb(self, paths, relpath):
+        """Paths to upper directories (with titles and links)."""
+
+        tmp_path = relpath
+        breadcumb = [((self.url_ext or '.'), paths[tmp_path]['title'])]
+
+        while True:
+            tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
+            if tmp_path == '.':
+                break
+
+            url = os.path.relpath(tmp_path, relpath) + '/' + self.url_ext
+            breadcumb.append((url, paths[tmp_path]['title']))
+
+        return reversed(breadcumb)
+
     def write(self, paths, relpath):
         """Render the html page."""
 
@@ -122,24 +128,12 @@ class Writer(object):
         ctx.update({
             'settings': self.settings,
             'index_url': index_url,
-            'index_link': link(index_url, paths['.']['title'])
+            'index_title': paths['.']['title']
         })
         ctx['theme']['url'] = os.path.relpath(self.theme_path, path)
 
-        # paths to upper directories (with titles and links)
         if relpath != '.':
-            tmp_path = relpath
-            breadcumb = [link((self.url_ext or '.'), paths[tmp_path]['title'])]
-
-            while True:
-                tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
-                if tmp_path == '.':
-                    break
-
-                url = os.path.relpath(tmp_path, relpath) + '/' + self.url_ext
-                breadcumb.append(link(url, paths[tmp_path]['title']))
-
-            ctx['breadcumb'] = PATH_SEP.join(reversed(breadcumb))
+            ctx['breadcumb'] = self.get_breadcumb(paths, relpath)
 
         for i in paths[relpath]['img']:
             ctx['images'].append({'file': i,

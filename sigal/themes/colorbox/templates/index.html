@@ -20,7 +20,7 @@
 
       <div class="four columns">
         <div class="sidebar">
-          <h1>{{ index_link }}</h1>
+          <h1><a href="{{ index_link }}">{{ index_title }}</a></h1>
 
           {% if settings.links %}
           <nav id="menu">
@@ -42,7 +42,12 @@
       <div id="main" role="main" class="twelve columns offset-by-four">
         <header>
           {% if breadcumb %}
-          <h2>{{ breadcumb }}</h2>
+          <h2>
+            {%- for url, title in breadcumb -%}
+            <a href="{{ url }}">{{ title }}</a>
+            {%- if not loop.last %} » {% endif -%}
+            {% endfor -%}
+          </h2>
           <hr>
           {% endif %}
         </header>
