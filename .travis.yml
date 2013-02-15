@@ -5,7 +5,7 @@ python:
 before_install:
     # Dependencies to build PIL
     - sudo apt-get update -qq
-    - sudo apt-get install -qq python-pyexiv2 libfreetype6-dev libjpeg8-dev zlib1g-dev
+    - sudo apt-get install -qq libfreetype6-dev libjpeg8-dev zlib1g-dev
 install:
     - pip install nose unittest2 --use-mirrors
     - pip install . --use-mirrors

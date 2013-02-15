@@ -3,9 +3,14 @@
 import sys
 from setuptools import setup, find_packages
 
-requires = ['PIL', 'jinja2', 'Markdown', 'clint']
+requires = ['jinja2', 'Markdown', 'clint']
 if sys.version_info < (2, 7):
     requires.append('argparse')
+
+try:
+    from PIL import Image, ImageOps  # NOQA
+except ImportError:
+    requires += ['Pillow']
 
 entry_points = {
     'console_scripts': ['sigal = sigal:main']
