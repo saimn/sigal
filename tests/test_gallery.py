@@ -7,27 +7,27 @@ try:
 except ImportError:
     import unittest  # NOQA
 
-from sigal.gallery import Gallery, get_metadata
+from sigal.gallery import PathsDb, get_metadata
 from sigal.settings import read_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
+SAMPLE_DIR = os.path.join(CURRENT_DIR, 'sample')
 
 
-class TestGallery(unittest.TestCase):
-    "Test the Gallery class."
+class TestPaths(unittest.TestCase):
+    "Test the PathsDb class."
 
     @classmethod
     def setUp(cls):
-        """Read the sample config file."""
+        """Read the sample config file and build the PathsDb object."""
 
-        default_conf = os.path.join(CURRENT_DIR, 'sample', 'sigal.conf.py')
+        default_conf = os.path.join(SAMPLE_DIR, 'sigal.conf.py')
         settings = read_settings(default_conf)
-        cls.gal = Gallery(settings, os.path.join(CURRENT_DIR, 'sample'),
-                          os.path.join(CURRENT_DIR, 'output'))
-        cls.gal.build_paths()
+        cls.paths = PathsDb(SAMPLE_DIR, settings['ext_list'])
+        cls.paths.build()
 
     def test_filelist(self):
-        paths = self.gal.paths
+        paths = self.paths.db
 
         self.assertItemsEqual(
             paths.keys(),
@@ -45,8 +45,8 @@ class TestGallery(unittest.TestCase):
         self.assertEqual(paths['dir1']['title'], u'An example gallery')
 
     def test_find_representative(self):
-        self.assertEqual(self.gal.find_representative('dir1'), u'test1.jpg')
-        self.assertEqual(self.gal.find_representative('dir1/test'),
+        self.assertEqual(self.paths.find_representative('dir1'), u'test1.jpg')
+        self.assertEqual(self.paths.find_representative('dir1/test'),
                          u'test2.jpg')
 
 
@@ -54,9 +54,22 @@ class TestMetadata(unittest.TestCase):
     "Test the Gallery class."
 
     def test_get_metadata(self):
-        m = get_metadata(os.path.join(CURRENT_DIR, 'sample', 'dir1'))
+        m = get_metadata(os.path.join(SAMPLE_DIR, 'dir1'))
         self.assertEqual(m['title'], 'An example gallery')
         self.assertEqual(m['representative'], 'test1.jpg')
 
-        m = get_metadata(os.path.join(CURRENT_DIR, 'sample', 'dir1', 'test'))
+        m = get_metadata(os.path.join(SAMPLE_DIR, 'dir1', 'test'))
         self.assertEqual(m['title'], 'Test')
+
+
+# class TestGallery(unittest.TestCase):
+#     "Test the Gallery class."
+
+#     @classmethod
+#     def setUp(cls):
+#         """Read the sample config file."""
+
+#         default_conf = os.path.join(CURRENT_DIR, 'sample', 'sigal.conf.py')
+#         settings = read_settings(default_conf)
+#         cls.gal = Gallery(settings, os.path.join(CURRENT_DIR, 'sample'),
+#                           os.path.join(CURRENT_DIR, 'output'))

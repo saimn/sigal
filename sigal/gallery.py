@@ -38,6 +38,67 @@ from .writer import Writer
 DESCRIPTION_FILE = "index.md"
 
 
+class PathsDb(object):
+    def __init__(self, path, ext_list):
+        self.basepath = path
+        self.ext_list = ext_list
+        self.logger = logging.getLogger(__name__)
+
+        # The dict containing all information
+        self.db = {
+            'paths_list': [],
+            'skipped_dir': []
+        }
+
+    def build(self):
+        "Build the list of directories with images"
+
+        for path, dirnames, filenames in os.walk(self.basepath):
+            relpath = os.path.relpath(path, self.basepath)
+
+            # sort images and sub-albums by name
+            filenames.sort(key=str.lower)
+            dirnames.sort(key=str.lower)
+
+            images = [f for f in filenames
+                      if os.path.splitext(f)[1] in self.ext_list]
+
+            # skip this directory if it doesn't contain images
+            if relpath != '.' and not images:
+                self.db['skipped_dir'].append(relpath)
+                self.logger.info("Directory '%s' is empty", relpath)
+                continue
+
+            self.db['paths_list'].append(relpath)
+            self.db[relpath] = {'img': images, 'subdir': dirnames}
+            self.db[relpath].update(get_metadata(path))
+
+            if relpath != '.':
+                alb_thumb = self.db[relpath].setdefault('representative', '')
+                if (not alb_thumb) or \
+                   (not os.path.isfile(join(path, alb_thumb))):
+                    alb_thumb = self.find_representative(relpath)
+                    self.db[relpath]['representative'] = alb_thumb
+
+        # cleanup: remove skipped directories
+        for path in self.db['paths_list']:
+            subdir = iter(self.db[path]['subdir'])
+            self.db[path]['subdir'] = [
+                d for d in subdir if d not in self.db['skipped_dir']]
+
+    def find_representative(self, path):
+        "Find the representative image for a given path"
+
+        for f in self.db[path]['img']:
+            # find and return the first landscape image
+            im = PIL.Image.open(join(self.basepath, path, f))
+            if im.size[0] > im.size[1]:
+                return f
+
+        # else simply return the 1st image
+        return self.db[path]['img'][0]
+
+
 class Gallery(object):
     "Prepare images"
 
@@ -50,74 +111,26 @@ class Gallery(object):
         self.logger = logging.getLogger(__name__)
         self.writer = Writer(settings, output_dir, theme=theme)
 
-    def build_paths(self):
-        "Build the list of directories with images"
-
-        self.paths = {'paths_list': [], 'skipped_dir': []}
-
-        for path, dirnames, filenames in os.walk(self.input_dir):
-            relpath = os.path.relpath(path, self.input_dir)
-
-            # sort images and sub-albums by name
-            filenames.sort(key=str.lower)
-            dirnames.sort(key=str.lower)
-
-            images = [f for f in filenames
-                      if os.path.splitext(f)[1] in self.settings['ext_list']]
-
-            # skip this directory if it doesn't contain images
-            if relpath != '.' and not images:
-                self.paths['skipped_dir'].append(relpath)
-                self.logger.info("Directory '%s' is empty", relpath)
-                continue
-
-            self.paths['paths_list'].append(relpath)
-            self.paths[relpath] = {'img': images, 'subdir': dirnames}
-            self.paths[relpath].update(get_metadata(path))
-
-            if relpath != '.':
-                alb_thumb = self.paths[relpath].setdefault('representative',
-                                                           '')
-                if (not alb_thumb) or \
-                   (not os.path.isfile(join(path, alb_thumb))):
-                    alb_thumb = self.find_representative(relpath)
-                    self.paths[relpath]['representative'] = alb_thumb
-
-        # cleanup: remove skipped directories
-        for path in self.paths['paths_list']:
-            subdir = iter(self.paths[path]['subdir'])
-            self.paths[path]['subdir'] = [
-                d for d in subdir if d not in self.paths['skipped_dir']]
-
-    def find_representative(self, path):
-        "Find the representative image for a given path"
-
-        for f in self.paths[path]['img']:
-            # find and return the first landscape image
-            im = PIL.Image.open(join(self.input_dir, path, f))
-            if im.size[0] > im.size[1]:
-                return f
-
-        # else simply return the 1st image
-        return self.paths[path]['img'][0]
+        self.paths = PathsDb(self.input_dir, self.settings['ext_list'])
+        self.paths.build()
+        self.db = self.paths.db
 
     def build(self):
         "Create the image gallery"
 
         self.logger.info("Generate gallery in %s ...", self.output_dir)
-        self.build_paths()
         check_or_create_dir(self.output_dir)
 
         # Compute the label with for the progress bar. The max value is 48
         # character = 80 - 32 for the progress bar.
-        label_width = max((len(p) for p in self.paths['paths_list'])) + 1
+        label_width = max((len(p) for p in self.db['paths_list'])) + 1
         label_width = min(label_width, 48)
 
         # loop on directories in reversed order, to process subdirectories
         # before their parent
-        for path in reversed(self.paths['paths_list']):
+        for path in reversed(self.db['paths_list']):
             imglist = [join(self.input_dir, path, f)
-                       for f in self.paths[path]['img']]
+                       for f in self.db[path]['img']]
 
             # output dir for the current path
             img_out = join(self.output_dir, path)
@@ -127,7 +140,7 @@ class Gallery(object):
                 self.process_dir(imglist, img_out, path,
                                  label_width=label_width)
 
-            self.writer.write(self.paths, path)
+            self.writer.write(self.db, path)
 
     def process_image(self, filepath, outpath):
         """Process one image: resize, create thumbnail, copy exif."""
