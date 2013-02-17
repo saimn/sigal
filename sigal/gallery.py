@@ -44,15 +44,16 @@ class PathsDb(object):
         self.ext_list = ext_list
         self.logger = logging.getLogger(__name__)
 
+    def build(self):
+        "Build the list of directories with images"
+
         # The dict containing all information
         self.db = {
             'paths_list': [],
             'skipped_dir': []
         }
 
-    def build(self):
-        "Build the list of directories with images"
-
+        # get information for each directory
         for path, dirnames, filenames in os.walk(self.basepath):
             relpath = os.path.relpath(path, self.basepath)
 
@@ -60,31 +61,42 @@ class PathsDb(object):
             filenames.sort(key=str.lower)
             dirnames.sort(key=str.lower)
 
-            images = [f for f in filenames
-                      if os.path.splitext(f)[1] in self.ext_list]
-
-            # skip this directory if it doesn't contain images
-            if relpath != '.' and not images:
-                self.db['skipped_dir'].append(relpath)
-                self.logger.info("Directory '%s' is empty", relpath)
-                continue
-
             self.db['paths_list'].append(relpath)
-            self.db[relpath] = {'img': images, 'subdir': dirnames}
+            self.db[relpath] = {
+                'img': [f for f in filenames
+                        if os.path.splitext(f)[1] in self.ext_list],
+                'subdir': dirnames
+            }
             self.db[relpath].update(get_metadata(path))
 
-            if relpath != '.':
-                alb_thumb = self.db[relpath].setdefault('representative', '')
-                if (not alb_thumb) or \
-                   (not os.path.isfile(join(path, alb_thumb))):
-                    alb_thumb = self.find_representative(relpath)
-                    self.db[relpath]['representative'] = alb_thumb
+        path_im = [path for path in self.db['paths_list']
+                   if self.db[path]['img'] and path != '.']
+        path_noim = [path for path in self.db['paths_list']
+                     if not self.db[path]['img'] and path != '.']
 
-        # cleanup: remove skipped directories
-        for path in self.db['paths_list']:
-            subdir = iter(self.db[path]['subdir'])
-            self.db[path]['subdir'] = [
-                d for d in subdir if d not in self.db['skipped_dir']]
+        # directories with images: find the representative
+        for path in path_im:
+            alb_thumb = self.db[path].setdefault('representative', '')
+            if (not alb_thumb) or \
+               (not os.path.isfile(join(path, alb_thumb))):
+                alb_thumb = self.find_representative(path)
+                self.db[path]['representative'] = alb_thumb
+
+        # directories without images. Start with the deepest ones.
+        for path in reversed(sorted(path_noim, key=lambda x: x.count('/'))):
+            if self.db[path]['subdir']:
+                # use the representative of their sub-directories
+                subdir = self.db[path]['subdir'][0]
+                subrepr = self.db[subdir]['representative']
+                self.db[path]['representative'] = subrepr
+            else:
+                # else remove all info about this directory
+                self.logger.info("Directory '%s' is empty", path)
+                self.db['skipped_dir'].append(path)
+                self.db['paths_list'].remove(path)
+                del self.db[path]
+                parent = os.path.normpath(join(path, '..'))
+                self.db[parent]['subdir'].remove(path)
 
     def find_representative(self, path):
         "Find the representative image for a given path"
@@ -209,12 +221,15 @@ def get_metadata(path):
     """
 
     descfile = join(path, DESCRIPTION_FILE)
-    meta = {}
 
     if not os.path.isfile(descfile):
         # default: get title from directory name
-        meta['title'] = os.path.basename(path).replace('_', ' ').\
-            replace('-', ' ').capitalize()
+        meta = {
+            'title': os.path.basename(path).replace('_', ' ')
+            .replace('-', ' ').capitalize(),
+            'description': '',
+            'representative': ''
+        }
     else:
         md = markdown.Markdown(extensions=['meta'])
 
