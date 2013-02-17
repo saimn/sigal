@@ -141,10 +141,10 @@ class Writer(object):
 
         for d in paths[relpath]['subdir']:
             dpath = os.path.normpath(os.path.join(relpath, d))
-            alb_thumb = paths[dpath]['representative']
+            alb_thumb = paths[dpath]['thumbnail']
             thumb_name = get_thumb(self.settings, alb_thumb)
             thumb_path = os.path.join(self.output_dir, dpath, thumb_name)
-            self.logger.debug("Representative path : %s", thumb_path)
+            self.logger.debug("Thumbnail path : %s", thumb_path)
 
             # generate the thumbnail if it is missing (if
             # settings['make_thumbs'] is False)

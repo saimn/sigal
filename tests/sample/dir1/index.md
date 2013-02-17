@@ -1,5 +1,5 @@
 Title: An example gallery
-Representative: test1.jpg
+Thumbnail: test1.jpg
 
 ## Hello world !
 

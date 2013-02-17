@@ -74,21 +74,19 @@ class PathsDb(object):
         path_noim = [path for path in self.db['paths_list']
                      if not self.db[path]['img'] and path != '.']
 
-        # directories with images: find the representative
+        # directories with images: find the thumbnail if it is not set
         for path in path_im:
-            alb_thumb = self.db[path].setdefault('representative', '')
+            alb_thumb = self.db[path].setdefault('thumbnail', '')
             if (not alb_thumb) or \
                (not os.path.isfile(join(path, alb_thumb))):
-                alb_thumb = self.find_representative(path)
-                self.db[path]['representative'] = alb_thumb
+                self.db[path]['thumbnail'] = self.get_thumbnail(path)
 
         # directories without images. Start with the deepest ones.
         for path in reversed(sorted(path_noim, key=lambda x: x.count('/'))):
             if self.db[path]['subdir']:
-                # use the representative of their sub-directories
+                # use the thumbnail of their sub-directories
                 subdir = self.db[path]['subdir'][0]
-                subrepr = self.db[subdir]['representative']
-                self.db[path]['representative'] = subrepr
+                self.db[path]['thumbnail'] = self.db[subdir]['thumbnail']
             else:
                 # else remove all info about this directory
                 self.logger.info("Directory '%s' is empty", path)
@@ -98,8 +96,8 @@ class PathsDb(object):
                 parent = os.path.normpath(join(path, '..'))
                 self.db[parent]['subdir'].remove(path)
 
-    def find_representative(self, path):
-        "Find the representative image for a given path"
+    def get_thumbnail(self, path):
+        "Find the thumbnail image for a given path"
 
         for f in self.db[path]['img']:
             # find and return the first landscape image
@@ -216,7 +214,7 @@ def get_metadata(path):
     """ Get album metadata from DESCRIPTION_FILE:
 
     - title
-    - representative image
+    - thumbnail image
     - description
     """
 
@@ -228,7 +226,7 @@ def get_metadata(path):
             'title': os.path.basename(path).replace('_', ' ')
             .replace('-', ' ').capitalize(),
             'description': '',
-            'representative': ''
+            'thumbnail': ''
         }
     else:
         md = markdown.Markdown(extensions=['meta'])
@@ -241,7 +239,7 @@ def get_metadata(path):
         meta = {
             'title': md.Meta.get('title', [''])[0],
             'description': html,
-            'representative': md.Meta.get('representative', [''])[0]
+            'thumbnail': md.Meta.get('thumbnail', [''])[0]
         }
 
     return meta

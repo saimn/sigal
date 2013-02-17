@@ -116,12 +116,12 @@ named ``index.md`` :
 ::
 
     Title: Another example gallery
-    Representative: test2.jpg
+    Thumbnail: test2.jpg
 
     And a *cool* description.
 
 If this file does not exist the directory's name is used for the title, and
-the first image of the directory is used as representative.
+the first image of the directory is used as thumbnail.
 
 
 Changelog

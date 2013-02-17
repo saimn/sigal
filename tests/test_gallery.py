@@ -41,12 +41,12 @@ class TestPaths(unittest.TestCase):
         self.assertItemsEqual(paths['.']['subdir'], ['dir1', 'dir2'])
 
         self.assertItemsEqual(paths['dir1']['img'], ['test1.jpg', 'test2.jpg'])
-        self.assertEqual(paths['dir1']['representative'], u'test1.jpg')
+        self.assertEqual(paths['dir1']['thumbnail'], u'test1.jpg')
         self.assertEqual(paths['dir1']['title'], u'An example gallery')
 
-    def test_find_representative(self):
-        self.assertEqual(self.paths.find_representative('dir1'), u'test1.jpg')
-        self.assertEqual(self.paths.find_representative('dir1/test'),
+    def test_get_thumbnail(self):
+        self.assertEqual(self.paths.get_thumbnail('dir1'), u'test1.jpg')
+        self.assertEqual(self.paths.get_thumbnail('dir1/test'),
                          u'test2.jpg')
 
 
@@ -56,7 +56,7 @@ class TestMetadata(unittest.TestCase):
     def test_get_metadata(self):
         m = get_metadata(os.path.join(SAMPLE_DIR, 'dir1'))
         self.assertEqual(m['title'], 'An example gallery')
-        self.assertEqual(m['representative'], 'test1.jpg')
+        self.assertEqual(m['thumbnail'], 'test1.jpg')
 
         m = get_metadata(os.path.join(SAMPLE_DIR, 'dir1', 'test'))
         self.assertEqual(m['title'], 'Test')
