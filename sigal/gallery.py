@@ -44,6 +44,16 @@ class PathsDb(object):
         self.ext_list = ext_list
         self.logger = logging.getLogger(__name__)
 
+    def get_subdirs(self, path):
+        """Return the list of all sub-directories of path."""
+
+        subdir = [os.path.normpath(os.path.join(path, sub))
+                  for sub in self.db[path].get('subdir', [])]
+        if subdir:
+            return subdir + reduce(lambda x, y: x+y, map(self.get_subdirs, subdir))
+        else:
+            return []
+
     def build(self):
         "Build the list of directories with images"
 
@@ -80,13 +90,15 @@ class PathsDb(object):
 
         # dir without images, start with the deepest ones
         for path in reversed(sorted(path_noim, key=lambda x: x.count('/'))):
-            if self.db[path]['subdir']:
+            for subdir in self.get_subdirs(path):
                 # use the thumbnail of their sub-directories
-                subdir = self.db[path]['subdir'][0]
-                subpath = join(path, subdir)
-                self.db[path]['thumbnail'] = join(
-                    subdir, self.db[subpath]['thumbnail'])
-            else:
+                if self.db[subdir].get('thumbnail', ''):
+                    self.db[path]['thumbnail'] = join(
+                        os.path.relpath(subdir, path),
+                        self.db[subdir]['thumbnail'])
+                    break
+
+            if not self.db[path].get('thumbnail', ''):
                 # else remove all info about this directory
                 self.logger.info("Directory '%s' is empty", path)
                 self.db['skipped_dir'].append(path)

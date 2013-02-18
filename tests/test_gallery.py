@@ -77,6 +77,12 @@ class TestPathsDb(unittest.TestCase):
         for p in REF.keys():
             self.assertItemsEqual(self.db[p]['img'], REF[p]['img'])
 
+    def test_get_subdir(self):
+        self.assertItemsEqual(self.paths.get_subdirs('dir1'),
+                              ['dir1/test1', 'dir1/test2'])
+        self.assertItemsEqual(self.paths.get_subdirs('.'),
+                              ['dir1', 'dir2', 'dir1/test1', 'dir1/test2'])
+
 
 class TestMetadata(unittest.TestCase):
     "Test the Gallery class."
