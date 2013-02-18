@@ -1,5 +1,4 @@
 Title: An example gallery
-Thumbnail: test1.jpg
 
 ## Hello world !
 

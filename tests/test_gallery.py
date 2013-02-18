@@ -13,8 +13,34 @@ from sigal.settings import read_settings
 CURRENT_DIR = os.path.dirname(__file__)
 SAMPLE_DIR = os.path.join(CURRENT_DIR, 'sample')
 
+REF = {
+    'dir1': {
+        'title': 'An example gallery',
+        'thumbnail': '11.jpg',
+        'img': '',
+    },
+    'dir1/test1': {
+        'title': 'Test1',
+        'thumbnail': '11.jpg',
+        'img': ['11.jpg'],
+    },
+    'dir1/test2': {
+        'title': 'Test2',
+        'thumbnail': '21.jpg',
+        'img': ['21.jpg', '22.jpg'],
+    },
+    'dir2': {
+        'title': 'Another example gallery',
+        'thumbnail': 'm57_the_ring_nebula-587px.jpg',
+        'img': ['exo20101028-b-full.jpg',
+                'm57_the_ring_nebula-587px.jpg',
+                'Hubble ultra deep field.jpg',
+                'Hubble Interacting Galaxy NGC 5257.jpg']
+    }
+}
 
-class TestPaths(unittest.TestCase):
+
+class TestPathsDb(unittest.TestCase):
     "Test the PathsDb class."
 
     @classmethod
@@ -25,41 +51,45 @@ class TestPaths(unittest.TestCase):
         settings = read_settings(default_conf)
         cls.paths = PathsDb(SAMPLE_DIR, settings['ext_list'])
         cls.paths.build()
+        cls.db = cls.paths.db
 
     def test_filelist(self):
-        paths = self.paths.db
+        self.assertItemsEqual(self.db.keys(),
+                              ['paths_list', 'skipped_dir', '.', 'dir1',
+                               'dir2', 'dir1/test1', 'dir1/test2'])
 
-        self.assertItemsEqual(
-            paths.keys(),
-            ['paths_list', 'skipped_dir', '.', 'dir1', 'dir2', 'dir1/test'])
+        self.assertListEqual(self.db['paths_list'],
+                             ['.', 'dir1', 'dir1/test1', 'dir1/test2', 'dir2'])
+        self.assertListEqual(self.db['skipped_dir'], ['empty'])
 
-        self.assertListEqual(paths['paths_list'],
-                             ['.', 'dir1', 'dir1/test', 'dir2'])
-        self.assertListEqual(paths['skipped_dir'], ['empty'])
+        self.assertListEqual(self.db['.']['img'], [])
+        self.assertItemsEqual(self.db['.']['subdir'], ['dir1', 'dir2'])
 
-        self.assertListEqual(paths['.']['img'], [])
-        self.assertItemsEqual(paths['.']['subdir'], ['dir1', 'dir2'])
+    def test_title(self):
+        for p in REF.keys():
+            self.assertEqual(self.db[p]['title'], REF[p]['title'])
 
-        self.assertItemsEqual(paths['dir1']['img'], ['test1.jpg', 'test2.jpg'])
-        self.assertEqual(paths['dir1']['thumbnail'], u'test1.jpg')
-        self.assertEqual(paths['dir1']['title'], u'An example gallery')
+    def test_thumbnail(self):
+        for p in REF.keys():
+            self.assertEqual(self.db[p]['thumbnail'], REF[p]['thumbnail'])
 
-    def test_get_thumbnail(self):
-        self.assertEqual(self.paths.get_thumbnail('dir1'), u'test1.jpg')
-        self.assertEqual(self.paths.get_thumbnail('dir1/test'),
-                         u'test2.jpg')
+    def test_imglist(self):
+        for p in REF.keys():
+            self.assertItemsEqual(self.db[p]['img'], REF[p]['img'])
 
 
 class TestMetadata(unittest.TestCase):
     "Test the Gallery class."
 
-    def test_get_metadata(self):
+    def test_dir1(self):
         m = get_metadata(os.path.join(SAMPLE_DIR, 'dir1'))
-        self.assertEqual(m['title'], 'An example gallery')
-        self.assertEqual(m['thumbnail'], 'test1.jpg')
+        self.assertEqual(m['title'], REF['dir1']['title'])
+        self.assertEqual(m['thumbnail'], '')
 
-        m = get_metadata(os.path.join(SAMPLE_DIR, 'dir1', 'test'))
-        self.assertEqual(m['title'], 'Test')
+    def test_dir2(self):
+        m = get_metadata(os.path.join(SAMPLE_DIR, 'dir2'))
+        self.assertEqual(m['title'], REF['dir2']['title'])
+        self.assertEqual(m['thumbnail'], REF['dir2']['thumbnail'])
 
 
 # class TestGallery(unittest.TestCase):

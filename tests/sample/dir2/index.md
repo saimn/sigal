@@ -1,4 +1,5 @@
 Title: Another example gallery
+Thumbnail: m57_the_ring_nebula-587px.jpg
 
 
 This is an [example link](http://example.com/ "With a Title").
