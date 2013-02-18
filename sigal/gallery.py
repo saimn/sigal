@@ -26,10 +26,10 @@ import codecs
 import logging
 import markdown
 import os
-import PIL
 
 from clint.textui import progress, colored
 from os.path import join
+from PIL import Image as PILImage
 
 from .image import Image, copy_exif
 from .settings import get_thumb
@@ -74,19 +74,18 @@ class PathsDb(object):
         path_noim = [path for path in self.db['paths_list']
                      if not self.db[path]['img'] and path != '.']
 
-        # directories with images: find the thumbnail if it is not set
+        # dir with images: check the thumbnail, and find it if necessary
         for path in path_im:
-            alb_thumb = self.db[path].setdefault('thumbnail', '')
-            if (not alb_thumb) or \
-               (not os.path.isfile(join(path, alb_thumb))):
-                self.db[path]['thumbnail'] = self.get_thumbnail(path)
+            self.check_thumbnail(path)
 
-        # directories without images. Start with the deepest ones.
+        # dir without images, start with the deepest ones
         for path in reversed(sorted(path_noim, key=lambda x: x.count('/'))):
             if self.db[path]['subdir']:
                 # use the thumbnail of their sub-directories
                 subdir = self.db[path]['subdir'][0]
-                self.db[path]['thumbnail'] = self.db[subdir]['thumbnail']
+                subpath = join(path, subdir)
+                self.db[path]['thumbnail'] = join(
+                    subdir, self.db[subpath]['thumbnail'])
             else:
                 # else remove all info about this directory
                 self.logger.info("Directory '%s' is empty", path)
@@ -96,17 +95,26 @@ class PathsDb(object):
                 parent = os.path.normpath(join(path, '..'))
                 self.db[parent]['subdir'].remove(path)
 
-    def get_thumbnail(self, path):
-        "Find the thumbnail image for a given path"
+    def check_thumbnail(self, path):
+        "Find the thumbnail image for a given path."
 
+        # stop if it is already set and a valid file
+        alb_thumb = self.db[path].setdefault('thumbnail', '')
+        if alb_thumb and os.path.isfile(join(self.basepath, path, alb_thumb)):
+            return
+
+        # find and return the first landscape image
         for f in self.db[path]['img']:
-            # find and return the first landscape image
-            im = PIL.Image.open(join(self.basepath, path, f))
+            im = PILImage.open(join(self.basepath, path, f))
             if im.size[0] > im.size[1]:
-                return f
+                self.db[path]['thumbnail'] = f
+                return
 
         # else simply return the 1st image
-        return self.db[path]['img'][0]
+        if self.db[path]['img']:
+            self.db[path]['thumbnail'] = self.db[path]['img'][0]
+        else:
+            self.db[path]['thumbnail'] = ''
 
 
 class Gallery(object):

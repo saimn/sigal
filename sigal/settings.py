@@ -47,8 +47,9 @@ _DEFAULT_CONFIG = {
 def get_thumb(settings, filename):
     """Return the path to the thumb."""
 
-    name, ext = os.path.splitext(filename)
-    return os.path.join(settings['thumb_dir'], settings['thumb_prefix'] +
+    path, filen = os.path.split(filename)
+    name, ext = os.path.splitext(filen)
+    return os.path.join(path, settings['thumb_dir'], settings['thumb_prefix'] +
                         name + settings['thumb_suffix'] + ext)
 
 

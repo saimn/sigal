@@ -16,7 +16,7 @@ SAMPLE_DIR = os.path.join(CURRENT_DIR, 'sample')
 REF = {
     'dir1': {
         'title': 'An example gallery',
-        'thumbnail': '11.jpg',
+        'thumbnail': 'test1/11.jpg',
         'img': '',
     },
     'dir1/test1': {
