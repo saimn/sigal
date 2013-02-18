@@ -29,6 +29,7 @@ from __future__ import division
 
 import logging
 import os
+import sys
 from exceptions import IOError
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps, ImageFile
@@ -64,17 +65,22 @@ class Image(object):
     def save(self, filename, **kwargs):
         """Save the image.
 
-        Pass a dict with PIL options (quality, optimize, progressive).
-        Enlarge the MAXBLOCK buffer of ImageFile if there is an error (for the
-        progressive mode).
+        Pass a dict with PIL options (quality, optimize, progressive). PIL can
+        have problems saving large JPEGs if MAXBLOCK isn't big enough, So if
+        we have a problem saving, we temporarily increase it. See
+        http://github.com/jdriscoll/django-imagekit/issues/91
 
         """
-
         try:
-            self.img.save(filename, "JPEG", **kwargs)
+            with quiet():
+                self.img.save(filename, "JPEG", **kwargs)
         except IOError:
+            old_maxblock = ImageFile.MAXBLOCK
             ImageFile.MAXBLOCK = self.img.size[0] * self.img.size[1]
-            self.img.save(filename, "JPEG", **kwargs)
+            try:
+                self.img.save(filename, "JPEG", **kwargs)
+            finally:
+                ImageFile.MAXBLOCK = old_maxblock
 
     def resize(self, size):
         """Resize the image.
@@ -116,6 +122,22 @@ class Image(object):
             self.img.thumbnail(box, PILImage.ANTIALIAS)
 
         self.img.save(filename, quality=quality)
+
+
+class quiet(object):
+    """A context manager for suppressing the stderr activity of PIL's C
+    libraries. Based on http://stackoverflow.com/a/978264/155370
+
+    """
+    def __enter__(self):
+        self.stderr_fd = sys.__stderr__.fileno()
+        self.null_fd = os.open(os.devnull, os.O_RDWR)
+        self.old = os.dup(self.stderr_fd)
+        os.dup2(self.null_fd, self.stderr_fd)
+
+    def __exit__(self, *args, **kwargs):
+        os.dup2(self.old, self.stderr_fd)
+        os.close(self.null_fd)
 
 
 def copy_exif(srcfile, dstfile):
