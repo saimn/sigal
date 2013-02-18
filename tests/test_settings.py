@@ -7,7 +7,7 @@ try:
 except ImportError:
     import unittest  # NOQA
 
-from sigal.settings import read_settings
+from sigal.settings import read_settings, get_thumb
 
 
 class TestSettings(unittest.TestCase):
@@ -26,3 +26,9 @@ class TestSettings(unittest.TestCase):
 
     def test_settings(self):
         self.assertEqual(self.settings['thumb_suffix'], '.tn')
+
+    def test_thumb(self):
+        self.assertEqual(get_thumb(self.settings, 'example.jpg'),
+                         'thumbnails/example.tn.jpg')
+        self.assertEqual(get_thumb(self.settings, 'test/example.jpg'),
+                         'test/thumbnails/example.tn.jpg')
