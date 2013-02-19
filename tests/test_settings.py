@@ -28,7 +28,10 @@ class TestSettings(unittest.TestCase):
         self.assertEqual(self.settings['thumb_suffix'], '.tn')
 
     def test_thumb(self):
-        self.assertEqual(get_thumb(self.settings, 'example.jpg'),
-                         'thumbnails/example.tn.jpg')
-        self.assertEqual(get_thumb(self.settings, 'test/example.jpg'),
-                         'test/thumbnails/example.tn.jpg')
+        """Test the get_thumb function."""
+
+        tests = [('example.jpg', 'thumbnails/example.tn.jpg'),
+                 ('test/example.jpg', 'test/thumbnails/example.tn.jpg'),
+                 ('test/t/example.jpg', 'test/t/thumbnails/example.tn.jpg')]
+        for src, ref in tests:
+            self.assertEqual(get_thumb(self.settings, src), ref)
