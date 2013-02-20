@@ -106,6 +106,33 @@ def build(input_dir, output_dir, debug=False, verbose=False, force=False,
     gal.build()
 
 
+@arg('path', nargs='?', default='_build',
+     help='Directory to serve (default: _build/)')
+def serve(path):
+    """Run a simple web server."""
+
+    import SimpleHTTPServer
+    import SocketServer
+
+    if os.path.exists(path):
+        os.chdir(path)
+        PORT = 8000
+        Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+        httpd = SocketServer.TCPServer(("", PORT), Handler, False)
+
+        print " * Running on http://127.0.0.1:%i/" % PORT
+
+        try:
+            httpd.allow_reuse_address = True
+            httpd.server_bind()
+            httpd.server_activate()
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print '\nAll done!'
+    else:
+        sys.stderr.write("The '%s' directory doesn't exist.\n" % p)
+
+
 def main():
     parser = ArghParser(description='Simple static gallery generator.',
                         version=__version__)
