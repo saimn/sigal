@@ -9,7 +9,7 @@
 theme = 'galleria'
 
 # Size of resized image
-img_size = (640, 480)
+img_size = (800, 600)
 
 # Generate thumbnails
 # make_thumbs = True
@@ -22,7 +22,8 @@ img_size = (640, 480)
 # thumb_suffix = '.tn'
 
 # Thumbnail size (default: (150, 112))
-thumb_size = (200, 150)
+# For the galleria theme, use (280, 210)
+thumb_size = (280, 210)
 
 # Crop the image to fill the box
 # thumb_fit = True

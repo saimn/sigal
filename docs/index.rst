@@ -59,41 +59,56 @@ Dependencies
 How to Use
 ----------
 
+To get started, just run ``sigal init`` which will copy an example
+configuration file in the current directory. All configuration values have a
+default; values that are commented out serve to show the default. Default
+values are specified when modified in this example config file.
+
+After adapting the configuration to your needs, put your images in a
+sub-directory and run ``sigal build <your images directory>``. The next time
+you run ``sigal build``, only the new images will be processed. Use the ``-f``
+flag to force the reprocessing of all the images.
+
+To visualize your gallery, you can either use ``sigal serve`` which runs a
+basic web server, or you can use the ``index_in_url = True`` setting which
+will add ``index.html`` to the urls to allow browsing without the server.
+
+
+Help of the ``sigal build`` command
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 ::
 
-    $ sigal [-h] [--version] [-f] [-v] [-d] [-c CONFIG] [-t THEME]
+    $ sigal build [-h] [-d] [-v] [-f] [-c CONFIG] [-t THEME]
             input_dir [output_dir]
 
 Required arguments:
 
 ``input_dir``
-  input directory
+  Input directory
 
 Optional arguments:
 
 ``output_dir``
-  output directory (default: ``_build/``)
+  Output directory (default: ``_build/``)
 
 ``-h|--help``
-  show this help message and exit
-
-``--version``
-  show program's version number and exit
+  Show this help message and exit
 
 ``-f|--force``
-  force the reprocessing of existing images and thumbnails
+  Force the reprocessing of existing images and thumbnails
 
 ``-v, --verbose``
-  show all messages
+  Show all messages
 
 ``-d, --debug``
-  show all message, including debug messages
+  Show all message, including debug messages
 
 ``-c CONFIG, --config CONFIG``
-  configuration file (default: ``<input_dir>/sigal.conf.py``)
+  Configuration file (default: ``<input_dir>/sigal.conf.py``)
 
 ``-t THEME, --theme THEME``
-  specify a theme directory, or a theme name for the themes included with Sigal
+  Specify a theme directory, or a theme name for the themes included with Sigal
 
 
 Configuration
@@ -137,7 +152,10 @@ Released on 2013-xx-xx.
 - Add a setting to specify a list of links and adapt the themes to show the
   links.
 - Use EXIF info to fix orientation.
-- Replace the jpg_quality setting with a dict of options.
+- Replace the ``jpg_quality`` setting with a dict of options.
+- Manage directories with only sub-directories and add some checks.
+- Change the command-line interface to use sub-commands: ``init``, ``build``
+  and ``serve``.
 
 Version 0.2
 ~~~~~~~~~~~
