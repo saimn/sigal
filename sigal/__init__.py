@@ -36,11 +36,10 @@ __author__ = "Simon Conseil"
 __version__ = "0.2"
 __license__ = "MIT"
 
-import argparse
 import logging
 import os
 import sys
-
+from argh import ArghParser, arg
 from logging import Formatter
 
 from .gallery import Gallery
@@ -68,55 +67,47 @@ def init_logging(level=logging.INFO):
     logger.addHandler(handler)
 
 
-def main():
-    "main program"
+@arg('input-dir', help='Input directory')
+@arg('output-dir', nargs='?', default='_build',
+     help='Output directory (default: _build/)')
+@arg('-f', '--force', help="Force the reprocessing of existing images")
+@arg('-v', '--verbose', help="Show all messages")
+@arg('-d', '--debug', help="Show all message, including debug messages")
+@arg('-c', '--config',
+     help="Configuration file (default: <input_dir>/sigal.conf.py)")
+@arg('-t', '--theme', help="Specify a theme directory, or a theme name for "
+     "the themes included with Sigal")
+def build(input_dir, output_dir, debug=False, verbose=False, force=False,
+          config=None, theme=None):
+    """Run sigal to process a directory. """
 
-    parser = argparse.ArgumentParser(
-        description='simple static gallery generator.')
-    parser.add_argument('input_dir', help='input directory')
-    parser.add_argument('output_dir', nargs='?', default='_build',
-                        help='output directory (default: _build/)')
-    parser.add_argument('--version', action='version',
-                        version="%(prog)s version " + __version__)
-    parser.add_argument("-f", "--force", action='store_true',
-                        help="force the reprocessing of existing images")
-    parser.add_argument('-v', '--verbose', action='store_const',
-                        const=logging.INFO, dest='verbosity',
-                        help='show all messages')
-    parser.add_argument('-d', '--debug', action='store_const',
-                        const=logging.DEBUG, dest='verbosity',
-                        help='show all message, including debug messages')
-    parser.add_argument("-c", "--config",
-                        help="configuration file (default: "
-                        "<input_dir>/sigal.conf.py)")
-    parser.add_argument("-t", "--theme",
-                        help="specify a theme directory, or a theme name for "
-                             "the themes included with Sigal")
-
-    args = parser.parse_args()
-    level = args.verbosity or logging.WARNING
-
+    level = (debug and logging.DEBUG) or (verbose and logging.INFO) \
+            or logging.WARNING
     init_logging(level=level)
     logger = logging.getLogger(__name__)
 
-    if not os.path.isdir(args.input_dir):
-        logger.error("Input directory '%s' does not exist.", args.input_dir)
+    if not os.path.isdir(input_dir):
+        logger.error("Input directory '%s' does not exist.", input_dir)
         sys.exit(1)
 
-    if not os.path.relpath(args.output_dir, args.input_dir).startswith('..'):
+    if not os.path.relpath(output_dir, input_dir).startswith('..'):
         logger.error("Output directory should be outside of the input "
                      "directory.")
         sys.exit(1)
 
     logger.info("Reading settings ...")
-    settings_file = args.config or os.path.join(args.input_dir,
-                                                _DEFAULT_CONFIG_FILE)
+    settings_file = config or os.path.join(input_dir, _DEFAULT_CONFIG_FILE)
     if not os.path.isfile(settings_file):
         logger.error("Settings file not found (%s)", settings_file)
         sys.exit(1)
     settings = read_settings(settings_file)
 
-    # create gallery
-    gallery = Gallery(settings, args.input_dir, args.output_dir,
-                      force=args.force, theme=args.theme)
-    gallery.build()
+    gal = Gallery(settings, input_dir, output_dir, force=force, theme=theme)
+    gal.build()
+
+
+def main():
+    parser = ArghParser(description='Simple static gallery generator.',
+                        version=__version__)
+    parser.add_commands([build, serve])
+    parser.dispatch()

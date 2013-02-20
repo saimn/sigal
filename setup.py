@@ -1,11 +1,8 @@
 # -*- coding:utf-8 -*-
 
-import sys
 from setuptools import setup, find_packages
 
-requires = ['jinja2', 'Markdown', 'clint']
-if sys.version_info < (2, 7):
-    requires.append('argparse')
+requires = ['argh', 'clint', 'jinja2', 'Markdown']
 
 try:
     from PIL import Image, ImageOps  # NOQA
