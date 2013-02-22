@@ -36,6 +36,7 @@ __author__ = "Simon Conseil"
 __version__ = "0.2"
 __license__ = "MIT"
 
+import codecs
 import logging
 import os
 import sys
@@ -65,6 +66,17 @@ def init_logging(level=logging.INFO):
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+
+
+def init():
+    """Copy a sample config file in the current directory."""
+
+    from pkg_resources import resource_string
+    conf = resource_string(__name__, 'templates/sigal.conf.py')
+
+    with codecs.open('sigal.conf.py', 'w', 'utf-8') as f:
+        f.write(conf)
+    print "Sample config file created: sigal.conf.py"
 
 
 @arg('input-dir', help='Input directory')
@@ -136,5 +148,5 @@ def serve(path):
 def main():
     parser = ArghParser(description='Simple static gallery generator.',
                         version=__version__)
-    parser.add_commands([build, serve])
+    parser.add_commands([init, build, serve])
     parser.dispatch()
