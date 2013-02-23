@@ -50,13 +50,16 @@ class Image(object):
     def __init__(self, filename):
         self.filename = filename
         self.imgname = os.path.split(filename)[1]
-        self.img = PILImage.open(filename)
+        self.logger = logging.getLogger(__name__)
+
+        with open(filename, 'rb') as fp:
+            self.img = PILImage.open(fp)
+            self.img.load()
 
         exif = self.img._getexif()
         if exif:
-            orientation = exif.get(EXIF_ORIENTATION_TAG)
-
             # see: http://www.impulseadventure.com/photo/exif-orientation.html
+            orientation = exif.get(EXIF_ORIENTATION_TAG)
             rotate_map = {3: 180, 6: -90, 8: 90}
             rotation = rotate_map.get(orientation)
             if rotation:
@@ -71,16 +74,24 @@ class Image(object):
         http://github.com/jdriscoll/django-imagekit/issues/91
 
         """
-        try:
-            with quiet():
-                self.img.save(filename, "JPEG", **kwargs)
-        except IOError:
-            old_maxblock = ImageFile.MAXBLOCK
-            ImageFile.MAXBLOCK = self.img.size[0] * self.img.size[1]
+        with open(filename, 'wb') as fp:
             try:
-                self.img.save(filename, "JPEG", **kwargs)
-            finally:
-                ImageFile.MAXBLOCK = old_maxblock
+                with quiet():
+                    self.img.save(fp, "JPEG", **kwargs)
+            except IOError:
+                old_maxblock = ImageFile.MAXBLOCK
+                ImageFile.MAXBLOCK = self.img.size[0] * self.img.size[1]
+                try:
+                    self.img.save(fp, "JPEG", **kwargs)
+                finally:
+                    ImageFile.MAXBLOCK = old_maxblock
+            except OSError as e:
+                self.logger.error(
+                    "Reached the maximum number of open files. You can either "
+                    "relaunch sigal to resume the processing, or increase the "
+                    "maximum number of file descriptors ('ulimit -n 2048' "
+                    "for instance on Linux).")
+                sys.exit(e.errno)
 
     def resize(self, size):
         """Resize the image.
