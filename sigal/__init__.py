@@ -85,8 +85,8 @@ def init():
 @arg('-f', '--force', help="Force the reprocessing of existing images")
 @arg('-v', '--verbose', help="Show all messages")
 @arg('-d', '--debug', help="Show all message, including debug messages")
-@arg('-c', '--config',
-     help="Configuration file (default: <input_dir>/sigal.conf.py)")
+@arg('-c', '--config', help="Configuration file (default: sigal.conf.py in "
+     "the current working directory)")
 @arg('-t', '--theme', help="Specify a theme directory, or a theme name for "
      "the themes included with Sigal")
 def build(input_dir, output_dir, debug=False, verbose=False, force=False,
@@ -108,7 +108,7 @@ def build(input_dir, output_dir, debug=False, verbose=False, force=False,
         sys.exit(1)
 
     logger.info("Reading settings ...")
-    settings_file = config or os.path.join(input_dir, _DEFAULT_CONFIG_FILE)
+    settings_file = config or _DEFAULT_CONFIG_FILE
     if not os.path.isfile(settings_file):
         logger.error("Settings file not found (%s)", settings_file)
         sys.exit(1)
