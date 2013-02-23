@@ -105,7 +105,8 @@ class PathsDb(object):
                 self.db['paths_list'].remove(path)
                 del self.db[path]
                 parent = os.path.normpath(join(path, '..'))
-                self.db[parent]['subdir'].remove(path)
+                child = os.path.relpath(path, parent)
+                self.db[parent]['subdir'].remove(child)
 
     def check_thumbnail(self, path):
         "Find the thumbnail image for a given path."

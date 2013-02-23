@@ -60,7 +60,7 @@ class TestPathsDb(unittest.TestCase):
 
         self.assertListEqual(self.db['paths_list'],
                              ['.', 'dir1', 'dir1/test1', 'dir1/test2', 'dir2'])
-        self.assertListEqual(self.db['skipped_dir'], ['empty'])
+        self.assertItemsEqual(self.db['skipped_dir'], ['empty', 'dir1/empty'])
 
         self.assertListEqual(self.db['.']['img'], [])
         self.assertItemsEqual(self.db['.']['subdir'], ['dir1', 'dir2'])
