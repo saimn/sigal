@@ -1,5 +1,5 @@
 /**
- * Galleria v 1.2.8 2012-08-09
+ * Galleria v 1.2.9 2013-02-14
  * http://galleria.io
  *
  * Licensed under the MIT license
@@ -22,7 +22,7 @@ var undef,
     protoArray = Array.prototype,
 
 // internal constants
-    VERSION = 1.28,
+    VERSION = 1.29,
     DEBUG = true,
     TIMEOUT = 30000,
     DUMMY = false,
@@ -51,6 +51,7 @@ var undef,
             title: doc.title
         };
     },
+    IFRAME = window.parent !== window.self,
 
     // list of Galleria events
     _eventlist = 'data ready thumbnail loadstart loadfinish image play pause progress ' +
@@ -120,7 +121,7 @@ var undef,
             },
             getThumb: function( id, success, fail ) {
                 fail = fail || F;
-                $.getJSON('http://gdata.youtube.com/feeds/api/videos/' + id + '?v=2&alt=json-in-script&callback=?', function(data) {
+                $.getJSON(window.location.protocol+'//gdata.youtube.com/feeds/api/videos/' + id + '?v=2&alt=json-in-script&callback=?', function(data) {
                     try {
                         success( data.entry.media$group.media$thumbnail[0].url );
                     } catch(e) {
@@ -183,26 +184,26 @@ var undef,
 
         support: (function() {
             var html = DOM().html;
-            return html.requestFullscreen || html.mozRequestFullScreen || html.webkitRequestFullScreen;
+            return !IFRAME && ( html.requestFullscreen || html.mozRequestFullScreen || html.webkitRequestFullScreen );
         }()),
 
         callback: F,
 
-        enter: function( instance, callback ) {
+        enter: function( instance, callback, elem ) {
 
             this.instance = instance;
 
             this.callback = callback || F;
 
-            var html = DOM().html;
-            if ( html.requestFullscreen ) {
-                html.requestFullscreen();
+            elem = elem || DOM().html;
+            if ( elem.requestFullscreen ) {
+                elem.requestFullscreen();
             }
-            else if ( html.mozRequestFullScreen ) {
-                html.mozRequestFullScreen();
+            else if ( elem.mozRequestFullScreen ) {
+                elem.mozRequestFullScreen();
             }
-            else if ( html.webkitRequestFullScreen ) {
-                html.webkitRequestFullScreen();
+            else if ( elem.webkitRequestFullScreen ) {
+                elem.webkitRequestFullScreen();
             }
         },
 
@@ -265,6 +266,7 @@ var undef,
 
     // themeLoad trigger
     _themeLoad = function( theme ) {
+
         Galleria.theme = theme;
 
         // run the instances we have in the pool
@@ -273,6 +275,8 @@ var undef,
                 instance._init.call( instance );
             }
         });
+
+        _pool = [];
     },
 
     // the Utils singleton
@@ -303,6 +307,16 @@ var undef,
                 var elem = doc.createElement( nodeName );
                 elem.className = className;
                 return elem;
+            },
+
+            removeFromArray : function( arr, elem ) {
+                $.each(arr, function(i, el) {
+                    if ( el == elem ) {
+                        arr.splice(i, 1);
+                        return false;
+                    }
+                });
+                return arr;
             },
 
             getScriptPath : function( src ) {
@@ -757,8 +771,17 @@ var undef,
                 img.style.msInterpolationMode = force ? 'bicubic' : 'nearest-neighbor';
             },
 
-            insertStyleTag : function( styles ) {
+            insertStyleTag : function( styles, id ) {
+
+                if ( id && $( '#'+id ).length ) {
+                    return;
+                }
+
                 var style = doc.createElement( 'style' );
+                if ( id ) {
+                    style.id = id;
+                }
+
                 DOM().head.appendChild( style );
 
                 if ( style.styleSheet ) { // IE
@@ -890,10 +913,11 @@ var undef,
                             $loader.remove();
 
                             // If failed, tell the dev to download the latest theme
-                            Galleria.raise( 'Theme CSS could not load after 20 sec. Please download the latest theme at http://galleria.io/customer/', true );
-
+                            Galleria.raise( 'Theme CSS could not load after 20 sec. ' + ( Galleria.QUIRK ?
+                                'Your browser is in Quirks Mode, please add a correct doctype.' :
+                                'Please download the latest theme at http://galleria.io/customer/.' ), true );
                         },
-                        timeout: 20000
+                        timeout: 5000
                     });
                 }
                 return link;
@@ -976,7 +1000,7 @@ var undef,
                     $(params.next).css({
                         opacity: 0,
                         left: 0
-                    }).show();
+                    });
                     Utils.animate(params.next, {
                         opacity: 1
                     },{
@@ -1385,7 +1409,7 @@ Galleria = function() {
             var css = '.galleria-tooltip{padding:3px 8px;max-width:50%;background:#ffe;color:#000;z-index:3;position:absolute;font-size:11px;line-height:1.3;' +
                       'opacity:0;box-shadow:0 0 2px rgba(0,0,0,.4);-moz-box-shadow:0 0 2px rgba(0,0,0,.4);-webkit-box-shadow:0 0 2px rgba(0,0,0,.4);}';
 
-            Utils.insertStyleTag(css);
+            Utils.insertStyleTag( css, 'galleria-tooltip' );
 
             self.$( 'tooltip' ).css({
                 opacity: 0.8,
@@ -1406,13 +1430,13 @@ Galleria = function() {
                 width = $elem.outerWidth( true ),
                 limitY = height + 15;
 
-            var maxX = self.$( 'container').width() - width - 2,
-                maxY = self.$( 'container').height() - height - 2;
+            var maxX = self.$( 'container' ).width() - width - 2,
+                maxY = self.$( 'container' ).height() - height - 2;
 
             if ( !isNaN(x) && !isNaN(y) ) {
 
                 x += 10;
-                y -= 30;
+                y -= ( height+8 );
 
                 x = Math.max( 0, Math.min( maxX, x ) );
                 y = Math.max( 0, Math.min( maxY, y ) );
@@ -1510,7 +1534,7 @@ Galleria = function() {
                 return;
             }
 
-            self.$( 'tooltip' ).html( text.replace(/\s/, '&nbsp;') );
+            self.$( 'tooltip' ).html( text.replace(/\s/, '&#160;') );
 
             // trigger mousemove on mouseup in case of click
             elem.bind( 'mouseup', mouseup );
@@ -1540,8 +1564,6 @@ Galleria = function() {
 
         crop: undef,
 
-        transition: undef,
-
         active: false,
 
         keymap: self._keyboard.map,
@@ -1550,7 +1572,7 @@ Galleria = function() {
 
             return _transitions.active ? function() {
                 if ( typeof callback == 'function' ) {
-                    callback();
+                    callback.call(self);
                 }
                 var active = self._controls.getActive(),
                     next = self._controls.getNext();
@@ -1572,46 +1594,136 @@ Galleria = function() {
             callback = fullscreen.parseCallback( callback, true );
 
             if ( self._options.trueFullscreen && _nativeFullscreen.support ) {
-                _nativeFullscreen.enter( self, callback );
+
+                // do some stuff prior animation for wmoother transitions
+
+                fullscreen.active = true;
+
+                Utils.forceStyles( self.get('container'), {
+                    width: '100%',
+                    height: '100%'
+                });
+
+                self.rescale();
+
+                if ( Galleria.MAC ) {
+                    if ( Galleria.WEBKIT && !( Galleria.SAFARI && /version\/[1-5]/.test(NAV)) ) {
+                        self.$('container').css('opacity', 0).addClass('fullscreen');
+                        window.setTimeout(function() {
+                            fullscreen.scale();
+                            self.$('container').css('opacity', 1);
+                        }, 50);
+                    } else {
+                        self.$('stage').css('opacity', 0);
+                        window.setTimeout(function() {
+                            fullscreen.scale();
+                            self.$('stage').css('opacity', 1);
+                        },4);
+                    }
+                } else {
+                    self.$('container').addClass('fullscreen');
+                }
+
+                $win.resize( fullscreen.scale );
+
+                _nativeFullscreen.enter( self, callback, self.get('container') );
+
             } else {
+
+                fullscreen.scrolled = $win.scrollTop();
+                window.scrollTo(0, 0);
+
                 fullscreen._enter( callback );
             }
+
         },
 
         _enter: function( callback ) {
 
             fullscreen.active = true;
 
+            if ( IFRAME ) {
+
+                fullscreen.iframe = (function() {
+
+                    var elem,
+                        refer = doc.referrer,
+                        test = doc.createElement('a'),
+                        loc = window.location;
+
+                    test.href = refer;
+
+                    if( test.protocol != loc.protocol ||
+                        test.hostname != loc.hostname ||
+                        test.port != loc.port ) {
+                            Galleria.raise('Parent fullscreen not available. Iframe protocol, domains and ports must match.');
+                            return false;
+                        }
+
+                    fullscreen.pd = window.parent.document;
+
+                    $( fullscreen.pd ).find('iframe').each(function() {
+                        var idoc = this.contentDocument || this.contentWindow.document;
+                        if ( idoc === doc ) {
+                            elem = this;
+                            return false;
+                        }
+                    });
+
+                    return elem;
+                }());
+
+            }
+
             // hide the image until rescale is complete
             Utils.hide( self.getActiveImage() );
 
-            self.$( 'container' ).addClass( 'fullscreen' );
+            if ( IFRAME && fullscreen.iframe ) {
+                fullscreen.iframe.scrolled = $( window.parent ).scrollTop();
+                window.parent.scrollTo(0, 0);
+            }
 
-            fullscreen.scrolled = $win.scrollTop();
-
-            // begin styleforce
-            Utils.forceStyles(self.get('container'), {
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                zIndex: 10000
-            });
-
-            var htmlbody = {
+            var data = self.getData(),
+                options = self._options,
+                inBrowser = !self._options.trueFullscreen || !_nativeFullscreen.support,
+                htmlbody = {
                     height: '100%',
                     overflow: 'hidden',
                     margin:0,
                     padding:0
-                },
+                };
 
-                data = self.getData(),
+            if (inBrowser) {
 
-                options = self._options;
+                self.$('container').addClass('fullscreen');
 
-            Utils.forceStyles( DOM().html, htmlbody );
-            Utils.forceStyles( DOM().body, htmlbody );
+                // begin styleforce
+
+                Utils.forceStyles(self.get('container'), {
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 10000
+                });
+                Utils.forceStyles( DOM().html, htmlbody );
+                Utils.forceStyles( DOM().body, htmlbody );
+            }
+
+            if ( IFRAME && fullscreen.iframe ) {
+                Utils.forceStyles( fullscreen.pd.documentElement, htmlbody );
+                Utils.forceStyles( fullscreen.pd.body, htmlbody );
+                Utils.forceStyles( fullscreen.iframe, $.extend( htmlbody, {
+                    width: '100%',
+                    height: '100%',
+                    top: 0,
+                    left: 0,
+                    position: 'fixed',
+                    zIndex: 10000,
+                    border: 'none'
+                }));
+            }
 
             // temporarily attach some keys
             // save the old ones first in a cloned object
@@ -1671,11 +1783,14 @@ Galleria = function() {
             }
 
             // init the first rescale and attach callbacks
+
             self.rescale(function() {
 
                 self.addTimer(false, function() {
                     // show the image after 50 ms
-                    Utils.show( self.getActiveImage() );
+                    if ( inBrowser ) {
+                        Utils.show( self.getActiveImage() );
+                    }
 
                     if (typeof callback === 'function') {
                         callback.call( self );
@@ -1686,10 +1801,12 @@ Galleria = function() {
                 self.trigger( Galleria.FULLSCREEN_ENTER );
             });
 
-            // bind the scaling to the resize event
-            $win.resize( function() {
-                fullscreen.scale();
-            } );
+            if ( !inBrowser ) {
+                Utils.show( self.getActiveImage() );
+            } else {
+                $win.resize( fullscreen.scale );
+            }
+
         },
 
         scale : function() {
@@ -1711,15 +1828,26 @@ Galleria = function() {
 
             fullscreen.active = false;
 
-            Utils.hide( self.getActiveImage() );
+            var inBrowser = !self._options.trueFullscreen || !_nativeFullscreen.support;
 
             self.$('container').removeClass( 'fullscreen' );
 
-            // revert all styles
-            Utils.revertStyles( self.get('container'), DOM().html, DOM().body );
+            if ( inBrowser ) {
+                Utils.hide( self.getActiveImage() );
 
-            // scroll back
-            window.scrollTo(0, fullscreen.scrolled);
+                // revert all styles
+                Utils.revertStyles( self.get('container'), DOM().html, DOM().body );
+
+                // scroll back
+                window.scrollTo(0, fullscreen.scrolled);
+            }
+
+            if ( IFRAME && fullscreen.iframe ) {
+                Utils.revertStyles( fullscreen.pd.documentElement, fullscreen.pd.body, fullscreen.iframe );
+                if ( fullscreen.iframe.scrolled ) {
+                    window.parent.scrollTo(0, fullscreen.iframe.scrolled );
+                }
+            }
 
             // detach all keyboard events and apply the old keymap
             self.detachKeyboard();
@@ -1727,7 +1855,6 @@ Galleria = function() {
 
             // bring back cached options
             self._options.imageCrop = fullscreen.crop;
-            //self._options.transition = fullscreen.transition;
 
             // return to original image
             var big = self.getData().big,
@@ -1747,7 +1874,9 @@ Galleria = function() {
                 self.addTimer(false, function() {
 
                     // show the image after 50 ms
-                    Utils.show( self.getActiveImage() );
+                    if ( inBrowser ) {
+                        Utils.show( self.getActiveImage() );
+                    }
 
                     if ( typeof callback === 'function' ) {
                         callback.call( self );
@@ -1758,7 +1887,6 @@ Galleria = function() {
                 }, 50);
                 self.trigger( Galleria.FULLSCREEN_EXIT );
             });
-
 
             $win.unbind('resize', fullscreen.scale);
         }
@@ -1995,7 +2123,7 @@ Galleria = function() {
                    '.galleria-'+prefix+'box.iframe .galleria-'+prefix+'nextholder{'+
                    'width:100px;height:100px;top:50%;margin-top:-70px}';
 
-            Utils.insertStyleTag( css );
+            Utils.insertStyleTag( css, 'galleria-lightbox' );
 
             // create the elements
             $.each(elems.split(' '), function( i, elemId ) {
@@ -2035,7 +2163,7 @@ Galleria = function() {
 
             $.each( ['Prev','Next'], function(i, dir) {
 
-                var $d = $( el[ dir.toLowerCase() ] ).html( /v/.test( dir ) ? '&#8249;&nbsp;' : '&nbsp;&#8250;' ),
+                var $d = $( el[ dir.toLowerCase() ] ).html( /v/.test( dir ) ? '&#8249;&#160;' : '&#160;&#8250;' ),
                     $e = $( el[ dir.toLowerCase()+'holder'] );
 
                 $e.bind( 'click', function() {
@@ -2179,8 +2307,25 @@ Galleria = function() {
 
             lightbox.image.load( data.iframe || data.big || data.image, function( image ) {
 
-                lightbox.width = image.isIframe ? $(window).width() : image.original.width;
-                lightbox.height = image.isIframe ? $(window).height() : image.original.height;
+                if ( image.isIframe ) {
+
+                    var cw = $(window).width(),
+                        ch = $(window).height();
+
+                    if ( self._options.maxVideoSize ) {
+                        var r = Math.min( self._options.maxVideoSize/cw, self._options.maxVideoSize/ch );
+                        if ( r < 1 ) {
+                            cw *= r;
+                            ch *= r;
+                        }
+                    }
+                    lightbox.width = cw;
+                    lightbox.height = ch;
+
+                } else {
+                    lightbox.width = image.original.width;
+                    lightbox.height = image.original.height;
+                }
 
                 $( image.image ).css({
                     width: image.isIframe ? '100%' : '100.1%',
@@ -2336,7 +2481,8 @@ Galleria.prototype = {
             lightboxTransitionSpeed: 200,
             linkSourceImages: true,
             maxScaleRatio: undef,
-            minScaleRatio: undef,
+            maxVideoSize: undef, // 1.2.9
+            minScaleRatio: undef, // deprecated in 1.2.9
             overlayOpacity: 0.85,
             overlayBackground: '#0b0b0b',
             pauseOnInteraction: true,
@@ -2401,6 +2547,11 @@ Galleria.prototype = {
         // hide all content
         $( this._target ).children().hide();
 
+        // Warn for quirks mode
+        if ( Galleria.QUIRK ) {
+            Galleria.raise('Your page is in Quirks mode, Galleria may not render correctly. Please validate your HTML and add a correct doctype.');
+        }
+
         // now we just have to wait for the theme...
         if ( typeof Galleria.theme === 'object' ) {
             this._init();
@@ -2455,11 +2606,6 @@ Galleria.prototype = {
         // bind the gallery to run when data is ready
         this.bind( Galleria.DATA, function() {
 
-            // Warn for quirks mode
-            if ( Galleria.QUIRK ) {
-                Galleria.raise('Your page is in Quirks mode, Galleria may not render correctly. Please validate your HTML.');
-            }
-
             // save the new data
             this._original.data = this._data;
 
@@ -2471,7 +2617,7 @@ Galleria.prototype = {
 
             // set ratio if height is < 2
             if ( self._options.height < 2 ) {
-                self._ratio = self._options.height;
+                self._userRatio = self._ratio = self._options.height;
             }
 
             // the gallery is ready, let's just wait for the css
@@ -2818,8 +2964,8 @@ Galleria.prototype = {
         // allow setting a height ratio instead of exact value
         // useful when doing responsive galleries
 
-        if ( self._ratio ) {
-            num.height = num.width * self._ratio;
+        if ( self._userRatio ) {
+            num.height = num.width * self._userRatio;
         }
 
         return num;
@@ -3527,8 +3673,12 @@ Galleria.prototype = {
     */
 
     destroy : function() {
-        this.get('target').innerHTML = this._original.html;
+        this.$( 'target' ).data( 'galleria', null );
+        this.$( 'container' ).unbind( 'galleria' );
+        this.get( 'target' ).innerHTML = this._original.html;
         this.clearTimer();
+        Utils.removeFromArray( _instances, this );
+        Utils.removeFromArray( _galleries, this );
         return this;
     },
 
@@ -4141,13 +4291,14 @@ this.prependChild( 'info', 'myElement' );
             };
 
         options = $.extend({
-            width:    this._stageWidth,
-            height:   this._stageHeight,
-            crop:     this._options.imageCrop,
-            max:      this._options.maxScaleRatio,
-            min:      this._options.minScaleRatio,
-            margin:   this._options.imageMargin,
-            position: this._options.imagePosition
+            width:       this._stageWidth,
+            height:      this._stageHeight,
+            crop:        this._options.imageCrop,
+            max:         this._options.maxScaleRatio,
+            min:         this._options.minScaleRatio,
+            margin:      this._options.imageMargin,
+            position:    this._options.imagePosition,
+            iframelimit: this._options.maxVideoSize
         }, options );
 
         if ( this._options.layerFollow && this._options.imageCrop !== true ) {
@@ -4289,8 +4440,8 @@ this.prependChild( 'info', 'myElement' );
 
     show : function( index, rewind, _history ) {
 
-        // do nothing if index is false or queue is false and transition is in progress
-        if ( index === false || ( !this._options.queue && this._queue.stalled ) ) {
+        // do nothing queue is long || index is false || queue is false and transition is in progress
+        if ( this._queue.length > 3 || index === false || ( !this._options.queue && this._queue.stalled ) ) {
             return;
         }
 
@@ -4349,9 +4500,6 @@ this.prependChild( 'info', 'myElement' );
 
                 _transitions.active = false;
 
-                // remove stalled
-                self._queue.stalled = false;
-
                 // optimize quality
                 Utils.toggleQuality( next.image, self._options.imageQuality );
 
@@ -4389,7 +4537,12 @@ this.prependChild( 'info', 'myElement' );
 
                     $( next.image ).css({
                         cursor: 'pointer'
-                    }).bind( 'mouseup', function() {
+                    }).bind( 'mouseup', function( e ) {
+
+                        // non-left click
+                        if ( typeof e.which == 'number' && e.which > 1 ) {
+                            return;
+                        }
 
                         // clicknext
                         if ( self._options.clicknext && !Galleria.TOUCH ) {
@@ -4417,14 +4570,6 @@ this.prependChild( 'info', 'myElement' );
                     });
                 }
 
-                // remove the queued image
-                protoArray.shift.call( self._queue );
-
-                // if we still have images in the queue, show it
-                if ( self._queue.length ) {
-                    self._show();
-                }
-
                 // check if we are playing
                 self._playCheck();
 
@@ -4436,6 +4581,18 @@ this.prependChild( 'info', 'myElement' );
                     thumbTarget: thumb.image,
                     galleriaData: data
                 });
+
+                // remove the queued image
+                protoArray.shift.call( self._queue );
+
+                // remove stalled
+                self._queue.stalled = false;
+
+                // if we still have images in the queue, show it
+                if ( self._queue.length ) {
+                    self._show();
+                }
+
             };
         }( data, next, active, queue, thumb ));
 
@@ -4483,6 +4640,9 @@ this.prependChild( 'info', 'myElement' );
             galleriaData: data
         });
 
+        // stall the queue
+        self._queue.stalled = true;
+
         // begin loading the next image
         next.load( src, function( next ) {
 
@@ -4498,9 +4658,6 @@ this.prependChild( 'info', 'myElement' );
                         Utils.toggleQuality( active.image, false );
                     }
                     Utils.toggleQuality( next.image, false );
-
-                    // stall the queue
-                    self._queue.stalled = true;
 
                     // remove the image panning, if applied
                     // TODO: rethink if this is necessary
@@ -4518,17 +4675,6 @@ this.prependChild( 'info', 'myElement' );
                             layer.css( 'cursor', 'pointer' ).unbind( 'mouseup' ).mouseup( mousetrigger );
                         }
                     }
-
-                    // trigger the LOADFINISH event
-                    self.trigger({
-                        type: Galleria.LOADFINISH,
-                        cached: cached,
-                        index: queue.index,
-                        rewind: queue.rewind,
-                        imageTarget: next.image,
-                        thumbTarget: self._thumbnails[ queue.index ].image,
-                        galleriaData: self.getData( queue.index )
-                    });
 
                     var transition = self._options.transition;
 
@@ -4561,6 +4707,19 @@ this.prependChild( 'info', 'myElement' );
                         _transitions.init.call( self, transition, params, complete );
 
                     }
+
+                    // trigger the LOADFINISH event
+                    self.trigger({
+                        type: Galleria.LOADFINISH,
+                        cached: cached,
+                        index: queue.index,
+                        rewind: queue.rewind,
+                        imageTarget: next.image,
+                        thumbTarget: self._thumbnails[ queue.index ].image,
+                        galleriaData: self.getData( queue.index )
+                    });
+
+
                 }
             });
         });
@@ -5097,57 +5256,57 @@ Galleria.addTheme = function( theme ) {
 
 Galleria.loadTheme = function( src, options ) {
 
+    // Don't load if theme is already loaded
+    if( $('script').filter(function() { return $(this).attr('src') == src; }).length ) {
+        return;
+    }
+
     var loaded = false,
-        length = _galleries.length,
-        err = window.setTimeout( function() {
-            Galleria.raise( "Theme at " + src + " could not load, check theme path.", true );
-        }, 5000 );
+        err;
+
+    // start listening for the timeout onload
+    $( window ).load( function() {
+        if ( !loaded ) {
+            // give it another 20 seconds
+            err = window.setTimeout(function() {
+                if ( !loaded && !Galleria.theme ) {
+                    Galleria.raise( "Galleria had problems loading theme at " + src + ". Please check theme path or load manually.", true );
+                }
+            }, 20000);
+        }
+    });
 
     // first clear the current theme, if exists
-    Galleria.theme = undef;
+    Galleria.unloadTheme();
 
     // load the theme
     Utils.loadScript( src, function() {
-
+        loaded = true;
         window.clearTimeout( err );
-
-        // check for existing galleries and reload them with the new theme
-        if ( length ) {
-
-            // temporary save the new galleries
-            var refreshed = [];
-
-            // refresh all instances
-            // when adding a new theme to an existing gallery, all options will be resetted but the data will be kept
-            // you can apply new options as a second argument
-            $.each( Galleria.get(), function(i, instance) {
-
-                // mix the old data and options into the new instance
-                var op = $.extend( instance._original.options, {
-                    data_source: instance._data
-                }, options);
-
-                // remove the old container
-                instance.$('container').remove();
-
-                // create a new instance
-                var g = new Galleria();
-
-                // move the id
-                g._id = instance._id;
-
-                // initialize the new instance
-                g.init( instance._original.target, op );
-
-                // push the new instance
-                refreshed.push( g );
-            });
-
-            // now overwrite the old holder with the new instances
-            _galleries = refreshed;
-        }
-
     });
+
+    return Galleria;
+};
+
+/**
+    unloadTheme unloads the Galleria theme and prepares for a new theme
+
+    @returns Galleria
+*/
+
+Galleria.unloadTheme = function() {
+
+    if ( typeof Galleria.theme == 'object' ) {
+
+        $('script').each(function( i, script ) {
+
+            if( new RegExp( 'galleria\\.' + Galleria.theme.name + '\\.' ).test( script.src ) ) {
+                $( script ).remove();
+            }
+        });
+
+        Galleria.theme = undef;
+    }
 
     return Galleria;
 };
@@ -5260,6 +5419,9 @@ Galleria.on.binds = [];
 */
 
 Galleria.run = function( selector, options ) {
+    if ( $.isFunction( options ) ) {
+        options = { extend: options };
+    }
     $( selector || '#galleria' ).galleria( options );
     return Galleria;
 };
@@ -5357,7 +5519,7 @@ Galleria.raise = function( msg, fatal ) {
         echo = function( msg ) {
 
             var html = '<div style="padding:4px;margin:0 0 2px;background:#' +
-                ( fatal ? '811' : '222' ) + '";>' +
+                ( fatal ? '811' : '222' ) + ';">' +
                 ( fatal ? '<strong>' + type + ': </strong>' : '' ) +
                 msg + '</div>';
 
@@ -5558,6 +5720,11 @@ Galleria.Picture.prototype = {
 
         this.image = new Image();
 
+        // IE8 opacity inherit bug
+        if ( Galleria.IE8 ) {
+            $( this.image ).css( 'filter', 'inherit' );
+        }
+
         var i = 0,
             reload = false,
             resort = false,
@@ -5691,12 +5858,35 @@ Galleria.Picture.prototype = {
             complete: F,
             position: 'center',
             crop: false,
-            canvas: false
+            canvas: false,
+            iframelimit: undef
         }, options);
 
         if( this.isIframe ) {
-            $( this.image ).width( options.width ).height( options.height ).removeAttr( 'width' ).removeAttr( 'height' );
-            $( this.container ).width( options.width ).height( options.height) ;
+
+            var cw = options.width, 
+                ch = options.height,
+                nw, nh;
+            if ( options.iframelimit ) {
+                var r = Math.min( options.iframelimit/cw, options.iframelimit/ch );
+                if ( r < 1 ) {
+                    nw = cw * r;
+                    nh = ch * r;
+
+                    $( this.image ).css({
+                        top: ch/2-nh/2,
+                        left: cw/2-nw/2,
+                        position: 'absolute'
+                    });
+                } else {
+                    $( this.image ).css({
+                        top: 0,
+                        left: 0
+                    });
+                }
+            }
+            $( this.image ).width( nw || cw ).height( nh || ch ).removeAttr( 'width' ).removeAttr( 'height' );
+            $( this.container ).width( cw ).height( ch );
             options.complete.call(self, self);
             try {
                 if( this.image.contentWindow ) {
@@ -5704,6 +5894,7 @@ Galleria.Picture.prototype = {
                 }
             } catch(e) {}
             return this.container;
+
         }
 
         // return the element if no image found
@@ -5913,10 +6104,14 @@ $.fn.galleria = function( options ) {
 
     return this.each(function() {
 
-        // fail silent if already run
-        if ( !$.data(this, 'galleria') ) {
-            $.data( this, 'galleria', new Galleria().init( this, options ) );
+        // destroy previous instance and prepare for new load
+        if ( $.data(this, 'galleria') ) {
+            $.data( this, 'galleria' ).destroy();
+            $( this ).find( '*' ).hide();
         }
+
+        // load the new gallery
+        $.data( this, 'galleria', new Galleria().init( this, options ) );
     });
 
 };
