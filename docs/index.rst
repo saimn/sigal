@@ -6,10 +6,14 @@ Sigal is yet another simple static gallery generator. It's written in Python
 and it allows to build a static gallery of images with the following features:
 
 * process directories recursively,
-* resize images and create thumbnails,
 * generate HTML pages using jinja2 templates,
 * relative links for a portable output,
+* parallel processing,
 * MIT licensed.
+
+The idea behind Sigal is to ease the use of the javascript librairies like
+`galleria`_. These librairies do a great job to display the images, Sigal does
+what is missing: resize images, create thumbnails, generate html pages.
 
 Links :
 
@@ -50,8 +54,9 @@ or alternatively if you have pip installed::
 Dependencies
 ~~~~~~~~~~~~
 
-- Python Imaging Library (PIL / Pillow)
+- Argh
 - Jinja2
+- Python Imaging Library (PIL / Pillow)
 - Python Markdown
 - pyexiv2 (optional, used to copy exif metadatas)
 
@@ -92,10 +97,10 @@ Optional arguments:
 ``output_dir``
   Output directory (default: ``_build/``)
 
-``-h|--help``
+``-h, --help``
   Show this help message and exit
 
-``-f|--force``
+``-f, --force``
   Force the reprocessing of existing images and thumbnails
 
 ``-v, --verbose``
@@ -110,13 +115,18 @@ Optional arguments:
 ``-t THEME, --theme THEME``
   Specify a theme directory, or a theme name for the themes included with Sigal
 
+``-n NCPU, --ncpu NCPU``
+  Number of cpu for parallel execution (default: 1)
+
 
 Configuration
 -------------
 
-The configuration for the gallery must be set in ``<input_dir>/sigal.conf.py``.
-An example file with explanations on the settings is available in
-``tests/sample/sigal.conf.py`` and is shown below:
+The configuration must be set in a ``sigal.conf.py`` file in the current
+directory. It can also be specified with the ``-c`` flag. An example file with
+explanations on the settings is available in ``sigal/templates/sigal.conf.py``
+and is shown below. This file is copied to the current directory with the
+``sigal init`` commmand.
 
 .. literalinclude:: ../sigal/templates/sigal.conf.py
    :language: python
@@ -156,6 +166,7 @@ Released on 2013-xx-xx.
 - Manage directories with only sub-directories and add some checks.
 - Change the command-line interface to use sub-commands: ``init``, ``build``
   and ``serve``.
+- Parallel processing.
 
 Version 0.2
 ~~~~~~~~~~~
