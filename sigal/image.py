@@ -29,7 +29,6 @@ from __future__ import division
 
 import logging
 import os
-import sys
 from exceptions import IOError
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps, ImageFile
@@ -76,8 +75,7 @@ class Image(object):
         """
         with open(filename, 'wb') as fp:
             try:
-                with quiet():
-                    self.img.save(fp, "JPEG", **kwargs)
+                self.img.save(fp, "JPEG", **kwargs)
             except IOError:
                 old_maxblock = ImageFile.MAXBLOCK
                 ImageFile.MAXBLOCK = self.img.size[0] * self.img.size[1]
@@ -85,13 +83,6 @@ class Image(object):
                     self.img.save(fp, "JPEG", **kwargs)
                 finally:
                     ImageFile.MAXBLOCK = old_maxblock
-            except OSError as e:
-                self.logger.error(
-                    "Reached the maximum number of open files. You can either "
-                    "relaunch sigal to resume the processing, or increase the "
-                    "maximum number of file descriptors ('ulimit -n 2048' "
-                    "for instance on Linux).")
-                sys.exit(e.errno)
 
     def resize(self, size):
         """Resize the image.
@@ -133,22 +124,6 @@ class Image(object):
             self.img.thumbnail(box, PILImage.ANTIALIAS)
 
         self.img.save(filename, quality=quality)
-
-
-class quiet(object):
-    """A context manager for suppressing the stderr activity of PIL's C
-    libraries. Based on http://stackoverflow.com/a/978264/155370
-
-    """
-    def __enter__(self):
-        self.stderr_fd = sys.__stderr__.fileno()
-        self.null_fd = os.open(os.devnull, os.O_RDWR)
-        self.old = os.dup(self.stderr_fd)
-        os.dup2(self.null_fd, self.stderr_fd)
-
-    def __exit__(self, *args, **kwargs):
-        os.dup2(self.old, self.stderr_fd)
-        os.close(self.null_fd)
 
 
 def copy_exif(srcfile, dstfile):
