@@ -22,7 +22,8 @@ img_size = (800, 600)
 # thumb_suffix = '.tn'
 
 # Thumbnail size (default: (150, 112))
-# For the galleria theme, use (280, 210)
+# For the galleria theme, use 280 px for the width
+# For the colorbox theme, use 200 px for the width
 thumb_size = (280, 210)
 
 # Crop the image to fill the box
