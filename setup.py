@@ -3,7 +3,7 @@
 import os
 from setuptools import setup, find_packages
 
-requires = ['argh', 'clint', 'jinja2', 'Markdown']
+requires = ['argh', 'clint', 'jinja2', 'Markdown', 'pilkit']
 
 try:
     from PIL import Image, ImageOps  # NOQA

@@ -24,10 +24,9 @@ from __future__ import division
 
 import logging
 import os
-import sys
-from exceptions import IOError
 from PIL import Image as PILImage
-from PIL import ImageDraw, ImageOps, ImageFile
+from PIL import ImageDraw, ImageOps
+from pilkit.utils import save_image
 
 # EXIF specs Orientation constant
 EXIF_ORIENTATION_TAG = 274
@@ -47,10 +46,7 @@ class Image(object):
         self.filename = filename
         self.imgname = os.path.split(filename)[1]
         self.logger = logging.getLogger(__name__)
-
-        with open(filename, 'rb') as fp:
-            self.img = PILImage.open(fp)
-            self.img.load()
+        self.img = PILImage.open(filename)
 
         # Try to read exif metadata. This can fail if:
         # - the image does not have exif (png files) -> AttributeError
@@ -68,25 +64,14 @@ class Image(object):
             if rotation:
                 self.img = self.img.rotate(rotation)
 
-    def save(self, filename, **kwargs):
+    def save(self, filename, format='JPEG', options=None, autoconvert=True):
         """Save the image.
 
-        Pass a dict with PIL options (quality, optimize, progressive). PIL can
-        have problems saving large JPEGs if MAXBLOCK isn't big enough, So if
-        we have a problem saving, we temporarily increase it. See
-        http://github.com/jdriscoll/django-imagekit/issues/91
+        Pass a dict with PIL options (quality, optimize, progressive).
 
         """
-        try:
-            with quiet():
-                self.img.save(filename, "JPEG", **kwargs)
-        except IOError:
-            old_maxblock = ImageFile.MAXBLOCK
-            ImageFile.MAXBLOCK = self.img.size[0] * self.img.size[1]
-            try:
-                self.img.save(filename, "JPEG", **kwargs)
-            finally:
-                ImageFile.MAXBLOCK = old_maxblock
+        save_image(self.img, filename, format, options=options,
+                   autoconvert=autoconvert)
 
     def resize(self, size):
         """Resize the image.
@@ -128,20 +113,3 @@ class Image(object):
             self.img.thumbnail(box, PILImage.ANTIALIAS)
 
         self.img.save(filename, quality=quality)
-
-
-class quiet(object):
-    """A context manager for suppressing the stderr activity of PIL's C
-    libraries. Based on http://stackoverflow.com/a/978264/155370
-
-    """
-    def __enter__(self):
-        self.stderr_fd = sys.__stderr__.fileno()
-        self.null_fd = os.open(os.devnull, os.O_RDWR)
-        self.old = os.dup(self.stderr_fd)
-        os.dup2(self.null_fd, self.stderr_fd)
-
-    def __exit__(self, *args, **kwargs):
-        os.dup2(self.old, self.stderr_fd)
-        os.close(self.null_fd)
-        os.close(self.old)

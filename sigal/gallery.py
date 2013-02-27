@@ -244,14 +244,14 @@ def process_image(filepath, outpath, settings):
 
     if settings['keep_orig']:
         img.save(join(outpath, settings['orig_dir'], filename),
-                 **settings['jpg_options'])
+                 options=settings['jpg_options'])
 
     img.resize(settings['img_size'])
 
     if settings['copyright']:
         img.add_copyright(settings['copyright'])
 
-    img.save(outname, **settings['jpg_options'])
+    img.save(outname, options=settings['jpg_options'])
 
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
