@@ -20,96 +20,60 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from __future__ import division
-
 import logging
-import os
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
+from pilkit.processors import ProcessorPipeline, Transpose, ResizeToFill
 from pilkit.utils import save_image
 
-# EXIF specs Orientation constant
-EXIF_ORIENTATION_TAG = 274
 
+def generate_image(source, outname, size, format, options=None,
+                   autoconvert=True, copyright_text=''):
+    """Image processor, rotate and resize the image.
 
-class Image(object):
-    """Image container
-
-    Prepare images: resize images, and create thumbnails with some options
-    (squared thumbs, ...).
-
-    :param filename: path to an image
+    :param source: path to an image
+    :param options: dict with PIL options (quality, optimize, progressive)
 
     """
 
-    def __init__(self, filename):
-        self.filename = filename
-        self.imgname = os.path.split(filename)[1]
-        self.logger = logging.getLogger(__name__)
-        self.img = PILImage.open(filename)
+    logger = logging.getLogger(__name__)
+    img = PILImage.open(source)
+    original_format = img.format
 
-        # Try to read exif metadata. This can fail if:
-        # - the image does not have exif (png files) -> AttributeError
-        # - PIL fail to read exif -> IOError
-        try:
-            exif = self.img._getexif()
-        except (IOError, AttributeError):
-            exif = False
+    # Run the processors
+    processors = [
+        Transpose(),  # use exif to rotate the img
+        ResizeToFill(*size)
+    ]
+    img = ProcessorPipeline(processors).process(img)
 
-        if exif:
-            # http://www.impulseadventure.com/photo/exif-orientation.html
-            orientation = exif.get(EXIF_ORIENTATION_TAG)
-            rotate_map = {3: 180, 6: -90, 8: 90}
-            rotation = rotate_map.get(orientation)
-            if rotation:
-                self.img = self.img.rotate(rotation)
+    if copyright_text:
+        add_copyright(img, copyright_text)
 
-    def save(self, filename, format='JPEG', options=None, autoconvert=True):
-        """Save the image.
+    format = format or img.format or original_format or 'JPEG'
+    logger.debug('Save resized image to {0} ({1})'.format(outname, format))
+    save_image(img, outname, format, options=options, autoconvert=autoconvert)
 
-        Pass a dict with PIL options (quality, optimize, progressive).
 
-        """
-        save_image(self.img, filename, format, options=options,
-                   autoconvert=autoconvert)
+def generate_thumbnail(source, outname, box, format, fit=True, options=None):
+    "Create a thumbnail image"
 
-    def resize(self, size):
-        """Resize the image.
+    logger = logging.getLogger(__name__)
+    img = PILImage.open(source)
+    original_format = img.format
 
-        - check if the image format is portrait or landscape and adjust `size`.
-        - compute the width and height ratio, and keep the min to resize the
-          image inside the `size` box without distorting it.
+    if fit:
+        img = ImageOps.fit(img, box, PILImage.ANTIALIAS)
+    else:
+        img.thumbnail(box, PILImage.ANTIALIAS)
 
-        :param size: tuple with the (with, height) to resize
+    format = format or img.format or original_format or 'JPEG'
+    logger.debug('Save thumnail image to {0} ({1})'.format(outname, format))
+    save_image(img, outname, format, options=options, autoconvert=True)
 
-        """
 
-        if self.img.size[0] > self.img.size[1]:
-            newsize = size
-        else:
-            newsize = (size[1], size[0])
+def add_copyright(img, text):
+    "Add a copyright to the image"
 
-        wratio = newsize[0] / self.img.size[0]
-        hratio = newsize[1] / self.img.size[1]
-        ratio = min(wratio, hratio)
-        newsize = (int(ratio * self.img.size[0]),
-                   int(ratio * self.img.size[1]))
-
-        if ratio < 1:
-            self.img = self.img.resize(newsize, PILImage.ANTIALIAS)
-
-    def add_copyright(self, text):
-        "Add a copyright to the image"
-
-        draw = ImageDraw.Draw(self.img)
-        draw.text((5, self.img.size[1] - 15), '\xa9 ' + text)
-
-    def thumbnail(self, filename, box, fit=True, quality=90):
-        "Create a thumbnail image"
-
-        if fit:
-            self.img = ImageOps.fit(self.img, box, PILImage.ANTIALIAS)
-        else:
-            self.img.thumbnail(box, PILImage.ANTIALIAS)
-
-        self.img.save(filename, quality=quality)
+    draw = ImageDraw.Draw(img)
+    draw.text((5, img.size[1] - 15), '\xa9 ' + text)

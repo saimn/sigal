@@ -33,7 +33,7 @@ from multiprocessing import Pool
 from os.path import join
 from PIL import Image as PILImage
 
-from .image import Image
+from .image import generate_image, generate_thumbnail
 from .settings import get_thumb
 from .writer import Writer
 
@@ -211,7 +211,6 @@ class Gallery(object):
             for f in img_iterator:
                 filename = os.path.split(f)[1]
                 outname = join(outpath, filename)
-                self.logger.info(filename)
 
                 if os.path.isfile(outname) and not self.force:
                     self.logger.info("%s exists - skipping", filename)
@@ -239,25 +238,27 @@ def process_image(filepath, outpath, settings):
 
     filename = os.path.split(filepath)[1]
     outname = join(outpath, filename)
+    ext = os.path.splitext(filename)
 
-    img = Image(filepath)
+    if ext in ['.jpg', '.jpeg', '.JPG', '.JPEG']:
+        options = settings['jpg_options']
+    elif ext == '.png':
+        options = {'optimize': True}
+    else:
+        options = {}
 
-    if settings['keep_orig']:
-        img.save(join(outpath, settings['orig_dir'], filename),
-                 options=settings['jpg_options'])
+    # TODO
+    # if settings['keep_orig']:
+    #     img.save(join(outpath, settings['orig_dir'], filename),
+    #              options=settings['jpg_options'])
 
-    img.resize(settings['img_size'])
-
-    if settings['copyright']:
-        img.add_copyright(settings['copyright'])
-
-    img.save(outname, options=settings['jpg_options'])
+    generate_image(filepath, outname, settings['img_size'], None,
+                   options=options, copyright_text=settings['copyright'])
 
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
-        img.thumbnail(thumb_name, settings['thumb_size'],
-                      fit=settings['thumb_fit'],
-                      quality=settings['jpg_options']['quality'])
+        generate_thumbnail(outname, thumb_name, settings['thumb_size'], None,
+                           fit=settings['thumb_fit'], options=options)
 
 
 def get_metadata(path):
@@ -266,8 +267,8 @@ def get_metadata(path):
     - title
     - thumbnail image
     - description
-    """
 
+    """
     descfile = join(path, DESCRIPTION_FILE)
 
     if not os.path.isfile(descfile):
@@ -279,11 +280,10 @@ def get_metadata(path):
             'thumbnail': ''
         }
     else:
-        md = markdown.Markdown(extensions=['meta'])
-
         with codecs.open(descfile, "r", "utf-8") as f:
             text = f.read()
 
+        md = markdown.Markdown(extensions=['meta'])
         html = md.convert(text)
 
         meta = {
