@@ -41,6 +41,13 @@ DESCRIPTION_FILE = "index.md"
 
 
 class PathsDb(object):
+    """Container for all the information on the directory structure.
+
+    All the info is stored in a dictionnary, `self.db`. This class also has
+    methods to build this dictionnary.
+
+    """
+
     def __init__(self, path, ext_list):
         self.basepath = path
         self.ext_list = ext_list

@@ -50,11 +50,11 @@ _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
 
 
 def init_logging(level=logging.INFO):
-    """ Logging config
+    """Logging config
 
     Set the level and create a more detailed formatter for debug mode.
-    """
 
+    """
     logger = logging.getLogger(__name__)
     logger.setLevel(level)
 

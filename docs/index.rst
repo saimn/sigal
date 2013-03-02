@@ -74,9 +74,10 @@ sub-directory and run ``sigal build <your images directory>``. The next time
 you run ``sigal build``, only the new images will be processed. Use the ``-f``
 flag to force the reprocessing of all the images.
 
-To visualize your gallery, you can either use ``sigal serve`` which runs a
-basic web server, or you can use the ``index_in_url = True`` setting which
-will add ``index.html`` to the urls to allow browsing without the server.
+To visualize your gallery, you can use ``sigal serve`` which runs a basic web
+server. This server should only be used for local browsing, not in production.
+Another option is to use the ``index_in_url = True`` setting, which will add
+``index.html`` to the urls to allow browsing without a server.
 
 
 Help of the ``sigal build`` command
@@ -135,7 +136,7 @@ and is shown below. This file is copied to the current directory with the
 Album information
 -----------------
 
-Information on an album can be given in a file using the markdown syntax,
+Information on an album can be given in a file using the `markdown`_ syntax,
 named ``index.md`` :
 
 ::
@@ -148,6 +149,7 @@ named ``index.md`` :
 If this file does not exist the directory's name is used for the title, and
 the first image of the directory is used as thumbnail.
 
+.. _markdown: http://daringfireball.net/projects/markdown/
 
 Changelog
 ---------
@@ -158,9 +160,8 @@ Version 0.3
 Released on 2013-xx-xx.
 
 - Fix packaging issues.
-- Add a setting to optionally add `index.html` to the URLs.
-- Add a setting to specify a list of links and adapt the themes to show the
-  links.
+- New setting ``index_in_url`` to optionally add `index.html` to the URLs.
+- New setting ``links`` to specify a list of links.
 - Use EXIF info to fix orientation.
 - Replace the ``jpg_quality`` setting with a dict of options.
 - Manage directories with only sub-directories and add some checks.

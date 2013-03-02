@@ -20,10 +20,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-"""
-Generate html pages for each directory of images.
-"""
-
 from __future__ import absolute_import
 
 import codecs

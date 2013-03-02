@@ -20,11 +20,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-"""
-Prepare images: resize images, and create thumbnails with some options
-(squared thumbs, ...).
-"""
-
 from __future__ import division
 
 import logging
@@ -39,9 +34,10 @@ EXIF_ORIENTATION_TAG = 274
 
 
 class Image(object):
-    """ Image container
+    """Image container
 
-    resize, thumbnail, ...
+    Prepare images: resize images, and create thumbnails with some options
+    (squared thumbs, ...).
 
     :param filename: path to an image
 

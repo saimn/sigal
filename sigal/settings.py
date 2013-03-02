@@ -28,7 +28,7 @@ _DEFAULT_CONFIG = {
     'make_thumbs': True,
     'thumb_prefix': '',
     'thumb_suffix': '',
-    'thumb_size': (150, 112),
+    'thumb_size': (200, 150),
     'thumb_dir': 'thumbnails',
     'thumb_fit': True,
     'keep_orig': False,
