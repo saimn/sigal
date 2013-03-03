@@ -33,7 +33,7 @@ sigal is yet another python script to prepare a static gallery of images:
 from __future__ import absolute_import
 
 __author__ = "Simon Conseil"
-__version__ = "0.2"
+__version__ = "0.3"
 __license__ = "MIT"
 
 import codecs
