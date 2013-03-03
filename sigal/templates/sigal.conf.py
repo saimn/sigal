@@ -47,9 +47,6 @@ thumb_size = (280, 210)
 # links = [('Example link', 'http://example.org'),
 #          ('Another link', 'http://example.org')]
 
-# Keep exif metadatas in output image (default: False)
-# copy_exif = True
-
 # Add a copyright text on the image (default: '')
 # copyright = "An example copyright message"
 

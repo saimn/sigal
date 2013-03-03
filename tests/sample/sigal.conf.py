@@ -7,5 +7,4 @@ keep_orig = True
 links = [('Example link', 'http://example.org'),
          ('Another link', 'http://example.org')]
 
-copy_exif = True
 copyright = "An example copyright message"

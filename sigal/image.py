@@ -138,22 +138,3 @@ class quiet(object):
         os.dup2(self.old, self.stderr_fd)
         os.close(self.null_fd)
         os.close(self.old)
-
-
-def copy_exif(srcfile, dstfile):
-    "Copy the exif metadatas from src to dest images"
-
-    logger = logging.getLogger(__name__)
-
-    import pyexiv2
-
-    src = pyexiv2.ImageMetadata(srcfile)
-    dst = pyexiv2.ImageMetadata(dstfile)
-    src.read()
-    dst.read()
-    try:
-        src.copy(dst)
-    except:
-        logger.error("metadata not copied for %s.", srcfile)
-        return
-    dst.write()

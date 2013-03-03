@@ -33,7 +33,7 @@ from multiprocessing import Pool
 from os.path import join
 from PIL import Image as PILImage
 
-from .image import Image, copy_exif
+from .image import Image
 from .settings import get_thumb
 from .writer import Writer
 
@@ -232,7 +232,7 @@ def worker_image(*args):
 
 
 def process_image(filepath, outpath, settings):
-    """Process one image: resize, create thumbnail, copy exif."""
+    """Process one image: resize, create thumbnail."""
 
     filename = os.path.split(filepath)[1]
     outname = join(outpath, filename)
@@ -255,9 +255,6 @@ def process_image(filepath, outpath, settings):
         img.thumbnail(thumb_name, settings['thumb_size'],
                       fit=settings['thumb_fit'],
                       quality=settings['jpg_options']['quality'])
-
-    if settings['copy_exif']:
-        copy_exif(filepath, outname)
 
 
 def get_metadata(path):

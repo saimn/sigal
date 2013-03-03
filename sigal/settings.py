@@ -34,7 +34,6 @@ _DEFAULT_CONFIG = {
     'keep_orig': False,
     'orig_dir': 'original',
     'jpg_options': {'quality': 85, 'optimize': True, 'progressive': True},
-    'copy_exif': False,
     'copyright': '',
     'ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
     'theme': 'colorbox',
@@ -72,12 +71,5 @@ def read_settings(filename=None):
             settings[key] = size
             logger.warning("The %s setting should be specified with the "
                            "largest value first.", key)
-
-    if settings['copy_exif']:
-        try:
-            import pyexiv2  # NOQA
-        except ImportError:
-            settings['copy_exif'] = False
-            logger.error("Error: install pyexiv2 module to use exif metadatas")
 
     return settings

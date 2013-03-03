@@ -58,7 +58,6 @@ Dependencies
 - Jinja2
 - Python Imaging Library (PIL / Pillow)
 - Python Markdown
-- pyexiv2 (optional, used to copy exif metadatas)
 
 
 How to Use
