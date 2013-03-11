@@ -18,7 +18,7 @@ with open('README.rst') as f:
 
 setup(
     name='sigal',
-    version='0.3',
+    version='0.3.1',
     url='https://github.com/saimn/sigal',
     license='MIT',
     author='Simon Conseil',

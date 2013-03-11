@@ -15,6 +15,9 @@ The idea behind Sigal is to ease the use of the javascript librairies like
 `galleria`_. These librairies do a great job to display the images, Sigal does
 what is missing: resize images, create thumbnails, generate html pages.
 
+Sigal is currently compatible only with python 2. It will be ported to python
+3 when PIL/Pillow will be available for python 3.
+
 Links :
 
 * Latest documentation on the `website`_
@@ -150,13 +153,22 @@ the first image of the directory is used as thumbnail.
 
 .. _markdown: http://daringfireball.net/projects/markdown/
 
+
 Changelog
 ---------
+
+Version 0.3.1
+~~~~~~~~~~~~~
+
+Released on 2013-03-11.
+
+- Fix the path of the sample config file (which was not included in the
+  previous release).
 
 Version 0.3
 ~~~~~~~~~~~
 
-Released on 2013-xx-xx.
+Released on 2013-03-04.
 
 - Fix packaging issues.
 - New setting ``index_in_url`` to optionally add `index.html` to the URLs.
