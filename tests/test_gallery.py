@@ -20,9 +20,9 @@ REF = {
         'img': '',
     },
     'dir1/test1': {
-        'title': 'Test1',
+        'title': 'An example sub-category',
         'thumbnail': '11.jpg',
-        'img': ['11.jpg'],
+        'img': ['11.jpg', 'archlinux-kiss-1024x640.png'],
     },
     'dir1/test2': {
         'title': 'Test2',
