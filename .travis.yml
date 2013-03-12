@@ -9,4 +9,4 @@ before_install:
 install:
     - pip install pytest --use-mirrors
     - pip install . --use-mirrors
-script: pytest
+script: py.test
