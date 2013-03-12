@@ -56,8 +56,8 @@ def read_settings(filename=None):
     """Read settings from a config file in the source_dir root."""
 
     logger = logging.getLogger(__name__)
-
     settings = _DEFAULT_CONFIG.copy()
+
     if filename:
         tempdict = {}
         execfile(filename, tempdict)
@@ -65,10 +65,9 @@ def read_settings(filename=None):
                         if k not in ['__builtins__'])
 
     for key in ('img_size', 'thumb_size'):
-        size = settings[key]
-        if size[1] > size[0]:
-            size[0], size[1] = size[1], size[0]
-            settings[key] = size
+        w, h = settings[key]
+        if h > w:
+            settings[key] = (h, w)
             logger.warning("The %s setting should be specified with the "
                            "largest value first.", key)
 
