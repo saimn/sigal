@@ -3,3 +3,4 @@ clint
 Jinja2
 Markdown
 Pillow
+pytest
