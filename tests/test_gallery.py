@@ -1,11 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import os
-
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest  # NOQA
+import pytest
 
 from sigal.gallery import PathsDb, get_metadata
 from sigal.settings import read_settings
@@ -40,62 +36,64 @@ REF = {
 }
 
 
-class TestPathsDb(unittest.TestCase):
-    "Test the PathsDb class."
+@pytest.fixture(scope='module')
+def paths():
+    """Read the sample config file and build the PathsDb object."""
 
-    @classmethod
-    def setUp(cls):
-        """Read the sample config file and build the PathsDb object."""
-
-        default_conf = os.path.join(SAMPLE_DIR, 'sigal.conf.py')
-        settings = read_settings(default_conf)
-        cls.paths = PathsDb(SAMPLE_DIR, settings['ext_list'])
-        cls.paths.build()
-        cls.db = cls.paths.db
-
-    def test_filelist(self):
-        self.assertItemsEqual(self.db.keys(),
-                              ['paths_list', 'skipped_dir', '.', 'dir1',
-                               'dir2', 'dir1/test1', 'dir1/test2'])
-
-        self.assertListEqual(self.db['paths_list'],
-                             ['.', 'dir1', 'dir1/test1', 'dir1/test2', 'dir2'])
-        self.assertItemsEqual(self.db['skipped_dir'], ['empty', 'dir1/empty'])
-
-        self.assertListEqual(self.db['.']['img'], [])
-        self.assertItemsEqual(self.db['.']['subdir'], ['dir1', 'dir2'])
-
-    def test_title(self):
-        for p in REF.keys():
-            self.assertEqual(self.db[p]['title'], REF[p]['title'])
-
-    def test_thumbnail(self):
-        for p in REF.keys():
-            self.assertEqual(self.db[p]['thumbnail'], REF[p]['thumbnail'])
-
-    def test_imglist(self):
-        for p in REF.keys():
-            self.assertItemsEqual(self.db[p]['img'], REF[p]['img'])
-
-    def test_get_subdir(self):
-        self.assertItemsEqual(self.paths.get_subdirs('dir1'),
-                              ['dir1/test1', 'dir1/test2'])
-        self.assertItemsEqual(self.paths.get_subdirs('.'),
-                              ['dir1', 'dir2', 'dir1/test1', 'dir1/test2'])
+    default_conf = os.path.join(SAMPLE_DIR, 'sigal.conf.py')
+    settings = read_settings(default_conf)
+    return PathsDb(SAMPLE_DIR, settings['ext_list'])
 
 
-class TestMetadata(unittest.TestCase):
-    "Test the Gallery class."
+@pytest.fixture(scope='module')
+def db(paths):
+    paths.build()
+    return paths.db
 
-    def test_dir1(self):
-        m = get_metadata(os.path.join(SAMPLE_DIR, 'dir1'))
-        self.assertEqual(m['title'], REF['dir1']['title'])
-        self.assertEqual(m['thumbnail'], '')
 
-    def test_dir2(self):
-        m = get_metadata(os.path.join(SAMPLE_DIR, 'dir2'))
-        self.assertEqual(m['title'], REF['dir2']['title'])
-        self.assertEqual(m['thumbnail'], REF['dir2']['thumbnail'])
+def test_filelist(db):
+    assert set(db.keys()) == set(['paths_list', 'skipped_dir', '.', 'dir1',
+                                  'dir2', 'dir1/test1', 'dir1/test2'])
+
+    assert db['paths_list'] == ['.', 'dir1', 'dir1/test1', 'dir1/test2',
+                                'dir2']
+
+    assert set(db['skipped_dir']) == set(['empty', 'dir1/empty'])
+    assert db['.']['img'] == []
+    assert set(db['.']['subdir']) == set(['dir1', 'dir2'])
+
+
+def test_title(db):
+    for p in REF.keys():
+        assert db[p]['title'] == REF[p]['title']
+
+
+def test_thumbnail(db):
+    for p in REF.keys():
+        assert db[p]['thumbnail'] == REF[p]['thumbnail']
+
+
+def test_imglist(db):
+    for p in REF.keys():
+        assert set(db[p]['img']) == set(REF[p]['img'])
+
+
+def test_get_subdir(paths):
+    assert set(paths.get_subdirs('dir1')) == set(['dir1/test1', 'dir1/test2'])
+    assert set(paths.get_subdirs('.')) == set(['dir1', 'dir2', 'dir1/test1',
+                                               'dir1/test2'])
+
+
+def test_get_metadata():
+    "Test the get_metadata function."
+
+    m = get_metadata(os.path.join(SAMPLE_DIR, 'dir1'))
+    assert m['title'] == REF['dir1']['title']
+    assert m['thumbnail'] == ''
+
+    m = get_metadata(os.path.join(SAMPLE_DIR, 'dir2'))
+    assert m['title'] == REF['dir2']['title']
+    assert m['thumbnail'] == REF['dir2']['thumbnail']
 
 
 # class TestGallery(unittest.TestCase):
