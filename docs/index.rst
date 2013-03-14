@@ -157,6 +157,16 @@ the first image of the directory is used as thumbnail.
 Changelog
 ---------
 
+Version 0.3.2
+~~~~~~~~~~~~~
+
+Released on 2013-03-14.
+
+- Bugfix for PNG files which don't have exif metadata.
+- Move unit tests to py.test.
+- Fix images path in colorbox theme.
+- Group package meta in a module.
+
 Version 0.3.1
 ~~~~~~~~~~~~~
 
