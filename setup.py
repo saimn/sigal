@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+import os
 from setuptools import setup, find_packages
 
 requires = ['argh', 'clint', 'jinja2', 'Markdown']
@@ -16,12 +17,17 @@ entry_points = {
 with open('README.rst') as f:
     README = f.read()
 
+# Load package meta from the pkgmeta module without loading the package.
+pkgmeta = {}
+execfile(os.path.join(os.path.dirname(__file__), 'sigal', 'pkgmeta.py'),
+         pkgmeta)
+
 setup(
     name='sigal',
-    version='0.3.1',
-    url='https://github.com/saimn/sigal',
+    version=pkgmeta['__version__'],
+    url=pkgmeta['__url__'],
     license='MIT',
-    author='Simon Conseil',
+    author=pkgmeta['__author__'],
     author_email='contact@saimon.org',
     description='Simple static gallery generator',
     long_description=README,

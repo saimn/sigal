@@ -32,10 +32,6 @@ sigal is yet another python script to prepare a static gallery of images:
 
 from __future__ import absolute_import
 
-__author__ = "Simon Conseil"
-__version__ = "0.3.1"
-__license__ = "MIT"
-
 import codecs
 import logging
 import os
@@ -44,6 +40,7 @@ from argh import ArghParser, arg
 from logging import Formatter
 
 from .gallery import Gallery
+from .pkgmeta import *
 from .settings import read_settings
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'

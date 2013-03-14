@@ -35,9 +35,9 @@ from jinja2.exceptions import TemplateNotFound
 
 from .image import Image
 from .settings import get_thumb
+from .pkgmeta import __url__ as sigal_link
 
 INDEX_PAGE = "index.html"
-SIGAL_LINK = "https://github.com/saimn/sigal"
 THEMES_PATH = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
@@ -84,7 +84,7 @@ class Writer(object):
         self.copy_assets()
 
         self.ctx = {
-            'sigal_link': SIGAL_LINK,
+            'sigal_link': sigal_link,
             'theme': {'name': os.path.basename(self.theme)},
             'images': [],
             'albums': [],
