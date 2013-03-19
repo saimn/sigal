@@ -157,6 +157,13 @@ the first image of the directory is used as thumbnail.
 Changelog
 ---------
 
+Version 0.3.3
+~~~~~~~~~~~~~
+
+Released on 2013-03-20.
+
+- Catch exception when PIL fails to read the exif metadata.
+
 Version 0.3.2
 ~~~~~~~~~~~~~
 
