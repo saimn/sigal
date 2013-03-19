@@ -52,16 +52,21 @@ class Image(object):
             self.img = PILImage.open(fp)
             self.img.load()
 
-        if hasattr(self.img, '_getexif'):
+        # Try to read exif metadata. This can fail if:
+        # - the image does not have exif (png files) -> AttributeError
+        # - PIL fail to read exif -> IOError
+        try:
             exif = self.img._getexif()
+        except (IOError, AttributeError):
+            exif = False
 
-            if exif:
-                # http://www.impulseadventure.com/photo/exif-orientation.html
-                orientation = exif.get(EXIF_ORIENTATION_TAG)
-                rotate_map = {3: 180, 6: -90, 8: 90}
-                rotation = rotate_map.get(orientation)
-                if rotation:
-                    self.img = self.img.rotate(rotation)
+        if exif:
+            # http://www.impulseadventure.com/photo/exif-orientation.html
+            orientation = exif.get(EXIF_ORIENTATION_TAG)
+            rotate_map = {3: 180, 6: -90, 8: 90}
+            rotation = rotate_map.get(orientation)
+            if rotation:
+                self.img = self.img.rotate(rotation)
 
     def save(self, filename, **kwargs):
         """Save the image.
