@@ -113,8 +113,8 @@ class Writer(object):
 
         return reversed(breadcumb)
 
-    def write(self, paths, relpath):
-        """Render the html page."""
+    def generate_context(self, paths, relpath):
+        """Generate the context dict for the given path."""
 
         path = os.path.join(self.output_dir, relpath)
         index_url = os.path.relpath(self.output_dir, path) + '/' + self.url_ext
@@ -156,8 +156,14 @@ class Writer(object):
                 'thumb': os.path.join(d, thumb_name)
             })
 
-        # generate html page and save
+        return ctx
+
+    def write(self, paths, relpath):
+        """Generate the HTML page and save it."""
+
+        ctx = self.generate_context(paths, relpath)
         page = self.template.render(paths[relpath], **ctx)
 
+        path = os.path.join(self.output_dir, relpath)
         with codecs.open(os.path.join(path, INDEX_PAGE), 'w', 'utf-8') as f:
             f.write(page)
