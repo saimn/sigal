@@ -17,8 +17,8 @@ img_size = (800, 600)
 # Subdirectory of the thumbnails
 # thumb_dir = 'thumbnails'
 
-# Prefix and/or suffix for thumbnail names (default: '')
-# thumb_prefix =
+# Prefix and/or suffix for thumbnail filenames (default: '')
+# thumb_prefix = ''
 # thumb_suffix = '.tn'
 
 # Thumbnail size (default: (200, 150))
@@ -39,6 +39,9 @@ thumb_size = (280, 210)
 # jpg_options = {'quality': 85,
 #                'optimize': True,
 #                'progressive': True}
+
+# Write HTML files. If False, sigal will only process the images.
+# write_html = True
 
 # Add index.html to the URLs
 # index_in_url = False

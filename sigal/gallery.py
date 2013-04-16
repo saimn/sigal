@@ -150,7 +150,9 @@ class Gallery(object):
         self.input_dir = os.path.abspath(input_dir)
         self.output_dir = os.path.abspath(output_dir)
         self.logger = logging.getLogger(__name__)
-        self.writer = Writer(settings, output_dir, theme=theme)
+
+        if self.settings['write_html']:
+            self.writer = Writer(settings, output_dir, theme=theme)
 
         self.paths = PathsDb(self.input_dir, self.settings['ext_list'])
         self.paths.build()
@@ -181,7 +183,8 @@ class Gallery(object):
                 self.process_dir(imglist, img_out, path,
                                  label_width=label_width)
 
-            self.writer.write(self.db, path)
+            if self.settings['write_html']:
+                self.writer.write(self.db, path)
 
     def process_dir(self, imglist, outpath, dirname, label_width=20):
         """Process a list of images in a directory."""

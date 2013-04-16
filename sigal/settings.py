@@ -37,6 +37,7 @@ _DEFAULT_CONFIG = {
     'copyright': '',
     'ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
     'theme': 'colorbox',
+    'write_html': True,
     'index_in_url': False,
     'links': '',
     'google_analytics': ''
