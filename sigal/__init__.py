@@ -141,7 +141,7 @@ def serve(path):
         except KeyboardInterrupt:
             print '\nAll done!'
     else:
-        sys.stderr.write("The '%s' directory doesn't exist.\n" % p)
+        sys.stderr.write("The '%s' directory doesn't exist.\n" % path)
 
 
 def main():
