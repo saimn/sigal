@@ -37,7 +37,6 @@ from .image import Image
 from .settings import get_thumb
 from .pkgmeta import __url__ as sigal_link
 
-INDEX_PAGE = "index.html"
 THEMES_PATH = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
@@ -45,14 +44,17 @@ THEMES_PATH = os.path.normpath(os.path.join(
 class Writer(object):
     """Generate html pages for each directory of images."""
 
-    def __init__(self, settings, output_dir, theme=None):
+    def __init__(self, settings, output_dir, theme=None,
+                 template_file="index.html", output_file="index.html"):
         self.settings = settings
         self.output_dir = os.path.abspath(output_dir)
         self.theme = theme or settings['theme']
+        self.template_file = template_file
+        self.output_file = output_file
         self.logger = logging.getLogger(__name__)
 
         # optionally add index.html to the URLs
-        self.url_ext = INDEX_PAGE if settings['index_in_url'] else ''
+        self.url_ext = self.output_file if settings['index_in_url'] else ''
 
         # search the theme in sigal/theme if the given one does not exists
         if not os.path.exists(self.theme):
@@ -75,7 +77,7 @@ class Writer(object):
         )
 
         try:
-            self.template = env.get_template(INDEX_PAGE)
+            self.template = env.get_template(self.template_file)
         except TemplateNotFound:
             self.logger.error(colored.red('ERROR:') +
                               ' The index.html template was not found.')
@@ -164,6 +166,6 @@ class Writer(object):
         ctx = self.generate_context(paths, relpath)
         page = self.template.render(paths[relpath], **ctx)
 
-        path = os.path.join(self.output_dir, relpath)
-        with codecs.open(os.path.join(path, INDEX_PAGE), 'w', 'utf-8') as f:
+        output_file = os.path.join(self.output_dir, relpath, self.output_file)
+        with codecs.open(output_file, 'w', 'utf-8') as f:
             f.write(page)
