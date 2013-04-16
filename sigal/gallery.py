@@ -30,7 +30,6 @@ import shutil
 import sys
 
 from clint.textui import progress, colored
-from multiprocessing import Pool
 from os.path import join
 from PIL import Image as PILImage
 
@@ -144,10 +143,9 @@ class Gallery(object):
     "Prepare images"
 
     def __init__(self, settings, input_dir, output_dir, force=False,
-                 theme=None, ncpu=1):
+                 theme=None):
         self.settings = settings
         self.force = force
-        self.ncpu = ncpu
         self.input_dir = os.path.abspath(input_dir)
         self.output_dir = os.path.abspath(output_dir)
         self.logger = logging.getLogger(__name__)
@@ -205,8 +203,6 @@ class Gallery(object):
             self.logger.info(":: Processing '%s' [%i images]",
                              colored.green(dirname), len(imglist))
 
-        pool = Pool(processes=self.ncpu)
-
         try:
             # loop on images
             for f in img_iterator:
@@ -217,21 +213,10 @@ class Gallery(object):
                     self.logger.info("%s exists - skipping", filename)
                 else:
                     self.logger.info(filename)
-                    pool.apply_async(worker_image,
-                                     (f, outpath, self.settings)).get(9999)
+                    process_image(f, outpath, self.settings)
 
-            pool.close()
-            pool.join()
         except KeyboardInterrupt:
-            pool.terminate()
             sys.exit('Interrupted')
-
-
-def worker_image(*args):
-    try:
-        return process_image(*args)
-    except KeyboardInterrupt:
-        return 'KeyboardException'
 
 
 def process_image(filepath, outpath, settings):

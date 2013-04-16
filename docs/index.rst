@@ -8,7 +8,6 @@ and it allows to build a static gallery of images with the following features:
 * process directories recursively,
 * generate HTML pages using jinja2 templates,
 * relative links for a portable output,
-* parallel processing,
 * MIT licensed.
 
 The idea behind Sigal is to ease the use of the javascript librairies like
@@ -117,9 +116,6 @@ Optional arguments:
 
 ``-t THEME, --theme THEME``
   Specify a theme directory, or a theme name for the themes included with Sigal
-
-``-n NCPU, --ncpu NCPU``
-  Number of cpu for parallel execution (default: 1)
 
 
 Configuration

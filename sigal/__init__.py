@@ -86,9 +86,8 @@ def init():
      "the current working directory)")
 @arg('-t', '--theme', help="Specify a theme directory, or a theme name for "
      "the themes included with Sigal")
-@arg('-n', '--ncpu', help="Number of cpu for parallel execution (default: 1)")
 def build(input_dir, output_dir, debug=False, verbose=False, force=False,
-          config=None, theme=None, ncpu=1):
+          config=None, theme=None):
     """Run sigal to process a directory. """
 
     level = (debug and logging.DEBUG) or (verbose and logging.INFO) \
@@ -112,8 +111,7 @@ def build(input_dir, output_dir, debug=False, verbose=False, force=False,
         sys.exit(1)
     settings = read_settings(settings_file)
 
-    gal = Gallery(settings, input_dir, output_dir, force=force, theme=theme,
-                  ncpu=ncpu)
+    gal = Gallery(settings, input_dir, output_dir, force=force, theme=theme)
     gal.build()
 
 
