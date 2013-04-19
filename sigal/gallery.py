@@ -172,11 +172,11 @@ class Gallery(object):
         # loop on directories in reversed order, to process subdirectories
         # before their parent
         for path in reversed(self.db['paths_list']):
-            imglist = [join(self.input_dir, path, f)
+            imglist = [os.path.normpath(join(self.input_dir, path, f))
                        for f in self.db[path]['img']]
 
             # output dir for the current path
-            img_out = join(self.output_dir, path)
+            img_out = os.path.normpath(join(self.output_dir, path))
             check_or_create_dir(img_out)
 
             if len(imglist) != 0:

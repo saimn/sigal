@@ -118,7 +118,7 @@ class Writer(object):
     def generate_context(self, paths, relpath):
         """Generate the context dict for the given path."""
 
-        path = os.path.join(self.output_dir, relpath)
+        path = os.path.normpath(os.path.join(self.output_dir, relpath))
         index_url = os.path.relpath(self.output_dir, path) + '/' + self.url_ext
         self.logger.info("Output path : %s", path)
 
