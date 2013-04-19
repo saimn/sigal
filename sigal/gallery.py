@@ -26,6 +26,7 @@ import codecs
 import logging
 import markdown
 import os
+import shutil
 import sys
 
 from clint.textui import progress, colored
@@ -247,10 +248,8 @@ def process_image(filepath, outpath, settings):
     else:
         options = {}
 
-    # TODO
-    # if settings['keep_orig']:
-    #     img.save(join(outpath, settings['orig_dir'], filename),
-    #              options=settings['jpg_options'])
+    if settings['keep_orig']:
+        shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
 
     generate_image(filepath, outname, settings['img_size'], None,
                    options=options, copyright_text=settings['copyright'])
