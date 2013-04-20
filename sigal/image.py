@@ -40,11 +40,15 @@ def generate_image(source, outname, size, format, options=None,
     img = PILImage.open(source)
     original_format = img.format
 
-    # Run the processors
-    processors = [
-        Transpose(),  # use exif to rotate the img
-        ResizeToFill(*size)
-    ]
+    # Rotate the img, and catch IOError when PIL fails to read EXIF
+    try:
+        processor = Transpose()
+        img = processor.process(img)
+    except IOError:
+        pass
+
+    # Run the other processors
+    processors = [ResizeToFill(*size)]
     img = ProcessorPipeline(processors).process(img)
 
     if copyright_text:
