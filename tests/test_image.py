@@ -14,5 +14,5 @@ def test_image(tmpdir):
     srcfile = os.path.join(CURRENT_DIR, 'sample', 'dir2', TEST_IMAGE)
     dstfile = str(tmpdir.join(TEST_IMAGE))
 
-    generate_thumbnail(srcfile, dstfile, (200, 150))
+    generate_thumbnail(srcfile, dstfile, (200, 150), None)
     assert os.path.isfile(dstfile)
