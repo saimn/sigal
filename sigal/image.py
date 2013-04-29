@@ -48,7 +48,7 @@ def generate_image(source, outname, size, format, options=None,
         pass
 
     # Run the other processors
-    processors = [ResizeToFill(*size)]
+    processors = [ResizeToFill(*size, upscale=False)]
     img = ProcessorPipeline(processors).process(img)
 
     if copyright_text:
