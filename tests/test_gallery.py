@@ -42,7 +42,7 @@ def paths():
 
     default_conf = os.path.join(SAMPLE_DIR, 'sigal.conf.py')
     settings = read_settings(default_conf)
-    return PathsDb(SAMPLE_DIR, settings['ext_list'])
+    return PathsDb(os.path.join(SAMPLE_DIR, 'pictures'), settings['ext_list'])
 
 
 @pytest.fixture(scope='module')
@@ -87,11 +87,11 @@ def test_get_subdir(paths):
 def test_get_metadata():
     "Test the get_metadata function."
 
-    m = get_metadata(os.path.join(SAMPLE_DIR, 'dir1'))
+    m = get_metadata(os.path.join(SAMPLE_DIR, 'pictures', 'dir1'))
     assert m['title'] == REF['dir1']['title']
     assert m['thumbnail'] == ''
 
-    m = get_metadata(os.path.join(SAMPLE_DIR, 'dir2'))
+    m = get_metadata(os.path.join(SAMPLE_DIR, 'pictures', 'dir2'))
     assert m['title'] == REF['dir2']['title']
     assert m['thumbnail'] == REF['dir2']['thumbnail']
 

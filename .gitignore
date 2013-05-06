@@ -7,7 +7,7 @@
 .ropeproject/
 nose.cfg
 MANIFEST
-build/
+_build/
 dist/
 docs/_build
 htmlcov/
