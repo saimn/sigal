@@ -1,21 +1,21 @@
-=======
- Sigal
-=======
+=======================================
+Sigal - Simple Static Gallery Generator
+=======================================
 
 Sigal is yet another simple static gallery generator. It's written in Python
 and it allows to build a static gallery of images with the following features:
 
-* process directories recursively,
-* generate HTML pages using jinja2 templates,
-* relative links for a portable output,
+* Process directories recursively.
+* Generate HTML pages using jinja2 templates.
+* Relative links for a portable output.
+* Themes support.
 * MIT licensed.
 
 The idea behind Sigal is to ease the use of the javascript librairies like
 `galleria`_. These librairies do a great job to display the images, Sigal does
 what is missing: resize images, create thumbnails, generate html pages.
 
-Sigal is currently compatible only with python 2. It will be ported to python
-3 when PIL/Pillow will be available for python 3.
+Sigal is currently compatible only with python 2.
 
 Links :
 
@@ -57,7 +57,9 @@ Dependencies
 ~~~~~~~~~~~~
 
 - Argh
+- Clint
 - Jinja2
+- Pilkit
 - Python Imaging Library (PIL / Pillow)
 - Python Markdown
 
@@ -65,20 +67,24 @@ Dependencies
 How to Use
 ----------
 
-To get started, just run ``sigal init`` which will copy an example
-configuration file in the current directory. All configuration values have a
-default; values that are commented out serve to show the default. Default
-values are specified when modified in this example config file.
+Init
+  To get started, just run ``sigal init`` which will copy an example
+  configuration file in the current directory. All configuration values have a
+  default; values that are commented out serve to show the default. Default
+  values are specified when modified in this example config file.
 
-After adapting the configuration to your needs, put your images in a
-sub-directory and run ``sigal build <your images directory>``. The next time
-you run ``sigal build``, only the new images will be processed. Use the ``-f``
-flag to force the reprocessing of all the images.
+Build
+  After adapting the configuration to your needs, put your images in a
+  sub-directory and run ``sigal build <your images directory>``. The next time
+  you run ``sigal build``, only the new images will be processed. Use the
+  ``-f`` flag to force the reprocessing of all the images.
 
-To visualize your gallery, you can use ``sigal serve`` which runs a basic web
-server. This server should only be used for local browsing, not in production.
-Another option is to use the ``index_in_url = True`` setting, which will add
-``index.html`` to the urls to allow browsing without a server.
+Serve
+  To visualize your gallery, you can use ``sigal serve`` which runs a basic
+  web server. This server should only be used for local browsing, not in
+  production. Another option is to use the ``index_in_url = True`` setting,
+  which will add ``index.html`` to the urls to allow browsing without a
+  server.
 
 
 Help of the ``sigal build`` command
@@ -152,6 +158,15 @@ the first image of the directory is used as thumbnail.
 
 Changelog
 ---------
+
+Version 0.4.0-dev
+~~~~~~~~~~~~~~~~~
+
+Released on 2013-xx-xx.
+
+- Add a setting to disable the writing of HTML files.
+- Use Pilkit.
+- Remove multiprocessing.
 
 Version 0.3.3
 ~~~~~~~~~~~~~

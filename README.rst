@@ -1,5 +1,5 @@
-sigal - yet another simple static gallery generator
-===================================================
+Sigal - Simple Static Gallery Generator
+=======================================
 
 .. image:: https://secure.travis-ci.org/saimn/sigal.png?branch=master
    :target: https://travis-ci.org/saimn/sigal
@@ -8,10 +8,10 @@ sigal - yet another simple static gallery generator
 Sigal is yet another simple static gallery generator. It's written in Python
 and it allows to build a static gallery of images with the following features:
 
-* process directories recursively,
-* resize images and create thumbnails,
-* generate html pages using jinja2 templates,
-* relative links for a portable output,
+* Process directories recursively.
+* Generate HTML pages using jinja2 templates.
+* Relative links for a portable output.
+* Themes support.
 * MIT licensed.
 
 Links :
