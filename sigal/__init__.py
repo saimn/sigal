@@ -76,9 +76,8 @@ def init():
     print "Sample config file created: sigal.conf.py"
 
 
-@arg('input-dir', help='Input directory')
-@arg('output-dir', nargs='?', default='_build',
-     help='Output directory (default: _build/)')
+@arg('source', nargs='?', help='Input directory')
+@arg('destination', nargs='?', help='Output directory (default: _build/)')
 @arg('-f', '--force', help="Force the reprocessing of existing images")
 @arg('-v', '--verbose', help="Show all messages")
 @arg('-d', '--debug', help="Show all message, including debug messages")
@@ -86,7 +85,7 @@ def init():
      "the current working directory)")
 @arg('-t', '--theme', help="Specify a theme directory, or a theme name for "
      "the themes included with Sigal")
-def build(input_dir, output_dir, debug=False, verbose=False, force=False,
+def build(source, destination, debug=False, verbose=False, force=False,
           config=None, theme=None):
     """Run sigal to process a directory. """
 
@@ -95,15 +94,6 @@ def build(input_dir, output_dir, debug=False, verbose=False, force=False,
     init_logging(level=level)
     logger = logging.getLogger(__name__)
 
-    if not os.path.isdir(input_dir):
-        logger.error("Input directory '%s' does not exist.", input_dir)
-        sys.exit(1)
-
-    if not os.path.relpath(output_dir, input_dir).startswith('..'):
-        logger.error("Output directory should be outside of the input "
-                     "directory.")
-        sys.exit(1)
-
     logger.info("Reading settings ...")
     settings_file = config or _DEFAULT_CONFIG_FILE
     if not os.path.isfile(settings_file):
@@ -111,7 +101,25 @@ def build(input_dir, output_dir, debug=False, verbose=False, force=False,
         sys.exit(1)
     settings = read_settings(settings_file)
 
-    gal = Gallery(settings, input_dir, output_dir, force=force, theme=theme)
+    if source:
+        settings['source'] = os.path.abspath(source)
+    if destination:
+        settings['destination'] = os.path.abspath(destination)
+
+    logger.debug("Input directory: '%s'", settings['source'])
+    if not settings['source'] or not os.path.isdir(settings['source']):
+        logger.error("Input directory '%s' does not exist.",
+                     settings['source'])
+        sys.exit(1)
+
+    logger.debug("Output directory: '%s'", settings['destination'])
+    if not os.path.relpath(settings['destination'],
+                           settings['source']).startswith('..'):
+        logger.error("Output directory should be outside of the input "
+                     "directory.")
+        sys.exit(1)
+
+    gal = Gallery(settings, force=force, theme=theme)
     gal.build()
 
 

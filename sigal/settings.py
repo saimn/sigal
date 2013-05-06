@@ -24,6 +24,8 @@ import logging
 import os
 
 _DEFAULT_CONFIG = {
+    'source': '',
+    'destination': '_build',
     'img_size': (640, 480),
     'make_thumbs': True,
     'thumb_prefix': '',
@@ -65,11 +67,19 @@ def read_settings(filename=None):
         settings.update((k, v) for k, v in tempdict.iteritems()
                         if k not in ['__builtins__'])
 
+        # Make the paths relative to the settings file
+        for key in ['source', 'destination']:
+            path = settings[key]
+            if path and not os.path.isabs(path):
+                settings[key] = os.path.abspath(os.path.normpath(os.path.join(
+                    os.path.dirname(filename), path)))
+
     for key in ('img_size', 'thumb_size'):
         w, h = settings[key]
         if h > w:
             settings[key] = (h, w)
             logger.warning("The %s setting should be specified with the "
                            "largest value first.", key)
+
 
     return settings

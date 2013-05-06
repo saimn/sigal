@@ -142,26 +142,26 @@ class PathsDb(object):
 class Gallery(object):
     "Prepare images"
 
-    def __init__(self, settings, input_dir, output_dir, force=False,
-                 theme=None):
+    def __init__(self, settings, force=False, theme=None):
         self.settings = settings
         self.force = force
-        self.input_dir = os.path.abspath(input_dir)
-        self.output_dir = os.path.abspath(output_dir)
         self.logger = logging.getLogger(__name__)
 
         if self.settings['write_html']:
-            self.writer = Writer(settings, output_dir, theme=theme)
+            self.writer = Writer(settings, self.settings['destination'],
+                                 theme=theme)
 
-        self.paths = PathsDb(self.input_dir, self.settings['ext_list'])
+        self.paths = PathsDb(self.settings['source'],
+                             self.settings['ext_list'])
         self.paths.build()
         self.db = self.paths.db
 
     def build(self):
         "Create the image gallery"
 
-        self.logger.info("Generate gallery in %s ...", self.output_dir)
-        check_or_create_dir(self.output_dir)
+        self.logger.info("Generate gallery in %s ...",
+                         self.settings['destination'])
+        check_or_create_dir(self.settings['destination'])
 
         # Compute the label with for the progress bar. The max value is 48
         # character = 80 - 32 for the progress bar.
@@ -171,11 +171,12 @@ class Gallery(object):
         # loop on directories in reversed order, to process subdirectories
         # before their parent
         for path in reversed(self.db['paths_list']):
-            imglist = [os.path.normpath(join(self.input_dir, path, f))
+            imglist = [os.path.normpath(join(self.settings['source'], path, f))
                        for f in self.db[path]['img']]
 
             # output dir for the current path
-            img_out = os.path.normpath(join(self.output_dir, path))
+            img_out = os.path.normpath(join(self.settings['destination'],
+                                            path))
             check_or_create_dir(img_out)
 
             if len(imglist) != 0:

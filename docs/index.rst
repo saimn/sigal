@@ -93,17 +93,17 @@ Help of the ``sigal build`` command
 ::
 
     $ sigal build [-h] [-d] [-v] [-f] [-c CONFIG] [-t THEME]
-            input_dir [output_dir]
+            [source] [destination]
 
 Required arguments:
 
-``input_dir``
+``source``
   Input directory
 
-Optional arguments:
-
-``output_dir``
+``destination``
   Output directory (default: ``_build/``)
+
+Optional arguments:
 
 ``-h, --help``
   Show this help message and exit
@@ -118,7 +118,8 @@ Optional arguments:
   Show all message, including debug messages
 
 ``-c CONFIG, --config CONFIG``
-  Configuration file (default: ``<input_dir>/sigal.conf.py``)
+  Configuration file (default: ``sigal.conf.py`` in the current working
+  directory)
 
 ``-t THEME, --theme THEME``
   Specify a theme directory, or a theme name for the themes included with Sigal
@@ -167,6 +168,7 @@ Released on 2013-xx-xx.
 - Add a setting to disable the writing of HTML files.
 - Use Pilkit.
 - Remove multiprocessing.
+- Add new settings for the source and destination directories.
 
 Version 0.3.3
 ~~~~~~~~~~~~~

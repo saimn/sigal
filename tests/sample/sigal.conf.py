@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+source = 'pictures'
 thumb_suffix = '.tn'
 thumb_size = (200, 150)
 keep_orig = True
