@@ -149,10 +149,33 @@ named ``index.md`` :
     Title: Another example gallery
     Thumbnail: test2.jpg
 
-    And a *cool* description.
+    And a description with *Markdown* syntax.
 
-If this file does not exist the directory's name is used for the title, and
-the first image of the directory is used as thumbnail.
+Some meta-data keys are used by Sigal to get the useful informations on the
+gallery:
+
+- *Title*: the gallery title.
+- *Thumbnail*: the thumbnail that will be used in the parent directory to
+  represent the gallery.
+
+Any additional meta-data is available in the templates. For instance::
+
+    Authors: Waylan Limberg
+             John Doe
+
+can be used in the template with:
+
+.. code-block:: jinja
+
+    {% if 'authors' in meta %}
+    <p>Authors: {{ meta.authors|join(', ') }}</>
+    {% endif %}
+
+If this file does not exist or if some meta-data is missing:
+
+- The directory's name is used for the title (dashes and underscores are
+  replaced with spaces).
+- The first image of the directory is used as thumbnail.
 
 .. _markdown: http://daringfireball.net/projects/markdown/
 
@@ -169,6 +192,7 @@ Released on 2013-xx-xx.
 - Use Pilkit.
 - Remove multiprocessing.
 - Add new settings for the source and destination directories.
+- All meta-data are available in the templates.
 
 Version 0.3.3
 ~~~~~~~~~~~~~

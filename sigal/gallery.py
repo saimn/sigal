@@ -262,7 +262,8 @@ def get_metadata(path):
             'title': os.path.basename(path).replace('_', ' ')
             .replace('-', ' ').capitalize(),
             'description': '',
-            'thumbnail': ''
+            'thumbnail': '',
+            'meta': {}
         }
     else:
         with codecs.open(descfile, "r", "utf-8") as f:
@@ -274,7 +275,8 @@ def get_metadata(path):
         meta = {
             'title': md.Meta.get('title', [''])[0],
             'description': html,
-            'thumbnail': md.Meta.get('thumbnail', [''])[0]
+            'thumbnail': md.Meta.get('thumbnail', [''])[0],
+            'meta': md.Meta.copy()
         }
 
     return meta
