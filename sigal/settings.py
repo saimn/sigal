@@ -59,20 +59,29 @@ def read_settings(filename=None):
     """Read settings from a config file in the source_dir root."""
 
     logger = logging.getLogger(__name__)
+    logger.info("Reading settings ...")
     settings = _DEFAULT_CONFIG.copy()
+    settings_path = os.path.dirname(filename)
 
     if filename:
+        logger.debug("Settings file: %s", filename)
         tempdict = {}
         execfile(filename, tempdict)
         settings.update((k, v) for k, v in tempdict.iteritems()
                         if k not in ['__builtins__'])
 
         # Make the paths relative to the settings file
-        for key in ['source', 'destination']:
-            path = settings[key]
+        paths = ['source', 'destination']
+
+        if os.path.isdir(os.path.join(settings_path, settings['theme'])):
+            paths.append('theme')
+
+        for p in paths:
+            path = settings[p]
             if path and not os.path.isabs(path):
-                settings[key] = os.path.abspath(os.path.normpath(os.path.join(
-                    os.path.dirname(filename), path)))
+                settings[p] = os.path.abspath(os.path.normpath(os.path.join(
+                    settings_path, path)))
+                logger.debug("%s : %s -> %s", p, path, settings[p])
 
     for key in ('img_size', 'thumb_size'):
         w, h = settings[key]
@@ -80,6 +89,5 @@ def read_settings(filename=None):
             settings[key] = (h, w)
             logger.warning("The %s setting should be specified with the "
                            "largest value first.", key)
-
 
     return settings

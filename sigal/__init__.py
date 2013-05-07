@@ -89,12 +89,11 @@ def build(source, destination, debug=False, verbose=False, force=False,
           config=None, theme=None):
     """Run sigal to process a directory. """
 
-    level = (debug and logging.DEBUG) or (verbose and logging.INFO) \
-            or logging.WARNING
+    level = ((debug and logging.DEBUG) or (verbose and logging.INFO)
+             or logging.WARNING)
     init_logging(level=level)
     logger = logging.getLogger(__name__)
 
-    logger.info("Reading settings ...")
     settings_file = config or _DEFAULT_CONFIG_FILE
     if not os.path.isfile(settings_file):
         logger.error("Settings file not found (%s)", settings_file)

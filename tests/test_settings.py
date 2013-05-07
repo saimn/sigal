@@ -5,12 +5,13 @@ import pytest
 
 from sigal.settings import read_settings, get_thumb
 
+CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
+
 
 @pytest.fixture(scope='module')
 def settings():
     """Read the sample config file."""
-    path = os.path.abspath(os.path.dirname(__file__))
-    return read_settings(os.path.join(path, 'sample', 'sigal.conf.py'))
+    return read_settings(os.path.join(CURRENT_DIR, 'sample', 'sigal.conf.py'))
 
 
 def test_read_settings(settings):
@@ -18,6 +19,8 @@ def test_read_settings(settings):
     assert settings['img_size'] == (640, 480)
     assert settings['thumb_size'] == (200, 150)
     assert settings['thumb_suffix'] == '.tn'
+    assert settings['source'] == os.path.join(CURRENT_DIR, 'sample',
+                                              'pictures')
 
 
 def test_thumb(settings):
@@ -40,3 +43,17 @@ thumb_size = (150, 200)
 
     settings = read_settings(str(conf))
     assert settings['thumb_size'] == (200, 150)
+
+
+def test_theme_path(tmpdir):
+    """Test that image size is swaped if needed."""
+
+    tmpdir.join('theme').mkdir()
+    conf = tmpdir.join('sigal.conf.py')
+    conf.write("""# -*- coding: utf-8 -*-
+
+theme = 'theme'
+""")
+
+    settings = read_settings(str(conf))
+    assert settings['theme'] == tmpdir.join('theme')
