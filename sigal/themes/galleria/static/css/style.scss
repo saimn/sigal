@@ -16,7 +16,7 @@ body {
 .container {
   margin: 0 auto;
   text-align: left;
-  width: 960px;
+  width: 96%;
 }
 
 a, a:link, a:visited {
@@ -51,14 +51,7 @@ header {
     margin: 10px 0;
   }
 
-  h1, #menu {
-    display: inline-block;
-    width: 49.5%;
-  }
-
   #menu {
-    text-align: right;
-
     ul {
       list-style-type: none;
       margin: 0 0 10px;
@@ -127,8 +120,7 @@ header {
 
 #gallery {
   line-height: 0;
-  margin: 0 0 40px -10px;
-  width: 980px;
+  width: 100%;
   height: 600px;
 }
 
@@ -147,5 +139,27 @@ footer {
   a:hover {
     border-bottom: 1px solid;
     text-decoration: none;
+  }
+}
+
+
+@media only screen and (min-width: 980px) {
+  .container {
+    width: 960px;
+  }
+
+  #gallery {
+    width: 980px;
+    margin: 0 0 40px -10px;
+  }
+
+  header {
+    h1, #menu {
+      display: inline-block;
+      width: 49.5%;
+    }
+    #menu {
+      text-align: right;
+    }
   }
 }
