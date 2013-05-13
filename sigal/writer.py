@@ -34,7 +34,7 @@ from jinja2 import Environment, FileSystemLoader, ChoiceLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
 
 from .image import generate_thumbnail
-from .settings import get_thumb
+from .settings import get_thumb, get_orig
 from .pkgmeta import __url__ as sigal_link
 
 THEMES_PATH = os.path.normpath(os.path.join(
@@ -134,8 +134,11 @@ class Writer(object):
             ctx['breadcumb'] = self.get_breadcumb(paths, relpath)
 
         for i in paths[relpath]['img']:
-            ctx['images'].append({'file': i,
-                                  'thumb': get_thumb(self.settings, i)})
+            img_ctx = {'file': i,
+                       'thumb': get_thumb(self.settings, i)}
+            if self.settings['keep_orig']:
+                img_ctx['big'] = get_orig(self.settings, i)
+            ctx['images'].append(img_ctx)
 
         for d in paths[relpath]['subdir']:
             dpath = os.path.normpath(os.path.join(relpath, d))
