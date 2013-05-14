@@ -238,7 +238,8 @@ def process_image(filepath, outpath, settings):
         shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
 
     generate_image(filepath, outname, settings['img_size'], None,
-                   options=options, copyright_text=settings['copyright'])
+                   options=options, copyright_text=settings['copyright'],
+                   method=settings['img_processor'])
 
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))

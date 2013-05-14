@@ -19,6 +19,13 @@ theme = 'galleria'
 # Size of resized image
 img_size = (800, 600)
 
+# Pilkit processor used to resize the image
+# (see http://pilkit.readthedocs.org/en/latest/#processors)
+# - ResizeToFit: fit the image within the specified dimensions (default)
+# - ResizeToFill: crop THE IMAGE it to the exact specified width and height
+# - SmartResize: identical to ResizeToFill, but uses entropy to crop the image
+# img_processor = 'ResizeToFit'
+
 # Generate thumbnails
 # make_thumbs = True
 

@@ -27,6 +27,7 @@ _DEFAULT_CONFIG = {
     'source': '',
     'destination': '_build',
     'img_size': (640, 480),
+    'img_processor': 'ResizeToFit',
     'make_thumbs': True,
     'thumb_prefix': '',
     'thumb_suffix': '',

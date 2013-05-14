@@ -21,14 +21,17 @@
 # IN THE SOFTWARE.
 
 import logging
+import pilkit.processors
+import sys
+
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
-from pilkit.processors import ProcessorPipeline, Transpose, ResizeToFill
+from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
 
 def generate_image(source, outname, size, format, options=None,
-                   autoconvert=True, copyright_text=''):
+                   autoconvert=True, copyright_text='', method='ResizeToFit'):
     """Image processor, rotate and resize the image.
 
     :param source: path to an image
@@ -42,14 +45,20 @@ def generate_image(source, outname, size, format, options=None,
 
     # Rotate the img, and catch IOError when PIL fails to read EXIF
     try:
-        processor = Transpose()
-        img = processor.process(img)
+        img = Transpose().process(img)
     except IOError:
         pass
 
-    # Run the other processors
-    processors = [ResizeToFill(*size, upscale=False)]
-    img = ProcessorPipeline(processors).process(img)
+    # Resize the image
+    try:
+        logger.debug('Processor: %s', method)
+        processor_cls = getattr(pilkit.processors, method)
+    except AttributeError as e:
+        logger.error('Wrong processor name: %s', method)
+        sys.exit()
+
+    processor = processor_cls(*size, upscale=False)
+    img = processor.process(img)
 
     if copyright_text:
         add_copyright(img, copyright_text)
