@@ -159,8 +159,6 @@ class Gallery(object):
     def build(self):
         "Create the image gallery"
 
-        self.logger.info("Generate gallery in %s ...",
-                         self.settings['destination'])
         check_or_create_dir(self.settings['destination'])
 
         # Compute the label with for the progress bar. The max value is 48
@@ -201,8 +199,10 @@ class Gallery(object):
             img_iterator = progress.bar(imglist, label=label)
         else:
             img_iterator = iter(imglist)
+            self.logger.info("")
             self.logger.info(":: Processing '%s' [%i images]",
                              colored.green(dirname), len(imglist))
+            self.logger.info("")
 
         try:
             # loop on images

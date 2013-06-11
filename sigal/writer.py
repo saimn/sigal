@@ -62,7 +62,7 @@ class Writer(object):
             if not os.path.exists(self.theme):
                 raise Exception("Impossible to find the theme %s" % self.theme)
 
-        self.logger.info("Theme path : %s", self.theme)
+        self.logger.info("Theme  : %s", self.theme)
         theme_relpath = os.path.join(self.theme, 'templates')
         default_loader = FileSystemLoader(
             os.path.join(THEMES_PATH, 'default', 'templates'))

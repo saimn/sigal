@@ -105,13 +105,13 @@ def build(source, destination, debug=False, verbose=False, force=False,
     if destination:
         settings['destination'] = os.path.abspath(destination)
 
-    logger.debug("Input directory: '%s'", settings['source'])
+    logger.info("Input  : %s", settings['source'])
     if not settings['source'] or not os.path.isdir(settings['source']):
         logger.error("Input directory '%s' does not exist.",
                      settings['source'])
         sys.exit(1)
 
-    logger.debug("Output directory: '%s'", settings['destination'])
+    logger.info("Output : %s", settings['destination'])
     if not os.path.relpath(settings['destination'],
                            settings['source']).startswith('..'):
         logger.error("Output directory should be outside of the input "

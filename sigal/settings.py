@@ -89,7 +89,7 @@ def read_settings(filename=None):
             if path and not os.path.isabs(path):
                 settings[p] = os.path.abspath(os.path.normpath(os.path.join(
                     settings_path, path)))
-                logger.debug("%s : %s -> %s", p, path, settings[p])
+                logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
 
     for key in ('img_size', 'thumb_size'):
         w, h = settings[key]
