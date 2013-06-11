@@ -1,4 +1,8 @@
 {% extends "basic/layout.html" %}
+{%- block extrahead %}
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic">
+{% endblock %}
 {% block header %}
   {{ super() }}
   {% if pagename == 'index' %}
@@ -6,6 +10,10 @@
   {% endif %}
 {% endblock %}
 {% block footer %}
+  <div class="footer">
+    &copy; Copyright {{ copyright }}.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
   {% if pagename == 'index' %}
   </div>
   {% endif %}

@@ -173,7 +173,7 @@ html_static_path = ['_static']
 htmlhelp_basename = 'Sigaldoc'
 
 html_theme_options = {
-    'index_logo': 'logo.png',
+    'index_logo': '',
     'github_fork': 'saimn/sigal',
 }
 
