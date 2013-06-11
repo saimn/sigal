@@ -183,16 +183,18 @@ If this file does not exist or if some meta-data is missing:
 Changelog
 ---------
 
-Version 0.4.0-dev
-~~~~~~~~~~~~~~~~~
+Version 0.4.0
+~~~~~~~~~~~~~
 
-Released on 2013-xx-xx.
+Released on 2013-06-12.
 
 - Add a setting to disable the writing of HTML files.
 - Use Pilkit.
 - Remove multiprocessing.
 - Add new settings for the source and destination directories.
 - All meta-data are available in the templates.
+- Galleria theme is now responsive
+- Add a setting to choose the pilkit processor used to resize the images.
 
 Version 0.3.3
 ~~~~~~~~~~~~~
