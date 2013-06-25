@@ -59,7 +59,8 @@ class PathsDb(object):
         subdir = [os.path.normpath(os.path.join(path, sub))
                   for sub in self.db[path].get('subdir', [])]
         if subdir:
-            return subdir + reduce(lambda x, y: x+y, map(self.get_subdirs, subdir))
+            return subdir + reduce(lambda x, y: x+y,
+                                   map(self.get_subdirs, subdir))
         else:
             return []
 

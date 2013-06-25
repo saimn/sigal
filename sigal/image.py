@@ -53,7 +53,7 @@ def generate_image(source, outname, size, format, options=None,
     try:
         logger.debug('Processor: %s', method)
         processor_cls = getattr(pilkit.processors, method)
-    except AttributeError as e:
+    except AttributeError:
         logger.error('Wrong processor name: %s', method)
         sys.exit()
 
