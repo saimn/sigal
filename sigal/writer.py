@@ -152,9 +152,8 @@ class Writer(object):
             if not os.path.exists(thumb_path):
                 source = os.path.join(self.output_dir, dpath, alb_thumb)
                 generate_thumbnail(
-                    source, thumb_path, self.settings['thumb_size'],
-                    fit=self.settings['thumb_fit'],
-                    quality=self.settings['jpg_options']['quality'])
+                    source, thumb_path, self.settings['thumb_size'], None,
+                    fit=self.settings['thumb_fit'])
 
             ctx['albums'].append({
                 'url': d + '/' + self.url_ext,
