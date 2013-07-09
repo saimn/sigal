@@ -64,7 +64,7 @@ def generate_image(source, outname, size, format, options=None,
         add_copyright(img, copyright_text)
 
     format = format or img.format or original_format or 'JPEG'
-    logger.debug('Save resized image to {0} ({1})'.format(outname, format))
+    logger.debug(u'Save resized image to {0} ({1})'.format(outname, format))
     save_image(img, outname, format, options=options, autoconvert=autoconvert)
 
 
@@ -81,7 +81,7 @@ def generate_thumbnail(source, outname, box, format, fit=True, options=None):
         img.thumbnail(box, PILImage.ANTIALIAS)
 
     format = format or img.format or original_format or 'JPEG'
-    logger.debug('Save thumnail image to {0} ({1})'.format(outname, format))
+    logger.debug(u'Save thumnail image to {0} ({1})'.format(outname, format))
     save_image(img, outname, format, options=options, autoconvert=True)
 
 

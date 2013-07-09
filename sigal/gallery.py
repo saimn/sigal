@@ -23,6 +23,7 @@
 from __future__ import absolute_import
 
 import codecs
+import locale
 import logging
 import markdown
 import os
@@ -49,9 +50,17 @@ class PathsDb(object):
     """
 
     def __init__(self, path, ext_list):
-        self.basepath = path
         self.ext_list = ext_list
         self.logger = logging.getLogger(__name__)
+
+        # basepath must to be a unicode string so that os.walk will return
+        # unicode dirnames and filenames. If basepath is a str, we must
+        # convert it to unicode.
+        if isinstance(path, str):
+            enc = locale.getpreferredencoding()
+            self.basepath = path.decode(enc)
+        else:
+            self.basepath = path
 
     def get_subdirs(self, path):
         """Return the list of all sub-directories of path."""
@@ -78,8 +87,8 @@ class PathsDb(object):
             relpath = os.path.relpath(path, self.basepath)
 
             # sort images and sub-albums by name
-            filenames.sort(key=str.lower)
-            dirnames.sort(key=str.lower)
+            filenames.sort(cmp=locale.strcoll)
+            dirnames.sort(cmp=locale.strcoll)
 
             self.db['paths_list'].append(relpath)
             self.db[relpath] = {
