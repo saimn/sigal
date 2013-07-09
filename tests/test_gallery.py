@@ -52,15 +52,15 @@ def db(paths):
 
 
 def test_filelist(db):
-    assert set(db.keys()) == set(['paths_list', 'skipped_dir', '.', 'dir1',
-                                  'dir2', 'dir1/test1', 'dir1/test2'])
+    assert set(db.keys()) == set(['paths_list', 'skipped_dir', '.',
+        'dir1', 'dir2', 'dir1/test1', 'dir1/test2', u'accentué'])
 
-    assert db['paths_list'] == ['.', 'dir1', 'dir1/test1', 'dir1/test2',
-                                'dir2']
+    assert set(db['paths_list']) == set(['.', 'dir1', 'dir1/test1',
+        'dir1/test2', 'dir2', u'accentué'])
 
     assert set(db['skipped_dir']) == set(['empty', 'dir1/empty'])
     assert db['.']['img'] == []
-    assert set(db['.']['subdir']) == set(['dir1', 'dir2'])
+    assert set(db['.']['subdir']) == set([u'accentué', 'dir1', 'dir2'])
 
 
 def test_title(db):
@@ -81,7 +81,7 @@ def test_imglist(db):
 def test_get_subdir(paths):
     assert set(paths.get_subdirs('dir1')) == set(['dir1/test1', 'dir1/test2'])
     assert set(paths.get_subdirs('.')) == set(['dir1', 'dir2', 'dir1/test1',
-                                               'dir1/test2'])
+                                               'dir1/test2', u'accentué'])
 
 
 def test_get_metadata():
