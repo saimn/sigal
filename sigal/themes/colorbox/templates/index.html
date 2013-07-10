@@ -73,7 +73,8 @@
           <div class="four columns thumbnail
                       {% if loop.index % 3 == 1 %}alpha{% endif%}
                       {% if loop.index % 3 == 0 %}omega{% endif%}">
-            <a href="{{ image.file }}" class="gallery" title="{{ image.file }}">
+            <a href="{{ image.file }}" class="gallery" title="{{ image.file }}"
+               {% if image.big %} data-big="{{ image.big }}"{% endif %}>
               <img src="{{ image.thumb }}" alt="{{ image.file }}"
                    title="{{ image.file }}" /></a>
           </div>
@@ -100,7 +101,15 @@
         transition:"none",
         maxWidth: "90%",
         maxHeight: "90%",
-        scalePhotos: true
+        scalePhotos: true,
+        current: "{current} / {total}",
+        title: function () {
+          title = this.title;
+          if(this.hasAttribute("data-big")) {
+            title += " (full size)".link(this.getAttribute("data-big"));
+          }
+          return title;
+        }
       });
     </script>
     {% endif %}

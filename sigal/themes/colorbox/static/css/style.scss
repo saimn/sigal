@@ -63,6 +63,12 @@ header {
   display: block;
 }
 
+#cboxTitle {
+  a, a:visited {
+    color: #ccc;
+  }
+}
+
 @media only screen and (min-width: 767px) {
   header {
     margin-top: 40px;
