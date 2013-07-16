@@ -34,7 +34,8 @@ from clint.textui import progress, colored
 from os.path import join
 from PIL import Image as PILImage
 
-from .image import generate_image, generate_thumbnail
+import sigal.image
+import sigal.video
 from .settings import get_thumb
 from .writer import Writer
 
@@ -49,8 +50,9 @@ class PathsDb(object):
 
     """
 
-    def __init__(self, path, ext_list):
-        self.ext_list = ext_list
+    def __init__(self, path, img_ext_list, vid_ext_list):
+        self.img_ext_list = img_ext_list
+        self.vid_ext_list = vid_ext_list
         self.logger = logging.getLogger(__name__)
 
         # basepath must to be a unicode string so that os.walk will return
@@ -93,22 +95,26 @@ class PathsDb(object):
             self.db['paths_list'].append(relpath)
             self.db[relpath] = {
                 'img': [f for f in filenames
-                        if os.path.splitext(f)[1] in self.ext_list],
+                        if os.path.splitext(f)[1] in self.img_ext_list],
+                'vid': [f for f in filenames
+                        if os.path.splitext(f)[1] in self.vid_ext_list],
                 'subdir': dirnames
             }
             self.db[relpath].update(get_metadata(path))
 
-        path_im = [path for path in self.db['paths_list']
-                   if self.db[path]['img'] and path != '.']
-        path_noim = [path for path in self.db['paths_list']
-                     if not self.db[path]['img'] and path != '.']
+        path_media = [path for path in self.db['paths_list']
+                   if (self.db[path]['img'] or self.db[path]['vid']) and
+                   path != '.']
+        path_nomedia = [path for path in self.db['paths_list'] if not
+                (self.db[path]['img'] or self.db[path]['vid']) and path !=
+                '.']
 
         # dir with images: check the thumbnail, and find it if necessary
-        for path in path_im:
+        for path in path_media:
             self.check_thumbnail(path)
 
         # dir without images, start with the deepest ones
-        for path in reversed(sorted(path_noim, key=lambda x: x.count('/'))):
+        for path in reversed(sorted(path_nomedia, key=lambda x: x.count('/'))):
             for subdir in self.get_subdirs(path):
                 # use the thumbnail of their sub-directories
                 if self.db[subdir].get('thumbnail', ''):
@@ -162,7 +168,8 @@ class Gallery(object):
                                  theme=theme)
 
         self.paths = PathsDb(self.settings['source'],
-                             self.settings['ext_list'])
+                             self.settings['img_ext_list'],
+                             self.settings['vid_ext_list'])
         self.paths.build()
         self.db = self.paths.db
 
@@ -181,20 +188,22 @@ class Gallery(object):
         for path in reversed(self.db['paths_list']):
             imglist = [os.path.normpath(join(self.settings['source'], path, f))
                        for f in self.db[path]['img']]
+            vidlist = [os.path.normpath(join(self.settings['source'], path, f))
+                       for f in self.db[path]['vid']]
 
             # output dir for the current path
-            img_out = os.path.normpath(join(self.settings['destination'],
+            outpath = os.path.normpath(join(self.settings['destination'],
                                             path))
-            check_or_create_dir(img_out)
+            check_or_create_dir(outpath)
 
-            if len(imglist) != 0:
-                self.process_dir(imglist, img_out, path,
+            if len(imglist) != 0 or len(vidlist) != 0:
+                self.process_dir(imglist, vidlist, outpath, path,
                                  label_width=label_width)
 
             if self.settings['write_html']:
                 self.writer.write(self.db, path)
 
-    def process_dir(self, imglist, outpath, dirname, label_width=20):
+    def process_dir(self, imglist, vidlist, outpath, dirname, label_width=20):
         """Process a list of images in a directory."""
 
         # Create thumbnails directory and optionally the one for original img
@@ -203,28 +212,36 @@ class Gallery(object):
         if self.settings['keep_orig']:
             check_or_create_dir(join(outpath, self.settings['orig_dir']))
 
+        media_files = imglist + vidlist
+
         # use progressbar if level is > INFO
         if self.logger.getEffectiveLevel() > 20:
             label = colored.green(dirname.ljust(label_width))
-            img_iterator = progress.bar(imglist, label=label)
+            media_iterator = progress.bar(media_files, label=label)
         else:
-            img_iterator = iter(imglist)
+            media_iterator = iter(media_files)
             self.logger.info("")
-            self.logger.info(":: Processing '%s' [%i images]",
-                             colored.green(dirname), len(imglist))
+            self.logger.info(":: Processing '%s' [%i img/vid]",
+                             colored.green(dirname), len(media_files))
             self.logger.info("")
 
         try:
             # loop on images
-            for f in img_iterator:
+            for f in media_iterator:
                 filename = os.path.split(f)[1]
-                outname = join(outpath, filename)
+                if f in imglist:
+                    outname = join(outpath, filename)
+                else:
+                    outname = ''.join([os.path.splitext(filename)[0], '.webm'])
 
                 if os.path.isfile(outname) and not self.force:
                     self.logger.info("%s exists - skipping", filename)
                 else:
                     self.logger.info(filename)
-                    process_image(f, outpath, self.settings)
+                    if f in imglist:
+                        process_image(f, outpath, self.settings)
+                    else:
+                        process_video(f, outpath, self.settings)
 
         except KeyboardInterrupt:
             sys.exit('Interrupted')
@@ -247,14 +264,30 @@ def process_image(filepath, outpath, settings):
     if settings['keep_orig']:
         shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
 
-    generate_image(filepath, outname, settings['img_size'], None,
+    sigal.image.generate_image(filepath, outname, settings['img_size'], None,
                    options=options, copyright_text=settings['copyright'],
                    method=settings['img_processor'])
 
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
-        generate_thumbnail(outname, thumb_name, settings['thumb_size'], None,
+        sigal.image.generate_thumbnail(outname, thumb_name, settings['thumb_size'], None,
                            fit=settings['thumb_fit'], options=options)
+
+def process_video(filepath, outpath, settings):
+    """Process one image: resize, create thumbnail."""
+
+    filename = os.path.split(filepath)[1]
+    base, ext = os.path.splitext(filename)
+    outname = join(outpath, base + '.webm')
+
+    if settings['keep_orig']:
+        shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
+
+    sigal.video.generate_video(filepath, outname)
+
+    if settings['make_thumbs']:
+        thumb_name = join(outpath, get_thumb(settings, base + '.jpg'))
+        sigal.video.generate_thumbnail(outname, thumb_name)
 
 
 def get_metadata(path):

@@ -90,6 +90,7 @@ class Writer(object):
             'sigal_link': sigal_link,
             'theme': {'name': os.path.basename(self.theme)},
             'images': [],
+            'videos': [],
             'albums': [],
             'breadcumb': ''
         }
@@ -140,6 +141,14 @@ class Writer(object):
             if self.settings['keep_orig']:
                 img_ctx['big'] = get_orig(self.settings, i)
             ctx['images'].append(img_ctx)
+
+        for i in paths[relpath]['vid']:
+            base, ext = os.path.splitext(i)
+            vid_ctx = {'file': base + '.webm',
+                       'thumb': get_thumb(self.settings, base + '.jpg')}
+            if self.settings['keep_orig']:
+                vid_ctx['big'] = get_orig(self.settings, i)
+            ctx['videos'].append(vid_ctx)
 
         for d in paths[relpath]['subdir']:
             dpath = os.path.normpath(os.path.join(relpath, d))
