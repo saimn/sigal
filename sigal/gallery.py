@@ -232,7 +232,7 @@ class Gallery(object):
                 if f in imglist:
                     outname = join(outpath, filename)
                 else:
-                    outname = ''.join([os.path.splitext(filename)[0], '.webm'])
+                    outname = os.path.splitext(filename)[0] + '.webm'
 
                 if os.path.isfile(outname) and not self.force:
                     self.logger.info("%s exists - skipping", filename)

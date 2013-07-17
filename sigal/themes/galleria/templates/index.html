@@ -67,8 +67,10 @@
           </a>
           {% endfor %}
           {% for video in videos %}
+          <a href="{{ theme.url }}/img/empty.png">
             <img src="{{ video.thumb }}" alt="{{ video.file }}"
-            data-layer="<video style='position:inherit'; top:50%; left:50%;margin-top:-150px;margin-left:-200px' controls> <source src={{ video.file }} type='video/webm' /></video>" />
+            data-layer="<video controls> <source src={{ video.file }} type='video/webm' /></video>" />
+          </a>
           {% endfor %}
         </div>
         {% endif %}
