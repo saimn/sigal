@@ -148,11 +148,17 @@ class PathsDb(object):
                 self.db[path]['thumbnail'] = f
                 return
 
-        # else simply return the 1st image
+        # else try returning the 1st image
         if self.db[path]['img']:
             self.db[path]['thumbnail'] = self.db[path]['img'][0]
-        else:
-            self.db[path]['thumbnail'] = ''
+            return
+
+        # last, we try the first vid
+        if self.db[path]['vid']:
+            self.db[path]['thumbnail'] = self.db[path]['vid'][0]
+            return
+
+        self.db[path]['thumbnail'] = ''
 
 
 class Gallery(object):
@@ -232,7 +238,7 @@ class Gallery(object):
                 if f in imglist:
                     outname = join(outpath, filename)
                 else:
-                    outname = os.path.splitext(filename)[0] + '.webm'
+                    outname = join(outpath, os.path.splitext(filename)[0] + '.webm')
 
                 if os.path.isfile(outname) and not self.force:
                     self.logger.info("%s exists - skipping", filename)
@@ -290,7 +296,8 @@ def process_video(filepath, outpath, settings):
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
         sigal.video.generate_thumbnail(outname, thumb_name,
-                settings['thumb_size'])
+                settings['thumb_size'], None, fit=settings['thumb_fit'],
+                options=settings['jpg_options'])
 
 
 def get_metadata(path):

@@ -22,6 +22,8 @@
 
 from __future__ import with_statement
 import subprocess
+import os
+import sigal.image
 
 def generate_video(source, outname, size, options=[]):
     """Video processor
@@ -31,20 +33,24 @@ def generate_video(source, outname, size, options=[]):
     :param options: array of options passed to ffmpeg
 
     """
-    # We don't keep the h param, because we want to keep the same ratio as
-    # the original file (resizeToFit is not available in ffmpeg)
-    # see http://stackoverflow.com/questions/8218363/maintaining-ffmpeg-aspect-ratio
+    # Until we find a better solution, we don't keep the h param: We want
+    # to preserve the ratio of the original file (resizeToFit is not
+    # available in ffmpeg) see
+    # http://stackoverflow.com/questions/8218363/maintaining-ffmpeg-aspect-ratio
     (w, h) = size
     with open("/dev/null") as devnull:
         subprocess.call(['ffmpeg', '-i', source, '-y', '-vf',
             "scale=%i:trunc(ow/a/2)*2'" % w] + options + [outname],
             stderr=devnull)
 
-def generate_thumbnail(source, outname, box, options=[]):
+def generate_thumbnail(source, outname, box, format, fit=True, options=None):
     "Create a thumbnail image"
-    # See comment in the previous function
-    (w, h) = box
+    # 1) dump an image of the video
+    tmpfile = outname + ".tmp.jpg"
     with open("/dev/null") as devnull:
         subprocess.call(['ffmpeg', '-i', source, '-an', '-r', '1',
-            '-vframes', '1', '-y', '-vf', "scale=%i:trunc(ow/a/2)*2" % h]
-            + options + [outname], stderr=devnull)
+            '-vframes', '1', '-y', tmpfile], stderr=devnull)
+    # 2) use the generate_thumbnail function from sigal.image
+    sigal.image.generate_thumbnail(tmpfile, outname, box, format, fit, options)
+    # 3) remove the image
+    os.unlink(tmpfile)

@@ -13,17 +13,20 @@ REF = {
     'dir1': {
         'title': 'An example gallery',
         'thumbnail': 'test1/11.jpg',
-        'img': '',
+        'img': [],
+        'vid': []
     },
     'dir1/test1': {
         'title': 'An example sub-category',
         'thumbnail': '11.jpg',
         'img': ['11.jpg', 'archlinux-kiss-1024x640.png'],
+        'vid': []
     },
     'dir1/test2': {
         'title': 'Test2',
         'thumbnail': '21.jpg',
         'img': ['21.jpg', '22.jpg'],
+        'vid': []
     },
     'dir2': {
         'title': 'Another example gallery',
@@ -31,18 +34,20 @@ REF = {
         'img': ['exo20101028-b-full.jpg',
                 'm57_the_ring_nebula-587px.jpg',
                 'Hubble ultra deep field.jpg',
-                'Hubble Interacting Galaxy NGC 5257.jpg']
+                'Hubble Interacting Galaxy NGC 5257.jpg'],
+        'vid': [],
     },
     u'accentué': {
         'title': u'Accentué',
         'thumbnail': u'hélicoïde.jpg',
-        'img': [u'hélicoïde.jpg', 'superdupont_source_wikipedia_en.jpg']
+        'img': [u'hélicoïde.jpg', 'superdupont_source_wikipedia_en.jpg'],
+        'vid': [],
     },
     'video': {
         'title': 'Video',
-        'thumbnail': '',
+        'thumbnail': 'stallman-software-freedom-day-low.ogv',
         'img': [],
-        'video': []
+        'vid': ['stallman-software-freedom-day-low.ogv']
     }
 }
 
@@ -89,6 +94,11 @@ def test_thumbnail(db):
 def test_imglist(db):
     for p in REF.keys():
         assert set(db[p]['img']) == set(REF[p]['img'])
+
+
+def test_vidlist(db):
+    for p in REF.keys():
+        assert set(db[p]['vid']) == set(REF[p]['vid'])
 
 
 def test_get_subdir(paths):

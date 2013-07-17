@@ -33,7 +33,8 @@ from distutils.dir_util import copy_tree
 from jinja2 import Environment, FileSystemLoader, ChoiceLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
 
-from .image import generate_thumbnail
+import sigal.image
+import sigal.video
 from .settings import get_thumb, get_orig
 from .pkgmeta import __url__ as sigal_link
 
@@ -161,9 +162,15 @@ class Writer(object):
             # settings['make_thumbs'] is False)
             if not os.path.exists(thumb_path):
                 source = os.path.join(self.output_dir, dpath, alb_thumb)
-                generate_thumbnail(
-                    source, thumb_path, self.settings['thumb_size'], None,
-                    fit=self.settings['thumb_fit'])
+                base, ext = os.path.splitext(source)
+                if ext in self.settings['img_ext_list']:
+                    sigal.image.generate_thumbnail(
+                        source, thumb_path, self.settings['thumb_size'], None,
+                        fit=self.settings['thumb_fit'])
+                else:
+                    sigal.video.generate_thumbnail(
+                        source, thumb_path, self.settings['thumb_size'],
+                        None, fit=self.settings['thumb_fit'])
 
             ctx['albums'].append({
                 'url': d + '/' + self.url_ext,
