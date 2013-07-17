@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans">
     <link rel="stylesheet" href="{{ theme.url }}/css/style.min.css">
     <!--[if lt IE 9]>
-	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
@@ -67,7 +67,7 @@
         </div>
         {% endif %}
 
-        {% if images %}
+        {% if images or videos %}
         <div id="gallery" class="row">
           {% for image in images %}
           <div class="four columns thumbnail
@@ -77,6 +77,25 @@
                {% if image.big %} data-big="{{ image.big }}"{% endif %}>
               <img src="{{ image.thumb }}" alt="{{ image.file }}"
                    title="{{ image.file }}" /></a>
+          </div>
+          {% endfor %}
+          {% for video in videos %}
+          <div class="four columns thumbnail
+                      {% if loop.index % 3 == 1 %}alpha{% endif%}
+                      {% if loop.index % 3 == 0 %}omega{% endif%}">
+            <a href="#{{ video.file|replace('.', '') }}" class="gallery"
+               inline='yes' title="{{ video.file }}"
+               {% if video.big %} data-big="{{ video.big }}"{% endif %}>
+              <img src="{{ video.thumb }}" alt="{{ video.file }}"
+                   title="{{ video.file }}" /></a>
+          </div>
+          <!-- This contains the hidden content for inline calls -->
+          <div style='display:none'>
+            <div id="{{ video.file|replace('.', '') }}">
+              <video controls>
+              <source src='{{ video.file }}' type='video/webm' />
+              </video>
+            </div>
           </div>
           {% endfor %}
         </div>
@@ -90,7 +109,7 @@
       </div>
     </div>
 
-    {% if images %}
+    {% if images or videos %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>!window.jQuery && document.write(unescape('%3Cscript src="{{ theme.url }}/js/jquery-1.10.2.min.js"%3E%3C/script%3E'))</script>
     <script src="{{ theme.url }}/js/jquery.colorbox.min.js"></script>
@@ -109,6 +128,9 @@
             title += " (full size)".link(this.getAttribute("data-big"));
           }
           return title;
+        },
+        inline: function() {
+          return this.hasAttribute("inline");
         }
       });
     </script>
