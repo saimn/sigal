@@ -33,15 +33,18 @@ def generate_video(source, outname, size, options=[]):
     :param options: array of options passed to ffmpeg
 
     """
-    # Until we find a better solution, we don't keep the h param: We want
-    # to preserve the ratio of the original file (resizeToFit is not
-    # available in ffmpeg) see
+    # 2013-07-16: Until we find a better solution, we don't keep the h
+    # param: We want to preserve the ratio of the original file
+    # (resizeToFit is not available in ffmpeg) see
     # http://stackoverflow.com/questions/8218363/maintaining-ffmpeg-aspect-ratio
+    #
+    # 2013-07-17: encoding options improved, thanks to
+    # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
     (w, h) = size
     with open("/dev/null") as devnull:
-        subprocess.call(['ffmpeg', '-i', source, '-y', '-vf',
-            "scale=%i:trunc(ow/a/2)*2'" % w] + options + [outname],
-            stderr=devnull)
+        subprocess.call(['ffmpeg', '-i', source, '-y', '-crf', '10',
+            '-b:v', '1.6M','-vf', "scale=%i:trunc(ow/a/2)*2'" % w] +
+            options + [outname], stderr=devnull)
 
 def generate_thumbnail(source, outname, box, format, fit=True, options=None):
     "Create a thumbnail image"
