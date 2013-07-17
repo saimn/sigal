@@ -23,8 +23,7 @@
 from __future__ import with_statement
 import subprocess
 
-def generate_video(source, outname, options=['-vf', 'scale=800:trunc(ow/a/2)*2']):
-    # http://stackoverflow.com/questions/8218363/maintaining-ffmpeg-aspect-ratio
+def generate_video(source, outname, size, options=[]):
     """Video processor
 
     :param source: path to an image
@@ -32,13 +31,20 @@ def generate_video(source, outname, options=['-vf', 'scale=800:trunc(ow/a/2)*2']
     :param options: array of options passed to ffmpeg
 
     """
+    # We don't keep the h param, because we want to keep the same ratio as
+    # the original file (resizeToFit is not available in ffmpeg)
+    # see http://stackoverflow.com/questions/8218363/maintaining-ffmpeg-aspect-ratio
+    (w, h) = size
     with open("/dev/null") as devnull:
-        subprocess.call(['ffmpeg', '-i', source, '-y'] + options +
-                [outname], stderr=devnull)
+        subprocess.call(['ffmpeg', '-i', source, '-y', '-vf',
+            "scale=%i:trunc(ow/a/2)*2'" % w] + options + [outname],
+            stderr=devnull)
 
-def generate_thumbnail(source, outname, options=['-vf', 'scale=80:trunc(ow/a/2)*2']):
-    # http://stackoverflow.com/questions/8218363/maintaining-ffmpeg-aspect-ratio
+def generate_thumbnail(source, outname, box, options=[]):
     "Create a thumbnail image"
+    # See comment in the previous function
+    (w, h) = box
     with open("/dev/null") as devnull:
         subprocess.call(['ffmpeg', '-i', source, '-an', '-r', '1',
-            '-vframes', '1', '-y'] + options + [outname], stderr=devnull)
+            '-vframes', '1', '-y', '-vf', "scale=%i:trunc(ow/a/2)*2" % h]
+            + options + [outname], stderr=devnull)

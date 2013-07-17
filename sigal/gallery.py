@@ -103,11 +103,11 @@ class PathsDb(object):
             self.db[relpath].update(get_metadata(path))
 
         path_media = [path for path in self.db['paths_list']
-                   if (self.db[path]['img'] or self.db[path]['vid']) and
-                   path != '.']
-        path_nomedia = [path for path in self.db['paths_list'] if not
-                (self.db[path]['img'] or self.db[path]['vid']) and path !=
-                '.']
+                if (self.db[path]['img'] or self.db[path]['vid'])
+                and path != '.']
+        path_nomedia = [path for path in self.db['paths_list']
+                if not (self.db[path]['img'] or self.db[path]['vid'])
+                and path !='.']
 
         # dir with images: check the thumbnail, and find it if necessary
         for path in path_media:
@@ -264,14 +264,15 @@ def process_image(filepath, outpath, settings):
     if settings['keep_orig']:
         shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
 
-    sigal.image.generate_image(filepath, outname, settings['img_size'], None,
-                   options=options, copyright_text=settings['copyright'],
-                   method=settings['img_processor'])
+    sigal.image.generate_image(filepath, outname, settings['img_size'],
+            None, options=options, copyright_text=settings['copyright'],
+            method=settings['img_processor'])
 
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
-        sigal.image.generate_thumbnail(outname, thumb_name, settings['thumb_size'], None,
-                           fit=settings['thumb_fit'], options=options)
+        sigal.image.generate_thumbnail(outname, thumb_name,
+                settings['thumb_size'], None, fit=settings['thumb_fit'],
+                options=options)
 
 def process_video(filepath, outpath, settings):
     """Process one image: resize, create thumbnail."""
@@ -283,11 +284,13 @@ def process_video(filepath, outpath, settings):
     if settings['keep_orig']:
         shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
 
-    sigal.video.generate_video(filepath, outname)
+    # TODO: Add specific video size settings
+    sigal.video.generate_video(filepath, outname, settings['img_size'])
 
     if settings['make_thumbs']:
-        thumb_name = join(outpath, get_thumb(settings, base + '.jpg'))
-        sigal.video.generate_thumbnail(outname, thumb_name)
+        thumb_name = join(outpath, get_thumb(settings, filename))
+        sigal.video.generate_thumbnail(outname, thumb_name,
+                settings['thumb_size'])
 
 
 def get_metadata(path):

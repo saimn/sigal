@@ -145,7 +145,7 @@ class Writer(object):
         for i in paths[relpath]['vid']:
             base, ext = os.path.splitext(i)
             vid_ctx = {'file': base + '.webm',
-                       'thumb': get_thumb(self.settings, base + '.jpg')}
+                       'thumb': get_thumb(self.settings, i)}
             if self.settings['keep_orig']:
                 vid_ctx['big'] = get_orig(self.settings, i)
             ctx['videos'].append(vid_ctx)

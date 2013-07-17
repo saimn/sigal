@@ -57,7 +57,7 @@
         </div>
         {% endif %}
 
-        {% if image or videos %}
+        {% if images or videos %}
         <div id="gallery">
           {% for image in images %}
           <a href="{{ image.file }}">
@@ -69,7 +69,13 @@
           {% for video in videos %}
           <a href="{{ theme.url }}/img/empty.png">
             <img src="{{ video.thumb }}" alt="{{ video.file }}"
-            data-layer="<video controls> <source src={{ video.file }} type='video/webm' /></video>" />
+            {# TODO: stop using inline css, put this in the main css file #}
+            data-layer="<video style='position:absolute;
+                                      top:10%;
+                                      width:100%;
+                                      margin=0 auto;' controls>
+              <source src={{ video.file }} type='video/webm' />
+            </video>" />
           </a>
           {% endfor %}
         </div>
