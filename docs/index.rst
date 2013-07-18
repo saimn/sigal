@@ -183,6 +183,15 @@ If this file does not exist or if some meta-data is missing:
 Changelog
 ---------
 
+Version 0.4.1
+~~~~~~~~~~~~~
+
+Released on 2013-07-19.
+
+- Fix a bug with unicode paths and filenames.
+- Update colorbox to 1.4.26
+- Add links to the original images.
+
 Version 0.4.0
 ~~~~~~~~~~~~~
 
