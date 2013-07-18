@@ -98,8 +98,8 @@ class PathsDb(object):
 
             self.db['paths_list'].append(relpath)
             self.db[relpath] = {
-                'medias': [ f for f in filenames if os.path.splitext(f)[1]
-                    in (self.img_ext_list + self.vid_ext_list) ],
+                'medias': [f for f in filenames if os.path.splitext(f)[1]
+                    in (self.img_ext_list + self.vid_ext_list)],
                 'subdir': dirnames
             }
             self.db[relpath].update(get_metadata(path))
