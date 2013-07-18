@@ -37,6 +37,7 @@ _DEFAULT_CONFIG = {
     'keep_orig': False,
     'orig_dir': 'original',
     'jpg_options': {'quality': 85, 'optimize': True, 'progressive': True},
+    'webm_options': {'crf': '10', 'bitrate': '1.6M', 'qmin': '4', 'qmax': '63'},
     'copyright': '',
     'img_ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
     'vid_ext_list': ['.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv'],

@@ -25,7 +25,7 @@ import subprocess
 import os
 import sigal.image
 
-def generate_video(source, outname, size, options=[]):
+def generate_video(source, outname, size, options={}):
     """Video processor
 
     :param source: path to an image
@@ -42,9 +42,13 @@ def generate_video(source, outname, size, options=[]):
     # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
     (w, h) = size
     with open("/dev/null") as devnull:
-        subprocess.call(['ffmpeg', '-i', source, '-y', '-crf', '10',
-            '-b:v', '1.6M','-vf', "scale=%i:trunc(ow/a/2)*2'" % w] +
-            options + [outname], stderr=devnull)
+        subprocess.call(['ffmpeg', '-i', source, '-y',
+            '-crf', options.get('crf', '10'),
+            '-b:v', options.get('bitrate', '1.6M'),
+            '-qmin', options.get('qmin', '4'),
+            '-qmax',options.get('qmax', '63'),
+            '-vf', "scale=%i:trunc(ow/a/2)*2'" % w,
+            outname], stderr=devnull)
 
 def generate_thumbnail(source, outname, box, format, fit=True, options=None):
     "Create a thumbnail image"

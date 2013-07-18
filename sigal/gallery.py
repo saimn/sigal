@@ -291,7 +291,8 @@ def process_video(filepath, outpath, settings):
         shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
 
     # TODO: Add specific video size settings
-    sigal.video.generate_video(filepath, outname, settings['img_size'])
+    sigal.video.generate_video(filepath, outname, settings['img_size'],
+            settings['webm_options'])
 
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
