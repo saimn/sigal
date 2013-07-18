@@ -41,6 +41,9 @@ from .writer import Writer
 
 DESCRIPTION_FILE = "index.md"
 
+class FileExtensionError(Exception):
+    """Raised if we made an error when handling file extensions"""
+    pass
 
 class PathsDb(object):
     """Container for all the information on the directory structure.
@@ -94,20 +97,16 @@ class PathsDb(object):
 
             self.db['paths_list'].append(relpath)
             self.db[relpath] = {
-                'img': [f for f in filenames
-                        if os.path.splitext(f)[1] in self.img_ext_list],
-                'vid': [f for f in filenames
-                        if os.path.splitext(f)[1] in self.vid_ext_list],
+                'medias': [ f for f in filenames if os.path.splitext(f)[1]
+                    in (self.img_ext_list + self.vid_ext_list) ],
                 'subdir': dirnames
             }
             self.db[relpath].update(get_metadata(path))
 
         path_media = [path for path in self.db['paths_list']
-                if (self.db[path]['img'] or self.db[path]['vid'])
-                and path != '.']
+                if self.db[path]['medias'] and path != '.']
         path_nomedia = [path for path in self.db['paths_list']
-                if not (self.db[path]['img'] or self.db[path]['vid'])
-                and path !='.']
+                if not self.db[path]['medias'] and path !='.']
 
         # dir with images: check the thumbnail, and find it if necessary
         for path in path_media:
@@ -142,20 +141,17 @@ class PathsDb(object):
             return
 
         # find and return the first landscape image
-        for f in self.db[path]['img']:
-            im = PILImage.open(join(self.basepath, path, f))
-            if im.size[0] > im.size[1]:
-                self.db[path]['thumbnail'] = f
-                return
+        for f in self.db[path]['medias']:
+            base, ext = os.path.splitext(f)
+            if ext in self.img_ext_list:
+                im = PILImage.open(join(self.basepath, path, f))
+                if im.size[0] > im.size[1]:
+                    self.db[path]['thumbnail'] = f
+                    return
 
-        # else try returning the 1st image
-        if self.db[path]['img']:
-            self.db[path]['thumbnail'] = self.db[path]['img'][0]
-            return
-
-        # last, we try the first vid
-        if self.db[path]['vid']:
-            self.db[path]['thumbnail'] = self.db[path]['vid'][0]
+        # else simply return the 1st media file
+        if self.db[path]['medias']:
+            self.db[path]['thumbnail'] = self.db[path]['medias'][0]
             return
 
         self.db[path]['thumbnail'] = ''
@@ -192,24 +188,22 @@ class Gallery(object):
         # loop on directories in reversed order, to process subdirectories
         # before their parent
         for path in reversed(self.db['paths_list']):
-            imglist = [os.path.normpath(join(self.settings['source'], path, f))
-                       for f in self.db[path]['img']]
-            vidlist = [os.path.normpath(join(self.settings['source'], path, f))
-                       for f in self.db[path]['vid']]
+            media_files = [os.path.normpath(join(self.settings['source'], path, f))
+                       for f in self.db[path]['medias']]
 
             # output dir for the current path
             outpath = os.path.normpath(join(self.settings['destination'],
                                             path))
             check_or_create_dir(outpath)
 
-            if len(imglist) != 0 or len(vidlist) != 0:
-                self.process_dir(imglist, vidlist, outpath, path,
-                                 label_width=label_width)
+            if len(media_files) != 0:
+                self.process_dir(media_files, outpath, path,
+                        label_width=label_width)
 
             if self.settings['write_html']:
                 self.writer.write(self.db, path)
 
-    def process_dir(self, imglist, vidlist, outpath, dirname, label_width=20):
+    def process_dir(self, media_files, outpath, dirname, label_width=20):
         """Process a list of images in a directory."""
 
         # Create thumbnails directory and optionally the one for original img
@@ -217,8 +211,6 @@ class Gallery(object):
 
         if self.settings['keep_orig']:
             check_or_create_dir(join(outpath, self.settings['orig_dir']))
-
-        media_files = imglist + vidlist
 
         # use progressbar if level is > INFO
         if self.logger.getEffectiveLevel() > 20:
@@ -235,19 +227,24 @@ class Gallery(object):
             # loop on images
             for f in media_iterator:
                 filename = os.path.split(f)[1]
-                if f in imglist:
+                base, ext = os.path.splitext(filename)
+                if ext in self.settings['img_ext_list']:
                     outname = join(outpath, filename)
+                elif ext in self.settings['vid_ext_list']:
+                    outname = join(outpath, base + '.webm')
                 else:
-                    outname = join(outpath, os.path.splitext(filename)[0] + '.webm')
+                    raise FileExtensionError
 
                 if os.path.isfile(outname) and not self.force:
                     self.logger.info("%s exists - skipping", filename)
                 else:
                     self.logger.info(filename)
-                    if f in imglist:
+                    if ext in self.settings['img_ext_list']:
                         process_image(f, outpath, self.settings)
-                    else:
+                    elif ext in self.settings['vid_ext_list']:
                         process_video(f, outpath, self.settings)
+                    else:
+                        raise FileExtensionError
 
         except KeyboardInterrupt:
             sys.exit('Interrupted')

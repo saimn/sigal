@@ -5,3 +5,4 @@ Markdown
 Pillow
 pilkit
 pytest
+ffmpeg

@@ -90,8 +90,7 @@ class Writer(object):
         self.ctx = {
             'sigal_link': sigal_link,
             'theme': {'name': os.path.basename(self.theme)},
-            'images': [],
-            'videos': [],
+            'medias': [],
             'albums': [],
             'breadcumb': ''
         }
@@ -136,20 +135,19 @@ class Writer(object):
         if relpath != '.':
             ctx['breadcumb'] = self.get_breadcumb(paths, relpath)
 
-        for i in paths[relpath]['img']:
-            img_ctx = {'file': i,
-                       'thumb': get_thumb(self.settings, i)}
-            if self.settings['keep_orig']:
-                img_ctx['big'] = get_orig(self.settings, i)
-            ctx['images'].append(img_ctx)
-
-        for i in paths[relpath]['vid']:
+        for i in paths[relpath]['medias']:
+            media_ctx = {}
             base, ext = os.path.splitext(i)
-            vid_ctx = {'file': base + '.webm',
-                       'thumb': get_thumb(self.settings, i)}
+            if ext in self.settings['img_ext_list']:
+                media_ctx['type'] = 'img'
+                media_ctx['file'] = i
+            else:
+                media_ctx['type'] = 'vid'
+                media_ctx['file'] = base + '.webm'
+            media_ctx['thumb'] = get_thumb(self.settings, i)
             if self.settings['keep_orig']:
-                vid_ctx['big'] = get_orig(self.settings, i)
-            ctx['videos'].append(vid_ctx)
+                media_ctx['big'] = get_orig(self.settings, i)
+            ctx['medias'].append(media_ctx)
 
         for d in paths[relpath]['subdir']:
             dpath = os.path.normpath(os.path.join(relpath, d))
@@ -165,8 +163,8 @@ class Writer(object):
                 base, ext = os.path.splitext(source)
                 if ext in self.settings['img_ext_list']:
                     sigal.image.generate_thumbnail(
-                        source, thumb_path, self.settings['thumb_size'], None,
-                        fit=self.settings['thumb_fit'])
+                        source, thumb_path, self.settings['thumb_size'],
+                        None, fit=self.settings['thumb_fit'])
                 else:
                     sigal.video.generate_thumbnail(
                         source, thumb_path, self.settings['thumb_size'],

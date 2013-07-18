@@ -57,26 +57,28 @@
         </div>
         {% endif %}
 
-        {% if images or videos %}
+        {% if medias %}
         <div id="gallery">
-          {% for image in images %}
-          <a href="{{ image.file }}">
-            <img src="{{ image.thumb }}" alt="{{ image.file }}"
-                 data-title="{{ image.file }}"
-                 {%- if image.big %} data-description="<a href='{{ image.big }}'>Full size</a>"{% endif %}/>
-          </a>
-          {% endfor %}
-          {% for video in videos %}
-          <a href="{{ theme.url }}/img/empty.png">
-            <img src="{{ video.thumb }}" alt="{{ video.file }}"
-            {# TODO: stop using inline css, put this in the main css file #}
-            data-layer="<video style='position:absolute;
-                                      top:10%;
-                                      width:100%;
-                                      margin=0 auto;' controls>
-              <source src={{ video.file }} type='video/webm' />
-            </video>" />
-          </a>
+          {% for media in medias %}
+            {% if media.type == "img" %}
+              <a href="{{ media.file }}">
+                <img src="{{ media.thumb }}" alt="{{ media.file }}"
+                    data-title="{{ media.file }}"
+                    {%- if image.big %} data-description="<a href='{{ media.big }}'>Full size</a>"{% endif %}/>
+              </a>
+            {% endif %}
+            {% if media.type == "vid" %}
+              <a href="{{ theme.url }}/img/empty.png">
+                <img src="{{ media.thumb }}" alt="{{ media.file }}"
+                {# TODO: stop using inline css, put this in the main css file #}
+                data-layer="<video style='position:absolute;
+                                          top:10%;
+                                          width:100%;
+                                          margin=0 auto;' controls>
+                  <source src={{ media.file }} type='video/webm' />
+                </video>" />
+              </a>
+            {% endif %}
           {% endfor %}
         </div>
         {% endif %}
@@ -94,7 +96,7 @@
       </footer>
     </div>
 
-    {% if images or videos %}
+    {% if medias %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script>!window.jQuery && document.write(unescape('%3Cscript src="{{ theme.url }}/js/jquery-1.8.2.min.js"%3E%3C/script%3E'))</script>
     <script src="{{ theme.url }}/js/galleria-1.2.9.min.js"></script>
