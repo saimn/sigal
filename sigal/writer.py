@@ -74,6 +74,7 @@ class Writer(object):
                 PrefixLoader({'!default': default_loader})  # explicit one
             ]),
             trim_blocks=True,
+            lstrip_blocks=True
         )
 
         try:
