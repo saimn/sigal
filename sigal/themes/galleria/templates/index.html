@@ -62,7 +62,9 @@
           {% for image in images %}
           <a href="{{ image.file }}">
             <img src="{{ image.thumb }}" alt="{{ image.file }}"
-                 data-title="{{ image.file }}" /></a>
+                 data-title="{{ image.file }}"
+                 {%- if image.big %} data-description="<a href='{{ image.big }}'>Full size</a>"{% endif %}/>
+          </a>
           {% endfor %}
         </div>
         {% endif %}
