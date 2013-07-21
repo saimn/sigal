@@ -16,7 +16,7 @@ source = 'pictures'
 # - colorbox (default), galleria, or the path to a custom theme directory
 theme = 'galleria'
 
-# Size of resized image
+# Size of resized image (default: (640, 480))
 img_size = (800, 600)
 
 # Pilkit processor used to resize the image
@@ -54,6 +54,16 @@ thumb_size = (280, 210)
 # jpg_options = {'quality': 85,
 #                'optimize': True,
 #                'progressive': True}
+
+# Webm options
+# Options used in ffmpeg to encode the webm video. You may want to read
+# http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
+# Be aware of the fact these options need to be passed as strings.
+# webm_options = {'crf': '10',
+#                 'bitrate': '1.6M',
+#                 'qmin': '4',
+#                 'qmax': '63'}
+
 
 # Write HTML files. If False, sigal will only process the images.
 # write_html = True
