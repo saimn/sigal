@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 # Copyright (c) 2009-2013 - Simon Conseil
+# Copyright (c) 2013      - Christophe-Marie Duquesne
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -37,8 +38,10 @@ _DEFAULT_CONFIG = {
     'keep_orig': False,
     'orig_dir': 'original',
     'jpg_options': {'quality': 85, 'optimize': True, 'progressive': True},
+    'webm_options': {'crf': '10', 'bitrate': '1.6M', 'qmin': '4', 'qmax': '63'},
     'copyright': '',
-    'ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
+    'img_ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
+    'vid_ext_list': ['.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv'],
     'theme': 'colorbox',
     'write_html': True,
     'index_in_url': False,
@@ -48,10 +51,23 @@ _DEFAULT_CONFIG = {
 
 
 def get_thumb(settings, filename):
-    """Return the path to the thumb."""
+    """Return the path to the thumb.
+
+    examples:
+    >>> get_thumb(default_settings, "bar/foo.jpg")
+    "bar/thumbnails/foo.jpg"
+    >>> get_thumb(default_settings, "bar/foo.png")
+    "bar/thumbnails/foo.png"
+
+    for videos, it returns a jpg file:
+    >>> get_thumb(default_settings, "bar/foo.webm")
+    "bar/thumbnails/foo.jpg"
+    """
 
     path, filen = os.path.split(filename)
     name, ext = os.path.splitext(filen)
+    if ext in settings['vid_ext_list']:
+        ext = '.jpg'
     return os.path.join(path, settings['thumb_dir'], settings['thumb_prefix'] +
                         name + settings['thumb_suffix'] + ext)
 

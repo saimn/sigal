@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 # Copyright (c) 2009-2013 - Simon Conseil
+# Copyright (c)      2013 - Christophe-Marie Duquesne
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -33,7 +34,8 @@ from distutils.dir_util import copy_tree
 from jinja2 import Environment, FileSystemLoader, ChoiceLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
 
-from .image import generate_thumbnail
+import sigal.image
+import sigal.video
 from .settings import get_thumb, get_orig
 from .pkgmeta import __url__ as sigal_link
 
@@ -89,7 +91,7 @@ class Writer(object):
         self.ctx = {
             'sigal_link': sigal_link,
             'theme': {'name': os.path.basename(self.theme)},
-            'images': [],
+            'medias': [],
             'albums': [],
             'breadcumb': ''
         }
@@ -134,12 +136,19 @@ class Writer(object):
         if relpath != '.':
             ctx['breadcumb'] = self.get_breadcumb(paths, relpath)
 
-        for i in paths[relpath]['img']:
-            img_ctx = {'file': i,
-                       'thumb': get_thumb(self.settings, i)}
+        for i in paths[relpath]['medias']:
+            media_ctx = {}
+            base, ext = os.path.splitext(i)
+            if ext in self.settings['img_ext_list']:
+                media_ctx['type'] = 'img'
+                media_ctx['file'] = i
+            else:
+                media_ctx['type'] = 'vid'
+                media_ctx['file'] = base + '.webm'
+            media_ctx['thumb'] = get_thumb(self.settings, i)
             if self.settings['keep_orig']:
-                img_ctx['big'] = get_orig(self.settings, i)
-            ctx['images'].append(img_ctx)
+                media_ctx['big'] = get_orig(self.settings, i)
+            ctx['medias'].append(media_ctx)
 
         for d in paths[relpath]['subdir']:
             dpath = os.path.normpath(os.path.join(relpath, d))
@@ -152,9 +161,15 @@ class Writer(object):
             # settings['make_thumbs'] is False)
             if not os.path.exists(thumb_path):
                 source = os.path.join(self.output_dir, dpath, alb_thumb)
-                generate_thumbnail(
-                    source, thumb_path, self.settings['thumb_size'], None,
-                    fit=self.settings['thumb_fit'])
+                base, ext = os.path.splitext(source)
+                if ext in self.settings['img_ext_list']:
+                    sigal.image.generate_thumbnail(
+                        source, thumb_path, self.settings['thumb_size'],
+                        None, fit=self.settings['thumb_fit'])
+                else:
+                    sigal.video.generate_thumbnail(
+                        source, thumb_path, self.settings['thumb_size'],
+                        None, fit=self.settings['thumb_fit'])
 
             ctx['albums'].append({
                 'url': d + '/' + self.url_ext,

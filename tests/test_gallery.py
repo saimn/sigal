@@ -13,30 +13,35 @@ REF = {
     'dir1': {
         'title': 'An example gallery',
         'thumbnail': 'test1/11.jpg',
-        'img': '',
+        'medias': [],
     },
     'dir1/test1': {
         'title': 'An example sub-category',
         'thumbnail': '11.jpg',
-        'img': ['11.jpg', 'archlinux-kiss-1024x640.png'],
+        'medias': ['11.jpg', 'archlinux-kiss-1024x640.png'],
     },
     'dir1/test2': {
         'title': 'Test2',
         'thumbnail': '21.jpg',
-        'img': ['21.jpg', '22.jpg'],
+        'medias': ['21.jpg', '22.jpg'],
     },
     'dir2': {
         'title': 'Another example gallery',
         'thumbnail': 'm57_the_ring_nebula-587px.jpg',
-        'img': ['exo20101028-b-full.jpg',
+        'medias': ['exo20101028-b-full.jpg',
                 'm57_the_ring_nebula-587px.jpg',
                 'Hubble ultra deep field.jpg',
-                'Hubble Interacting Galaxy NGC 5257.jpg']
+                'Hubble Interacting Galaxy NGC 5257.jpg'],
     },
     u'accentué': {
         'title': u'Accentué',
         'thumbnail': u'hélicoïde.jpg',
-        'img': [u'hélicoïde.jpg', 'superdupont_source_wikipedia_en.jpg']
+        'medias': [u'hélicoïde.jpg', 'superdupont_source_wikipedia_en.jpg'],
+    },
+    'video': {
+        'title': 'Video',
+        'thumbnail': 'stallman-software-freedom-day-low.ogv',
+        'medias': ['stallman-software-freedom-day-low.ogv']
     }
 }
 
@@ -47,7 +52,8 @@ def paths():
 
     default_conf = os.path.join(SAMPLE_DIR, 'sigal.conf.py')
     settings = read_settings(default_conf)
-    return PathsDb(os.path.join(SAMPLE_DIR, 'pictures'), settings['ext_list'])
+    return PathsDb(os.path.join(SAMPLE_DIR, 'pictures'),
+            settings['img_ext_list'], settings['vid_ext_list'])
 
 
 @pytest.fixture(scope='module')
@@ -58,14 +64,15 @@ def db(paths):
 
 def test_filelist(db):
     assert set(db.keys()) == set(['paths_list', 'skipped_dir', '.',
-        'dir1', 'dir2', 'dir1/test1', 'dir1/test2', u'accentué'])
+        'dir1', 'dir2', 'dir1/test1', 'dir1/test2', u'accentué', 'video'])
 
     assert set(db['paths_list']) == set(['.', 'dir1', 'dir1/test1',
-        'dir1/test2', 'dir2', u'accentué'])
+        'dir1/test2', 'dir2', u'accentué', 'video'])
 
     assert set(db['skipped_dir']) == set(['empty', 'dir1/empty'])
-    assert db['.']['img'] == []
-    assert set(db['.']['subdir']) == set([u'accentué', 'dir1', 'dir2'])
+    assert db['.']['medias'] == []
+    assert set(db['.']['subdir']) == set([u'accentué', 'dir1', 'dir2',
+        'video'])
 
 
 def test_title(db):
@@ -78,15 +85,16 @@ def test_thumbnail(db):
         assert db[p]['thumbnail'] == REF[p]['thumbnail']
 
 
-def test_imglist(db):
+def test_medialist(db):
     for p in REF.keys():
-        assert set(db[p]['img']) == set(REF[p]['img'])
+        assert set(db[p]['medias']) == set(REF[p]['medias'])
 
 
 def test_get_subdir(paths):
     assert set(paths.get_subdirs('dir1')) == set(['dir1/test1', 'dir1/test2'])
     assert set(paths.get_subdirs('.')) == set(['dir1', 'dir2', 'dir1/test1',
-                                               'dir1/test2', u'accentué'])
+                                               'dir1/test2', u'accentué',
+                                               'video'])
 
 
 def test_get_metadata():
