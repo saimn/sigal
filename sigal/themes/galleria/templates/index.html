@@ -64,7 +64,7 @@
               <a href="{{ media.file }}">
                 <img src="{{ media.thumb }}" alt="{{ media.file }}"
                     data-title="{{ media.file }}"
-                    {%- if image.big %} data-description="<a href='{{ media.big }}'>Full size</a>"{% endif %}/>
+                    {%- if media.big %} data-description="<a href='{{ media.big }}'>Full size</a>"{% endif %}/>
               </a>
             {% endif %}
             {% if media.type == "vid" %}
