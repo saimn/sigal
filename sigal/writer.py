@@ -25,6 +25,7 @@ from __future__ import absolute_import
 
 import codecs
 import copy
+import jinja2
 import logging
 import os
 import sys
@@ -69,14 +70,21 @@ class Writer(object):
         default_loader = FileSystemLoader(
             os.path.join(THEMES_PATH, 'default', 'templates'))
 
+        # setup jinja env
+        env_options = {'trim_blocks': True}
+        try:
+            if tuple(int(x) for x in jinja2.__version__.split('.')) >= (2, 7):
+                env_options['lstrip_blocks'] = True
+        except ValueError:
+            pass
+
         env = Environment(
             loader=ChoiceLoader([
                 FileSystemLoader(theme_relpath),
                 default_loader,  # implicit inheritance
                 PrefixLoader({'!default': default_loader})  # explicit one
             ]),
-            trim_blocks=True,
-            lstrip_blocks=True
+            **env_options
         )
 
         try:
