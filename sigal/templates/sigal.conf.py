@@ -80,3 +80,7 @@ thumb_size = (280, 210)
 
 # Google Analytics tracking code (UA-xxxx-x)
 # google_analytics = ''
+
+# Zip gallery
+# zip_gallery = False
+# zip_name = 'archive.zip'

@@ -45,6 +45,8 @@ _DEFAULT_CONFIG = {
     'theme': 'colorbox',
     'write_html': True,
     'index_in_url': False,
+    'zip_gallery': False,
+    'zip_name': 'archive.zip',
     'links': '',
     'google_analytics': ''
 }

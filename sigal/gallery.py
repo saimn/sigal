@@ -30,6 +30,7 @@ import markdown
 import os
 import shutil
 import sys
+import zipfile
 
 from clint.textui import progress, colored
 from os.path import join
@@ -226,6 +227,12 @@ class Gallery(object):
 
         try:
             # loop on images
+            zip_files = self.settings['zip_gallery']
+
+            if zip_files:
+                archive_name = join(outpath, self.settings['zip_name'])
+                archive = zipfile.ZipFile(archive_name, 'w')
+
             for f in media_iterator:
                 filename = os.path.split(f)[1]
                 base, ext = os.path.splitext(filename)
@@ -235,6 +242,9 @@ class Gallery(object):
                     outname = join(outpath, base + '.webm')
                 else:
                     raise FileExtensionError
+
+                if zip_files:
+                    archive.write(f, filename)
 
                 if os.path.isfile(outname) and not self.force:
                     self.logger.info("%s exists - skipping", filename)
@@ -246,6 +256,9 @@ class Gallery(object):
                         process_video(f, outpath, self.settings)
                     else:
                         raise FileExtensionError
+
+            if zip_files:
+                archive.close()
 
         except KeyboardInterrupt:
             sys.exit('Interrupted')
