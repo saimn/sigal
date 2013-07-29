@@ -144,6 +144,8 @@ class Writer(object):
         if relpath != '.':
             ctx['breadcumb'] = self.get_breadcumb(paths, relpath)
 
+        ctx['settings']['zip_gallery'] = not not paths[relpath]['medias']
+
         for i in paths[relpath]['medias']:
             media_ctx = {}
             base, ext = os.path.splitext(i)
