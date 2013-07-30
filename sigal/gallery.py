@@ -30,6 +30,7 @@ import markdown
 import os
 import shutil
 import sys
+import zipfile
 
 from clint.textui import progress, colored
 from os.path import join
@@ -226,6 +227,9 @@ class Gallery(object):
 
         try:
             # loop on images
+            if self.settings['zip_gallery']:
+                self._zip_files(outpath, media_files)
+
             for f in media_iterator:
                 filename = os.path.split(f)[1]
                 base, ext = os.path.splitext(filename)
@@ -249,6 +253,16 @@ class Gallery(object):
 
         except KeyboardInterrupt:
             sys.exit('Interrupted')
+
+    def _zip_files(self, outpath, filepaths):
+        archive_name = join(outpath, str(self.settings['zip_gallery']))
+        archive = zipfile.ZipFile(archive_name, 'w')
+
+        for p in filepaths:
+            filename = os.path.split(p)[1]
+            archive.write(p, filename)
+
+        archive.close()
 
 
 def process_image(filepath, outpath, settings):
