@@ -160,6 +160,91 @@ and is shown below. This file is copied to the current directory with the
    :language: python
 
 
+Templates
+---------
+
+Gallery pages are created from a `Jinja2`_ template ``index.html`` that must be located in ``THEME_DIR/templates``.
+
+.. _Jinja2: http://jinja.pocoo.org/docs/
+
+
+Variables
+~~~~~~~~~
+
+You can use the following variables in your template:
+
+``albums``
+    List of ``album`` objects. An ``album`` object has the following attributes:
+
+    - ``album.name``
+    - ``album.title``
+    - ``album.url``
+    - ``album.thumb``
+
+``breadcrumb``
+    List of ``(url, title)`` tuples defining the current breadcrumb path.
+
+``index_title``
+    Name of the index. This is either the directory name or the title specified
+    in the ``index.md``.
+
+``index_url``
+    URL to the index page.
+
+``medias``
+    List of ``media`` objects. A ``media`` object has the following attributes:
+
+    - ``media.type``: Either ``"img"`` or ``"vid"``.
+    - ``media.file``: Location of the resized image.
+    - ``media.thumb``: Location of the corresponding thumbnail image.
+    - ``media.big``: If not None, location of the unmodified image.
+    - ``media.exif``: If not None contains a dict with EXIF tags. To get the
+      most common tags, see :ref:`simple-exif-data`.
+
+``meta`` and ``description``
+    Meta data and album description. For details how to annotate your albums
+    with meta data, see :ref:`album-information-label`.
+
+``theme.name``
+    Name of the currently used theme.
+
+``settings``
+    The entire dictionary from ``sigal.conf.py``. For example, you could use
+    this to output an optional download link for zipped archives:
+
+    .. code-block:: jinja
+
+        {% if settings.zip_gallery %}
+        <a href="{{ settings.zip_gallery }}">Download archive</a>
+        {% endif %}
+
+``sigal_link``
+    URL to the Sigal homepage.
+
+
+.. _simple-exif-data:
+
+Simpler EXIF data output
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Because the tags in the ``media.exif`` variable are cumbersome to use, some
+common tags are extracted and formatted for easy use in templates. You can use:
+
+``media.exif.simple.iso``
+    The ISO speed rating.
+
+``media.exif.simple.focal``
+    The focal length, formatted as a decimal number.
+
+``media.exif.simple.exposure``
+    The exposure time formatted as a fractional number, e.g. "1/500".
+
+``media.exif.simple.fstop``
+    The aperture value given as an F-number and formatted as a decimal.
+
+
+.. _album-information-label:
+
 Album information
 -----------------
 
