@@ -81,6 +81,6 @@ thumb_size = (280, 210)
 # Google Analytics tracking code (UA-xxxx-x)
 # google_analytics = ''
 
-# Zip gallery
-# zip_gallery = False
-# zip_name = 'archive.zip'
+# Set zip_gallery to either False or a file name. The final archive will
+# contain all original files.
+# zip_gallery = False   # False or 'archive.zip'

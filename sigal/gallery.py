@@ -227,11 +227,8 @@ class Gallery(object):
 
         try:
             # loop on images
-            zip_files = self.settings['zip_gallery']
-
-            if zip_files:
-                archive_name = join(outpath, self.settings['zip_name'])
-                archive = zipfile.ZipFile(archive_name, 'w')
+            if self.settings['zip_gallery']:
+                self._zip_files(outpath, media_files)
 
             for f in media_iterator:
                 filename = os.path.split(f)[1]
@@ -242,9 +239,6 @@ class Gallery(object):
                     outname = join(outpath, base + '.webm')
                 else:
                     raise FileExtensionError
-
-                if zip_files:
-                    archive.write(f, filename)
 
                 if os.path.isfile(outname) and not self.force:
                     self.logger.info("%s exists - skipping", filename)
@@ -257,11 +251,18 @@ class Gallery(object):
                     else:
                         raise FileExtensionError
 
-            if zip_files:
-                archive.close()
-
         except KeyboardInterrupt:
             sys.exit('Interrupted')
+
+    def _zip_files(self, outpath, filepaths):
+        archive_name = join(outpath, str(self.settings['zip_gallery']))
+        archive = zipfile.ZipFile(archive_name, 'w')
+
+        for p in filepaths:
+            filename = os.path.split(p)[1]
+            archive.write(p, filename)
+
+        archive.close()
 
 
 def process_image(filepath, outpath, settings):
