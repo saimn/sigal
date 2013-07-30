@@ -41,9 +41,9 @@
 
       <div id="main" role="main" class="twelve columns offset-by-four">
         <header>
-          {% if breadcumb %}
+          {% if breadcrumb %}
           <h2>
-            {%- for url, title in breadcumb -%}
+            {%- for url, title in breadcrumb -%}
             <a href="{{ url }}">{{ title }}</a>
             {%- if not loop.last %} » {% endif -%}
             {% endfor -%}
