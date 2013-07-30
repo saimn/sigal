@@ -26,6 +26,7 @@ import sys
 
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
+from PIL.ExifTags import TAGS
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
@@ -99,3 +100,30 @@ def add_copyright(img, text):
 
     draw = ImageDraw.Draw(img)
     draw.text((5, img.size[1] - 15), '\xa9 ' + text)
+
+
+def get_exif_tags(source):
+    if '.jpg' in source.lower():
+        img = PILImage.open(source)
+        exif = img._getexif()
+
+        if exif:
+            data = dict((TAGS.get(tag, tag), value)
+                        for (tag, value) in exif.items())
+
+            # Provide more accessible tags
+            fnumber = data.get('FNumber', (0, 1))
+            exposure = data.get('ExposureTime', (0, 1))
+            focal = data.get('FocalLength', (0, 1))
+
+            simple = {
+                'iso': data.get('ISOSpeedRatings', 0),
+                'fstop': float(fnumber[0]) / fnumber[1],
+                'exposure': '{0}/{1}'.format(*exposure),
+                'focal': round(float(focal[0]) / focal[1])
+            }
+
+            data['simple'] = simple
+            return data
+
+    return {}
