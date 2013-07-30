@@ -43,6 +43,15 @@ def generate_image(source, outname, size, format, options=None,
     img = PILImage.open(source)
     original_format = img.format
 
+    # Preserve EXIF data
+    if hasattr(img, 'info') and 'exif' in img.info:
+        raw_exif = img.info['exif']
+
+        if options:
+            options['exif'] = raw_exif
+        else:
+            options = {'exif': raw_exif}
+
     # Rotate the img, and catch IOError when PIL fails to read EXIF
     try:
         img = Transpose().process(img)
