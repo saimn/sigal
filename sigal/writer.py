@@ -101,7 +101,7 @@ class Writer(object):
             'theme': {'name': os.path.basename(self.theme)},
             'medias': [],
             'albums': [],
-            'breadcumb': ''
+            'breadcrumb': ''
         }
 
     def copy_assets(self):
@@ -110,11 +110,11 @@ class Writer(object):
         self.theme_path = os.path.join(self.output_dir, 'static')
         copy_tree(os.path.join(self.theme, 'static'), self.theme_path)
 
-    def get_breadcumb(self, paths, relpath):
+    def get_breadcrumb(self, paths, relpath):
         """Paths to upper directories (with titles and links)."""
 
         tmp_path = relpath
-        breadcumb = [((self.url_ext or '.'), paths[tmp_path]['title'])]
+        breadcrumb = [((self.url_ext or '.'), paths[tmp_path]['title'])]
 
         while True:
             tmp_path = os.path.normpath(os.path.join(tmp_path, '..'))
@@ -122,9 +122,9 @@ class Writer(object):
                 break
 
             url = os.path.relpath(tmp_path, relpath) + '/' + self.url_ext
-            breadcumb.append((url, paths[tmp_path]['title']))
+            breadcrumb.append((url, paths[tmp_path]['title']))
 
-        return reversed(breadcumb)
+        return reversed(breadcrumb)
 
     def generate_context(self, paths, relpath):
         """Generate the context dict for the given path."""
@@ -142,7 +142,7 @@ class Writer(object):
         ctx['theme']['url'] = os.path.relpath(self.theme_path, path)
 
         if relpath != '.':
-            ctx['breadcumb'] = self.get_breadcumb(paths, relpath)
+            ctx['breadcrumb'] = self.get_breadcrumb(paths, relpath)
 
         for i in paths[relpath]['medias']:
             media_ctx = {}
