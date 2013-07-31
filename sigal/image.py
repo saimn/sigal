@@ -99,28 +99,49 @@ def add_copyright(img, text):
     draw.text((5, img.size[1] - 15), '\xa9 ' + text)
 
 
-def get_exif_tags(source):
-    if '.jpg' in source.lower():
-        img = PILImage.open(source)
-        exif = img._getexif()
-
-        if exif:
-            data = dict((TAGS.get(tag, tag), value)
-                        for (tag, value) in exif.items())
-
-            # Provide more accessible tags
-            fnumber = data.get('FNumber', (0, 1))
-            exposure = data.get('ExposureTime', (0, 1))
-            focal = data.get('FocalLength', (0, 1))
-
-            simple = {
-                'iso': data.get('ISOSpeedRatings', 0),
-                'fstop': float(fnumber[0]) / fnumber[1],
-                'exposure': '{0}/{1}'.format(*exposure),
-                'focal': round(float(focal[0]) / focal[1])
-            }
-
-            data['simple'] = simple
-            return data
-
+def _get_exif_data(exif):
+    if exif:
+        return dict((TAGS.get(tag, tag), value)
+                    for (tag, value) in exif.items())
     return {}
+
+
+def get_exif_tags(source):
+    """Read EXIF tags from file @source and return a dictionary containing the
+    EXIF data."""
+
+    logger = logging.getLogger(__name__)
+
+    if not '.jpg' in source.lower():
+        return {}
+
+    img = PILImage.open(source)
+
+    try:
+        exif = img._getexif()
+    except (TypeError, IOError):
+        exif = None
+        logger.warning(u'Could not read EXIF data from {0}'.format(source))
+
+    data = _get_exif_data(exif)
+    simple = {}
+
+    # Provide more accessible tags in the 'simple' key
+    if 'FNumber' in data:
+        fnumber = data['FNumber']
+        simple['fstop'] = float(fnumber[0]) / fnumber[1]
+
+    if 'FocalLength' in data:
+        focal = data['FocalLength']
+        simple['focal'] = round(float(focal[0]) / focal[1])
+
+    if 'ExposureTime' in data:
+        simple['exposure'] = '{0}/{1}'.format(*data['ExposureTime'])
+
+    if 'ISOSpeedRatings' in data:
+        simple['iso'] = data['ISOSpeedRatings']
+
+    if simple:
+        data['simple'] = simple
+
+    return data
