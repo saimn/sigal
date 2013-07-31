@@ -5,7 +5,7 @@ import pytest
 from PIL import Image
 
 from sigal import init_logging
-from sigal.image import generate_image, generate_thumbnail
+from sigal.image import generate_image, generate_thumbnail, get_exif_tags
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_IMAGE = 'exo20101028-b-full.jpg'
@@ -46,3 +46,19 @@ def test_generate_thumbnail(tmpdir):
         generate_thumbnail(SRCFILE, dstfile, size, None, fit=False)
         im = Image.open(dstfile)
         assert im.size == thumb_size
+
+
+def test_exif_copy(tmpdir):
+    "Test if EXIF data can transfered copied to the resized image."
+
+    test_image = '11.jpg'
+    src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir1', 'test1',
+                            test_image)
+    dst_file = str(tmpdir.join(test_image))
+
+    generate_image(src_file, dst_file, (300, 400), None, copy_exif_data=True)
+    tags = get_exif_tags(dst_file)
+    assert tags['simple']['iso'] == 50
+
+    generate_image(src_file, dst_file, (300, 400), None, copy_exif_data=False)
+    assert not get_exif_tags(dst_file)
