@@ -32,7 +32,8 @@ from pilkit.utils import save_image
 
 
 def generate_image(source, outname, size, format, options=None,
-                   autoconvert=True, copyright_text='', method='ResizeToFit'):
+                   autoconvert=True, copyright_text='', method='ResizeToFit',
+                   copy_exif_data=True):
     """Image processor, rotate and resize the image.
 
     :param source: path to an image
@@ -45,13 +46,9 @@ def generate_image(source, outname, size, format, options=None,
     original_format = img.format
 
     # Preserve EXIF data
-    if hasattr(img, 'info') and 'exif' in img.info:
-        raw_exif = img.info['exif']
-
-        if options:
-            options['exif'] = raw_exif
-        else:
-            options = {'exif': raw_exif}
+    if copy_exif_data and hasattr(img, 'info') and 'exif' in img.info:
+        options = options or {}
+        options['exif'] = img.info['exif']
 
     # Rotate the img, and catch IOError when PIL fails to read EXIF
     try:
