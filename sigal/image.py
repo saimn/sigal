@@ -20,13 +20,22 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+# Additional copyright notice:
+#
+# Several lines of code concerning extraction of GPS data from EXIF tags where
+# taken from a GitHub Gist by Eran Sandler at
+#
+#   https://gist.github.com/erans/983821
+#
+# and partially modified. The code in question is licensed under MIT license.
+
 import logging
 import pilkit.processors
 import sys
 
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
-from PIL.ExifTags import TAGS
+from PIL.ExifTags import TAGS, GPSTAGS
 from pilkit.processors import Transpose, Adjust
 from pilkit.utils import save_image
 from datetime import datetime
@@ -107,6 +116,29 @@ def add_copyright(img, text):
     draw.text((5, img.size[1] - 15), '\xa9 ' + text)
 
 
+def _get_exif_data(filename):
+    img = PILImage.open(filename)
+    exif = img._getexif() or {}
+    data = dict((TAGS.get(t, t), v) for (t, v) in exif.items())
+
+    if 'GPSInfo' in data:
+        gps_data = {}
+
+        for tag in data['GPSInfo']:
+            gps_data[GPSTAGS.get(tag, tag)] = data['GPSInfo'][tag]
+
+        data['GPSInfo'] = gps_data
+
+    return data
+
+
+def _get_degrees(v):
+    d = float(v[0][0]) / float(v[0][1])
+    m = float(v[1][0]) / float(v[1][1])
+    s = float(v[2][0]) / float(v[1][1])
+    return d + (m / 60.0) + (s / 3600.0)
+
+
 def get_exif_tags(source):
     """Read EXIF tags from file @source and return a tuple of two dictionaries,
     the first one containing the raw EXIF data, the second one a simplified
@@ -117,16 +149,12 @@ def get_exif_tags(source):
     if not '.jpg' in source.lower():
         return (None, None)
 
-    img = PILImage.open(source)
-
     try:
-        exif = img._getexif()
+        data = _get_exif_data(source)
     except (TypeError, IOError):
-        exif = None
         logger.warning(u'Could not read EXIF data from {0}'.format(source))
         return (None, None)
 
-    data = dict((TAGS.get(t, t), v) for (t, v) in exif.items()) if exif else {}
     simple = {}
 
     # Provide more accessible tags in the 'simple' key
@@ -152,5 +180,24 @@ def get_exif_tags(source):
         except ValueError as e:
             msg = u'Could not parse DateTimeOriginal of %s: %s' % (source, e)
             logger.warning(msg)
+
+    if 'GPSInfo' in data:
+        info = data['GPSInfo']
+        lat_info = info.get('GPSLatitude')
+        lon_info = info.get('GPSLongitude')
+        lat_ref_info = info.get('GPSLatitudeRef')
+        lon_ref_info = info.get('GPSLongitudeRef')
+
+        if lat_info and lon_info and lat_ref_info and lon_ref_info:
+            lat = _get_degrees(lat_info)
+            lon = _get_degrees(lon_info)
+
+            if lat_ref_info != 'N':
+                lat = 0 - lat
+
+            if lon_ref_info != 'E':
+                lon = 0 - lon
+
+            simple['gps'] = {'lat': lat, 'lon': lon}
 
     return (data, simple)
