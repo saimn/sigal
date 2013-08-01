@@ -48,7 +48,8 @@ _DEFAULT_CONFIG = {
     'zip_gallery': False,
     'links': '',
     'google_analytics': '',
-    'copy_exif_data': True
+    'copy_exif_data': True,
+    'locale': ''
 }
 
 

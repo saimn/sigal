@@ -36,6 +36,7 @@ import codecs
 import logging
 import os
 import sys
+import locale
 from argh import ArghParser, arg
 from logging import Formatter
 
@@ -118,6 +119,7 @@ def build(source, destination, debug=False, verbose=False, force=False,
                      "directory.")
         sys.exit(1)
 
+    locale.setlocale(locale.LC_ALL, settings['locale'])
     gal = Gallery(settings, force=force, theme=theme)
     gal.build()
 

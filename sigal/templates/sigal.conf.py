@@ -87,3 +87,6 @@ thumb_size = (280, 210)
 
 # If True, EXIF data from the original image is copied to the resized image
 # copy_exif_data = True
+
+# Specify a different locale. If set to '', the default locale is used.
+# locale = ''
