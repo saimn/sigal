@@ -150,6 +150,11 @@ class Writer(object):
             if ext in self.settings['img_ext_list']:
                 media_ctx['type'] = 'img'
                 media_ctx['file'] = i
+
+                file_path = os.path.join(path, i)
+                raw, simple = sigal.image.get_exif_tags(file_path)
+                media_ctx['raw_exif'] = raw
+                media_ctx['exif'] = simple
             else:
                 media_ctx['type'] = 'vid'
                 media_ctx['file'] = base + '.webm'

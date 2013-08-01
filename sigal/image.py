@@ -26,12 +26,15 @@ import sys
 
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
+from PIL.ExifTags import TAGS
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
+from datetime import datetime
 
 
 def generate_image(source, outname, size, format, options=None,
-                   autoconvert=True, copyright_text='', method='ResizeToFit'):
+                   autoconvert=True, copyright_text='', method='ResizeToFit',
+                   copy_exif_data=True):
     """Image processor, rotate and resize the image.
 
     :param source: path to an image
@@ -42,6 +45,11 @@ def generate_image(source, outname, size, format, options=None,
     logger = logging.getLogger(__name__)
     img = PILImage.open(source)
     original_format = img.format
+
+    # Preserve EXIF data
+    if copy_exif_data and hasattr(img, 'info') and 'exif' in img.info:
+        options = options or {}
+        options['exif'] = img.info['exif']
 
     # Rotate the img, and catch IOError when PIL fails to read EXIF
     try:
@@ -90,3 +98,52 @@ def add_copyright(img, text):
 
     draw = ImageDraw.Draw(img)
     draw.text((5, img.size[1] - 15), '\xa9 ' + text)
+
+
+def get_exif_tags(source):
+    """Read EXIF tags from file @source and return a tuple of two dictionaries,
+    the first one containing the raw EXIF data, the second one a simplified
+    version with common tags."""
+
+    logger = logging.getLogger(__name__)
+
+    if not '.jpg' in source.lower():
+        return (None, None)
+
+    img = PILImage.open(source)
+
+    try:
+        exif = img._getexif()
+    except (TypeError, IOError):
+        exif = None
+        logger.warning(u'Could not read EXIF data from {0}'.format(source))
+        return (None, None)
+
+    data = dict((TAGS.get(t, t), v) for (t, v) in exif.items()) if exif else {}
+    simple = {}
+
+    # Provide more accessible tags in the 'simple' key
+    if 'FNumber' in data:
+        fnumber = data['FNumber']
+        simple['fstop'] = float(fnumber[0]) / fnumber[1]
+
+    if 'FocalLength' in data:
+        focal = data['FocalLength']
+        simple['focal'] = round(float(focal[0]) / focal[1])
+
+    if 'ExposureTime' in data:
+        simple['exposure'] = '{0}/{1}'.format(*data['ExposureTime'])
+
+    if 'ISOSpeedRatings' in data:
+        simple['iso'] = data['ISOSpeedRatings']
+
+    if 'DateTimeOriginal' in data:
+        try:
+            dt = datetime.strptime(data['DateTimeOriginal'],
+                                   '%Y:%m:%d %H:%M:%S')
+            simple['datetime'] = dt
+        except ValueError as e:
+            msg = u'Could not parse DateTimeOriginal of %s: %s' % (source, e)
+            logger.warning(msg)
+
+    return (data, simple)
