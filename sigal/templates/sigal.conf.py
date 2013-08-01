@@ -84,3 +84,9 @@ thumb_size = (280, 210)
 # Set zip_gallery to either False or a file name. The final archive will
 # contain all original files.
 # zip_gallery = False   # False or 'archive.zip'
+
+# If True, EXIF data from the original image is copied to the resized image
+# copy_exif_data = True
+
+# Specify a different locale. If set to '', the default locale is used.
+# locale = ''

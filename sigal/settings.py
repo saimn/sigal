@@ -47,7 +47,9 @@ _DEFAULT_CONFIG = {
     'index_in_url': False,
     'zip_gallery': False,
     'links': '',
-    'google_analytics': ''
+    'google_analytics': '',
+    'copy_exif_data': True,
+    'locale': ''
 }
 
 

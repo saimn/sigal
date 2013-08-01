@@ -284,7 +284,8 @@ def process_image(filepath, outpath, settings):
 
     sigal.image.generate_image(filepath, outname, settings['img_size'],
             None, options=options, copyright_text=settings['copyright'],
-            method=settings['img_processor'])
+            method=settings['img_processor'],
+            copy_exif_data=settings['copy_exif_data'])
 
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
