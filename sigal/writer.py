@@ -152,7 +152,9 @@ class Writer(object):
                 media_ctx['file'] = i
 
                 file_path = os.path.join(path, i)
-                media_ctx['exif'] = sigal.image.get_exif_tags(file_path)
+                raw, simple = sigal.image.get_exif_tags(file_path)
+                media_ctx['raw_exif'] = raw
+                media_ctx['exif'] = simple
             else:
                 media_ctx['type'] = 'vid'
                 media_ctx['file'] = base + '.webm'

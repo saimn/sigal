@@ -99,21 +99,15 @@ def add_copyright(img, text):
     draw.text((5, img.size[1] - 15), '\xa9 ' + text)
 
 
-def _get_exif_data(exif):
-    if exif:
-        return dict((TAGS.get(tag, tag), value)
-                    for (tag, value) in exif.items())
-    return {}
-
-
 def get_exif_tags(source):
-    """Read EXIF tags from file @source and return a dictionary containing the
-    EXIF data."""
+    """Read EXIF tags from file @source and return a tuple of two dictionaries,
+    the first one containing the raw EXIF data, the second one a simplified
+    version with common tags."""
 
     logger = logging.getLogger(__name__)
 
     if not '.jpg' in source.lower():
-        return {}
+        return (None, None)
 
     img = PILImage.open(source)
 
@@ -122,8 +116,9 @@ def get_exif_tags(source):
     except (TypeError, IOError):
         exif = None
         logger.warning(u'Could not read EXIF data from {0}'.format(source))
+        return (None, None)
 
-    data = _get_exif_data(exif)
+    data = dict((TAGS.get(t, t), v) for (t, v) in exif.items()) if exif else {}
     simple = {}
 
     # Provide more accessible tags in the 'simple' key
@@ -141,7 +136,4 @@ def get_exif_tags(source):
     if 'ISOSpeedRatings' in data:
         simple['iso'] = data['ISOSpeedRatings']
 
-    if simple:
-        data['simple'] = simple
-
-    return data
+    return (data, simple)

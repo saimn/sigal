@@ -57,8 +57,10 @@ def test_exif_copy(tmpdir):
     dst_file = str(tmpdir.join(test_image))
 
     generate_image(src_file, dst_file, (300, 400), None, copy_exif_data=True)
-    tags = get_exif_tags(dst_file)
-    assert tags['simple']['iso'] == 50
+    raw, simple = get_exif_tags(dst_file)
+    assert simple['iso'] == 50
 
     generate_image(src_file, dst_file, (300, 400), None, copy_exif_data=False)
-    assert not get_exif_tags(dst_file)
+    raw, simple = get_exif_tags(dst_file)
+    assert not raw
+    assert not simple
