@@ -29,6 +29,7 @@ from PIL import ImageDraw, ImageOps
 from PIL.ExifTags import TAGS
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
+from datetime import datetime
 
 
 def generate_image(source, outname, size, format, options=None,
@@ -135,5 +136,14 @@ def get_exif_tags(source):
 
     if 'ISOSpeedRatings' in data:
         simple['iso'] = data['ISOSpeedRatings']
+
+    if 'DateTimeOriginal' in data:
+        try:
+            dt = datetime.strptime(data['DateTimeOriginal'],
+                                   '%Y:%m:%d %H:%M:%S')
+            simple['datetime'] = dt
+        except ValueError as e:
+            msg = u'Could not parse DateTimeOriginal of %s: %s' % (source, e)
+            logger.warning(msg)
 
     return (data, simple)
