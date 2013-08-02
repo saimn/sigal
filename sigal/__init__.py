@@ -41,7 +41,7 @@ from argh import ArghParser, arg
 from logging import Formatter
 
 from .gallery import Gallery
-from .pkgmeta import *
+from .pkgmeta import __version__
 from .settings import read_settings
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
