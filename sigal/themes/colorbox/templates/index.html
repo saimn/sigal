@@ -103,6 +103,13 @@
         </div>
         {% endif %}
 
+        {% if zip_gallery %}
+        <div id="additionnal-infos" class="row">
+          <p><a href="{{ zip_gallery }}"
+                title="Download a zip archive with all images">Download ZIP</a></p>
+        </div>
+        {% endif %}
+
         {% if description %}
         <div id="description" class="row">
           {{ description }}
