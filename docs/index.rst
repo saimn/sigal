@@ -198,8 +198,9 @@ You can use the following variables in your template:
     - ``media.file``: Location of the resized image.
     - ``media.thumb``: Location of the corresponding thumbnail image.
     - ``media.big``: If not None, location of the unmodified image.
-    - ``media.exif``: If not None contains a dict with EXIF tags. To get the
-      most common tags, see :ref:`simple-exif-data`.
+    - ``media.exif``: If not None contains a dict with the most common tags. For
+      more information, see :ref:`simple-exif-data`.
+    - ``media.raw_exif``: If not ``None``, it contains the raw EXIF tags.
 
 ``meta`` and ``description``
     Meta data and album description. For details how to annotate your albums
@@ -227,20 +228,34 @@ You can use the following variables in your template:
 Simpler EXIF data output
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Because the tags in the ``media.exif`` variable are cumbersome to use, some
-common tags are extracted and formatted for easy use in templates. You can use:
+Because the tags in the ``media.raw_exif`` dictionary are a little bit
+cumbersome to use, some common tags are extracted and formatted for easy use in
+templates. If available, you can use:
 
-``media.exif.simple.iso``
+``media.exif.iso``
     The ISO speed rating.
 
-``media.exif.simple.focal``
+``media.exif.focal``
     The focal length, formatted as a decimal number.
 
-``media.exif.simple.exposure``
+``media.exif.exposure``
     The exposure time formatted as a fractional number, e.g. "1/500".
 
-``media.exif.simple.fstop``
+``media.exif.fstop``
     The aperture value given as an F-number and formatted as a decimal.
+
+``media.exif.datetime``
+    The time the image was *taken*. It is a datetime object, that can be
+    formatted with ``strftime``:
+
+    .. code-block:: jinja
+
+        {% if media.exif.datetime %}
+            {{ media.exif.datetime.strftime('%A, %d. %B %Y') }}
+        {% endif %}
+
+    This will output something like "Monday, 25. June 2013", depending on your
+    locale.
 
 
 .. _album-information-label:
