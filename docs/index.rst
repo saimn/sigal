@@ -195,6 +195,10 @@ You can use the following variables in your template:
 ``sigal_link``
     URL to the Sigal homepage.
 
+``zip_gallery``
+    If not None, it contains the location of a zip archive with all original
+    images of the corresponding directory.
+
 
 .. _simple-exif-data:
 
