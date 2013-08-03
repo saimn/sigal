@@ -1,4 +1,4 @@
-Title: Another example gallery
+Title: Another example gallery with a very long name
 Thumbnail: m57_the_ring_nebula-587px.jpg
 
 

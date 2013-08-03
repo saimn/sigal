@@ -53,8 +53,11 @@
         </header>
 
         {% if albums %}
-        <div id="albums" class="row">
-          {% for album in albums %}
+        {% for album in albums %}
+          {% if loop.index % 3 == 1 %}
+          <div id="albums" class="row">
+          {% endif%}
+
           <div class="four columns thumbnail
                       {% if loop.index % 3 == 1 %}alpha{% endif%}
                       {% if loop.index % 3 == 0 %}omega{% endif%}">
@@ -63,8 +66,11 @@
                    alt="{{ album.name }}" title="{{ album.name }}" /></a>
             <span class="album_title">{{ album.title }}</span>
           </div>
-          {% endfor %}
-        </div>
+
+          {% if loop.last or loop.index % 3 == 0 %}
+          </div>
+          {% endif%}
+        {% endfor %}
         {% endif %}
 
         {% if medias %}
