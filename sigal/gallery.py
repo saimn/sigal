@@ -43,6 +43,10 @@ from .writer import Writer
 
 DESCRIPTION_FILE = "index.md"
 
+# Label with for the progress bar. The max value is 48 character = 80 - 32 for
+# the progress bar.
+MAX_LABEL_WIDTH = 45
+
 
 class FileExtensionError(Exception):
     """Raised if we made an error when handling file extensions"""
@@ -184,10 +188,9 @@ class Gallery(object):
 
         check_or_create_dir(self.settings['destination'])
 
-        # Compute the label with for the progress bar. The max value is 48
-        # character = 80 - 32 for the progress bar.
+        # Compute the label with for the progress bar
         label_width = max((len(p) for p in self.db['paths_list'])) + 1
-        label_width = min(label_width, 48)
+        label_width = min(label_width, MAX_LABEL_WIDTH)
 
         # loop on directories in reversed order, to process subdirectories
         # before their parent
@@ -219,7 +222,8 @@ class Gallery(object):
 
         # use progressbar if level is > INFO
         if self.logger.getEffectiveLevel() > 20:
-            label = colored.green(dirname.ljust(label_width))
+            label = dirname[:MAX_LABEL_WIDTH - 1]
+            label = colored.green(label.ljust(label_width))
             media_iterator = progress.bar(media_files, label=label)
         else:
             media_iterator = iter(media_files)
