@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 requires = ['argh', 'clint', 'jinja2', 'Markdown', 'pilkit']
 

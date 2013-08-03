@@ -8,6 +8,7 @@
 nose.cfg
 MANIFEST
 _build/
+build/
 dist/
 docs/_build
 htmlcov/
