@@ -70,13 +70,9 @@
             {% if media.type == "vid" %}
               <a href="{{ theme.url }}/img/empty.png">
                 <img src="{{ media.thumb }}" alt="{{ media.file }}"
-                {# TODO: stop using inline css, put this in the main css file #}
-                data-layer="<video style='position:absolute;
-                                          top:10%;
-                                          width:100%;
-                                          margin=0 auto;' controls>
-                  <source src={{ media.file }} type='video/webm' />
-                </video>" />
+                     data-layer="<video controls>
+                                   <source src={{ media.file }} type='video/webm' />
+                                 </video>" />
               </a>
             {% endif %}
           {% endfor %}

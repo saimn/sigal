@@ -9,3 +9,6 @@ links = [('Example link', 'http://example.org'),
          ('Another link', 'http://example.org')]
 
 copyright = "An example copyright message"
+
+# theme = 'galleria'
+# thumb_size = (280, 210)
