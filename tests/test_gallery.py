@@ -26,7 +26,7 @@ REF = {
         'medias': ['21.jpg', '22.jpg'],
     },
     'dir2': {
-        'title': 'Another example gallery',
+        'title': 'Another example gallery with a very long name',
         'thumbnail': 'm57_the_ring_nebula-587px.jpg',
         'medias': ['exo20101028-b-full.jpg',
                 'm57_the_ring_nebula-587px.jpg',
