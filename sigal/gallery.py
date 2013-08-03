@@ -43,9 +43,11 @@ from .writer import Writer
 
 DESCRIPTION_FILE = "index.md"
 
+
 class FileExtensionError(Exception):
     """Raised if we made an error when handling file extensions"""
     pass
+
 
 class PathsDb(object):
     """Container for all the information on the directory structure.
@@ -75,7 +77,7 @@ class PathsDb(object):
         subdir = [os.path.normpath(os.path.join(path, sub))
                   for sub in self.db[path].get('subdir', [])]
         if subdir:
-            return subdir + reduce(lambda x, y: x+y,
+            return subdir + reduce(lambda x, y: x + y,
                                    map(self.get_subdirs, subdir))
         else:
             return []
@@ -108,7 +110,7 @@ class PathsDb(object):
         path_media = [path for path in self.db['paths_list']
                 if self.db[path]['medias'] and path != '.']
         path_nomedia = [path for path in self.db['paths_list']
-                if not self.db[path]['medias'] and path !='.']
+                if not self.db[path]['medias'] and path != '.']
 
         # dir with images: check the thumbnail, and find it if necessary
         for path in path_media:
@@ -190,8 +192,9 @@ class Gallery(object):
         # loop on directories in reversed order, to process subdirectories
         # before their parent
         for path in reversed(self.db['paths_list']):
-            media_files = [os.path.normpath(join(self.settings['source'], path, f))
-                       for f in self.db[path]['medias']]
+            source = self.settings['source']
+            media_files = [os.path.normpath(join(source, path, f))
+                           for f in self.db[path]['medias']]
 
             # output dir for the current path
             outpath = os.path.normpath(join(self.settings['destination'],
@@ -292,6 +295,7 @@ def process_image(filepath, outpath, settings):
         sigal.image.generate_thumbnail(outname, thumb_name,
                 settings['thumb_size'], None, fit=settings['thumb_fit'],
                 options=options)
+
 
 def process_video(filepath, outpath, settings):
     """Process one image: resize, create thumbnail."""

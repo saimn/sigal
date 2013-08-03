@@ -27,6 +27,7 @@ import re
 import shutil
 import sigal.image
 
+
 def vid_size(source):
     """Returns the dimensions of the video"""
     pattern = re.compile(r'Stream.*Video.* ([0-9]+)x([0-9]+)')
@@ -83,6 +84,7 @@ def generate_video(source, outname, size, options={}):
             '-qmax', options.get('qmax', '63')] +
             resize_opt + [outname],
             stderr=devnull)
+
 
 def generate_thumbnail(source, outname, box, format, fit=True, options=None):
     "Create a thumbnail image"
