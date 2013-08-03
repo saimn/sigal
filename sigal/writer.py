@@ -144,6 +144,9 @@ class Writer(object):
         if relpath != '.':
             ctx['breadcrumb'] = self.get_breadcrumb(paths, relpath)
 
+        if len(paths[relpath]['medias']) > 0 and self.settings['zip_gallery']:
+            ctx['zip_gallery'] = self.settings['zip_gallery']
+
         for i in paths[relpath]['medias']:
             media_ctx = {}
             base, ext = os.path.splitext(i)
