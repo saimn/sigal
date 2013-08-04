@@ -32,8 +32,8 @@ from pilkit.utils import save_image
 from datetime import datetime
 
 
-def generate_image(source, outname, size, format, options=None,
-                   autoconvert=True, copyright_text='', method='ResizeToFit',
+def generate_image(source, outname, size, options=None,
+                   copyright_text='', method='ResizeToFit',
                    copy_exif_data=True):
     """Image processor, rotate and resize the image.
 
@@ -71,12 +71,12 @@ def generate_image(source, outname, size, format, options=None,
     if copyright_text:
         add_copyright(img, copyright_text)
 
-    format = format or img.format or original_format or 'JPEG'
-    logger.debug(u'Save resized image to {0} ({1})'.format(outname, format))
-    save_image(img, outname, format, options=options, autoconvert=autoconvert)
+    outformat = img.format or original_format or 'JPEG'
+    logger.debug(u'Save resized image to {0} ({1})'.format(outname, outformat))
+    save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
-def generate_thumbnail(source, outname, box, format, fit=True, options=None):
+def generate_thumbnail(source, outname, box, fit=True, options=None):
     "Create a thumbnail image"
 
     logger = logging.getLogger(__name__)
@@ -88,9 +88,9 @@ def generate_thumbnail(source, outname, box, format, fit=True, options=None):
     else:
         img.thumbnail(box, PILImage.ANTIALIAS)
 
-    format = format or img.format or original_format or 'JPEG'
-    logger.debug(u'Save thumnail image to {0} ({1})'.format(outname, format))
-    save_image(img, outname, format, options=options, autoconvert=True)
+    outformat = img.format or original_format or 'JPEG'
+    logger.debug(u'Save thumnail image to {0} ({1})'.format(outname, outformat))
+    save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
 def add_copyright(img, text):

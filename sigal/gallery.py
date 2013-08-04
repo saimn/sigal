@@ -290,14 +290,14 @@ def process_image(filepath, outpath, settings):
         shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
 
     sigal.image.generate_image(
-        filepath, outname, settings['img_size'], None, options=options,
+        filepath, outname, settings['img_size'], options=options,
         copyright_text=settings['copyright'], method=settings['img_processor'],
         copy_exif_data=settings['copy_exif_data'])
 
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
         sigal.image.generate_thumbnail(
-            outname, thumb_name, settings['thumb_size'], None,
+            outname, thumb_name, settings['thumb_size'],
             fit=settings['thumb_fit'], options=options)
 
 
