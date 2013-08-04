@@ -119,3 +119,10 @@ def read_settings(filename=None):
                            "largest value first.", key)
 
     return settings
+
+
+def create_settings(**kwargs):
+    """Create a new default setting copy and initialize it with kwargs."""
+    settings = _DEFAULT_CONFIG.copy()
+    settings.update(kwargs)
+    return settings
