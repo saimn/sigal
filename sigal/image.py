@@ -72,6 +72,9 @@ def generate_image(source, outname, settings, options=None):
     processor = processor_cls(*settings['img_size'], upscale=False)
     img = processor.process(img)
 
+    # Adjust the image after resizing
+    img = Adjust(**settings['adjust_options']).process(img)
+
     if settings['copyright']:
         add_copyright(img, settings['copyright'])
 

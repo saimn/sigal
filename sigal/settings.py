@@ -29,6 +29,8 @@ _DEFAULT_CONFIG = {
     'destination': '_build',
     'img_size': (640, 480),
     'img_processor': 'ResizeToFit',
+    'adjust_options': {'color': 1.0, 'brightness': 1.0,
+                       'contrast': 1.0, 'sharpness': 1.0},
     'make_thumbs': True,
     'thumb_prefix': '',
     'thumb_suffix': '',

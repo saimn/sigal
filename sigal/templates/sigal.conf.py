@@ -26,6 +26,13 @@ img_size = (800, 600)
 # - SmartResize: identical to ResizeToFill, but uses entropy to crop the image
 # img_processor = 'ResizeToFit'
 
+# Adjust the image after resizing it. A default value of 1.0 leaves the images
+# untouched.
+# adjust_options = {'color': 1.0,
+#                   'brightness': 1.0,
+#                   'contrast': 1.0,
+#                   'sharpness': 1.0}
+
 # Generate thumbnails
 # make_thumbs = True
 
