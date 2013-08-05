@@ -31,7 +31,8 @@ def test_zipped_correctly(tmpdir):
     assert os.path.basename(zipped1[0]) == 'archive.zip'
 
     zip_file = zipfile.ZipFile(zipped1[0], 'r')
-    expected = ('11.jpg', 'archlinux-kiss-1024x640.png')
+    expected = ('11.jpg', 'archlinux-kiss-1024x640.png',
+                'flickr_jerquiaga_2394751088_cc-by-nc.jpg')
 
     for filename in zip_file.namelist():
         assert filename in expected

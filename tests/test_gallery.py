@@ -18,7 +18,8 @@ REF = {
     'dir1/test1': {
         'title': 'An example sub-category',
         'thumbnail': '11.jpg',
-        'medias': ['11.jpg', 'archlinux-kiss-1024x640.png'],
+        'medias': ['11.jpg', 'archlinux-kiss-1024x640.png',
+                   'flickr_jerquiaga_2394751088_cc-by-nc.jpg'],
     },
     'dir1/test2': {
         'title': 'Test2',
