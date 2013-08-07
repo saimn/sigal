@@ -7,7 +7,8 @@ Please:
 
 - Obey [PEP 8] and [PEP 257].
 - *Always* add tests and docs for your code.
-- Add yourself to the AUTHORS file in an alphabetical fashion.
+- Add yourself to the AUTHORS file in an alphabetical fashion, and add your
+  name to the license header of the files you modify.
 - Write [good commit messages].
 - Ideally, [squash] your commits, i.e. make your pull requests just one commit.
 
