@@ -27,14 +27,16 @@ import sys
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
 from PIL.ExifTags import TAGS
-from pilkit.processors import Transpose
+from pilkit.processors import Transpose, Adjust
 from pilkit.utils import save_image
 from datetime import datetime
 
 
-def generate_image(source, outname, size, format, options=None,
-                   autoconvert=True, copyright_text='', method='ResizeToFit',
-                   copy_exif_data=True):
+def _has_exif_tags(img):
+    return hasattr(img, 'info') and 'exif' in img.info
+
+
+def generate_image(source, outname, settings, options=None):
     """Image processor, rotate and resize the image.
 
     :param source: path to an image
@@ -47,7 +49,7 @@ def generate_image(source, outname, size, format, options=None,
     original_format = img.format
 
     # Preserve EXIF data
-    if copy_exif_data and hasattr(img, 'info') and 'exif' in img.info:
+    if settings['copy_exif_data'] and _has_exif_tags(img):
         options = options or {}
         options['exif'] = img.info['exif']
 
@@ -58,6 +60,8 @@ def generate_image(source, outname, size, format, options=None,
         pass
 
     # Resize the image
+    method = settings['img_processor']
+
     try:
         logger.debug('Processor: %s', method)
         processor_cls = getattr(pilkit.processors, method)
@@ -65,18 +69,21 @@ def generate_image(source, outname, size, format, options=None,
         logger.error('Wrong processor name: %s', method)
         sys.exit()
 
-    processor = processor_cls(*size, upscale=False)
+    processor = processor_cls(*settings['img_size'], upscale=False)
     img = processor.process(img)
 
-    if copyright_text:
-        add_copyright(img, copyright_text)
+    # Adjust the image after resizing
+    img = Adjust(**settings['adjust_options']).process(img)
 
-    format = format or img.format or original_format or 'JPEG'
-    logger.debug(u'Save resized image to {0} ({1})'.format(outname, format))
-    save_image(img, outname, format, options=options, autoconvert=autoconvert)
+    if settings['copyright']:
+        add_copyright(img, settings['copyright'])
+
+    outformat = img.format or original_format or 'JPEG'
+    logger.debug(u'Save resized image to {0} ({1})'.format(outname, outformat))
+    save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
-def generate_thumbnail(source, outname, box, format, fit=True, options=None):
+def generate_thumbnail(source, outname, box, fit=True, options=None):
     "Create a thumbnail image"
 
     logger = logging.getLogger(__name__)
@@ -88,9 +95,9 @@ def generate_thumbnail(source, outname, box, format, fit=True, options=None):
     else:
         img.thumbnail(box, PILImage.ANTIALIAS)
 
-    format = format or img.format or original_format or 'JPEG'
-    logger.debug(u'Save thumnail image to {0} ({1})'.format(outname, format))
-    save_image(img, outname, format, options=options, autoconvert=True)
+    outformat = img.format or original_format or 'JPEG'
+    logger.debug(u'Save thumnail image to {0} ({1})'.format(outname, outformat))
+    save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
 def add_copyright(img, text):

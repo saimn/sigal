@@ -181,11 +181,11 @@ class Writer(object):
                 if ext in self.settings['img_ext_list']:
                     sigal.image.generate_thumbnail(
                         source, thumb_path, self.settings['thumb_size'],
-                        None, fit=self.settings['thumb_fit'])
+                        fit=self.settings['thumb_fit'])
                 else:
                     sigal.video.generate_thumbnail(
                         source, thumb_path, self.settings['thumb_size'],
-                        None, fit=self.settings['thumb_fit'])
+                        fit=self.settings['thumb_fit'])
 
             ctx['albums'].append({
                 'url': d + '/' + self.url_ext,
