@@ -86,7 +86,7 @@ def generate_video(source, outname, size, options={}):
             stderr=devnull)
 
 
-def generate_thumbnail(source, outname, box, format, fit=True, options=None):
+def generate_thumbnail(source, outname, box, fit=True, options=None):
     "Create a thumbnail image"
     # 1) dump an image of the video
     tmpfile = outname + ".tmp.jpg"
@@ -94,6 +94,6 @@ def generate_thumbnail(source, outname, box, format, fit=True, options=None):
         subprocess.call(['ffmpeg', '-i', source, '-an', '-r', '1',
             '-vframes', '1', '-y', tmpfile], stderr=devnull)
     # 2) use the generate_thumbnail function from sigal.image
-    sigal.image.generate_thumbnail(tmpfile, outname, box, format, fit, options)
+    sigal.image.generate_thumbnail(tmpfile, outname, box, fit, options)
     # 3) remove the image
     os.unlink(tmpfile)

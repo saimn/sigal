@@ -29,6 +29,8 @@ _DEFAULT_CONFIG = {
     'destination': '_build',
     'img_size': (640, 480),
     'img_processor': 'ResizeToFit',
+    'adjust_options': {'color': 1.0, 'brightness': 1.0,
+                       'contrast': 1.0, 'sharpness': 1.0},
     'make_thumbs': True,
     'thumb_prefix': '',
     'thumb_suffix': '',
@@ -118,4 +120,11 @@ def read_settings(filename=None):
             logger.warning("The %s setting should be specified with the "
                            "largest value first.", key)
 
+    return settings
+
+
+def create_settings(**kwargs):
+    """Create a new default setting copy and initialize it with kwargs."""
+    settings = _DEFAULT_CONFIG.copy()
+    settings.update(kwargs)
     return settings
