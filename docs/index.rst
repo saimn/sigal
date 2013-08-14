@@ -234,6 +234,20 @@ templates. If available, you can use:
     This will output something like "Monday, 25. June 2013", depending on your
     locale.
 
+``media.exif.gps``
+    If not None, the dict contains two keys ``lat`` and ``lon`` denoting the
+    GPS coordinates of the location where the image was taken. ``lat`` will
+    always be referenced to the north pole whereas ``lon`` will be referenced to
+    east to the prime meridan. To provide a link on an OpenStreetMap you could
+    write a template like this:
+
+    .. code-block:: jinja
+
+        {% if media.exif.gps %}
+            <a href="http://openstreetmap.org/index.html?lat={{
+            media.exif.gps.lat }}&lon={{ media.exif.long}}">Go to location</a>
+        {% endif %}
+
 
 .. _album-information-label:
 
