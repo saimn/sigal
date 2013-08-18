@@ -2,6 +2,22 @@
  Changelog
 ===========
 
+Version 0.5.0-dev
+~~~~~~~~~~~~~~~~~
+
+Released on 2013-xx-xx.
+
+- Add support for videos. Videos are encoded to webm (see the ``webm_options``
+  setting).
+- Check jinja2's version for ``lstrip_blocks`` (only for Jinja 2.7+).
+- Add option to zip galleries. See the ``zip_gallery`` setting.
+- Add support for EXIF tags and GPS coordinates. EXIF tags are added to the
+  media context (for themes). The ``copy_exif_data`` setting allow to choose if
+  the exif data from the original image is copied to the resized image.
+- Correct themes design with long directory names.
+- Add the possibility to adjust images after resizing (with the Adjust
+  processor from Pilkit). See the ``adjust_options`` setting.
+
 Version 0.4.1
 ~~~~~~~~~~~~~
 
