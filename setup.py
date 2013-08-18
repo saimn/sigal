@@ -17,6 +17,9 @@ entry_points = {
 with open('README.rst') as f:
     README = f.read()
 
+with open('docs/changelog.rst') as f:
+    CHANGELOG = f.read()
+
 # Load package meta from the pkgmeta module without loading the package.
 pkgmeta = {}
 execfile(os.path.join(os.path.dirname(__file__), 'sigal', 'pkgmeta.py'),
@@ -30,7 +33,7 @@ setup(
     author=pkgmeta['__author__'],
     author_email='contact@saimon.org',
     description='Simple static gallery generator',
-    long_description=README,
+    long_description=README + '\n' + CHANGELOG,
     packages=['sigal'],
     zip_safe=False,
     include_package_data=True,
