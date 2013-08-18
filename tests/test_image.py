@@ -68,3 +68,22 @@ def test_exif_copy(tmpdir):
     raw, simple = get_exif_tags(dst_file)
     assert not raw
     assert not simple
+
+
+def test_exif_gps(tmpdir):
+    """Test reading out correct geo tags"""
+    test_image = 'flickr_jerquiaga_2394751088_cc-by-nc.jpg'
+    src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir1', 'test1',
+                            test_image)
+    dst_file = str(tmpdir.join(test_image))
+
+    settings = create_settings(img_size=(400, 300), copy_exif_data=True)
+    generate_image(src_file, dst_file, settings)
+    raw, simple = get_exif_tags(dst_file)
+    assert 'gps' in simple
+
+    lat = 35.266666
+    lon = -117.216666
+
+    assert abs(simple['gps']['lat'] - lat) < 0.0001
+    assert abs(simple['gps']['lon'] - lon) < 0.0001
