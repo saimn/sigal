@@ -7,6 +7,6 @@ before_install:
     - sudo apt-get update -qq
     - sudo apt-get install -qq libfreetype6-dev libjpeg8-dev zlib1g-dev ffmpeg
 install:
-    - pip install pytest --use-mirrors
-    - pip install . --use-mirrors
+    - pip install pytest
+    - pip install .
 script: py.test
