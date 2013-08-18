@@ -1,5 +1,3 @@
-.. _album-information-label:
-
 ===================
  Album information
 ===================

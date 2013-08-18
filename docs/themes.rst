@@ -7,6 +7,19 @@ be located in ``THEME_DIR/templates``.
 
 .. _Jinja2: http://jinja.pocoo.org/docs/
 
+Bundled themes
+~~~~~~~~~~~~~~
+
+Sigal comes with two themes, based on the `colorbox`_ and `galleria`_
+Javascript libraries, and located in the ``sigal/themes`` folder.
+
+The stylesheets for these themes are written with sass_ (``gem install sass``).
+A Makefile is available to compile the scss files to css
+(``sigal/themes/Makefile``).
+
+.. _galleria: http://galleria.io/
+.. _colorbox: http://www.jacklmoore.com/colorbox
+.. _sass: http://sass-lang.com/
 
 Variables
 ~~~~~~~~~
@@ -44,7 +57,7 @@ You can use the following variables in your template:
 
 ``meta`` and ``description``
     Meta data and album description. For details how to annotate your albums
-    with meta data, see :ref:`album-information-label`.
+    with meta data, see :doc:`album_information`.
 
 ``theme.name``
     Name of the currently used theme.

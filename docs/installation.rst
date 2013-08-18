@@ -35,6 +35,9 @@ developpement packages of libjpeg, freetype2 and zlib.
 
     apt-get build-dep python-dev python-imaging
 
+  Debian/Sid users can use the experimental ``python-imaging`` package that is
+  built from Pillow source.
+
 - For Archlinux, there is a package_ for sigal in the AUR which already uses
   Pillow.
 

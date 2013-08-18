@@ -26,7 +26,20 @@ Links :
 * Source, issues and pull requests on `Github`_
 * Releases on `PyPI`_
 
-.. _galleria: http://galleria.io/
+Themes & Demo
+-------------
+
+Sigal comes with two themes, based on the `colorbox`_ and `galleria`_
+Javascript libraries:
+
+- `colorbox demo`_
+- `galleria demo`_
+
 .. _website: http://sigal.saimon.org/
 .. _Github: https://github.com/saimn/sigal/
 .. _PyPI: http://pypi.python.org/pypi/sigal
+.. _galleria: http://galleria.io/
+.. _colorbox: http://www.jacklmoore.com/colorbox
+.. _galleria demo: http://saimon.org/sigal-demo/galleria/
+.. _colorbox demo: http://saimon.org/sigal-demo/colorbox/
+
