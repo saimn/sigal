@@ -31,6 +31,12 @@ def test_get_thumb(settings):
     for src, ref in tests:
         assert get_thumb(settings, src) == ref
 
+    tests = [('example.webm', 'thumbnails/example.tn.jpg'),
+             ('test/example.mp4', 'test/thumbnails/example.tn.jpg'),
+             ('test/t/example.avi', 'test/t/thumbnails/example.tn.jpg')]
+    for src, ref in tests:
+        assert get_thumb(settings, src) == ref
+
 
 def test_get_orig(settings):
     tests = [('example.jpg', 'original/example.jpg'),
