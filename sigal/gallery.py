@@ -315,7 +315,7 @@ def process_video(filepath, outpath, settings):
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
         sigal.video.generate_thumbnail(
-            outname, thumb_name, settings['thumb_size'], None,
+            outname, thumb_name, settings['thumb_size'],
             fit=settings['thumb_fit'], options=settings['jpg_options'])
 
 
