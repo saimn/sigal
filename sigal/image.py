@@ -176,10 +176,11 @@ def get_exif_tags(source):
 
     if 'DateTimeOriginal' in data:
         try:
-            dt = datetime.strptime(data['DateTimeOriginal'],
-                                   '%Y:%m:%d %H:%M:%S')
+            # Remove null bytes at the end if necessary
+            date = data['DateTimeOriginal'].rsplit('\x00')[0]
+            dt = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
             simple['datetime'] = dt
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             msg = u'Could not parse DateTimeOriginal of %s: %s' % (source, e)
             logger.warning(msg)
 
