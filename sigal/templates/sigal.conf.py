@@ -16,6 +16,9 @@ source = 'pictures'
 # - colorbox (default), galleria, or the path to a custom theme directory
 theme = 'galleria'
 
+# Resize photos?
+resize = True
+
 # Size of resized image (default: (640, 480))
 img_size = (800, 600)
 
