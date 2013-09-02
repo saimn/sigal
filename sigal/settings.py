@@ -27,6 +27,7 @@ import os
 _DEFAULT_CONFIG = {
     'source': '',
     'destination': '_build',
+    'resize': True,
     'img_size': (640, 480),
     'img_processor': 'ResizeToFit',
     'adjust_options': {'color': 1.0, 'brightness': 1.0,
