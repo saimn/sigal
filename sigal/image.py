@@ -69,17 +69,17 @@ def generate_image(source, outname, settings, options=None):
         pass
 
     # Resize the image
-    method = settings['img_processor']
+    if settings['img_processor']:
+        try:
+            logger.debug('Processor: %s', settings['img_processor'])
+            processor_cls = getattr(pilkit.processors,
+                                    settings['img_processor'])
+        except AttributeError:
+            logger.error('Wrong processor name: %s', settings['img_processor'])
+            sys.exit()
 
-    try:
-        logger.debug('Processor: %s', method)
-        processor_cls = getattr(pilkit.processors, method)
-    except AttributeError:
-        logger.error('Wrong processor name: %s', method)
-        sys.exit()
-
-    processor = processor_cls(*settings['img_size'], upscale=False)
-    img = processor.process(img)
+        processor = processor_cls(*settings['img_size'], upscale=False)
+        img = processor.process(img)
 
     # Adjust the image after resizing
     img = Adjust(**settings['adjust_options']).process(img)

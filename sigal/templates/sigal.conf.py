@@ -24,6 +24,7 @@ img_size = (800, 600)
 # - ResizeToFit: fit the image within the specified dimensions (default)
 # - ResizeToFill: crop THE IMAGE it to the exact specified width and height
 # - SmartResize: identical to ResizeToFill, but uses entropy to crop the image
+# - None: don't resize
 # img_processor = 'ResizeToFit'
 
 # Adjust the image after resizing it. A default value of 1.0 leaves the images
