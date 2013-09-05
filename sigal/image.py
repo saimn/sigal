@@ -45,7 +45,7 @@ def _has_exif_tags(img):
     return hasattr(img, 'info') and 'exif' in img.info
 
 
-def generate_image(source, outname, settings, options=None):
+def generate_image(source, outname, settings, options=None, resize=True):
     """Image processor, rotate and resize the image.
 
     :param source: path to an image
@@ -78,8 +78,9 @@ def generate_image(source, outname, settings, options=None):
         logger.error('Wrong processor name: %s', method)
         sys.exit()
 
-    processor = processor_cls(*settings['img_size'], upscale=False)
-    img = processor.process(img)
+    if resize:
+        processor = processor_cls(*settings['img_size'], upscale=False)
+        img = processor.process(img)
 
     # Adjust the image after resizing
     img = Adjust(**settings['adjust_options']).process(img)
