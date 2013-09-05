@@ -58,13 +58,26 @@
         {% endif %}
 
         {% if medias %}
+          {% macro img_description(media) -%}
+            {%- if media.big %}<a href='{{ media.big }}'>Full size</a>{% endif %}
+            {%- if media.exif %}
+              <br>
+              {% if media.exif.iso %}ISO: {{ media.exif.iso }}, {% endif %}
+              {% if media.exif.focal %}Focal: {{ media.exif.focal }}, {% endif %}
+              {% if media.exif.exposure %}Exposure: {{ media.exif.exposure }}, {% endif %}
+              {% if media.exif.fstop %}Fstop: {{ media.exif.fstop }}{% endif %}
+              {% if media.exif.datetime %}
+                <br>Date: {{ media.exif.datetime.strftime('%A, %d. %B %Y') }}
+              {% endif %}
+            {% endif %}
+          {%- endmacro %}
         <div id="gallery">
           {% for media in medias %}
             {% if media.type == "img" %}
               <a href="{{ media.file }}">
                 <img src="{{ media.thumb }}" alt="{{ media.file }}"
                     data-title="{{ media.file }}"
-                    {%- if media.big %} data-description="<a href='{{ media.big }}'>Full size</a>"{% endif %}/>
+                    data-description="{{ img_description(media) }}"/>
               </a>
             {% endif %}
             {% if media.type == "vid" %}

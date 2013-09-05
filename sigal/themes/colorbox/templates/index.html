@@ -74,14 +74,21 @@
         {% endif %}
 
         {% if medias %}
+          {% macro img_description(media) -%}
+            {% if media.big %} data-big="{{ media.big }}"{% endif %}
+            {% if media.exif %}
+              {% if media.exif.datetime %}
+                data-date=", {{ media.exif.datetime.strftime('%d %B %Y') }}"
+              {% endif %}
+            {% endif %}
+          {%- endmacro %}
         <div id="gallery" class="row">
           {% for media in medias %}
             {% if media.type == "img" %}
             <div class="four columns thumbnail
                         {% if loop.index % 3 == 1 %}alpha{% endif%}
                         {% if loop.index % 3 == 0 %}omega{% endif%}">
-              <a href="{{ media.file }}" class="gallery" title="{{ media.file }}"
-                {% if media.big %} data-big="{{ media.big }}"{% endif %}>
+              <a href="{{ media.file }}" class="gallery" title="{{ media.file }}" {{ img_description(media) }}>
                 <img src="{{ media.thumb }}" alt="{{ media.file }}"
                     title="{{ media.file }}" /></a>
             </div>
@@ -143,6 +150,9 @@
           title = this.title;
           if(this.hasAttribute("data-big")) {
             title += " (full size)".link(this.getAttribute("data-big"));
+          }
+          if(this.hasAttribute("data-date")) {
+            title += this.getAttribute("data-date");
           }
           return title;
         },
