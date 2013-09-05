@@ -7,15 +7,18 @@ How to Use
 
 Init
   To get started, just run ``sigal init`` which will copy an example
-  configuration file in the current directory. All configuration values have a
-  default; values that are commented out serve to show the default. Default
-  values are specified when modified in this example config file.
+  :doc:`configuration file <configuration>` in the current directory. All
+  configuration values have a default; values that are commented out serve to
+  show the default.  Default values are specified when modified in this example
+  config file.
 
 Build
-  After adapting the configuration to your needs, put your images in a
-  sub-directory and run ``sigal build <your images directory>``. The next time
-  you run ``sigal build``, only the new images will be processed. Use the
-  ``-f`` flag to force the reprocessing of all the images.
+  After adapting the configuration to your needs, put your images in
+  a sub-directory (``pictures`` by default) and run ``sigal build <your images
+  directory>``. The next time you run ``sigal build``, only the new images will
+  be processed. Use the ``-f`` flag to force the reprocessing of all the
+  images. Images that are smaller than the size specified by the ``img_size``
+  setting will not be resized.
 
 Serve
   To visualize your gallery, you can use ``sigal serve`` which runs a basic

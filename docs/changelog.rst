@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 0.5.0-dev
-~~~~~~~~~~~~~~~~~
+Version 0.5.0
+~~~~~~~~~~~~~
 
-Released on 2013-xx-xx.
+Released on 2013-09-06.
 
 - Add support for videos. Videos are encoded to webm (see the ``webm_options``
   setting).
@@ -17,6 +17,7 @@ Released on 2013-xx-xx.
 - Correct themes design with long directory names.
 - Add the possibility to adjust images after resizing (with the Adjust
   processor from Pilkit). See the ``adjust_options`` setting.
+- Add the possibility to disable image resizing.
 
 Version 0.4.1
 ~~~~~~~~~~~~~
