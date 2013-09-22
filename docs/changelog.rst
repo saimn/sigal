@@ -2,6 +2,13 @@
  Changelog
 ===========
 
+Version 0.5.1
+~~~~~~~~~~~~~
+
+Released on 2013-09-23.
+
+- Fix error in calculating the degrees from exif data.
+
 Version 0.5.0
 ~~~~~~~~~~~~~
 
