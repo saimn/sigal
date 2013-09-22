@@ -49,6 +49,8 @@ def generate_image(source, outname, settings, options=None):
     """Image processor, rotate and resize the image.
 
     :param source: path to an image
+    :param outname: output filename
+    :param settings: settings dict
     :param options: dict with PIL options (quality, optimize, progressive)
 
     """
@@ -94,7 +96,7 @@ def generate_image(source, outname, settings, options=None):
 
 
 def generate_thumbnail(source, outname, box, fit=True, options=None):
-    "Create a thumbnail image"
+    """Create a thumbnail image."""
 
     logger = logging.getLogger(__name__)
     img = PILImage.open(source)
@@ -106,19 +108,21 @@ def generate_thumbnail(source, outname, box, fit=True, options=None):
         img.thumbnail(box, PILImage.ANTIALIAS)
 
     outformat = img.format or original_format or 'JPEG'
-    logger.debug(u'Save thumnail image to {0} ({1})'.format(outname, outformat))
+    logger.debug(u'Save thumnail image: {0} ({1})'.format(outname, outformat))
     with open(outname, 'w') as fp:
         save_image(img, fp, outformat, options=options, autoconvert=True)
 
 
 def add_copyright(img, text):
-    "Add a copyright to the image"
+    """Add a copyright to the image."""
 
     draw = ImageDraw.Draw(img)
     draw.text((5, img.size[1] - 15), '\xa9 ' + text)
 
 
 def _get_exif_data(filename):
+    """Return a dict with EXIF data."""
+
     img = PILImage.open(filename)
     exif = img._getexif() or {}
     data = dict((TAGS.get(t, t), v) for (t, v) in exif.items())
@@ -134,7 +138,9 @@ def _get_exif_data(filename):
     return data
 
 
-def _get_degrees(v):
+def dms_to_degrees(v):
+    """Convert degree/minute/second to decimal degrees."""
+
     d = float(v[0][0]) / float(v[0][1])
     m = float(v[1][0]) / float(v[1][1])
     s = float(v[2][0]) / float(v[2][1])
@@ -192,8 +198,8 @@ def get_exif_tags(source):
         lon_ref_info = info.get('GPSLongitudeRef')
 
         if lat_info and lon_info and lat_ref_info and lon_ref_info:
-            lat = _get_degrees(lat_info)
-            lon = _get_degrees(lon_info)
+            lat = dms_to_degrees(lat_info)
+            lon = dms_to_degrees(lon_info)
 
             if lat_ref_info != 'N':
                 lat = 0 - lat

@@ -29,8 +29,10 @@ def test_generate_image_processor(tmpdir):
 
     init_logging()
     dstfile = str(tmpdir.join(TEST_IMAGE))
+    settings = create_settings(img_size=(200, 200),
+                               img_processor='WrongMethod')
+
     with pytest.raises(SystemExit):
-        settings = create_settings(img_size=(200, 200), img_processor='WrongMethod')
         generate_image(SRCFILE, dstfile, settings)
 
 
@@ -72,6 +74,7 @@ def test_exif_copy(tmpdir):
 
 def test_exif_gps(tmpdir):
     """Test reading out correct geo tags"""
+
     test_image = 'flickr_jerquiaga_2394751088_cc-by-nc.jpg'
     src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir1', 'test1',
                             test_image)
