@@ -82,8 +82,8 @@ def test_exif_gps(tmpdir):
     raw, simple = get_exif_tags(dst_file)
     assert 'gps' in simple
 
-    lat = 35.266666
-    lon = -117.216666
+    lat = 34.029167
+    lon = -116.144167
 
     assert abs(simple['gps']['lat'] - lat) < 0.0001
     assert abs(simple['gps']['lon'] - lon) < 0.0001
