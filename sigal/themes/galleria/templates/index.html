@@ -125,6 +125,14 @@
         transition: "fade"
     });
     Galleria.run("#gallery");
+
+    Galleria.ready(function() {
+        this.attachKeyboard({
+            right: this.next,
+            left: this.prev
+         });
+     });
+
     </script>
     {% endif %}
     {% include 'analytics.html' %}
