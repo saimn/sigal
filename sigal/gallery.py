@@ -96,7 +96,7 @@ class PathsDb(object):
         }
 
         # get information for each directory
-        for path, dirnames, filenames in os.walk(self.basepath):
+        for path, dirnames, filenames in os.walk(self.basepath, followlinks=True):
             relpath = os.path.relpath(path, self.basepath)
 
             # sort images and sub-albums by name
