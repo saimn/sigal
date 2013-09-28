@@ -91,8 +91,7 @@ def generate_image(source, outname, settings, options=None):
 
     outformat = img.format or original_format or 'JPEG'
     logger.debug(u'Save resized image to {0} ({1})'.format(outname, outformat))
-    with open(outname, 'w') as fp:
-        save_image(img, fp, outformat, options=options, autoconvert=True)
+    save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
 def generate_thumbnail(source, outname, box, fit=True, options=None):
@@ -109,8 +108,7 @@ def generate_thumbnail(source, outname, box, fit=True, options=None):
 
     outformat = img.format or original_format or 'JPEG'
     logger.debug(u'Save thumnail image: {0} ({1})'.format(outname, outformat))
-    with open(outname, 'w') as fp:
-        save_image(img, fp, outformat, options=options, autoconvert=True)
+    save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
 def add_copyright(img, text):

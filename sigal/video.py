@@ -27,6 +27,8 @@ import re
 import shutil
 import sigal.image
 
+from . import compat
+
 
 def vid_size(source):
     """Returns the dimensions of the video"""
@@ -35,6 +37,10 @@ def vid_size(source):
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
+
+    if not compat.PY2:
+        stderr = stderr.decode('utf8')
+
     match = pattern.search(stderr)
     if match:
         x, y = int(match.groups()[0]), int(match.groups()[1])
