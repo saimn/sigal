@@ -60,6 +60,7 @@ def get_thumb(settings, filename):
     """Return the path to the thumb.
 
     examples:
+    >>> default_settings = create_settings()
     >>> get_thumb(default_settings, "bar/foo.jpg")
     "bar/thumbnails/foo.jpg"
     >>> get_thumb(default_settings, "bar/foo.png")
@@ -96,8 +97,12 @@ def read_settings(filename=None):
     if filename:
         logger.debug("Settings file: %s", filename)
         tempdict = {}
-        execfile(filename, tempdict)
-        settings.update((k, v) for k, v in tempdict.iteritems()
+
+        with open(filename) as f:
+            code = compile(f.read(), filename, 'exec')
+            exec(code, tempdict)
+
+        settings.update((k, v) for k, v in tempdict.items()
                         if k not in ['__builtins__'])
 
         # Make the paths relative to the settings file

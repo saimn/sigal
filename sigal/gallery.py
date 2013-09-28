@@ -38,8 +38,12 @@ from PIL import Image as PILImage
 
 import sigal.image
 import sigal.video
+from . import compat
 from .settings import get_thumb
 from .writer import Writer
+
+if not compat.PY2:
+    from functools import reduce
 
 DESCRIPTION_FILE = "index.md"
 
@@ -96,7 +100,8 @@ class PathsDb(object):
         }
 
         # get information for each directory
-        for path, dirnames, filenames in os.walk(self.basepath, followlinks=True):
+        for path, dirnames, filenames in os.walk(self.basepath,
+                                                 followlinks=True):
             relpath = os.path.relpath(path, self.basepath)
 
             # sort images and sub-albums by name
