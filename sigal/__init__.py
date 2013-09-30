@@ -41,7 +41,6 @@ from argh import ArghParser, arg
 from logging import Formatter
 
 from .gallery import Gallery
-from .pkgmeta import __version__
 from .settings import read_settings
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
@@ -151,7 +150,6 @@ def serve(path):
 
 
 def main():
-    parser = ArghParser(description='Simple static gallery generator.',
-                        version=__version__)
+    parser = ArghParser(description='Simple static gallery generator.')
     parser.add_commands([init, build, serve])
     parser.dispatch()

@@ -78,7 +78,7 @@
             {% if media.big %} data-big="{{ media.big }}"{% endif %}
             {% if media.exif %}
               {% if media.exif.datetime %}
-                data-date=", {{ media.exif.datetime.strftime('%d %B %Y') }}"
+                data-date=", {{ media.exif.datetime }}"
               {% endif %}
             {% endif %}
           {%- endmacro %}

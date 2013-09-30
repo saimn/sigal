@@ -67,7 +67,7 @@
               {% if media.exif.exposure %}Exposure: {{ media.exif.exposure }}, {% endif %}
               {% if media.exif.fstop %}Fstop: {{ media.exif.fstop }}{% endif %}
               {% if media.exif.datetime %}
-                <br>Date: {{ media.exif.datetime.strftime('%A, %d. %B %Y') }}
+                <br>Date: {{ media.exif.datetime }}
               {% endif %}
             {% endif %}
           {%- endmacro %}
