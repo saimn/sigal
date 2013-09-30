@@ -22,8 +22,10 @@ with open('docs/changelog.rst') as f:
 
 # Load package meta from the pkgmeta module without loading the package.
 pkgmeta = {}
-execfile(os.path.join(os.path.dirname(__file__), 'sigal', 'pkgmeta.py'),
-         pkgmeta)
+pkgmeta_file = os.path.join(os.path.dirname(__file__), 'sigal', 'pkgmeta.py')
+with open(pkgmeta_file) as f:
+    code = compile(f.read(), 'pkgmeta.py', 'exec')
+    exec(code, pkgmeta)
 
 setup(
     name='sigal',
@@ -46,8 +48,10 @@ setup(
         'Environment :: Console',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Multimedia :: Graphics :: Viewers',
         'Topic :: Software Development :: Libraries :: Python Modules',

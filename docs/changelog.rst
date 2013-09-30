@@ -2,6 +2,13 @@
  Changelog
 ===========
 
+Version 0.6.dev
+~~~~~~~~~~~~~~~
+
+Released on 2013-xx-xx.
+
+- Add support for Python 3.3
+
 Version 0.5.1
 ~~~~~~~~~~~~~
 

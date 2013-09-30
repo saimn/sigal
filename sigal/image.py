@@ -40,6 +40,8 @@ from pilkit.processors import Transpose, Adjust
 from pilkit.utils import save_image
 from datetime import datetime
 
+from . import compat
+
 
 def _has_exif_tags(img):
     return hasattr(img, 'info') and 'exif' in img.info
@@ -91,8 +93,7 @@ def generate_image(source, outname, settings, options=None):
 
     outformat = img.format or original_format or 'JPEG'
     logger.debug(u'Save resized image to {0} ({1})'.format(outname, outformat))
-    with open(outname, 'w') as fp:
-        save_image(img, fp, outformat, options=options, autoconvert=True)
+    save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
 def generate_thumbnail(source, outname, box, fit=True, options=None):
@@ -109,8 +110,7 @@ def generate_thumbnail(source, outname, box, fit=True, options=None):
 
     outformat = img.format or original_format or 'JPEG'
     logger.debug(u'Save thumnail image: {0} ({1})'.format(outname, outformat))
-    with open(outname, 'w') as fp:
-        save_image(img, fp, outformat, options=options, autoconvert=True)
+    save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
 def add_copyright(img, text):
@@ -185,7 +185,12 @@ def get_exif_tags(source):
             # Remove null bytes at the end if necessary
             date = data['DateTimeOriginal'].rsplit('\x00')[0]
             dt = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
-            simple['datetime'] = dt
+            dt = dt.strftime('%A, %d. %B %Y')
+
+            if compat.PY2:
+                simple['datetime'] = dt.decode('utf8')
+            else:
+                simple['datetime'] = dt
         except (ValueError, TypeError) as e:
             msg = u'Could not parse DateTimeOriginal of %s: %s' % (source, e)
             logger.warning(msg)

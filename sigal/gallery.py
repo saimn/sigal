@@ -38,8 +38,12 @@ from PIL import Image as PILImage
 
 import sigal.image
 import sigal.video
+from . import compat
 from .settings import get_thumb
 from .writer import Writer
+
+if not compat.PY2:
+    from functools import reduce
 
 DESCRIPTION_FILE = "index.md"
 
@@ -69,7 +73,7 @@ class PathsDb(object):
         # basepath must to be a unicode string so that os.walk will return
         # unicode dirnames and filenames. If basepath is a str, we must
         # convert it to unicode.
-        if isinstance(path, str):
+        if compat.PY2 and isinstance(path, str):
             enc = locale.getpreferredencoding()
             self.basepath = path.decode(enc)
         else:
@@ -96,12 +100,18 @@ class PathsDb(object):
         }
 
         # get information for each directory
-        for path, dirnames, filenames in os.walk(self.basepath, followlinks=True):
+        for path, dirnames, filenames in os.walk(self.basepath,
+                                                 followlinks=True):
             relpath = os.path.relpath(path, self.basepath)
 
             # sort images and sub-albums by name
-            filenames.sort(cmp=locale.strcoll)
-            dirnames.sort(cmp=locale.strcoll)
+            if compat.PY2:
+                filenames.sort(cmp=locale.strcoll)
+                dirnames.sort(cmp=locale.strcoll)
+            else:
+                from functools import cmp_to_key
+                filenames.sort(key=cmp_to_key(locale.strcoll))
+                dirnames.sort(key=cmp_to_key(locale.strcoll))
 
             self.db['paths_list'].append(relpath)
             self.db[relpath] = {

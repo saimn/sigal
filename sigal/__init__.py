@@ -30,9 +30,9 @@ sigal is yet another python script to prepare a static gallery of images:
 * generate html pages.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
-import codecs
+import io
 import logging
 import os
 import sys
@@ -72,9 +72,9 @@ def init():
     from pkg_resources import resource_string
     conf = resource_string(__name__, 'templates/sigal.conf.py')
 
-    with codecs.open('sigal.conf.py', 'w', 'utf-8') as f:
+    with io.open('sigal.conf.py', 'w', 'utf-8') as f:
         f.write(conf)
-    print "Sample config file created: sigal.conf.py"
+    print("Sample config file created: sigal.conf.py")
 
 
 @arg('source', nargs='?', help='Input directory')
@@ -97,7 +97,7 @@ def build(source, destination, debug=False, verbose=False, force=False,
 
     settings_file = config or _DEFAULT_CONFIG_FILE
     if not os.path.isfile(settings_file):
-        logger.error("Settings file not found (%s)", settings_file)
+        logger.error("Settings file not found: %s", settings_file)
         sys.exit(1)
     settings = read_settings(settings_file)
 
@@ -108,8 +108,7 @@ def build(source, destination, debug=False, verbose=False, force=False,
 
     logger.info("Input  : %s", settings['source'])
     if not settings['source'] or not os.path.isdir(settings['source']):
-        logger.error("Input directory '%s' does not exist.",
-                     settings['source'])
+        logger.error("Input directory not found: %s", settings['source'])
         sys.exit(1)
 
     logger.info("Output : %s", settings['destination'])
@@ -138,7 +137,7 @@ def serve(path):
         Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
         httpd = SocketServer.TCPServer(("", PORT), Handler, False)
 
-        print " * Running on http://127.0.0.1:%i/" % PORT
+        print(" * Running on http://127.0.0.1:{}/".format(PORT))
 
         try:
             httpd.allow_reuse_address = True
@@ -146,13 +145,14 @@ def serve(path):
             httpd.server_activate()
             httpd.serve_forever()
         except KeyboardInterrupt:
-            print '\nAll done!'
+            print('\nAll done!')
     else:
         sys.stderr.write("The '%s' directory doesn't exist.\n" % path)
 
 
 def main():
-    parser = ArghParser(description='Simple static gallery generator.',
-                        version=__version__)
+    parser = ArghParser(description='Simple static gallery generator.')
     parser.add_commands([init, build, serve])
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s {}'.format(__version__))
     parser.dispatch()
