@@ -36,9 +36,7 @@ from clint.textui import progress, colored
 from os.path import join
 from PIL import Image as PILImage
 
-import sigal.image
-import sigal.video
-from . import compat
+from . import compat, image, video
 from .settings import get_thumb
 from .writer import Writer
 
@@ -172,8 +170,6 @@ class PathsDb(object):
             self.db[path]['thumbnail'] = self.db[path]['medias'][0]
             return
 
-        self.db[path]['thumbnail'] = ''
-
 
 class Gallery(object):
     "Prepare images"
@@ -299,11 +295,11 @@ def process_image(filepath, outpath, settings):
     if settings['keep_orig']:
         shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
 
-    sigal.image.generate_image(filepath, outname, settings, options=options)
+    image.generate_image(filepath, outname, settings, options=options)
 
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
-        sigal.image.generate_thumbnail(
+        image.generate_thumbnail(
             outname, thumb_name, settings['thumb_size'],
             fit=settings['thumb_fit'], options=options)
 
@@ -319,12 +315,12 @@ def process_video(filepath, outpath, settings):
         shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
 
     # TODO: Add specific video size settings
-    sigal.video.generate_video(filepath, outname, settings['img_size'],
-                               settings['webm_options'])
+    video.generate_video(filepath, outname, settings['img_size'],
+                         settings['webm_options'])
 
     if settings['make_thumbs']:
         thumb_name = join(outpath, get_thumb(settings, filename))
-        sigal.video.generate_thumbnail(
+        video.generate_thumbnail(
             outname, thumb_name, settings['thumb_size'],
             fit=settings['thumb_fit'], options=settings['jpg_options'])
 
