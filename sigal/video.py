@@ -63,7 +63,7 @@ def generate_video(source, outname, size, options={}):
     w_dst, h_dst = size
     base, src_ext = os.path.splitext(source)
     base, dst_ext = os.path.splitext(outname)
-    if dst_ext == src_ext and w_src <= w_dst and h_src <= w_dst:
+    if dst_ext == src_ext and w_src <= w_dst and h_src <= h_dst:
         shutil.copy(source, outname)
         return
 
