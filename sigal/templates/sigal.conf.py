@@ -75,6 +75,8 @@ thumb_size = (280, 210)
 #                 'qmin': '4',
 #                 'qmax': '63'}
 
+# Size of resized video (default: (480, 360))
+# video_size = (480, 360)
 
 # Write HTML files. If False, sigal will only process the images.
 # write_html = True

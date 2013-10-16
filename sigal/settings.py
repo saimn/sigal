@@ -25,35 +25,36 @@ import logging
 import os
 
 _DEFAULT_CONFIG = {
-    'source': '',
-    'destination': '_build',
-    'img_size': (640, 480),
-    'img_processor': 'ResizeToFit',
     'adjust_options': {'color': 1.0, 'brightness': 1.0,
                        'contrast': 1.0, 'sharpness': 1.0},
-    'make_thumbs': True,
-    'thumb_prefix': '',
-    'thumb_suffix': '',
-    'thumb_size': (200, 150),
-    'thumb_dir': 'thumbnails',
-    'thumb_fit': True,
+    'copy_exif_data': True,
+    'copyright': '',
+    'destination': '_build',
+    'google_analytics': '',
+    'img_ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
+    'img_processor': 'ResizeToFit',
+    'img_size': (640, 480),
+    'index_in_url': False,
+    'jpg_options': {'quality': 85, 'optimize': True, 'progressive': True},
     'keep_orig': False,
+    'links': '',
+    'locale': '',
+    'make_thumbs': True,
     'orig_dir': 'original',
     'orig_link': False,
-    'jpg_options': {'quality': 85, 'optimize': True, 'progressive': True},
+    'source': '',
+    'theme': 'colorbox',
+    'thumb_dir': 'thumbnails',
+    'thumb_fit': True,
+    'thumb_prefix': '',
+    'thumb_size': (200, 150),
+    'thumb_suffix': '',
+    'vid_ext_list': ['.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv'],
+    'video_size': (480, 360),
     'webm_options': {'crf': '10', 'bitrate': '1.6M',
                      'qmin': '4', 'qmax': '63'},
-    'copyright': '',
-    'img_ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
-    'vid_ext_list': ['.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv'],
-    'theme': 'colorbox',
     'write_html': True,
-    'index_in_url': False,
     'zip_gallery': False,
-    'links': '',
-    'google_analytics': '',
-    'copy_exif_data': True,
-    'locale': ''
 }
 
 
@@ -119,7 +120,7 @@ def read_settings(filename=None):
                     settings_path, path)))
                 logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
 
-    for key in ('img_size', 'thumb_size'):
+    for key in ('img_size', 'thumb_size', 'video_size'):
         w, h = settings[key]
         if h > w:
             settings[key] = (h, w)

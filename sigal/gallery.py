@@ -316,8 +316,7 @@ def process_video(filepath, outpath, settings):
         copy(filepath, join(outpath, settings['orig_dir'], filename),
              symlink=settings['orig_link'])
 
-    # TODO: Add specific video size settings
-    video.generate_video(filepath, outname, settings['img_size'],
+    video.generate_video(filepath, outname, settings['video_size'],
                          settings['webm_options'])
 
     if settings['make_thumbs']:
