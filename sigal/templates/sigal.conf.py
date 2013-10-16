@@ -58,6 +58,9 @@ thumb_size = (280, 210)
 # Subdirectory for original images
 # orig_dir = 'original'
 
+# Use symbolic links instead of copying the original images
+# orig_link = False
+
 # Jpeg options
 # jpg_options = {'quality': 85,
 #                'optimize': True,

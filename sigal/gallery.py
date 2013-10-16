@@ -293,7 +293,8 @@ def process_image(filepath, outpath, settings):
         options = {}
 
     if settings['keep_orig']:
-        shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
+        copy(filepath, join(outpath, settings['orig_dir'], filename),
+             symlink=settings['orig_link'])
 
     image.generate_image(filepath, outname, settings, options=options)
 
@@ -312,7 +313,8 @@ def process_video(filepath, outpath, settings):
     outname = join(outpath, base + '.webm')
 
     if settings['keep_orig']:
-        shutil.copy(filepath, join(outpath, settings['orig_dir'], filename))
+        copy(filepath, join(outpath, settings['orig_dir'], filename),
+             symlink=settings['orig_link'])
 
     # TODO: Add specific video size settings
     video.generate_video(filepath, outname, settings['img_size'],
@@ -323,6 +325,12 @@ def process_video(filepath, outpath, settings):
         video.generate_thumbnail(
             outname, thumb_name, settings['thumb_size'],
             fit=settings['thumb_fit'], options=settings['jpg_options'])
+
+
+def copy(src, dst, symlink=False):
+    """Copy or symlink the file."""
+    func = os.symlink if symlink else shutil.copy2
+    func(src, dst)
 
 
 def get_metadata(path):

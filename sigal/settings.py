@@ -39,6 +39,7 @@ _DEFAULT_CONFIG = {
     'thumb_fit': True,
     'keep_orig': False,
     'orig_dir': 'original',
+    'orig_link': False,
     'jpg_options': {'quality': 85, 'optimize': True, 'progressive': True},
     'webm_options': {'crf': '10', 'bitrate': '1.6M',
                      'qmin': '4', 'qmax': '63'},
