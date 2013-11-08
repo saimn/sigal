@@ -3,12 +3,7 @@
 import os
 from setuptools import setup
 
-requires = ['argh', 'clint', 'jinja2', 'Markdown', 'pilkit']
-
-try:
-    from PIL import Image, ImageOps  # NOQA
-except ImportError:
-    requires += ['Pillow']
+requires = ['argh', 'clint', 'jinja2', 'Markdown', 'Pillow', 'pilkit']
 
 entry_points = {
     'console_scripts': ['sigal = sigal:main']
