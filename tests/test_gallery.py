@@ -93,6 +93,7 @@ def test_medialist(db):
 
 
 def test_get_subdir(paths):
+    assert set(paths.get_subdirs('dir1/test1')) == set()
     assert set(paths.get_subdirs('dir1')) == set(['dir1/test1', 'dir1/test2'])
     assert set(paths.get_subdirs('.')) == set([
         'dir1', 'dir2', 'dir1/test1', 'dir1/test2', u'accentué', 'video'])

@@ -40,9 +40,6 @@ from . import compat, image, video
 from .settings import get_thumb
 from .writer import Writer
 
-if not compat.PY2:
-    from functools import reduce
-
 DESCRIPTION_FILE = "index.md"
 
 # Label with for the progress bar. The max value is 48 character = 80 - 32 for
@@ -66,7 +63,14 @@ class PathsDb(object):
     def __init__(self, path, img_ext_list, vid_ext_list):
         self.img_ext_list = img_ext_list
         self.vid_ext_list = vid_ext_list
+        self.ext_list = self.img_ext_list + self.vid_ext_list
         self.logger = logging.getLogger(__name__)
+
+        # The dict containing all information
+        self.db = {
+            'paths_list': [],
+            'skipped_dir': []
+        }
 
         # basepath must to be a unicode string so that os.walk will return
         # unicode dirnames and filenames. If basepath is a str, we must
@@ -77,25 +81,25 @@ class PathsDb(object):
         else:
             self.basepath = path
 
+        self.build()
+
     def get_subdirs(self, path):
         """Return the list of all sub-directories of path."""
 
-        subdir = [os.path.normpath(os.path.join(path, sub))
-                  for sub in self.db[path].get('subdir', [])]
-        if subdir:
-            return subdir + reduce(lambda x, y: x + y,
-                                   map(self.get_subdirs, subdir))
-        else:
-            return []
+        for name in self.db[path].get('subdir', []):
+            subdir = os.path.normpath(os.path.join(path, name))
+            yield subdir
+            for subname in self.get_subdirs(subdir):
+                yield subname
 
     def build(self):
         "Build the list of directories with images"
 
-        # The dict containing all information
-        self.db = {
-            'paths_list': [],
-            'skipped_dir': []
-        }
+        if compat.PY2:
+            sort_args = {'cmp': locale.strcoll}
+        else:
+            from functools import cmp_to_key
+            sort_args = {'key': cmp_to_key(locale.strcoll)}
 
         # get information for each directory
         for path, dirnames, filenames in os.walk(self.basepath,
@@ -103,26 +107,21 @@ class PathsDb(object):
             relpath = os.path.relpath(path, self.basepath)
 
             # sort images and sub-albums by name
-            if compat.PY2:
-                filenames.sort(cmp=locale.strcoll)
-                dirnames.sort(cmp=locale.strcoll)
-            else:
-                from functools import cmp_to_key
-                filenames.sort(key=cmp_to_key(locale.strcoll))
-                dirnames.sort(key=cmp_to_key(locale.strcoll))
+            filenames.sort(**sort_args)
+            dirnames.sort(**sort_args)
 
             self.db['paths_list'].append(relpath)
             self.db[relpath] = {
-                'medias': [f for f in filenames if os.path.splitext(f)[1]
-                           in (self.img_ext_list + self.vid_ext_list)],
+                'medias': [f for f in filenames
+                           if os.path.splitext(f)[1] in self.ext_list],
                 'subdir': dirnames
             }
             self.db[relpath].update(get_metadata(path))
 
-        path_media = [path for path in self.db['paths_list']
-                      if self.db[path]['medias'] and path != '.']
-        path_nomedia = [path for path in self.db['paths_list']
-                        if not self.db[path]['medias'] and path != '.']
+        path_media = (path for path in self.db['paths_list']
+                      if self.db[path]['medias'] and path != '.')
+        path_nomedia = (path for path in self.db['paths_list']
+                        if not self.db[path]['medias'] and path != '.')
 
         # dir with images: check the thumbnail, and find it if necessary
         for path in path_media:
@@ -168,7 +167,6 @@ class PathsDb(object):
         # else simply return the 1st media file
         if self.db[path]['medias']:
             self.db[path]['thumbnail'] = self.db[path]['medias'][0]
-            return
 
 
 class Gallery(object):
@@ -183,11 +181,9 @@ class Gallery(object):
             self.writer = Writer(settings, self.settings['destination'],
                                  theme=theme)
 
-        self.paths = PathsDb(self.settings['source'],
-                             self.settings['img_ext_list'],
-                             self.settings['vid_ext_list'])
-        self.paths.build()
-        self.db = self.paths.db
+        paths = PathsDb(self.settings['source'], self.settings['img_ext_list'],
+                        self.settings['vid_ext_list'])
+        self.db = paths.db
 
     def build(self):
         "Create the image gallery"
