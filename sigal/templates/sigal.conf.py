@@ -41,6 +41,10 @@ theme = 'galleria'
 # Size of resized image (default: (640, 480))
 img_size = (800, 600)
 
+# Should we use openlayers to show a map of the images where possible?
+# This option only has an effect on the galleria theme for the while.
+# show_map = False
+
 # Pilkit processor used to resize the image
 # (see http://pilkit.readthedocs.org/en/latest/#processors)
 # - ResizeToFit: fit the image within the specified dimensions (default)

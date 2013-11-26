@@ -176,6 +176,9 @@ class Image(Media):
     def thumb_size(self):
         return get_size(self.thumb_path)
 
+    def has_location(self):
+        return self.exif is not None and 'gps' in self.exif
+
 
 class Video(Media):
     """Gather all informations on a video file."""
@@ -433,6 +436,13 @@ class Album(UnicodeMixin):
 
         breadcrumb.reverse()
         return breadcrumb
+
+    @property
+    def show_map(self):
+        """Check if we have at least one photo with GPS location in the album
+        """
+        return any(image.has_location() for image in self.images)
+
 
     @property
     def zip(self):
