@@ -8,5 +8,6 @@ before_install:
     - sudo apt-get install -qq libfreetype6-dev libjpeg8-dev zlib1g-dev ffmpeg
 install:
     - pip install pytest
+    - pip install clint==0.3.1
     - pip install .
 script: py.test
