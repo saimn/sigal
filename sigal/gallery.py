@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import codecs
 import locale
@@ -33,6 +33,7 @@ import sys
 import zipfile
 
 from clint.textui import progress, colored
+from multiprocessing import Pool, cpu_count, current_process
 from os.path import join
 from PIL import Image as PILImage
 
@@ -172,14 +173,23 @@ class PathsDb(object):
 class Gallery(object):
     "Prepare images"
 
-    def __init__(self, settings, force=False, theme=None):
+    def __init__(self, settings, force=False, theme=None, ncpu=None):
         self.settings = settings
         self.force = force
+        self.theme = theme
         self.logger = logging.getLogger(__name__)
 
-        if self.settings['write_html']:
-            self.writer = Writer(settings, self.settings['destination'],
-                                 theme=theme)
+        if ncpu is not None:
+            try:
+                ncpu = int(ncpu)
+            except ValueError:
+                self.logger.error('ncpu should be an integer value')
+                ncpu = cpu_count()
+            except NotImplementedError:
+                ncpu = 1
+
+        self.logger.info("Using %s cores", ncpu)
+        self.pool = Pool(processes=ncpu)
 
         paths = PathsDb(self.settings['source'], self.settings['img_ext_list'],
                         self.settings['vid_ext_list'])
@@ -196,6 +206,8 @@ class Gallery(object):
 
         # loop on directories in reversed order, to process subdirectories
         # before their parent
+        media_list = []
+
         for path in reversed(self.db['paths_list']):
             source = self.settings['source']
             media_files = [os.path.normpath(join(source, path, f))
@@ -207,10 +219,23 @@ class Gallery(object):
             check_or_create_dir(outpath)
 
             if len(media_files) != 0:
-                self.process_dir(media_files, outpath, path,
-                                 label_width=label_width)
+                for files in self.process_dir(media_files, outpath, path,
+                                              label_width=label_width):
+                    media_list.append(files)
 
-            if self.settings['write_html']:
+        try:
+            self.pool.map(worker, media_list)
+            self.pool.close()
+            self.pool.join()
+        except KeyboardInterrupt:
+            self.pool.terminate()
+            sys.exit('Interrupted')
+
+        if self.settings['write_html']:
+            self.writer = Writer(self.settings, self.settings['destination'],
+                                 theme=self.theme)
+
+            for path in reversed(self.db['paths_list']):
                 self.writer.write(self.db, path)
 
     def process_dir(self, media_files, outpath, dirname, label_width=20):
@@ -234,34 +259,34 @@ class Gallery(object):
                              colored.green(dirname), len(media_files))
             self.logger.info("")
 
-        try:
-            # loop on images
-            if self.settings['zip_gallery']:
-                self._zip_files(outpath, media_files)
+        # loop on images
+        if self.settings['zip_gallery']:
+            self._zip_files(outpath, media_files)
 
-            for f in media_iterator:
-                filename = os.path.split(f)[1]
-                base, ext = os.path.splitext(filename)
+        for f in media_iterator:
+            filename = os.path.split(f)[1]
+            base, ext = os.path.splitext(filename)
+
+            if ext in self.settings['img_ext_list']:
+                outname = join(outpath, filename)
+            elif ext in self.settings['vid_ext_list']:
+                outname = join(outpath, base + '.webm')
+            else:
+                raise FileExtensionError
+
+            if os.path.isfile(outname) and not self.force:
+                self.logger.info("%s exists - skipping", filename)
+            else:
+                if self.settings['keep_orig']:
+                    copy(f, join(outpath, self.settings['orig_dir'], filename),
+                         symlink=self.settings['orig_link'])
+
                 if ext in self.settings['img_ext_list']:
-                    outname = join(outpath, filename)
+                    yield 'image', f, outpath, self.settings
                 elif ext in self.settings['vid_ext_list']:
-                    outname = join(outpath, base + '.webm')
+                    yield 'video', f, outpath, self.settings
                 else:
                     raise FileExtensionError
-
-                if os.path.isfile(outname) and not self.force:
-                    self.logger.info("%s exists - skipping", filename)
-                else:
-                    self.logger.info(filename)
-                    if ext in self.settings['img_ext_list']:
-                        process_image(f, outpath, self.settings)
-                    elif ext in self.settings['vid_ext_list']:
-                        process_video(f, outpath, self.settings)
-                    else:
-                        raise FileExtensionError
-
-        except KeyboardInterrupt:
-            sys.exit('Interrupted')
 
     def _zip_files(self, outpath, filepaths):
         archive_name = join(outpath, str(self.settings['zip_gallery']))
@@ -274,6 +299,16 @@ class Gallery(object):
         archive.close()
 
 
+def worker(args):
+    try:
+        if args[0] == 'image':
+            return process_image(*args[1:])
+        elif args[0] == 'video':
+            return process_video(*args[1:])
+    except KeyboardInterrupt:
+        return 'KeyboardException'
+
+
 def process_image(filepath, outpath, settings):
     """Process one image: resize, create thumbnail."""
 
@@ -281,16 +316,18 @@ def process_image(filepath, outpath, settings):
     outname = join(outpath, filename)
     ext = os.path.splitext(filename)
 
+    logger = logging.getLogger(__name__)
+    logger.info(filename)
+
+    if logger.getEffectiveLevel() > 20:
+        print('.', end='')
+
     if ext in ['.jpg', '.jpeg', '.JPG', '.JPEG']:
         options = settings['jpg_options']
     elif ext == '.png':
         options = {'optimize': True}
     else:
         options = {}
-
-    if settings['keep_orig']:
-        copy(filepath, join(outpath, settings['orig_dir'], filename),
-             symlink=settings['orig_link'])
 
     image.generate_image(filepath, outname, settings, options=options)
 
@@ -308,9 +345,8 @@ def process_video(filepath, outpath, settings):
     base, ext = os.path.splitext(filename)
     outname = join(outpath, base + '.webm')
 
-    if settings['keep_orig']:
-        copy(filepath, join(outpath, settings['orig_dir'], filename),
-             symlink=settings['orig_link'])
+    logger = logging.getLogger(__name__)
+    logger.info(filename)
 
     video.generate_video(filepath, outname, settings['video_size'],
                          settings['webm_options'])
