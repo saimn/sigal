@@ -69,7 +69,7 @@ def generate_image(source, outname, settings, options=None):
     # Rotate the img, and catch IOError when PIL fails to read EXIF
     try:
         img = Transpose().process(img)
-    except IOError:
+    except (IOError, IndexError):
         pass
 
     # Resize the image
@@ -159,7 +159,7 @@ def get_exif_tags(source):
 
     try:
         data = _get_exif_data(source)
-    except (TypeError, IOError):
+    except (IOError, IndexError, TypeError, AttributeError):
         logger.warning(u'Could not read EXIF data from {0}'.format(source))
         return (None, None)
 
