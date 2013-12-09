@@ -34,7 +34,7 @@ import zipfile
 
 from clint.textui import colored
 from multiprocessing import Pool, cpu_count
-from os.path import join
+from os.path import join, normpath
 from PIL import Image as PILImage
 
 from . import compat, image, video
@@ -84,7 +84,7 @@ class PathsDb(object):
         """Return the list of all sub-directories of path."""
 
         for name in self.db[path].get('subdir', []):
-            subdir = os.path.normpath(os.path.join(path, name))
+            subdir = normpath(join(path, name))
             yield subdir
             for subname in self.get_subdirs(subdir):
                 yield subname
@@ -140,7 +140,7 @@ class PathsDb(object):
                 self.db['skipped_dir'].append(path)
                 self.db['paths_list'].remove(path)
                 del self.db[path]
-                parent = os.path.normpath(join(path, '..'))
+                parent = normpath(join(path, '..'))
                 child = os.path.relpath(path, parent)
                 self.db[parent]['subdir'].remove(child)
 
@@ -174,6 +174,8 @@ class Gallery(object):
         self.force = force
         self.theme = theme
         self.logger = logging.getLogger(__name__)
+        self.stats = {'image': 0, 'image_skipped': 0,
+                      'video': 0, 'video_skipped': 0}
 
         if ncpu is not None:
             try:
@@ -202,12 +204,11 @@ class Gallery(object):
 
         for path in reversed(self.db['paths_list']):
             source = self.settings['source']
-            media_files = [os.path.normpath(join(source, path, f))
+            media_files = [normpath(join(source, path, f))
                            for f in self.db[path]['medias']]
 
             # output dir for the current path
-            outpath = os.path.normpath(join(self.settings['destination'],
-                                            path))
+            outpath = normpath(join(self.settings['destination'], path))
             check_or_create_dir(outpath)
 
             if len(media_files) != 0:
@@ -254,28 +255,34 @@ class Gallery(object):
 
             if ext in self.settings['img_ext_list']:
                 outname = join(outpath, filename)
+                filetype = 'image'
             elif ext in self.settings['vid_ext_list']:
                 outname = join(outpath, base + '.webm')
+                filetype = 'video'
             else:
                 raise FileExtensionError
 
             if os.path.isfile(outname) and not self.force:
                 self.logger.info("%s exists - skipping", filename)
+                self.stats[filetype + '_skipped'] += 1
             else:
                 if self.settings['keep_orig']:
                     copy(f, join(outpath, self.settings['orig_dir'], filename),
                          symlink=self.settings['orig_link'])
 
-                if ext in self.settings['img_ext_list']:
-                    yield 'image', f, outpath, self.settings
-                elif ext in self.settings['vid_ext_list']:
-                    yield 'video', f, outpath, self.settings
-                else:
-                    raise FileExtensionError
+                self.stats[filetype] += 1
+                yield filetype, f, outpath, self.settings
 
 
 def worker(args):
     try:
+        logger = logging.getLogger(__name__)
+        logger.info('Processing %s', args[1])
+
+        if logger.getEffectiveLevel() > 20:
+            print('.', end='')
+            sys.stdout.flush()
+
         if args[0] == 'image':
             return process_image(*args[1:])
         elif args[0] == 'video':
@@ -290,13 +297,6 @@ def process_image(filepath, outpath, settings):
     filename = os.path.split(filepath)[1]
     outname = join(outpath, filename)
     ext = os.path.splitext(filename)
-
-    logger = logging.getLogger(__name__)
-    logger.info(filename)
-
-    if logger.getEffectiveLevel() > 20:
-        print('.', end='')
-        sys.stdout.flush()
 
     if ext in ['.jpg', '.jpeg', '.JPG', '.JPEG']:
         options = settings['jpg_options']
@@ -321,9 +321,6 @@ def process_video(filepath, outpath, settings):
     base, ext = os.path.splitext(filename)
     outname = join(outpath, base + '.webm')
 
-    logger = logging.getLogger(__name__)
-    logger.info(filename)
-
     video.generate_video(filepath, outname, settings['video_size'],
                          settings['webm_options'])
 
@@ -337,6 +334,8 @@ def process_video(filepath, outpath, settings):
 def copy(src, dst, symlink=False):
     """Copy or symlink the file."""
     func = os.symlink if symlink else shutil.copy2
+    if symlink and os.path.lexists(dst):
+        os.remove(dst)
     func(src, dst)
 
 

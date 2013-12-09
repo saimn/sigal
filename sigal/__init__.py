@@ -33,10 +33,12 @@ sigal is yet another python script to prepare a static gallery of images:
 from __future__ import absolute_import, print_function
 
 import io
+import locale
 import logging
 import os
 import sys
-import locale
+import time
+
 from argh import ArghParser, arg
 from logging import Formatter
 
@@ -96,6 +98,7 @@ def build(source, destination, debug=False, verbose=False, force=False,
     init_logging(level=level)
     logger = logging.getLogger(__name__)
 
+    start_time = time.time()
     settings_file = config or _DEFAULT_CONFIG_FILE
     if not os.path.isfile(settings_file):
         logger.error("Settings file not found: %s", settings_file)
@@ -122,6 +125,10 @@ def build(source, destination, debug=False, verbose=False, force=False,
     locale.setlocale(locale.LC_ALL, settings['locale'])
     gal = Gallery(settings, force=force, theme=theme, ncpu=ncpu)
     gal.build()
+
+    print(('Done: Processed {image} images ({image_skipped} skipped) and '
+           '{video} videos ({video_skipped} skipped) in {duration:.2f} '
+           'seconds.').format(duration=time.time() - start_time, **gal.stats))
 
 
 @arg('path', nargs='?', default='_build',
