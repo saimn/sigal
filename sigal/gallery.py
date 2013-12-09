@@ -32,8 +32,8 @@ import shutil
 import sys
 import zipfile
 
-from clint.textui import progress, colored
-from multiprocessing import Pool, cpu_count, current_process
+from clint.textui import colored
+from multiprocessing import Pool, cpu_count
 from os.path import join
 from PIL import Image as PILImage
 
@@ -42,10 +42,6 @@ from .settings import get_thumb
 from .writer import Writer
 
 DESCRIPTION_FILE = "index.md"
-
-# Label with for the progress bar. The max value is 48 character = 80 - 32 for
-# the progress bar.
-MAX_LABEL_WIDTH = 45
 
 
 class FileExtensionError(Exception):
@@ -200,10 +196,6 @@ class Gallery(object):
 
         check_or_create_dir(self.settings['destination'])
 
-        # Compute the label with for the progress bar
-        label_width = max((len(p) for p in self.db['paths_list'])) + 1
-        label_width = min(label_width, MAX_LABEL_WIDTH)
-
         # loop on directories in reversed order, to process subdirectories
         # before their parent
         media_list = []
@@ -219,8 +211,7 @@ class Gallery(object):
             check_or_create_dir(outpath)
 
             if len(media_files) != 0:
-                for files in self.process_dir(media_files, outpath, path,
-                                              label_width=label_width):
+                for files in self.process_dir(media_files, outpath, path):
                     media_list.append(files)
 
         try:
@@ -231,6 +222,9 @@ class Gallery(object):
             self.pool.terminate()
             sys.exit('Interrupted')
 
+        if self.logger.getEffectiveLevel() > 20:
+            print('')
+
         if self.settings['write_html']:
             self.writer = Writer(self.settings, self.settings['destination'],
                                  theme=self.theme)
@@ -238,7 +232,7 @@ class Gallery(object):
             for path in reversed(self.db['paths_list']):
                 self.writer.write(self.db, path)
 
-    def process_dir(self, media_files, outpath, dirname, label_width=20):
+    def process_dir(self, media_files, outpath, dirname):
         """Process a list of images in a directory."""
 
         # Create thumbnails directory and optionally the one for original img
@@ -247,23 +241,14 @@ class Gallery(object):
         if self.settings['keep_orig']:
             check_or_create_dir(join(outpath, self.settings['orig_dir']))
 
-        # use progressbar if level is > INFO
-        if self.logger.getEffectiveLevel() > 20:
-            label = dirname[:MAX_LABEL_WIDTH - 1]
-            label = colored.green(label.ljust(label_width))
-            media_iterator = progress.bar(media_files, label=label)
-        else:
-            media_iterator = iter(media_files)
-            self.logger.info("")
-            self.logger.info(":: Processing '%s' [%i img/vid]",
-                             colored.green(dirname), len(media_files))
-            self.logger.info("")
+        self.logger.warn(":: Analyzing '%s' : %i images/videos",
+                         colored.green(dirname), len(media_files))
 
         # loop on images
         if self.settings['zip_gallery']:
             zip_files(join(outpath, self.settings['zip_gallery']), media_files)
 
-        for f in media_iterator:
+        for f in media_files:
             filename = os.path.split(f)[1]
             base, ext = os.path.splitext(filename)
 
@@ -288,6 +273,7 @@ class Gallery(object):
                 else:
                     raise FileExtensionError
 
+
 def worker(args):
     try:
         if args[0] == 'image':
@@ -310,6 +296,7 @@ def process_image(filepath, outpath, settings):
 
     if logger.getEffectiveLevel() > 20:
         print('.', end='')
+        sys.stdout.flush()
 
     if ext in ['.jpg', '.jpeg', '.JPG', '.JPEG']:
         options = settings['jpg_options']
