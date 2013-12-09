@@ -261,7 +261,7 @@ class Gallery(object):
 
         # loop on images
         if self.settings['zip_gallery']:
-            self._zip_files(outpath, media_files)
+            zip_files(join(outpath, self.settings['zip_gallery']), media_files)
 
         for f in media_iterator:
             filename = os.path.split(f)[1]
@@ -287,17 +287,6 @@ class Gallery(object):
                     yield 'video', f, outpath, self.settings
                 else:
                     raise FileExtensionError
-
-    def _zip_files(self, outpath, filepaths):
-        archive_name = join(outpath, str(self.settings['zip_gallery']))
-        archive = zipfile.ZipFile(archive_name, 'w')
-
-        for p in filepaths:
-            filename = os.path.split(p)[1]
-            archive.write(p, filename)
-
-        archive.close()
-
 
 def worker(args):
     try:
@@ -405,3 +394,13 @@ def check_or_create_dir(path):
 
     if not os.path.isdir(path):
         os.makedirs(path)
+
+
+def zip_files(archive_path, filepaths):
+    archive = zipfile.ZipFile(archive_path, 'w')
+
+    for p in filepaths:
+        filename = os.path.split(p)[1]
+        archive.write(p, filename)
+
+    archive.close()
