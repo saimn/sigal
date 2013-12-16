@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import codecs
 import locale
@@ -32,8 +32,9 @@ import shutil
 import sys
 import zipfile
 
-from clint.textui import progress, colored
-from os.path import join
+from clint.textui import colored
+from multiprocessing import Pool, cpu_count
+from os.path import join, normpath
 from PIL import Image as PILImage
 
 from . import compat, image, video
@@ -41,10 +42,6 @@ from .settings import get_thumb
 from .writer import Writer
 
 DESCRIPTION_FILE = "index.md"
-
-# Label with for the progress bar. The max value is 48 character = 80 - 32 for
-# the progress bar.
-MAX_LABEL_WIDTH = 45
 
 
 class FileExtensionError(Exception):
@@ -87,7 +84,7 @@ class PathsDb(object):
         """Return the list of all sub-directories of path."""
 
         for name in self.db[path].get('subdir', []):
-            subdir = os.path.normpath(os.path.join(path, name))
+            subdir = normpath(join(path, name))
             yield subdir
             for subname in self.get_subdirs(subdir):
                 yield subname
@@ -143,7 +140,7 @@ class PathsDb(object):
                 self.db['skipped_dir'].append(path)
                 self.db['paths_list'].remove(path)
                 del self.db[path]
-                parent = os.path.normpath(join(path, '..'))
+                parent = normpath(join(path, '..'))
                 child = os.path.relpath(path, parent)
                 self.db[parent]['subdir'].remove(child)
 
@@ -172,14 +169,28 @@ class PathsDb(object):
 class Gallery(object):
     "Prepare images"
 
-    def __init__(self, settings, force=False, theme=None):
+    def __init__(self, settings, force=False, theme=None, ncpu=None):
         self.settings = settings
         self.force = force
+        self.theme = theme
         self.logger = logging.getLogger(__name__)
+        self.stats = {'image': 0, 'image_skipped': 0,
+                      'video': 0, 'video_skipped': 0}
 
-        if self.settings['write_html']:
-            self.writer = Writer(settings, self.settings['destination'],
-                                 theme=theme)
+        if ncpu is not None:
+            try:
+                ncpu = int(ncpu)
+            except ValueError:
+                self.logger.error('ncpu should be an integer value')
+                ncpu = cpu_count()
+            except NotImplementedError:
+                ncpu = 1
+
+            self.pool = Pool(processes=ncpu)
+        else:
+            self.pool = None
+
+        self.logger.info("Using %s cores", ncpu)
 
         paths = PathsDb(self.settings['source'], self.settings['img_ext_list'],
                         self.settings['vid_ext_list'])
@@ -190,31 +201,52 @@ class Gallery(object):
 
         check_or_create_dir(self.settings['destination'])
 
-        # Compute the label with for the progress bar
-        label_width = max((len(p) for p in self.db['paths_list'])) + 1
-        label_width = min(label_width, MAX_LABEL_WIDTH)
-
         # loop on directories in reversed order, to process subdirectories
         # before their parent
-        for path in reversed(self.db['paths_list']):
-            source = self.settings['source']
-            media_files = [os.path.normpath(join(source, path, f))
-                           for f in self.db[path]['medias']]
 
-            # output dir for the current path
-            outpath = os.path.normpath(join(self.settings['destination'],
-                                            path))
-            check_or_create_dir(outpath)
+        if self.pool:
+            media_list = []
 
-            if len(media_files) != 0:
-                self.process_dir(media_files, outpath, path,
-                                 label_width=label_width)
+            for path in reversed(self.db['paths_list']):
+                if len(self.db[path]['medias']) != 0:
+                    for files in self.process_dir(path):
+                        media_list.append(files)
 
-            if self.settings['write_html']:
+            try:
+                # map_async is needed to handle KeyboardInterrupt correctly
+                self.pool.map_async(worker2, media_list).get(9999)
+                self.pool.close()
+                self.pool.join()
+            except KeyboardInterrupt:
+                self.pool.terminate()
+                sys.exit('Interrupted')
+        else:
+            try:
+                for path in reversed(self.db['paths_list']):
+                    if len(self.db[path]['medias']) != 0:
+                        for files in self.process_dir(path):
+                            worker(files)
+            except KeyboardInterrupt:
+                sys.exit('Interrupted')
+
+        print('')
+
+        if self.settings['write_html']:
+            self.writer = Writer(self.settings, self.settings['destination'],
+                                 theme=self.theme)
+
+            for path in reversed(self.db['paths_list']):
                 self.writer.write(self.db, path)
 
-    def process_dir(self, media_files, outpath, dirname, label_width=20):
+    def process_dir(self, path):
         """Process a list of images in a directory."""
+
+        media_files = [normpath(join(self.settings['source'], path, f))
+                       for f in self.db[path]['medias']]
+
+        # output dir for the current path
+        outpath = normpath(join(self.settings['destination'], path))
+        check_or_create_dir(outpath)
 
         # Create thumbnails directory and optionally the one for original img
         check_or_create_dir(join(outpath, self.settings['thumb_dir']))
@@ -222,56 +254,57 @@ class Gallery(object):
         if self.settings['keep_orig']:
             check_or_create_dir(join(outpath, self.settings['orig_dir']))
 
-        # use progressbar if level is > INFO
-        if self.logger.getEffectiveLevel() > 20:
-            label = dirname[:MAX_LABEL_WIDTH - 1]
-            label = colored.green(label.ljust(label_width))
-            media_iterator = progress.bar(media_files, label=label)
-        else:
-            media_iterator = iter(media_files)
-            self.logger.info("")
-            self.logger.info(":: Processing '%s' [%i img/vid]",
-                             colored.green(dirname), len(media_files))
-            self.logger.info("")
+        self.logger.warn(":: Analyzing '%s' : %i images/videos",
+                         colored.green(path), len(media_files))
 
-        try:
-            # loop on images
-            if self.settings['zip_gallery']:
-                self._zip_files(outpath, media_files)
+        # loop on images
+        if self.settings['zip_gallery']:
+            zip_files(join(outpath, self.settings['zip_gallery']), media_files)
 
-            for f in media_iterator:
-                filename = os.path.split(f)[1]
-                base, ext = os.path.splitext(filename)
-                if ext in self.settings['img_ext_list']:
-                    outname = join(outpath, filename)
-                elif ext in self.settings['vid_ext_list']:
-                    outname = join(outpath, base + '.webm')
-                else:
-                    raise FileExtensionError
+        for f in media_files:
+            filename = os.path.split(f)[1]
+            base, ext = os.path.splitext(filename)
 
-                if os.path.isfile(outname) and not self.force:
-                    self.logger.info("%s exists - skipping", filename)
-                else:
-                    self.logger.info(filename)
-                    if ext in self.settings['img_ext_list']:
-                        process_image(f, outpath, self.settings)
-                    elif ext in self.settings['vid_ext_list']:
-                        process_video(f, outpath, self.settings)
-                    else:
-                        raise FileExtensionError
+            if ext in self.settings['img_ext_list']:
+                outname = join(outpath, filename)
+                filetype = 'image'
+            elif ext in self.settings['vid_ext_list']:
+                outname = join(outpath, base + '.webm')
+                filetype = 'video'
+            else:
+                raise FileExtensionError
 
-        except KeyboardInterrupt:
-            sys.exit('Interrupted')
+            if os.path.isfile(outname) and not self.force:
+                self.logger.info("%s exists - skipping", filename)
+                self.stats[filetype + '_skipped'] += 1
+            else:
+                if self.settings['keep_orig']:
+                    copy(f, join(outpath, self.settings['orig_dir'], filename),
+                         symlink=self.settings['orig_link'])
 
-    def _zip_files(self, outpath, filepaths):
-        archive_name = join(outpath, str(self.settings['zip_gallery']))
-        archive = zipfile.ZipFile(archive_name, 'w')
+                self.stats[filetype] += 1
+                yield filetype, f, outpath, self.settings
 
-        for p in filepaths:
-            filename = os.path.split(p)[1]
-            archive.write(p, filename)
 
-        archive.close()
+def worker(args):
+    logger = logging.getLogger(__name__)
+    logger.info('Processing %s', args[1])
+
+    if logger.getEffectiveLevel() > 20:
+        print('.', end='')
+        sys.stdout.flush()
+
+    if args[0] == 'image':
+        return process_image(*args[1:])
+    elif args[0] == 'video':
+        return process_video(*args[1:])
+
+
+def worker2(args):
+    try:
+        worker(args)
+    except KeyboardInterrupt:
+        return 'KeyboardException'
 
 
 def process_image(filepath, outpath, settings):
@@ -287,10 +320,6 @@ def process_image(filepath, outpath, settings):
         options = {'optimize': True}
     else:
         options = {}
-
-    if settings['keep_orig']:
-        copy(filepath, join(outpath, settings['orig_dir'], filename),
-             symlink=settings['orig_link'])
 
     image.generate_image(filepath, outname, settings, options=options)
 
@@ -308,10 +337,6 @@ def process_video(filepath, outpath, settings):
     base, ext = os.path.splitext(filename)
     outname = join(outpath, base + '.webm')
 
-    if settings['keep_orig']:
-        copy(filepath, join(outpath, settings['orig_dir'], filename),
-             symlink=settings['orig_link'])
-
     video.generate_video(filepath, outname, settings['video_size'],
                          settings['webm_options'])
 
@@ -325,6 +350,8 @@ def process_video(filepath, outpath, settings):
 def copy(src, dst, symlink=False):
     """Copy or symlink the file."""
     func = os.symlink if symlink else shutil.copy2
+    if symlink and os.path.lexists(dst):
+        os.remove(dst)
     func(src, dst)
 
 
@@ -369,3 +396,13 @@ def check_or_create_dir(path):
 
     if not os.path.isdir(path):
         os.makedirs(path)
+
+
+def zip_files(archive_path, filepaths):
+    archive = zipfile.ZipFile(archive_path, 'w')
+
+    for p in filepaths:
+        filename = os.path.split(p)[1]
+        archive.write(p, filename)
+
+    archive.close()
