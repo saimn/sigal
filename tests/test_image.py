@@ -27,7 +27,7 @@ def test_generate_image(tmpdir):
 def test_generate_image_processor(tmpdir):
     "Test generate_image with a wrong processor name."
 
-    init_logging()
+    init_logging('sigal')
     dstfile = str(tmpdir.join(TEST_IMAGE))
     settings = create_settings(img_size=(200, 200),
                                img_processor='WrongMethod')

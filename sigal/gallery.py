@@ -255,7 +255,7 @@ class Gallery(object):
             check_or_create_dir(join(outpath, self.settings['orig_dir']))
 
         print(colored('->', BLUE),
-              "{} : {} files".format(path, len(media_files)))
+              u"{} : {} files".format(path, len(media_files)))
 
         # loop on images
         if self.settings['zip_gallery']:

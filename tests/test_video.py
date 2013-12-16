@@ -3,16 +3,12 @@
 from __future__ import division
 
 import os
-import filecmp
-import pytest
 
-from sigal import init_logging
 from sigal.video import vid_size, generate_video
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_VIDEO = 'stallman-software-freedom-day-low.ogv'
 SRCFILE = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'video', TEST_VIDEO)
-
 
 
 def test_generate_video_fit_height(tmpdir):
@@ -29,6 +25,7 @@ def test_generate_video_fit_height(tmpdir):
     # less than 2% error on ratio
     assert abs(size_dst[0]/size_dst[1] - size_src[0]/size_src[1]) < 2e-2
 
+
 def test_generate_video_fit_width(tmpdir):
     """largest fitting dimension is width"""
 
@@ -42,6 +39,7 @@ def test_generate_video_fit_width(tmpdir):
     assert size_dst[1] == 50
     # less than 2% error on ratio
     assert abs(size_dst[0]/size_dst[1] - size_src[0]/size_src[1]) < 2e-2
+
 
 def test_generate_video_dont_enlarge(tmpdir):
     """video dimensions should not be enlarged"""
