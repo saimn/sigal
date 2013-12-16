@@ -126,7 +126,7 @@ def build(source, destination, debug=False, verbose=False, force=False,
     gal = Gallery(settings, force=force, theme=theme, ncpu=ncpu)
     gal.build()
 
-    print(('Done: Processed {image} images ({image_skipped} skipped) and '
+    print(('Done.\nProcessed {image} images ({image_skipped} skipped) and '
            '{video} videos ({video_skipped} skipped) in {duration:.2f} '
            'seconds.').format(duration=time.time() - start_time, **gal.stats))
 

@@ -186,8 +186,11 @@ class Gallery(object):
             except NotImplementedError:
                 ncpu = 1
 
+            self.pool = Pool(processes=ncpu)
+        else:
+            self.pool = None
+
         self.logger.info("Using %s cores", ncpu)
-        self.pool = Pool(processes=ncpu)
 
         paths = PathsDb(self.settings['source'], self.settings['img_ext_list'],
                         self.settings['vid_ext_list'])
@@ -200,31 +203,33 @@ class Gallery(object):
 
         # loop on directories in reversed order, to process subdirectories
         # before their parent
-        media_list = []
 
-        for path in reversed(self.db['paths_list']):
-            source = self.settings['source']
-            media_files = [normpath(join(source, path, f))
-                           for f in self.db[path]['medias']]
+        if self.pool:
+            media_list = []
 
-            # output dir for the current path
-            outpath = normpath(join(self.settings['destination'], path))
-            check_or_create_dir(outpath)
+            for path in reversed(self.db['paths_list']):
+                if len(self.db[path]['medias']) != 0:
+                    for files in self.process_dir(path):
+                        media_list.append(files)
 
-            if len(media_files) != 0:
-                for files in self.process_dir(media_files, outpath, path):
-                    media_list.append(files)
+            try:
+                # map_async is needed to handle KeyboardInterrupt correctly
+                self.pool.map_async(worker2, media_list).get(9999)
+                self.pool.close()
+                self.pool.join()
+            except KeyboardInterrupt:
+                self.pool.terminate()
+                sys.exit('Interrupted')
+        else:
+            try:
+                for path in reversed(self.db['paths_list']):
+                    if len(self.db[path]['medias']) != 0:
+                        for files in self.process_dir(path):
+                            worker(files)
+            except KeyboardInterrupt:
+                sys.exit('Interrupted')
 
-        try:
-            self.pool.map(worker, media_list)
-            self.pool.close()
-            self.pool.join()
-        except KeyboardInterrupt:
-            self.pool.terminate()
-            sys.exit('Interrupted')
-
-        if self.logger.getEffectiveLevel() > 20:
-            print('')
+        print('')
 
         if self.settings['write_html']:
             self.writer = Writer(self.settings, self.settings['destination'],
@@ -233,8 +238,15 @@ class Gallery(object):
             for path in reversed(self.db['paths_list']):
                 self.writer.write(self.db, path)
 
-    def process_dir(self, media_files, outpath, dirname):
+    def process_dir(self, path):
         """Process a list of images in a directory."""
+
+        media_files = [normpath(join(self.settings['source'], path, f))
+                       for f in self.db[path]['medias']]
+
+        # output dir for the current path
+        outpath = normpath(join(self.settings['destination'], path))
+        check_or_create_dir(outpath)
 
         # Create thumbnails directory and optionally the one for original img
         check_or_create_dir(join(outpath, self.settings['thumb_dir']))
@@ -243,7 +255,7 @@ class Gallery(object):
             check_or_create_dir(join(outpath, self.settings['orig_dir']))
 
         self.logger.warn(":: Analyzing '%s' : %i images/videos",
-                         colored.green(dirname), len(media_files))
+                         colored.green(path), len(media_files))
 
         # loop on images
         if self.settings['zip_gallery']:
@@ -275,18 +287,22 @@ class Gallery(object):
 
 
 def worker(args):
+    logger = logging.getLogger(__name__)
+    logger.info('Processing %s', args[1])
+
+    if logger.getEffectiveLevel() > 20:
+        print('.', end='')
+        sys.stdout.flush()
+
+    if args[0] == 'image':
+        return process_image(*args[1:])
+    elif args[0] == 'video':
+        return process_video(*args[1:])
+
+
+def worker2(args):
     try:
-        logger = logging.getLogger(__name__)
-        logger.info('Processing %s', args[1])
-
-        if logger.getEffectiveLevel() > 20:
-            print('.', end='')
-            sys.stdout.flush()
-
-        if args[0] == 'image':
-            return process_image(*args[1:])
-        elif args[0] == 'video':
-            return process_video(*args[1:])
+        worker(args)
     except KeyboardInterrupt:
         return 'KeyboardException'
 
