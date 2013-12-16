@@ -3,7 +3,7 @@
 import os
 from setuptools import setup
 
-requires = ['argh', 'clint', 'jinja2', 'Markdown', 'Pillow', 'pilkit']
+requires = ['argh', 'jinja2', 'Markdown', 'Pillow', 'pilkit']
 
 entry_points = {
     'console_scripts': ['sigal = sigal:main']

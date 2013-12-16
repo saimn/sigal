@@ -1,5 +1,4 @@
 argh
-clint
 Jinja2
 Markdown
 Pillow

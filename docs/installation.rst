@@ -14,7 +14,6 @@ Dependencies
 ~~~~~~~~~~~~
 
 - Argh
-- Clint
 - Jinja2
 - Pilkit
 - Python Imaging Library (PIL / Pillow, see below)

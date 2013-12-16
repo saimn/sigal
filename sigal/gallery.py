@@ -32,7 +32,6 @@ import shutil
 import sys
 import zipfile
 
-from clint.textui import colored
 from multiprocessing import Pool, cpu_count
 from os.path import join, normpath
 from PIL import Image as PILImage
@@ -255,7 +254,7 @@ class Gallery(object):
             check_or_create_dir(join(outpath, self.settings['orig_dir']))
 
         self.logger.warn(":: Analyzing '%s' : %i images/videos",
-                         colored.green(path), len(media_files))
+                         path, len(media_files))
 
         # loop on images
         if self.settings['zip_gallery']:

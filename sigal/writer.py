@@ -30,7 +30,6 @@ import logging
 import os
 import sys
 
-from clint.textui import colored
 from distutils.dir_util import copy_tree
 from jinja2 import Environment, FileSystemLoader, ChoiceLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
@@ -90,8 +89,7 @@ class Writer(object):
         try:
             self.template = env.get_template(self.template_file)
         except TemplateNotFound:
-            self.logger.error(colored.red('ERROR:') +
-                              ' The index.html template was not found.')
+            self.logger.error('The index.html template was not found.')
             sys.exit(1)
 
         self.copy_assets()
