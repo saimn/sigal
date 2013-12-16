@@ -40,32 +40,13 @@ import sys
 import time
 
 from argh import ArghParser, arg
-from logging import Formatter
 
 from .gallery import Gallery
+from .log import init_logging
 from .pkgmeta import __version__
 from .settings import read_settings
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
-
-
-def init_logging(level=logging.INFO):
-    """Logging config
-
-    Set the level and create a more detailed formatter for debug mode.
-
-    """
-    logger = logging.getLogger(__name__)
-    logger.setLevel(level)
-
-    if level == logging.DEBUG:
-        formatter = Formatter('%(levelname)s - %(message)s')
-    else:
-        formatter = Formatter('%(message)s')
-
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
 
 
 def init():
@@ -95,7 +76,7 @@ def build(source, destination, debug=False, verbose=False, force=False,
 
     level = ((debug and logging.DEBUG) or (verbose and logging.INFO)
              or logging.WARNING)
-    init_logging(level=level)
+    init_logging(__name__, level=level)
     logger = logging.getLogger(__name__)
 
     start_time = time.time()

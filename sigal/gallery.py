@@ -37,6 +37,7 @@ from os.path import join, normpath
 from PIL import Image as PILImage
 
 from . import compat, image, video
+from .log import colored, BLUE
 from .settings import get_thumb
 from .writer import Writer
 
@@ -253,8 +254,8 @@ class Gallery(object):
         if self.settings['keep_orig']:
             check_or_create_dir(join(outpath, self.settings['orig_dir']))
 
-        self.logger.warn(":: Analyzing '%s' : %i images/videos",
-                         path, len(media_files))
+        print(colored('->', BLUE),
+              "{} : {} files".format(path, len(media_files)))
 
         # loop on images
         if self.settings['zip_gallery']:
