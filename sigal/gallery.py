@@ -36,9 +36,10 @@ from multiprocessing import Pool, cpu_count
 from os.path import join, normpath
 from PIL import Image as PILImage
 
-from . import compat, image, video
+from . import compat
+from .image import process_image
 from .log import colored, BLUE
-from .settings import get_thumb
+from .video import process_video
 from .writer import Writer
 
 DESCRIPTION_FILE = "index.md"
@@ -167,7 +168,6 @@ class PathsDb(object):
 
 
 class Gallery(object):
-    "Prepare images"
 
     def __init__(self, settings, force=False, theme=None, ncpu=None):
         self.settings = settings
@@ -305,46 +305,6 @@ def worker(args):
         process_file(args)
     except KeyboardInterrupt:
         return 'KeyboardException'
-
-
-def process_image(filepath, outpath, settings):
-    """Process one image: resize, create thumbnail."""
-
-    filename = os.path.split(filepath)[1]
-    outname = join(outpath, filename)
-    ext = os.path.splitext(filename)
-
-    if ext in ['.jpg', '.jpeg', '.JPG', '.JPEG']:
-        options = settings['jpg_options']
-    elif ext == '.png':
-        options = {'optimize': True}
-    else:
-        options = {}
-
-    image.generate_image(filepath, outname, settings, options=options)
-
-    if settings['make_thumbs']:
-        thumb_name = join(outpath, get_thumb(settings, filename))
-        image.generate_thumbnail(
-            outname, thumb_name, settings['thumb_size'],
-            fit=settings['thumb_fit'], options=options)
-
-
-def process_video(filepath, outpath, settings):
-    """Process one image: resize, create thumbnail."""
-
-    filename = os.path.split(filepath)[1]
-    base, ext = os.path.splitext(filename)
-    outname = join(outpath, base + '.webm')
-
-    video.generate_video(filepath, outname, settings['video_size'],
-                         settings['webm_options'])
-
-    if settings['make_thumbs']:
-        thumb_name = join(outpath, get_thumb(settings, filename))
-        video.generate_thumbnail(
-            outname, thumb_name, settings['thumb_size'],
-            fit=settings['thumb_fit'], options=settings['jpg_options'])
 
 
 def copy(src, dst, symlink=False):

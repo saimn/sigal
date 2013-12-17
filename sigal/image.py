@@ -30,6 +30,7 @@
 # and partially modified. The code in question is licensed under MIT license.
 
 import logging
+import os
 import pilkit.processors
 import sys
 
@@ -41,6 +42,7 @@ from pilkit.utils import save_image
 from datetime import datetime
 
 from . import compat
+from .settings import get_thumb
 
 
 def _has_exif_tags(img):
@@ -111,6 +113,28 @@ def generate_thumbnail(source, outname, box, fit=True, options=None):
     outformat = img.format or original_format or 'JPEG'
     logger.debug(u'Save thumnail image: {0} ({1})'.format(outname, outformat))
     save_image(img, outname, outformat, options=options, autoconvert=True)
+
+
+def process_image(filepath, outpath, settings):
+    """Process one image: resize, create thumbnail."""
+
+    filename = os.path.split(filepath)[1]
+    outname = os.path.join(outpath, filename)
+    ext = os.path.splitext(filename)
+
+    if ext in ['.jpg', '.jpeg', '.JPG', '.JPEG']:
+        options = settings['jpg_options']
+    elif ext == '.png':
+        options = {'optimize': True}
+    else:
+        options = {}
+
+    generate_image(filepath, outname, settings, options=options)
+
+    if settings['make_thumbs']:
+        thumb_name = os.path.join(outpath, get_thumb(settings, filename))
+        generate_thumbnail(outname, thumb_name, settings['thumb_size'],
+                           fit=settings['thumb_fit'], options=options)
 
 
 def add_copyright(img, text):

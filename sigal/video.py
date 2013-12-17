@@ -25,16 +25,15 @@ import subprocess
 import os
 import re
 import shutil
-import sigal.image
 
-from . import compat
+from . import compat, image
+from .settings import get_thumb
 
 
-def vid_size(source):
+def video_size(source):
     """Returns the dimensions of the video"""
     pattern = re.compile(r'Stream.*Video.* ([0-9]+)x([0-9]+)')
-    p = subprocess.Popen(['ffmpeg', '-i', source],
-                         stdout=subprocess.PIPE,
+    p = subprocess.Popen(['ffmpeg', '-i', source], stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
 
@@ -46,20 +45,20 @@ def vid_size(source):
         x, y = int(match.groups()[0]), int(match.groups()[1])
     else:
         x = y = 0
-    return (x, y)
+    return x, y
 
 
 def generate_video(source, outname, size, options={}):
     """Video processor
 
-    :param source: path to an image
+    :param source: path to a video
     :param outname: name of the generated video
     :param options: array of options passed to ffmpeg
 
     """
     # Don't transcode if source is in the required format and
     # has fitting datedimensions, copy instead.
-    w_src, h_src = vid_size(source)
+    w_src, h_src = video_size(source)
     w_dst, h_dst = size
     base, src_ext = os.path.splitext(source)
     base, dst_ext = os.path.splitext(outname)
@@ -84,22 +83,39 @@ def generate_video(source, outname, size, options={}):
     # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
     with open("/dev/null") as devnull:
         subprocess.call(['ffmpeg', '-i', source, '-y',
-            '-crf', options.get('crf', '10'),
-            '-b:v', options.get('bitrate', '1.6M'),
-            '-qmin', options.get('qmin', '4'),
-            '-qmax', options.get('qmax', '63')] +
-            resize_opt + [outname],
-            stderr=devnull)
+                         '-crf', options.get('crf', '10'),
+                         '-b:v', options.get('bitrate', '1.6M'),
+                         '-qmin', options.get('qmin', '4'),
+                         '-qmax', options.get('qmax', '63')] +
+                        resize_opt + [outname],
+                        stderr=devnull)
 
 
 def generate_thumbnail(source, outname, box, fit=True, options=None):
-    "Create a thumbnail image"
+    """Create a thumbnail image for the video source, based on ffmpeg."""
     # 1) dump an image of the video
     tmpfile = outname + ".tmp.jpg"
     with open("/dev/null") as devnull:
         subprocess.call(['ffmpeg', '-i', source, '-an', '-r', '1',
-            '-vframes', '1', '-y', tmpfile], stderr=devnull)
+                         '-vframes', '1', '-y', tmpfile], stderr=devnull)
     # 2) use the generate_thumbnail function from sigal.image
-    sigal.image.generate_thumbnail(tmpfile, outname, box, fit, options)
+    image.generate_thumbnail(tmpfile, outname, box, fit, options)
     # 3) remove the image
     os.unlink(tmpfile)
+
+
+def process_video(filepath, outpath, settings):
+    """Process a video: resize, create thumbnail."""
+
+    filename = os.path.split(filepath)[1]
+    base, ext = os.path.splitext(filename)
+    outname = os.path.join(outpath, base + '.webm')
+
+    generate_video(filepath, outname, settings['video_size'],
+                   settings['webm_options'])
+
+    if settings['make_thumbs']:
+        thumb_name = os.path.join(outpath, get_thumb(settings, filename))
+        generate_thumbnail(
+            outname, thumb_name, settings['thumb_size'],
+            fit=settings['thumb_fit'], options=settings['jpg_options'])
