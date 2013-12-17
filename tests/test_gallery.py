@@ -117,7 +117,7 @@ def test_gallery(tmpdir):
     default_conf = os.path.join(SAMPLE_DIR, 'sigal.conf.py')
     settings = read_settings(default_conf)
     settings['destination'] = str(tmpdir)
-    gal = Gallery(settings)
+    gal = Gallery(settings, ncpu=1)
     gal.build()
 
     out_html = os.path.join(settings['destination'], 'index.html')
