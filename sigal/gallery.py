@@ -177,15 +177,15 @@ class Gallery(object):
         self.stats = {'image': 0, 'image_skipped': 0,
                       'video': 0, 'video_skipped': 0}
 
-        if ncpu is not None:
-            try:
-                ncpu = int(ncpu)
-            except ValueError:
-                self.logger.error('ncpu should be an integer value')
-                ncpu = cpu_count()
-            except NotImplementedError:
-                ncpu = 1
+        try:
+            ncpu = int(ncpu)
+        except (ValueError, TypeError):
+            self.logger.error('ncpu should be an integer value')
+            ncpu = cpu_count()
+        except NotImplementedError:
+            ncpu = 1
 
+        if ncpu > 1:
             self.pool = Pool(processes=ncpu)
         else:
             self.pool = None
@@ -214,7 +214,7 @@ class Gallery(object):
 
             try:
                 # map_async is needed to handle KeyboardInterrupt correctly
-                self.pool.map_async(worker2, media_list).get(9999)
+                self.pool.map_async(worker, media_list).get(9999)
                 self.pool.close()
                 self.pool.join()
             except KeyboardInterrupt:
@@ -225,7 +225,7 @@ class Gallery(object):
                 for path in reversed(self.db['paths_list']):
                     if len(self.db[path]['medias']) != 0:
                         for files in self.process_dir(path):
-                            worker(files)
+                            process_file(files)
             except KeyboardInterrupt:
                 sys.exit('Interrupted')
 
@@ -286,7 +286,7 @@ class Gallery(object):
                 yield filetype, f, outpath, self.settings
 
 
-def worker(args):
+def process_file(args):
     logger = logging.getLogger(__name__)
     logger.info('Processing %s', args[1])
 
@@ -300,9 +300,9 @@ def worker(args):
         return process_video(*args[1:])
 
 
-def worker2(args):
+def worker(args):
     try:
-        worker(args)
+        process_file(args)
     except KeyboardInterrupt:
         return 'KeyboardException'
 

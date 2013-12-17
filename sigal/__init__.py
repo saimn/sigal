@@ -69,7 +69,7 @@ def init():
      "the current working directory)")
 @arg('-t', '--theme', help="Specify a theme directory, or a theme name for "
      "the themes included with Sigal")
-@arg('-n', '--ncpu', help="Number of cpu for parallel execution (default: 1)")
+@arg('-n', '--ncpu', help="Number of cpu to use (default: all)")
 def build(source, destination, debug=False, verbose=False, force=False,
           config=None, theme=None, ncpu=None):
     """Run sigal to process a directory. """
