@@ -17,7 +17,7 @@ def make_gallery(**kwargs):
     settings = read_settings(default_conf)
     settings['source'] = SAMPLE_SOURCE
     settings.update(kwargs)
-    return Gallery(settings)
+    return Gallery(settings, ncpu=1)
 
 
 def test_zipped_correctly(tmpdir):
