@@ -35,6 +35,7 @@ import zipfile
 from multiprocessing import Pool, cpu_count
 from os.path import join, normpath
 from PIL import Image as PILImage
+from pprint import pformat
 
 from . import compat
 from .image import process_image
@@ -144,6 +145,8 @@ class PathsDb(object):
                 parent = normpath(join(path, '..'))
                 child = os.path.relpath(path, parent)
                 self.db[parent]['subdir'].remove(child)
+
+        self.logger.debug('Database:\n%s', pformat(self.db, width=120))
 
     def check_thumbnail(self, path):
         "Find the thumbnail image for a given path."

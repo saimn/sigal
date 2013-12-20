@@ -23,6 +23,7 @@
 
 import logging
 import os
+from pprint import pformat
 
 _DEFAULT_CONFIG = {
     'adjust_options': {'color': 1.0, 'brightness': 1.0,
@@ -130,6 +131,7 @@ def read_settings(filename=None):
     if not settings['img_processor']:
         logger.info('No Processor, images will not be resized')
 
+    logger.debug('Settings:\n%s', pformat(settings, width=120))
     return settings
 
 
