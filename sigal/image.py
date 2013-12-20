@@ -34,12 +34,13 @@ import os
 import pilkit.processors
 import sys
 
+from copy import deepcopy
+from datetime import datetime
+from PIL.ExifTags import TAGS, GPSTAGS
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
-from PIL.ExifTags import TAGS, GPSTAGS
 from pilkit.processors import Transpose, Adjust
 from pilkit.utils import save_image
-from datetime import datetime
 
 from . import compat
 from .settings import get_thumb
@@ -65,7 +66,10 @@ def generate_image(source, outname, settings, options=None):
 
     # Preserve EXIF data
     if settings['copy_exif_data'] and _has_exif_tags(img):
-        options = options or {}
+        if options is not None:
+            options = deepcopy(options)
+        else:
+            options = {}
         options['exif'] = img.info['exif']
 
     # Rotate the img, and catch IOError when PIL fails to read EXIF
