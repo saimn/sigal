@@ -49,15 +49,17 @@ from .settings import read_settings
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
 
 
-def init():
+@arg('path', nargs='?', help='Path of the sample config file')
+def init(path):
     """Copy a sample config file in the current directory."""
 
     from pkg_resources import resource_string
+    path = path or 'sigal.conf.py'
     conf = resource_string(__name__, 'templates/sigal.conf.py')
 
-    with io.open('sigal.conf.py', 'w', 'utf-8') as f:
-        f.write(conf)
-    print("Sample config file created: sigal.conf.py")
+    with io.open(path, 'w', encoding='utf-8') as f:
+        f.write(conf.decode('utf8'))
+    print("Sample config file created: {}".format(path))
 
 
 @arg('source', nargs='?', help='Input directory')
