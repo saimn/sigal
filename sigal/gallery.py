@@ -27,12 +27,12 @@ import codecs
 import locale
 import logging
 import markdown
+import multiprocessing
 import os
 import shutil
 import sys
 import zipfile
 
-from multiprocessing import Pool, cpu_count
 from os.path import join, normpath
 from PIL import Image as PILImage
 from pprint import pformat
@@ -181,15 +181,21 @@ class Gallery(object):
                       'video': 0, 'video_skipped': 0}
 
         try:
-            ncpu = int(ncpu)
-        except (ValueError, TypeError):
-            self.logger.error('ncpu should be an integer value')
-            ncpu = cpu_count()
+            cpu_count = multiprocessing.cpu_count()
         except NotImplementedError:
-            ncpu = 1
+            cpu_count = 1
+
+        if ncpu is None:
+            ncpu = cpu_count
+        else:
+            try:
+                ncpu = int(ncpu)
+            except ValueError:
+                self.logger.error('ncpu should be an integer value')
+                ncpu = cpu_count
 
         if ncpu > 1:
-            self.pool = Pool(processes=ncpu)
+            self.pool = multiprocessing.Pool(processes=ncpu)
         else:
             self.pool = None
 
@@ -223,16 +229,17 @@ class Gallery(object):
             except KeyboardInterrupt:
                 self.pool.terminate()
                 sys.exit('Interrupted')
+
+            print('')
         else:
             try:
                 for path in reversed(self.db['paths_list']):
                     if len(self.db[path]['medias']) != 0:
                         for files in self.process_dir(path):
                             process_file(files)
+                        print('')
             except KeyboardInterrupt:
                 sys.exit('Interrupted')
-
-        print('')
 
         if self.settings['write_html']:
             self.writer = Writer(self.settings, self.settings['destination'],
