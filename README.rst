@@ -12,6 +12,7 @@ and it allows to build a static gallery of images with the following features:
 * Generate HTML pages using jinja2 templates.
 * Relative links for a portable output.
 * Support themes, videos, EXIF tags, zip download.
+* Parallel processing.
 * MIT licensed.
 
 The idea behind Sigal is to ease the use of the javascript librairies like

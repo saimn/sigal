@@ -69,7 +69,8 @@ thumb_size = (280, 210)
 # Webm options
 # Options used in ffmpeg to encode the webm video. You may want to read
 # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
-# Be aware of the fact these options need to be passed as strings.
+# Be aware of the fact these options need to be passed as strings. If you are
+# using avconv (for example with Ubuntu), you will need to adapt the settings.
 # webm_options = ['-crf', '10', '-b:v', '1.6M',
 #                 '-qmin', '4', '-qmax', '63'],
 

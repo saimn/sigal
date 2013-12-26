@@ -14,11 +14,11 @@ Init
 
 Build
   After adapting the configuration to your needs, put your images in
-  a sub-directory (``pictures`` by default) and run ``sigal build <your images
-  directory>``. The next time you run ``sigal build``, only the new images will
-  be processed. Use the ``-f`` flag to force the reprocessing of all the
-  images. Images that are smaller than the size specified by the ``img_size``
-  setting will not be resized.
+  a sub-directory and run ``sigal build <your images directory>``. The next
+  time you run ``sigal build``, only the new images will be processed. Use the
+  ``-f`` flag to force the reprocessing of all the images. Images (resp.
+  videos) that are smaller than the size specified by the ``img_size`` (resp.
+  ``video_size``) setting will not be resized.
 
 Serve
   To visualize your gallery, you can use ``sigal serve`` which runs a basic
@@ -33,7 +33,7 @@ Help of the ``sigal build`` command
 
 ::
 
-    $ sigal build [-h] [-d] [-v] [-f] [-c CONFIG] [-t THEME]
+    $ sigal build [-h] [-d] [-v] [-f] [-c CONFIG] [-t THEME] [-n NCPU]
             [source] [destination]
 
 Required arguments:
@@ -64,3 +64,6 @@ Optional arguments:
 
 ``-t THEME, --theme THEME``
   Specify a theme directory, or a theme name for the themes included with Sigal
+
+``-n NCPU, --ncpu NCPU``
+  Number of cpu to use (default: all)

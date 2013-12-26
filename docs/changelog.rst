@@ -7,7 +7,17 @@ Version 0.6.dev
 
 Released on 2013-xx-xx.
 
-- Add support for Python 3.3
+- Add support for Python 3.3.
+- Parallel processing (new command-line option ``-n|--ncpu``, uses all cores by
+  default).
+- Adding keyboard shortcuts for the galleria theme.
+- Include symlinked directories in the source directory.
+- New setting to use symbolic links for original files (``orig_link``).
+- New setting for the video size (``video_size``).
+- Avoid issues with corrupted exif data.
+- Add a colored formatter for verbose and debug modes.
+- ``webm_options`` is now a list with ffmpeg options, to allow better
+  flexibility and compatibility with avconv.
 
 Version 0.5.1
 ~~~~~~~~~~~~~

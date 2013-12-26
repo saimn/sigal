@@ -67,13 +67,12 @@ def init(path):
 @arg('-f', '--force', help="Force the reprocessing of existing images")
 @arg('-v', '--verbose', help="Show all messages")
 @arg('-d', '--debug', help="Show all message, including debug messages")
-@arg('-c', '--config', help="Configuration file (default: sigal.conf.py in "
-     "the current working directory)")
+@arg('-c', '--config', help="Configuration file")
 @arg('-t', '--theme', help="Specify a theme directory, or a theme name for "
      "the themes included with Sigal")
 @arg('-n', '--ncpu', help="Number of cpu to use (default: all)")
 def build(source, destination, debug=False, verbose=False, force=False,
-          config=None, theme=None, ncpu=None):
+          config=_DEFAULT_CONFIG_FILE, theme=None, ncpu=None):
     """Run sigal to process a directory. """
 
     level = ((debug and logging.DEBUG) or (verbose and logging.INFO)
@@ -82,11 +81,10 @@ def build(source, destination, debug=False, verbose=False, force=False,
     logger = logging.getLogger(__name__)
 
     start_time = time.time()
-    settings_file = config or _DEFAULT_CONFIG_FILE
-    if not os.path.isfile(settings_file):
-        logger.error("Settings file not found: %s", settings_file)
+    if not os.path.isfile(config):
+        logger.error("Settings file not found: %s", config)
         sys.exit(1)
-    settings = read_settings(settings_file)
+    settings = read_settings(config)
 
     if source:
         settings['source'] = os.path.abspath(source)
