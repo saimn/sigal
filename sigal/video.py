@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 # Copyright (c)      2013 - Christophe-Marie Duquesne
+# Copyright (c)      2013 - Simon Conseil
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -21,17 +22,19 @@
 # IN THE SOFTWARE.
 
 from __future__ import with_statement
-import subprocess
+
+import logging
 import os
 import re
 import shutil
+import subprocess
 
 from . import compat, image
 from .settings import get_thumb
 
 
 def video_size(source):
-    """Returns the dimensions of the video"""
+    """Returns the dimensions of the video."""
     pattern = re.compile(r'Stream.*Video.* ([0-9]+)x([0-9]+)')
     p = subprocess.Popen(['ffmpeg', '-i', source], stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
@@ -48,7 +51,7 @@ def video_size(source):
     return x, y
 
 
-def generate_video(source, outname, size, options={}):
+def generate_video(source, outname, size, options=None):
     """Video processor
 
     :param source: path to a video
@@ -56,6 +59,8 @@ def generate_video(source, outname, size, options={}):
     :param options: array of options passed to ffmpeg
 
     """
+    logger = logging.getLogger(__name__)
+
     # Don't transcode if source is in the required format and
     # has fitting datedimensions, copy instead.
     w_src, h_src = video_size(source)
@@ -81,14 +86,14 @@ def generate_video(source, outname, size, options={}):
 
     # Encoding options improved, thanks to
     # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
+    cmd = ['ffmpeg', '-i', source, '-y']  # overwrite output files
+    if options is not None:
+        cmd += options
+    cmd += resize_opt + [outname]
+
+    logger.debug('Processing video: %s', ' '.join(cmd))
     with open("/dev/null") as devnull:
-        subprocess.call(['ffmpeg', '-i', source, '-y',
-                         '-crf', options.get('crf', '10'),
-                         '-b:v', options.get('bitrate', '1.6M'),
-                         '-qmin', options.get('qmin', '4'),
-                         '-qmax', options.get('qmax', '63')] +
-                        resize_opt + [outname],
-                        stderr=devnull)
+        subprocess.call(cmd, stderr=devnull)
 
 
 def generate_thumbnail(source, outname, box, fit=True, options=None):
@@ -112,7 +117,7 @@ def process_video(filepath, outpath, settings):
     outname = os.path.join(outpath, base + '.webm')
 
     generate_video(filepath, outname, settings['video_size'],
-                   settings['webm_options'])
+                   options=settings['webm_options'])
 
     if settings['make_thumbs']:
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))

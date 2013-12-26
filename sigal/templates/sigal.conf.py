@@ -70,10 +70,8 @@ thumb_size = (280, 210)
 # Options used in ffmpeg to encode the webm video. You may want to read
 # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
 # Be aware of the fact these options need to be passed as strings.
-# webm_options = {'crf': '10',
-#                 'bitrate': '1.6M',
-#                 'qmin': '4',
-#                 'qmax': '63'}
+# webm_options = ['-crf', '10', '-b:v', '1.6M',
+#                 '-qmin', '4', '-qmax', '63'],
 
 # Size of resized video (default: (480, 360))
 # video_size = (480, 360)

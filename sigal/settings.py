@@ -52,8 +52,8 @@ _DEFAULT_CONFIG = {
     'thumb_suffix': '',
     'vid_ext_list': ['.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv'],
     'video_size': (480, 360),
-    'webm_options': {'crf': '10', 'bitrate': '1.6M',
-                     'qmin': '4', 'qmax': '63'},
+    'webm_options': ['-crf', '10', '-b:v', '1.6M',
+                     '-qmin', '4', '-qmax', '63'],
     'write_html': True,
     'zip_gallery': False,
 }
