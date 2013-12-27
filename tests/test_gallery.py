@@ -41,8 +41,8 @@ REF = {
     },
     'video': {
         'title': 'Video',
-        'thumbnail': 'stallman-software-freedom-day-low.ogv',
-        'medias': ['stallman-software-freedom-day-low.ogv']
+        'thumbnail': 'stallman software-freedom-day-low.ogv',
+        'medias': ['stallman software-freedom-day-low.ogv']
     }
 }
 

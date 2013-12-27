@@ -97,15 +97,15 @@
               <div class="four columns thumbnail
                           {% if loop.index % 3 == 1 %}alpha{% endif%}
                           {% if loop.index % 3 == 0 %}omega{% endif%}">
-                <a href="#{{ media.file|replace('.', '') }}" class="gallery"
-                  inline='yes' title="{{ media.file }}"
+                <a href="#{{ media.file|replace('.', '')|replace(' ', '') }}"
+                  class="gallery" inline='yes' title="{{ media.file }}"
                   {% if media.big %} data-big="{{ media.big }}"{% endif %}>
                   <img src="{{ media.thumb }}" alt="{{ media.file }}"
                       title="{{ media.file }}" /></a>
               </div>
               <!-- This contains the hidden content for the video -->
               <div style='display:none'>
-                <div id="{{ media.file|replace('.', '') }}">
+                <div id="{{ media.file|replace('.', '')|replace(' ', '') }}">
                   <video controls>
                   <source src='{{ media.file }}' type='video/webm' />
                   </video>

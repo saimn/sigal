@@ -7,7 +7,7 @@ import os
 from sigal.video import video_size, generate_video
 
 CURRENT_DIR = os.path.dirname(__file__)
-TEST_VIDEO = 'stallman-software-freedom-day-low.ogv'
+TEST_VIDEO = 'stallman software-freedom-day-low.ogv'
 SRCFILE = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'video', TEST_VIDEO)
 
 
