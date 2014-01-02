@@ -33,17 +33,36 @@ from . import compat, image
 from .settings import get_thumb
 
 
-def video_size(source):
-    """Returns the dimensions of the video."""
-    pattern = re.compile(r'Stream.*Video.* ([0-9]+)x([0-9]+)')
-    p = subprocess.Popen(['ffmpeg', '-i', source], stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+def call_subprocess(cmd):
+    """Wrapper to call subprocess.Popen and return stdout & stderr."""
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
 
     if not compat.PY2:
         stderr = stderr.decode('utf8')
+        stdout = stdout.decode('utf8')
+    return p.returncode, stdout, stderr
 
+
+def check_subprocess(cmd, error_msg=''):
+
+    returncode, stdout, stderr = call_subprocess(cmd)
+
+    if returncode:
+        logger = logging.getLogger(__name__)
+        logger.error(error_msg)
+        logger.debug('STDOUT:\n %s', stdout)
+        logger.debug('STDERR:\n %s', stderr)
+        raise subprocess.CalledProcessError(returncode, cmd)
+
+
+def video_size(source):
+    """Returns the dimensions of the video."""
+
+    ret, stdout, stderr = call_subprocess(['ffmpeg', '-i', source])
+    pattern = re.compile(r'Stream.*Video.* ([0-9]+)x([0-9]+)')
     match = pattern.search(stderr)
+
     if match:
         x, y = int(match.groups()[0]), int(match.groups()[1])
     else:
@@ -65,9 +84,12 @@ def generate_video(source, outname, size, options=None):
     # has fitting datedimensions, copy instead.
     w_src, h_src = video_size(source)
     w_dst, h_dst = size
+    logger.debug('Video size: %i, %i -> %i, %i', w_src, h_src, w_dst, h_dst)
+
     base, src_ext = os.path.splitext(source)
     base, dst_ext = os.path.splitext(outname)
     if dst_ext == src_ext and w_src <= w_dst and h_src <= h_dst:
+        logger.debug('Video is smaller than the max size, copying it instead')
         shutil.copy(source, outname)
         return
 
@@ -86,23 +108,32 @@ def generate_video(source, outname, size, options=None):
 
     # Encoding options improved, thanks to
     # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
-    cmd = ['ffmpeg', '-i', source, '-y']  # overwrite output files
+    cmd = ['ffmpeg', '-i', source, '-y']  # -y to overwrite output files
     if options is not None:
         cmd += options
     cmd += resize_opt + [outname]
 
     logger.debug('Processing video: %s', ' '.join(cmd))
-    with open("/dev/null") as devnull:
-        subprocess.call(cmd, stderr=devnull)
+    try:
+        check_subprocess(cmd, error_msg='Failed to process ' + source)
+    except subprocess.CalledProcessError:
+        return
 
 
 def generate_thumbnail(source, outname, box, fit=True, options=None):
     """Create a thumbnail image for the video source, based on ffmpeg."""
+
     # 1) dump an image of the video
     tmpfile = outname + ".tmp.jpg"
-    with open("/dev/null") as devnull:
-        subprocess.call(['ffmpeg', '-i', source, '-an', '-r', '1',
-                         '-vframes', '1', '-y', tmpfile], stderr=devnull)
+    try:
+        check_subprocess(
+            ['ffmpeg', '-i', source, '-an', '-r', '1',
+             '-vframes', '1', '-y', tmpfile],
+            error_msg='Failed to create a thumbnail for ' + source
+        )
+    except subprocess.CalledProcessError:
+        return
+
     # 2) use the generate_thumbnail function from sigal.image
     image.generate_thumbnail(tmpfile, outname, box, fit, options)
     # 3) remove the image
@@ -113,11 +144,11 @@ def process_video(filepath, outpath, settings):
     """Process a video: resize, create thumbnail."""
 
     filename = os.path.split(filepath)[1]
-    base, ext = os.path.splitext(filename)
-    outname = os.path.join(outpath, base + '.webm')
+    basename = os.path.splitext(filename)[0]
+    outname = os.path.join(outpath, basename + '.webm')
 
     generate_video(filepath, outname, settings['video_size'],
-                   options=settings['webm_options'])
+                    options=settings['webm_options'])
 
     if settings['make_thumbs']:
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))

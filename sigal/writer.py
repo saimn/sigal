@@ -178,15 +178,16 @@ class Writer(object):
             # settings['make_thumbs'] is False)
             if not os.path.exists(thumb_path):
                 source = os.path.join(self.output_dir, dpath, alb_thumb)
-                base, ext = os.path.splitext(source)
+                ext = os.path.splitext(source)[1]
+                self.logger.debug("Generating thumbnail for %s", source)
+
                 if ext in self.settings['img_ext_list']:
-                    sigal.image.generate_thumbnail(
-                        source, thumb_path, self.settings['thumb_size'],
-                        fit=self.settings['thumb_fit'])
+                    generator = sigal.image.generate_thumbnail
                 else:
-                    sigal.video.generate_thumbnail(
-                        source, thumb_path, self.settings['thumb_size'],
-                        fit=self.settings['thumb_fit'])
+                    generator = sigal.video.generate_thumbnail
+
+                generator(source, thumb_path, self.settings['thumb_size'],
+                          fit=self.settings['thumb_fit'])
 
             ctx['albums'].append({
                 'url': d + '/' + self.url_ext,
