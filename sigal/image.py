@@ -182,7 +182,7 @@ def get_exif_tags(source):
 
     logger = logging.getLogger(__name__)
 
-    if not '.jpg' in source.lower():
+    if os.path.splitext(source)[1].lower() not in ('.jpg', '.jpeg'):
         return (None, None)
 
     try:
