@@ -117,14 +117,13 @@ def build(source, destination, debug=False, verbose=False, force=False,
 def serve(path):
     """Run a simple web server."""
 
-    import SimpleHTTPServer
-    import SocketServer
-
     if os.path.exists(path):
+        from .compat import server, socketserver
+
         os.chdir(path)
         PORT = 8000
-        Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-        httpd = SocketServer.TCPServer(("", PORT), Handler, False)
+        Handler = server.SimpleHTTPRequestHandler
+        httpd = socketserver.TCPServer(("", PORT), Handler, False)
 
         print(" * Running on http://127.0.0.1:{}/".format(PORT))
 
