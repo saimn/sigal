@@ -72,7 +72,7 @@ thumb_size = (280, 210)
 # Be aware of the fact these options need to be passed as strings. If you are
 # using avconv (for example with Ubuntu), you will need to adapt the settings.
 # webm_options = ['-crf', '10', '-b:v', '1.6M',
-#                 '-qmin', '4', '-qmax', '63'],
+#                 '-qmin', '4', '-qmax', '63']
 
 # Size of resized video (default: (480, 360))
 # video_size = (480, 360)
