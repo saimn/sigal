@@ -264,8 +264,11 @@ class Gallery(object):
         if self.settings['keep_orig']:
             check_or_create_dir(join(outpath, self.settings['orig_dir']))
 
-        print(colored('->', BLUE),
-              u"{} : {} files".format(path, len(media_files)))
+        if sys.stdout.isatty():
+            print(colored('->', BLUE),
+                  u"{} : {} files".format(path, len(media_files)))
+        else:
+            self.logger.warn("%s : %d files", path, len(media_files))
 
         # loop on images
         if self.settings['zip_gallery']:

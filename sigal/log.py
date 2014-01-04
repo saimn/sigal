@@ -47,8 +47,10 @@ def init_logging(name, level=logging.INFO):
 
     if os.isatty(sys.stdout.fileno()) and not sys.platform.startswith('win'):
         formatter = ColoredFormatter()
+    elif level == logging.DEBUG:
+        formatter = Formatter('%(levelname)s - %(message)s')
     else:
-        formatter = Formatter()
+        formatter = Formatter('%(message)s')
 
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
