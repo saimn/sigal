@@ -14,10 +14,17 @@ Released on 2013-xx-xx.
 - Include symlinked directories in the source directory.
 - New setting to use symbolic links for original files (``orig_link``).
 - New setting for the video size (``video_size``).
-- Avoid issues with corrupted exif data.
 - Add a colored formatter for verbose and debug modes.
 - ``webm_options`` is now a list with ffmpeg options, to allow better
   flexibility and compatibility with avconv.
+- New setting to copy files from the source directory to the destination
+  (``files_to_copy``).
+
+Bugfixes:
+
+- Avoid issues with corrupted exif data.
+- Fix exif data not read from .JPEG files.
+- Fix whitespace issues with video filenames.
 
 Version 0.5.1
 ~~~~~~~~~~~~~

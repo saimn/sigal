@@ -29,7 +29,6 @@ import logging
 import markdown
 import multiprocessing
 import os
-import shutil
 import sys
 import zipfile
 
@@ -40,6 +39,7 @@ from pprint import pformat
 from . import compat
 from .image import process_image
 from .log import colored, BLUE
+from .utils import copy
 from .video import process_video
 from .writer import Writer
 
@@ -318,14 +318,6 @@ def worker(args):
         process_file(args)
     except KeyboardInterrupt:
         return 'KeyboardException'
-
-
-def copy(src, dst, symlink=False):
-    """Copy or symlink the file."""
-    func = os.symlink if symlink else shutil.copy2
-    if symlink and os.path.lexists(dst):
-        os.remove(dst)
-    func(src, dst)
 
 
 def get_metadata(path):

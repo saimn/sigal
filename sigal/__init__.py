@@ -45,6 +45,7 @@ from .gallery import Gallery
 from .log import init_logging
 from .pkgmeta import __version__
 from .settings import read_settings
+from .utils import copy
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
 
@@ -106,6 +107,13 @@ def build(source, destination, debug=False, verbose=False, force=False,
     locale.setlocale(locale.LC_ALL, settings['locale'])
     gal = Gallery(settings, force=force, theme=theme, ncpu=ncpu)
     gal.build()
+
+    # copy extra files
+    for src, dst in settings['files_to_copy']:
+        src = os.path.join(settings['source'], src)
+        dst = os.path.join(settings['destination'], dst)
+        logger.debug('Copy %s to %s', src, dst)
+        copy(src, dst, symlink=settings['orig_link'])
 
     print(('Done.\nProcessed {image} images ({image_skipped} skipped) and '
            '{video} videos ({video_skipped} skipped) in {duration:.2f} '

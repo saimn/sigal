@@ -3,7 +3,7 @@
 import os
 import pytest
 
-from sigal.gallery import Gallery, PathsDb, get_metadata, copy
+from sigal.gallery import Gallery, PathsDb, get_metadata
 from sigal.settings import read_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -128,16 +128,3 @@ def test_gallery(tmpdir):
 
     assert '<title>Sigal test gallery</title>' in html
 
-
-def test_copy(tmpdir):
-    src = os.path.join(SAMPLE_DIR, 'pictures', 'dir2',
-                       REF['dir2']['medias'][0])
-    dst = str(tmpdir.join(REF['dir2']['medias'][0]))
-    copy(src, dst)
-    assert os.path.isfile(dst)
-
-    src = os.path.join(SAMPLE_DIR, 'pictures', 'dir2',
-                       REF['dir2']['medias'][1])
-    dst = str(tmpdir.join(REF['dir2']['medias'][1]))
-    copy(src, dst, symlink=True)
-    assert os.path.islink(dst)

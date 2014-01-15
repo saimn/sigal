@@ -102,3 +102,8 @@ thumb_size = (280, 210)
 
 # Specify a different locale. If set to '', the default locale is used.
 # locale = ''
+
+# List of files to copy from the source directory to the destination.
+# A symbolic link is used if ``orig_link`` is set to True (see above).
+# files_to_copy = (('extra/robots.txt', 'robots.txt'),
+#                  ('extra/favicon.ico', 'favicon.ico'),)

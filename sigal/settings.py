@@ -31,6 +31,7 @@ _DEFAULT_CONFIG = {
     'copy_exif_data': True,
     'copyright': '',
     'destination': '_build',
+    'files_to_copy': (),
     'google_analytics': '',
     'img_ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
     'img_processor': 'ResizeToFit',
