@@ -39,7 +39,7 @@ from pprint import pformat
 from . import compat
 from .image import process_image
 from .log import colored, BLUE
-from .utils import copy
+from .utils import copy, check_or_create_dir
 from .video import process_video
 from .writer import Writer
 
@@ -354,13 +354,6 @@ def get_metadata(path):
         }
 
     return meta
-
-
-def check_or_create_dir(path):
-    "Create the directory if it does not exist"
-
-    if not os.path.isdir(path):
-        os.makedirs(path)
 
 
 def zip_files(archive_path, filepaths):
