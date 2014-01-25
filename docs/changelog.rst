@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 0.6.dev
-~~~~~~~~~~~~~~~
+Version 0.6.0
+~~~~~~~~~~~~~
 
-Released on 2013-xx-xx.
+Released on 2014-01-25.
 
 - Add support for Python 3.3.
 - Parallel processing (new command-line option ``-n|--ncpu``, uses all cores by
