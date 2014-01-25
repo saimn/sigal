@@ -2,6 +2,11 @@
  Changelog
 ===========
 
+Version 0.7.dev
+~~~~~~~~~~~~~~~
+
+Released on 2014-xx-xx.
+
 Version 0.6.0
 ~~~~~~~~~~~~~
 
