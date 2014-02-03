@@ -132,7 +132,7 @@ class PathsDb(object):
             alb_thumb = self.db[path].setdefault('thumbnail', '')
             if alb_thumb and os.path.isfile(join(self.basepath, path,
                                                  alb_thumb)):
-                break
+                continue
 
             for subdir in self.get_subdirs(path):
                 # use the thumbnail of their sub-directories
