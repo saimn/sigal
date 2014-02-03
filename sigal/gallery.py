@@ -128,6 +128,12 @@ class PathsDb(object):
 
         # dir without images, start with the deepest ones
         for path in reversed(sorted(path_nomedia, key=lambda x: x.count('/'))):
+            # stop if it is already set and a valid file
+            alb_thumb = self.db[path].setdefault('thumbnail', '')
+            if alb_thumb and os.path.isfile(join(self.basepath, path,
+                                                 alb_thumb)):
+                break
+
             for subdir in self.get_subdirs(path):
                 # use the thumbnail of their sub-directories
                 if self.db[subdir].get('thumbnail', ''):
