@@ -49,7 +49,7 @@
           <ul>
             {% for album in albums %}
             <li><a href="{{ album.url }}">
-              <img src="{{ album.thumb }}" class="album_thumb" alt="{{ album.name }}" title="{{ album.name }}" /></a>
+              <img src="{{ album.thumbnail }}" class="album_thumb" alt="{{ album.name }}" title="{{ album.name }}" /></a>
               <span class="album_title">{{ album.title }}</span>
             </li>
             {% endfor %}
@@ -73,18 +73,18 @@
           {%- endmacro %}
         <div id="gallery">
           {% for media in medias %}
-            {% if media.type == "img" %}
-              <a href="{{ media.file }}">
-                <img src="{{ media.thumb }}" alt="{{ media.file }}"
-                    data-title="{{ media.file }}"
+            {% if media.type == "image" %}
+              <a href="{{ media.filename }}">
+                <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
+                    data-title="{{ media.filename }}"
                     data-description="{{ img_description(media) }}"/>
               </a>
             {% endif %}
-            {% if media.type == "vid" %}
+            {% if media.type == "video" %}
               <a href="{{ theme.url }}/img/empty.png">
-                <img src="{{ media.thumb }}" alt="{{ media.file }}"
+                <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
                      data-layer="<video controls>
-                                   <source src='{{ media.file }}' type='video/webm' />
+                                   <source src='{{ media.filename }}' type='video/webm' />
                                  </video>" />
               </a>
             {% endif %}
@@ -92,10 +92,10 @@
         </div>
         {% endif %}
 
-        {% if zip_gallery %}
+        {% if zip %}
         <div id="additionnal-infos" class="row">
           <p>
-            <a href="{{ zip_gallery }}"
+            <a href="{{ zip }}"
                title="Download a zip archive with all images">Download ZIP</a>
           </p>
         </div>

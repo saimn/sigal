@@ -62,7 +62,7 @@
                       {% if loop.index % 3 == 1 %}alpha{% endif%}
                       {% if loop.index % 3 == 0 %}omega{% endif%}">
             <a href="{{ album.url }}">
-              <img src="{{ album.thumb }}" class="album_thumb"
+              <img src="{{ album.thumbnail }}" class="album_thumb"
                    alt="{{ album.name }}" title="{{ album.name }}" /></a>
             <span class="album_title">{{ album.title }}</span>
           </div>
@@ -84,30 +84,30 @@
           {%- endmacro %}
         <div id="gallery" class="row">
           {% for media in medias %}
-            {% if media.type == "img" %}
+            {% if media.type == "image" %}
             <div class="four columns thumbnail
                         {% if loop.index % 3 == 1 %}alpha{% endif%}
                         {% if loop.index % 3 == 0 %}omega{% endif%}">
-              <a href="{{ media.file }}" class="gallery" title="{{ media.file }}" {{ img_description(media) }}>
-                <img src="{{ media.thumb }}" alt="{{ media.file }}"
-                    title="{{ media.file }}" /></a>
+              <a href="{{ media.filename }}" class="gallery" title="{{ media.filename }}" {{ img_description(media) }}>
+                <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
+                    title="{{ media.filename }}" /></a>
             </div>
             {% endif %}
-            {% if media.type == "vid" %}
+            {% if media.type == "video" %}
               <div class="four columns thumbnail
                           {% if loop.index % 3 == 1 %}alpha{% endif%}
                           {% if loop.index % 3 == 0 %}omega{% endif%}">
-                <a href="#{{ media.file|replace('.', '')|replace(' ', '') }}"
-                  class="gallery" inline='yes' title="{{ media.file }}"
+                <a href="#{{ media.filename|replace('.', '')|replace(' ', '') }}"
+                  class="gallery" inline='yes' title="{{ media.filename }}"
                   {% if media.big %} data-big="{{ media.big }}"{% endif %}>
-                  <img src="{{ media.thumb }}" alt="{{ media.file }}"
-                      title="{{ media.file }}" /></a>
+                  <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
+                      title="{{ media.filename }}" /></a>
               </div>
               <!-- This contains the hidden content for the video -->
               <div style='display:none'>
-                <div id="{{ media.file|replace('.', '')|replace(' ', '') }}">
+                <div id="{{ media.filename|replace('.', '')|replace(' ', '') }}">
                   <video controls>
-                  <source src='{{ media.file }}' type='video/webm' />
+                  <source src='{{ media.filename }}' type='video/webm' />
                   </video>
                 </div>
               </div>
@@ -116,10 +116,10 @@
         </div>
         {% endif %}
 
-        {% if zip_gallery %}
+        {% if zip %}
         <div id="additionnal-infos" class="row">
           <p>
-            <a href="{{ zip_gallery }}"
+            <a href="{{ zip }}"
                title="Download a zip archive with all images">Download ZIP</a>
           </p>
         </div>

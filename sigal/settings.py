@@ -21,9 +21,12 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import locale
 import logging
 import os
 from pprint import pformat
+
+from .compat import PY2
 
 _DEFAULT_CONFIG = {
     'adjust_options': {'color': 1.0, 'brightness': 1.0,
@@ -121,6 +124,12 @@ def read_settings(filename=None):
                 settings[p] = os.path.abspath(os.path.normpath(os.path.join(
                     settings_path, path)))
                 logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
+
+            # paths must to be unicode strings so that os.walk will return
+            # unicode dirnames and filenames
+            if PY2 and isinstance(settings[p], str):
+                enc = locale.getpreferredencoding()
+                settings[p] = settings[p].decode(enc)
 
     for key in ('img_size', 'thumb_size', 'video_size'):
         w, h = settings[key]
