@@ -60,6 +60,9 @@
         {% if album.medias %}
           {% macro img_description(media) -%}
             {%- if media.big %}<a href='{{ media.big }}'>Full size</a>{% endif %}
+            {% if media.desc.meta.title %}Title: {{ media.desc.meta.title[0] }} </br>{% endif %}
+            {% if media.desc.description %}Description: {{ media.desc.description }}</br> {% endif %}
+
             {%- if media.exif %}
               <br>
               {% if media.exif.iso %}ISO: {{ media.exif.iso }}, {% endif %}
