@@ -176,18 +176,22 @@ class Writer(object):
 
             # generate the thumbnail if it is missing (if
             # settings['make_thumbs'] is False)
-            if not os.path.exists(thumb_path):
+            if not os.path.isfile(thumb_path):
                 source = os.path.join(self.output_dir, dpath, alb_thumb)
                 ext = os.path.splitext(source)[1]
                 self.logger.debug("Generating thumbnail for %s", source)
 
                 if ext in self.settings['img_ext_list']:
                     generator = sigal.image.generate_thumbnail
-                else:
+                elif ext in self.settings['vid_ext_list']:
                     generator = sigal.video.generate_thumbnail
+                else:
+                    generator = None
+                    self.logger.error('Unsupported file type for %s', source)
 
-                generator(source, thumb_path, self.settings['thumb_size'],
-                          fit=self.settings['thumb_fit'])
+                if generator:
+                    generator(source, thumb_path, self.settings['thumb_size'],
+                              fit=self.settings['thumb_fit'])
 
             ctx['albums'].append({
                 'url': d + '/' + self.url_ext,

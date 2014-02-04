@@ -132,6 +132,7 @@ class PathsDb(object):
             alb_thumb = self.db[path].setdefault('thumbnail', '')
             if alb_thumb and os.path.isfile(join(self.basepath, path,
                                                  alb_thumb)):
+                self.logger.debug("Thumb for %s : %s", path, alb_thumb)
                 continue
 
             for subdir in self.get_subdirs(path):
@@ -140,6 +141,8 @@ class PathsDb(object):
                     self.db[path]['thumbnail'] = join(
                         os.path.relpath(subdir, path),
                         self.db[subdir]['thumbnail'])
+                    self.logger.debug("Found thumb for %s : %s", path,
+                                      self.db[path]['thumbnail'])
                     break
 
             if not self.db[path].get('thumbnail', ''):
