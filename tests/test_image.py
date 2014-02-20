@@ -5,7 +5,7 @@ import pytest
 from PIL import Image
 
 from sigal import init_logging
-from sigal.image import generate_image, generate_thumbnail, get_exif_tags
+from sigal.image import generate_image, generate_thumbnail, get_exif_tags, get_image_metadata
 from sigal.settings import create_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -90,3 +90,16 @@ def test_exif_gps(tmpdir):
 
     assert abs(simple['gps']['lat'] - lat) < 0.0001
     assert abs(simple['gps']['lon'] - lon) < 0.0001
+
+
+def test_metadata(tmpdir):
+    "Test if metadata can be read for a given image."
+
+    test_image = '11.jpg'
+    src_path = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir1', 'test1')
+    
+    metadata = get_image_metadata(src_path, test_image)
+    
+    assert metadata['title'] == "Foo Bar"
+    assert metadata['description'] == "<p>This is a funny description of this image</p>"
+   
