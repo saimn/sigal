@@ -162,7 +162,11 @@ class Writer(object):
             else:
                 media_ctx['type'] = 'vid'
                 media_ctx['file'] = base + '.webm'
-            media_ctx['thumb'] = get_thumb(self.settings, i)
+            media_ctx['thumb'] = get_thumb(self.settings, i) 
+            metadata = sigal.image.get_image_metadata(self.settings['source'], i)
+            media_ctx['title'] = metadata['title']
+            media_ctx['description'] = metadata['description']
+                
             if self.settings['keep_orig']:
                 media_ctx['big'] = get_orig(self.settings, i)
             ctx['medias'].append(media_ctx)
