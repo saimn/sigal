@@ -43,7 +43,6 @@ from PIL import Image as PILImage
 from PIL import ImageDraw, ImageOps
 from pilkit.processors import Transpose, Adjust
 from pilkit.utils import save_image
-from shutil import move
 from os.path import join
 
 from . import compat
@@ -52,6 +51,7 @@ from .settings import get_thumb
 
 def _has_exif_tags(img):
     return hasattr(img, 'info') and 'exif' in img.info
+
 
 def generate_image(source, outname, settings, options=None):
     """Image processor, rotate and resize the image.
@@ -247,7 +247,7 @@ def get_exif_tags(source):
 
     return (data, simple)
 
-def get_desc(settings, img):
+def get_image_metadata(source, img):
     """
     Get image metadata from filename.md:
 
@@ -257,7 +257,7 @@ def get_desc(settings, img):
     return for usage in templates
     """
     logger = logging.getLogger(__name__)
-    descfile = join(settings['source'], img + ".md")
+    descfile = join(source, img + ".md")
 
     if not os.path.isfile(descfile):
         # set some defaults  
