@@ -128,3 +128,10 @@ def test_gallery(tmpdir):
 
     assert '<title>Sigal test gallery</title>' in html
 
+    out_html = os.path.join(settings['destination'], 'other_file.htm')
+    assert os.path.isfile(out_html)
+
+    with open(out_html, 'r') as f:
+        html = f.read()
+
+    assert '<!--other file test-->' in html

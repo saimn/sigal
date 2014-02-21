@@ -42,6 +42,7 @@ from .log import colored, BLUE
 from .utils import copy, check_or_create_dir
 from .video import process_video
 from .writer import Writer
+from . import themes
 
 DESCRIPTION_FILE = "index.md"
 
@@ -251,11 +252,19 @@ class Gallery(object):
                 sys.exit('Interrupted')
 
         if self.settings['write_html']:
-            self.writer = Writer(self.settings, self.settings['destination'],
-                                 theme=self.theme)
+            tmp_theme = themes.get_theme_path(self.theme or self.settings['theme'])
+            theme_relpath = themes.get_templates_path(tmp_theme)
 
-            for path in reversed(self.db['paths_list']):
-                self.writer.write(self.db, path)
+            for root, dirs, files in os.walk(theme_relpath):
+                for f in files:
+                    self.writer = Writer(self.settings,
+                                         self.settings['destination'],
+                                         template_file=f,
+                                         output_file=f,
+                                         theme=self.theme)
+
+                    for path in reversed(self.db['paths_list']):
+                        self.writer.write(self.db, path)
 
     def process_dir(self, path):
         """Process a list of images in a directory."""

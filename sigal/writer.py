@@ -38,10 +38,7 @@ import sigal.image
 import sigal.video
 from .settings import get_thumb, get_orig
 from .pkgmeta import __url__ as sigal_link
-
-THEMES_PATH = os.path.normpath(os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'themes'))
-
+from . import themes
 
 class Writer(object):
     """Generate html pages for each directory of images."""
@@ -59,15 +56,12 @@ class Writer(object):
         self.url_ext = self.output_file if settings['index_in_url'] else ''
 
         # search the theme in sigal/theme if the given one does not exists
-        if not os.path.exists(self.theme):
-            self.theme = os.path.join(THEMES_PATH, self.theme)
-            if not os.path.exists(self.theme):
-                raise Exception("Impossible to find the theme %s" % self.theme)
+        self.theme = themes.get_theme_path(self.theme)
+        theme_relpath = themes.get_templates_path(self.theme)
 
         self.logger.info("Theme  : %s", self.theme)
-        theme_relpath = os.path.join(self.theme, 'templates')
         default_loader = FileSystemLoader(
-            os.path.join(THEMES_PATH, 'default', 'templates'))
+            os.path.join(themes.THEMES_PATH, 'default', 'templates'))
 
         # setup jinja env
         env_options = {'trim_blocks': True}
@@ -89,7 +83,7 @@ class Writer(object):
         try:
             self.template = env.get_template(self.template_file)
         except TemplateNotFound:
-            self.logger.error('The index.html template was not found.')
+            self.logger.error('The %s template was not found.' % template_file)
             sys.exit(1)
 
         self.copy_assets()
