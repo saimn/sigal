@@ -10,5 +10,5 @@ links = [('Example link', 'http://example.org'),
 
 copyright = "An example copyright message"
 
-# theme = 'galleria'
+theme = './sample_theme'
 # thumb_size = (280, 210)
