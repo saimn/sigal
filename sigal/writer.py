@@ -83,7 +83,7 @@ class Writer(object):
         try:
             self.template = env.get_template(self.template_file)
         except TemplateNotFound:
-            self.logger.error('The index.html template was not found.')
+            self.logger.error('The %s template was not found.' % template_file)
             sys.exit(1)
 
         self.copy_assets()
