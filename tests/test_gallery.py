@@ -3,7 +3,8 @@
 import os
 import pytest
 
-from sigal.gallery import Gallery, PathsDb, get_metadata
+from os.path import join
+from sigal.gallery import Album, Media, Image, Video, Gallery
 from sigal.settings import read_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -12,23 +13,31 @@ SAMPLE_DIR = os.path.join(CURRENT_DIR, 'sample')
 REF = {
     'dir1': {
         'title': 'An example gallery',
-        'thumbnail': 'test1/11.jpg',
+        'name': 'dir1',
+        'thumbnail': 'dir1/test1/thumbnails/11.tn.jpg',
+        'subdirs': ['test1', 'test2'],
         'medias': [],
     },
     'dir1/test1': {
         'title': 'An example sub-category',
-        'thumbnail': '11.jpg',
+        'name': 'test1',
+        'thumbnail': 'test1/thumbnails/11.tn.jpg',
+        'subdirs': [],
         'medias': ['11.jpg', 'archlinux-kiss-1024x640.png',
                    'flickr_jerquiaga_2394751088_cc-by-nc.jpg'],
     },
     'dir1/test2': {
         'title': 'Test2',
-        'thumbnail': '21.jpg',
+        'name': 'test2',
+        'thumbnail': 'test2/thumbnails/21.tn.jpg',
+        'subdirs': [],
         'medias': ['21.jpg', '22.jpg'],
     },
     'dir2': {
         'title': 'Another example gallery with a very long name',
-        'thumbnail': 'm57_the_ring_nebula-587px.jpg',
+        'name': 'dir2',
+        'thumbnail': 'dir2/thumbnails/m57_the_ring_nebula-587px.tn.jpg',
+        'subdirs': [],
         'medias': ['exo20101028-b-full.jpg',
                    'm57_the_ring_nebula-587px.jpg',
                    'Hubble ultra deep field.jpg',
@@ -36,86 +45,93 @@ REF = {
     },
     u'accentué': {
         'title': u'Accentué',
-        'thumbnail': u'hélicoïde.jpg',
+        'name': u'accentué',
+        'thumbnail': u'accentué/thumbnails/hélicoïde.tn.jpg',
+        'subdirs': [],
         'medias': [u'hélicoïde.jpg', 'superdupont_source_wikipedia_en.jpg'],
     },
     'video': {
         'title': 'Video',
-        'thumbnail': 'stallman software-freedom-day-low.ogv',
+        'name': 'video',
+        'thumbnail': 'video/thumbnails/stallman software-freedom-day-low.tn.jpg',
+        'subdirs': [],
         'medias': ['stallman software-freedom-day-low.ogv']
     }
 }
 
 
 @pytest.fixture(scope='module')
-def paths():
-    """Read the sample config file and build the PathsDb object."""
-
-    default_conf = os.path.join(SAMPLE_DIR, 'sigal.conf.py')
-    settings = read_settings(default_conf)
-    return PathsDb(os.path.join(SAMPLE_DIR, 'pictures'),
-                   settings['img_ext_list'], settings['vid_ext_list'])
+def settings():
+    """Read the sample config file."""
+    return read_settings(os.path.join(SAMPLE_DIR, 'sigal.conf.py'))
 
 
-@pytest.fixture(scope='module')
-def db(paths):
-    paths.build()
-    return paths.db
+def test_media(settings):
+    m = Media('11.jpg', 'dir1/test1', settings)
+    path = join('dir1', 'test1')
+    file_path = join(path, '11.jpg')
+    thumb = join('thumbnails', '11.tn.jpg')
+
+    assert m.filename == '11.jpg'
+    assert m.file_path == file_path
+    assert m.src_path == join(settings['source'], file_path)
+    assert m.dst_path == join(settings['destination'], file_path)
+    assert m.thumb_name == thumb
+    assert m.thumb_path == join(settings['destination'], path, thumb)
+
+    assert repr(m) == "<Media>('{}')".format(file_path)
+    assert str(m) == file_path
 
 
-def test_filelist(db):
-    assert set(db.keys()) == set([
-        'paths_list', 'skipped_dir', '.', 'dir1', 'dir2', 'dir1/test1',
-        'dir1/test2', u'accentué', 'video'])
+def test_media_orig(settings):
+    settings['keep_orig'] = False
+    m = Media('11.jpg', 'dir1/test1', settings)
+    assert m.big is None
 
-    assert set(db['paths_list']) == set([
-        '.', 'dir1', 'dir1/test1', 'dir1/test2', 'dir2', u'accentué', 'video'])
-
-    assert set(db['skipped_dir']) == set(['empty', 'dir1/empty'])
-    assert db['.']['medias'] == []
-    assert set(db['.']['subdir']) == set([u'accentué', 'dir1', 'dir2',
-                                          'video'])
+    settings['keep_orig'] = True
+    m = Media('11.jpg', 'dir1/test1', settings)
+    assert m.big == 'original/11.jpg'
 
 
-def test_title(db):
-    for p in REF.keys():
-        assert db[p]['title'] == REF[p]['title']
+def test_image(settings, tmpdir):
+    settings['destination'] = str(tmpdir)
+    m = Image('11.jpg', 'dir1/test1', settings)
+    assert m.exif['datetime'] == u'Sunday, 22. January 2006'
+
+    os.makedirs(join(settings['destination'], 'dir1', 'test1', 'thumbnails'))
+    assert m.thumbnail == join('thumbnails', '11.tn.jpg')
+    assert os.path.isfile(m.thumb_path)
 
 
-def test_thumbnail(db):
-    for p in REF.keys():
-        assert db[p]['thumbnail'] == REF[p]['thumbnail']
+def test_video(settings, tmpdir):
+    settings['destination'] = str(tmpdir)
+    m = Video('stallman software-freedom-day-low.ogv', 'video', settings)
+    file_path = join('video', 'stallman software-freedom-day-low.webm')
+    assert m.file_path == file_path
+    assert m.dst_path == join(settings['destination'], file_path)
+
+    os.makedirs(join(settings['destination'], 'video', 'thumbnails'))
+    assert m.thumbnail == join('thumbnails',
+                               'stallman software-freedom-day-low.tn.jpg')
+    assert os.path.isfile(m.thumb_path)
 
 
-def test_medialist(db):
-    for p in REF.keys():
-        assert set(db[p]['medias']) == set(REF[p]['medias'])
+@pytest.mark.parametrize("path,album", REF.items())
+def test_album(path, album, settings, tmpdir):
+    settings['destination'] = str(tmpdir)
+    gal = Gallery(settings, ncpu=1)
+    a = Album(path, settings, album['subdirs'], album['medias'], gal)
+
+    assert a.title == album['title']
+    assert a.name == album['name']
+    assert a.subdirs == album['subdirs']
+    assert a.thumbnail == album['thumbnail']
+    assert [m.filename for m in a.medias] == album['medias']
 
 
-def test_get_subdir(paths):
-    assert set(paths.get_subdirs('dir1/test1')) == set()
-    assert set(paths.get_subdirs('dir1')) == set(['dir1/test1', 'dir1/test2'])
-    assert set(paths.get_subdirs('.')) == set([
-        'dir1', 'dir2', 'dir1/test1', 'dir1/test2', u'accentué', 'video'])
-
-
-def test_get_metadata():
-    "Test the get_metadata function."
-
-    m = get_metadata(os.path.join(SAMPLE_DIR, 'pictures', 'dir1'))
-    assert m['title'] == REF['dir1']['title']
-    assert m['thumbnail'] == ''
-
-    m = get_metadata(os.path.join(SAMPLE_DIR, 'pictures', 'dir2'))
-    assert m['title'] == REF['dir2']['title']
-    assert m['thumbnail'] == REF['dir2']['thumbnail']
-
-
-def test_gallery(tmpdir):
+def test_gallery(settings, tmpdir):
     "Test the Gallery class."
 
-    default_conf = os.path.join(SAMPLE_DIR, 'sigal.conf.py')
-    settings = read_settings(default_conf)
     settings['destination'] = str(tmpdir)
     gal = Gallery(settings, ncpu=1)
     gal.build()
@@ -127,4 +143,3 @@ def test_gallery(tmpdir):
         html = f.read()
 
     assert '<title>Sigal test gallery</title>' in html
-

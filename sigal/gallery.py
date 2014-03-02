@@ -70,7 +70,7 @@ class Media(UnicodeMixin):
     @property
     def big(self):
         if self.settings['keep_orig']:
-            return get_orig(self.settings, self.file_path)
+            return get_orig(self.settings, self.filename)
         else:
             return None
 
@@ -119,6 +119,7 @@ class Album(UnicodeMixin):
 
     def __init__(self, path, settings, dirnames, filenames, gallery):
         self.path = path
+        self.name = path.split(os.path.sep)[-1]
         self.gallery = gallery
         self.settings = settings
         self.orig_path = None
@@ -144,7 +145,7 @@ class Album(UnicodeMixin):
 
         # optionally add index.html to the URLs
         self.url_ext = self.output_file if settings['index_in_url'] else ''
-        self.url = self.path + '/' + self.url_ext
+        self.url = self.name + '/' + self.url_ext
         self.index_url = os.path.relpath(settings['destination'],
                                          self.dst_path) + '/' + self.url_ext
 
@@ -204,7 +205,9 @@ class Album(UnicodeMixin):
 
     @property
     def albums(self):
-        return [self.gallery.albums[path] for path in self.subdirs]
+        root_path = self.path if self.path != '.' else ''
+        return [self.gallery.albums[join(root_path, path)]
+                for path in self.subdirs]
 
     @property
     def thumbnail(self):
@@ -212,9 +215,10 @@ class Album(UnicodeMixin):
 
         # stop if it is already set and a valid file
         if self._thumbnail and isfile(join(self.src_path, self._thumbnail)):
-            self.logger.debug("Thumbnail for %s : %s", self.src_path,
-                              self._thumbnail)
-            return self._thumbnail
+            thumbnail = join(self.name, get_thumb(self.settings,
+                                                  self._thumbnail))
+            self.logger.debug("Thumbnail for %r : %s", self, self._thumbnail)
+            return thumbnail
         else:
             # find and return the first landscape image
             for f in self.medias:
@@ -222,22 +226,27 @@ class Album(UnicodeMixin):
                 if ext in Image.extensions:
                     im = PILImage.open(f.src_path)
                     if im.size[0] > im.size[1]:
-                        self._thumbnail = join(self.path, f.thumbnail)
+                        self._thumbnail = join(self.name, f.thumbnail)
+                        self.logger.debug(
+                            "Use 1st landscape image as thumbnail for %r : %s",
+                            self, self._thumbnail)
                         return self._thumbnail
 
             # else simply return the 1st media file
             if not self._thumbnail and self.medias:
-                self._thumbnail = join(self.path, self.medias[0].thumbnail)
+                self._thumbnail = join(self.name, self.medias[0].thumbnail)
+                self.logger.debug("Use the 1st image as thumbnail for %r : %s",
+                                  self, self._thumbnail)
                 return self._thumbnail
 
             # use the thumbnail of their sub-directories
             if not self._thumbnail:
                 for path, album in self.gallery.get_albums(self.path):
                     if album.thumbnail:
-                        self._thumbnail = join(
-                            os.path.relpath(path, self.path), album.thumbnail)
-                        self.logger.debug("Found thumbnail for %s : %s",
-                                          self.src_path, self._thumbnail)
+                        self._thumbnail = join(self.name, album.thumbnail)
+                        self.logger.debug(
+                            "Using thumbnail from sub-directory for %r : %s",
+                            self, self._thumbnail)
                         return self._thumbnail
 
         self.logger.error('Thumbnail not found for %r', self)
@@ -259,7 +268,7 @@ class Album(UnicodeMixin):
                 break
 
             url = os.path.relpath(path, self.path) + '/' + self.url_ext
-            breadcrumb.append((url, self.gallery[path].title))
+            breadcrumb.append((url, self.gallery.albums[path].title))
 
         breadcrumb.reverse()
         return breadcrumb
