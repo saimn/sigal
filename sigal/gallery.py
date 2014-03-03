@@ -228,14 +228,12 @@ class Album(UnicodeMixin):
 
             self.title = md.Meta.get('title', [''])[0]
             self.description = html
-            self._thumbnail = md.Meta.get('thumbnail', [''])[0]
             self.meta = md.Meta.copy()
         else:
             # default: get title from directory name
             self.title = os.path.basename(self.path).replace('_', ' ')\
                 .replace('-', ' ').capitalize()
             self.description = ''
-            self._thumbnail = ''
             self.meta = {}
 
     @property
@@ -258,12 +256,18 @@ class Album(UnicodeMixin):
     def thumbnail(self):
         """Path to the thumbnail of the album."""
 
-        # stop if it is already set and a valid file
-        if self._thumbnail and isfile(join(self.src_path, self._thumbnail)):
-            thumbnail = join(self.name, get_thumb(self.settings,
-                                                  self._thumbnail))
+        if self._thumbnail:
+            # stop if it is already set
+            return self._thumbnail
+
+        # Test the thumbnail from the Markdown file.
+        thumbnail = self.meta.get('thumbnail', [''])[0]
+
+        if thumbnail and isfile(join(self.src_path, thumbnail)):
+            self._thumbnail = join(self.name, get_thumb(self.settings,
+                                                        thumbnail))
             self.logger.debug("Thumbnail for %r : %s", self, self._thumbnail)
-            return thumbnail
+            return self._thumbnail
         else:
             # find and return the first landscape image
             for f in self.medias:
