@@ -26,59 +26,44 @@ Variables
 
 You can use the following variables in your template:
 
-``albums``
-    List of ``album`` objects. An ``album`` object has the following attributes:
-
-    - ``album.name``
-    - ``album.title``
-    - ``album.url``
-    - ``album.thumb``
-
-``breadcrumb``
-    List of ``(url, title)`` tuples defining the current breadcrumb path.
-
 ``index_title``
     Name of the index. This is either the directory name or the title specified
-    in the ``index.md``.
-
-``index_url``
-    URL to the index page.
-
-``medias``
-    List of ``media`` objects. A ``media`` object has the following attributes:
-
-    - ``media.type``: Either ``"img"`` or ``"vid"``.
-    - ``media.file``: Location of the resized image.
-    - ``media.thumb``: Location of the corresponding thumbnail image.
-    - ``media.big``: If not None, location of the unmodified image.
-    - ``media.exif``: If not None contains a dict with the most common tags. For
-      more information, see :ref:`simple-exif-data`.
-    - ``media.raw_exif``: If not ``None``, it contains the raw EXIF tags.
-
-``meta`` and ``description``
-    Meta data and album description. For details how to annotate your albums
-    with meta data, see :doc:`album_information`.
-
-``theme.name``
-    Name of the currently used theme.
+    in the ``index.md`` of the ``source`` directory.
 
 ``settings``
-    The entire dictionary from ``sigal.conf.py``. For example, you could use
-    this to output an optional download link for zipped archives:
-
-    .. code-block:: jinja
-
-        {% if settings.zip_gallery %}
-        <a href="{{ settings.zip_gallery }}">Download archive</a>
-        {% endif %}
+    The entire dictionary from ``sigal.conf.py``.
 
 ``sigal_link``
     URL to the Sigal homepage.
 
-``zip_gallery``
-    If not None, it contains the location of a zip archive with all original
-    images of the corresponding directory.
+``theme.name``, ``theme.url``
+    Name and url of the currently used theme.
 
+Then the current album that is rendered in the HTML file is represented by an
+:class:`~sigal.gallery.Album` object, and the following attributes are
+available in the template: ``albums``, ``breadcrumb``, ``description``,
+``index_url``, ``medias``, ``meta``, ``zip``, ``title``.
+
+.. autoclass:: sigal.gallery.Album
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+``medias`` contains the list of all medias in the album (represented by the
+:class:`~sigal.gallery.Image` and :class:`~sigal.gallery.Video` objects,
+inherited from :class:`~sigal.gallery.Media`).
+
+.. autoclass:: sigal.gallery.Media
+   :members:
+   :undoc-members:
+
+.. autoclass:: sigal.gallery.Image
+   :members:
+   :undoc-members:
+
+.. autoclass:: sigal.gallery.Video
+   :members:
+   :undoc-members:
 
 .. _simple-exif-data:
 

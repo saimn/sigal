@@ -106,8 +106,8 @@ class Writer(object):
                       'url': os.path.relpath(self.theme_path, album.dst_path)},
         }
 
-        for attr in ('albums', 'breadcrumb', 'index_url', 'medias', 'zip',
-                     'title'):
+        for attr in ('albums', 'breadcrumb', 'description', 'index_url',
+                     'medias', 'meta', 'zip', 'title'):
             ctx[attr] = getattr(album, attr)
 
         return ctx

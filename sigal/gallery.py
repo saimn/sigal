@@ -46,6 +46,22 @@ from .writer import Writer
 
 
 class Media(UnicodeMixin):
+    """Base Class for media files.
+
+    Attributes:
+
+    - ``type``: ``"image"`` or ``"video"``.
+    - ``filename``: Filename of the resized image.
+    - ``thumbnail``: Location of the corresponding thumbnail image.
+    - ``big``: If not None, location of the unmodified image.
+    - ``exif``: If not None contains a dict with the most common tags. For more
+        information, see :ref:`simple-exif-data`.
+    - ``raw_exif``: If not ``None``, it contains the raw EXIF tags.
+
+    """
+
+    type = ''
+    extensions = ()
 
     def __init__(self, filename, path, settings):
         self.filename = filename
@@ -69,6 +85,9 @@ class Media(UnicodeMixin):
 
     @property
     def big(self):
+        """Path to the original image, if ``keep_orig`` is set (relative to the
+        album directory).
+        """
         if self.settings['keep_orig']:
             return get_orig(self.settings, self.filename)
         else:
@@ -76,8 +95,10 @@ class Media(UnicodeMixin):
 
     @property
     def thumbnail(self):
-        # if thumbnail is missing (if settings['make_thumbs'] is False)
+        """Path to the thumbnail image (relative to the album directory)."""
+
         if not os.path.isfile(self.thumb_path):
+            # if thumbnail is missing (if settings['make_thumbs'] is False)
             if self.type == 'image':
                 generator = image.generate_thumbnail
             elif self.type == 'video':
@@ -91,6 +112,7 @@ class Media(UnicodeMixin):
 
 
 class Image(Media):
+    """Gather all informations on an image file."""
 
     type = 'image'
     extensions = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png')
@@ -101,6 +123,7 @@ class Image(Media):
 
 
 class Video(Media):
+    """Gather all informations on a video file."""
 
     type = 'video'
     extensions = ('.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv')
@@ -113,6 +136,21 @@ class Video(Media):
 
 
 class Album(UnicodeMixin):
+    """Gather all informations on an album.
+
+    Attributes:
+
+    :var description_file: Name of the Markdown file which gives information
+        on an album
+    :ivar index_url: URL to the index page.
+    :ivar output_file: Name of the output HTML file
+    :ivar meta: Meta data from the Markdown file.
+    :ivar description: description from the Markdown file.
+
+    For details how to annotate your albums with meta data, see
+    :doc:`album_information`.
+
+    """
 
     description_file = "index.md"
     output_file = 'index.html'
@@ -133,7 +171,7 @@ class Album(UnicodeMixin):
             self.dst_path = join(settings['destination'], path)
 
         self.logger = logging.getLogger(__name__)
-        self.get_metadata()
+        self._get_metadata()
 
         # Create thumbnails directory and optionally the one for original img
         check_or_create_dir(self.dst_path)
@@ -146,6 +184,7 @@ class Album(UnicodeMixin):
         # optionally add index.html to the URLs
         self.url_ext = self.output_file if settings['index_in_url'] else ''
         self.url = self.name + '/' + self.url_ext
+
         self.index_url = os.path.relpath(settings['destination'],
                                          self.dst_path) + '/' + self.url_ext
 
@@ -172,8 +211,8 @@ class Album(UnicodeMixin):
     def __iter__(self):
         return itertools.chain(self.images, self.videos)
 
-    def get_metadata(self):
-        """ Get album metadata from `description_file` (`index.md`):
+    def _get_metadata(self):
+        """Get album metadata from `description_file` (`index.md`):
 
         -> title, thumbnail image, description
 
@@ -201,17 +240,23 @@ class Album(UnicodeMixin):
 
     @property
     def medias(self):
+        """List of all medias in the album (:class:`~sigal.gallery.Image` and
+        :class:`~sigal.gallery.Video`).
+        """
         return self.images + self.videos
 
     @property
     def albums(self):
+        """List of :class:`~sigal.gallery.Album` objects for each
+        sub-directory.
+        """
         root_path = self.path if self.path != '.' else ''
         return [self.gallery.albums[join(root_path, path)]
                 for path in self.subdirs]
 
     @property
     def thumbnail(self):
-        """Check the thumbnail image for a given path, find one if possible."""
+        """Path to the thumbnail of the album."""
 
         # stop if it is already set and a valid file
         if self._thumbnail and isfile(join(self.src_path, self._thumbnail)):
@@ -254,8 +299,9 @@ class Album(UnicodeMixin):
 
     @property
     def breadcrumb(self):
-        """Paths to upper directories (with titles and links)."""
-
+        """List of ``(url, title)`` tuples defining the current breadcrumb
+        path.
+        """
         if self.path == '.':
             return []
 
@@ -275,6 +321,12 @@ class Album(UnicodeMixin):
 
     @property
     def zip(self):
+        """Make a ZIP archive with all media files and return its path.
+
+        If the ``zip_gallery`` setting is set,it contains the location of a zip
+        archive with all original images of the corresponding directory.
+
+        """
         zip_gallery = self.settings['zip_gallery']
         if zip_gallery:
             archive_path = join(self.dst_path, zip_gallery)
