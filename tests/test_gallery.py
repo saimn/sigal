@@ -118,7 +118,6 @@ def test_video(settings, tmpdir):
 
 @pytest.mark.parametrize("path,album", REF.items())
 def test_album(path, album, settings, tmpdir):
-    settings['destination'] = str(tmpdir)
     gal = Gallery(settings, ncpu=1)
     a = Album(path, settings, album['subdirs'], album['medias'], gal)
 
@@ -127,6 +126,21 @@ def test_album(path, album, settings, tmpdir):
     assert a.subdirs == album['subdirs']
     assert a.thumbnail == album['thumbnail']
     assert [m.filename for m in a.medias] == album['medias']
+    assert len(a) == len(album['medias'])
+
+
+def test_album_medias(settings, tmpdir):
+    gal = Gallery(settings, ncpu=1)
+
+    album = REF['dir1/test1']
+    a = Album('dir1/test1', settings, album['subdirs'], album['medias'], gal)
+    assert list(im.filename for im in a.images) == album['medias']
+    assert list(a.videos) == []
+
+    album = REF['video']
+    a = Album('video', settings, album['subdirs'], album['medias'], gal)
+    assert list(im.filename for im in a.videos) == album['medias']
+    assert list(a.images) == []
 
 
 def test_gallery(settings, tmpdir):

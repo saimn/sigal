@@ -24,7 +24,6 @@
 from __future__ import absolute_import, print_function
 
 import codecs
-import itertools
 import logging
 import markdown
 import multiprocessing
@@ -32,6 +31,7 @@ import os
 import sys
 import zipfile
 
+from collections import defaultdict
 from os.path import isfile, join
 from PIL import Image as PILImage
 
@@ -193,23 +193,37 @@ class Album(UnicodeMixin):
         dirnames.sort(**alpha_sort)
 
         self.subdirs = dirnames
-        self.images = [Image(f, self.path, settings) for f in filenames
-                       if os.path.splitext(f)[1] in Image.extensions]
-        self.videos = [Video(f, self.path, settings) for f in filenames
-                       if os.path.splitext(f)[1] in Video.extensions]
+
+        #: List of all medias in the album (:class:`~sigal.gallery.Image` and
+        #: :class:`~sigal.gallery.Video`).
+        self.medias = []
+        self.medias_count = defaultdict(int)
+
+        for f in filenames:
+            ext = os.path.splitext(f)[1]
+            if ext in Image.extensions:
+                media = Image(f, self.path, settings)
+            elif ext in Video.extensions:
+                media = Video(f, self.path, settings)
+            else:
+                continue
+
+            self.medias_count[media.type] += 1
+            self.medias.append(media)
 
     def __repr__(self):
         return "<%s>(%r)" % (self.__class__.__name__, self.path)
 
     def __unicode__(self):
-        return u"{} : {} images, {} videos".format(self.path, len(self.images),
-                                                   len(self.videos))
+        return (u"{} : ".format(self.path) +
+                ', '.join("{} {}s".format(count, _type)
+                          for _type, count in self.medias_count.items()))
 
     def __len__(self):
-        return len(self.images) + len(self.videos)
+        return sum(self.medias_count.values())
 
     def __iter__(self):
-        return itertools.chain(self.images, self.videos)
+        return iter(self.medias)
 
     def _get_metadata(self):
         """Get album metadata from `description_file` (`index.md`):
@@ -237,11 +251,18 @@ class Album(UnicodeMixin):
             self.meta = {}
 
     @property
-    def medias(self):
-        """List of all medias in the album (:class:`~sigal.gallery.Image` and
-        :class:`~sigal.gallery.Video`).
-        """
-        return self.images + self.videos
+    def images(self):
+        """List of images (:class:`~sigal.gallery.Image`)."""
+        for media in self.medias:
+            if media.type == 'image':
+                yield media
+
+    @property
+    def videos(self):
+        """List of videos (:class:`~sigal.gallery.Video`)."""
+        for media in self.medias:
+            if media.type == 'video':
+                yield media
 
     @property
     def albums(self):
