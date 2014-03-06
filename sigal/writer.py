@@ -85,20 +85,16 @@ class Writer(object):
             self.logger.error('The index.html template was not found.')
             sys.exit(1)
 
-        self.copy_assets()
-
-    def copy_assets(self):
-        """Copy the theme files in the output dir."""
-
+        # Copy the theme files in the output dir
         self.theme_path = os.path.join(self.output_dir, 'static')
         copy_tree(os.path.join(self.theme, 'static'), self.theme_path)
 
-    def generate_context(self, albums, relpath, album):
+    def generate_context(self, album):
         """Generate the context dict for the given path."""
 
         self.logger.info("Output album : %s", album.dst_path)
-
-        ctx = {
+        return {
+            'album': album,
             'index_title': self.index_title,
             'settings': self.settings,
             'sigal_link': sigal_link,
@@ -106,18 +102,11 @@ class Writer(object):
                       'url': os.path.relpath(self.theme_path, album.dst_path)},
         }
 
-        for attr in ('albums', 'breadcrumb', 'description', 'index_url',
-                     'medias', 'meta', 'zip', 'title'):
-            ctx[attr] = getattr(album, attr)
-
-        return ctx
-
-    def write(self, albums, path, album):
+    def write(self, album):
         """Generate the HTML page and save it."""
 
-        ctx = self.generate_context(albums, path, album)
-        page = self.template.render(**ctx)
-
+        page = self.template.render(**self.generate_context(album))
         output_file = os.path.join(album.dst_path, album.output_file)
+
         with codecs.open(output_file, 'w', 'utf-8') as f:
             f.write(page)

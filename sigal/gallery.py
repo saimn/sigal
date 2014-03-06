@@ -432,14 +432,14 @@ class Gallery(object):
             self.writer = Writer(self.settings, theme=self.theme,
                                  index_title=self.albums['.'].title)
 
-            for path, album in self.albums.items():
-                self.writer.write(self.albums, path, album)
+            for album in self.albums.values():
+                self.writer.write(album)
 
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
 
         if sys.stdout.isatty():
-            print(colored('\n->', BLUE), str(album))
+            print(colored('->', BLUE), str(album))
         else:
             self.logger.warn(album)
 

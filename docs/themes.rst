@@ -26,6 +26,13 @@ Variables
 
 You can use the following variables in your template:
 
+``album``
+    The current album that is rendered in the HTML file, represented by an
+    :class:`~sigal.gallery.Album` object.  ``album.medias`` contains the list
+    of all medias in the album (represented by the
+    :class:`~sigal.gallery.Image` and :class:`~sigal.gallery.Video` objects,
+    inherited from :class:`~sigal.gallery.Media`).
+
 ``index_title``
     Name of the index. This is either the directory name or the title specified
     in the ``index.md`` of the ``source`` directory.
@@ -39,19 +46,10 @@ You can use the following variables in your template:
 ``theme.name``, ``theme.url``
     Name and url of the currently used theme.
 
-Then the current album that is rendered in the HTML file is represented by an
-:class:`~sigal.gallery.Album` object, and the following attributes are
-available in the template: ``albums``, ``breadcrumb``, ``description``,
-``index_url``, ``medias``, ``meta``, ``zip``, ``title``.
-
 .. autoclass:: sigal.gallery.Album
    :members:
    :undoc-members:
    :inherited-members:
-
-``medias`` contains the list of all medias in the album (represented by the
-:class:`~sigal.gallery.Image` and :class:`~sigal.gallery.Video` objects,
-inherited from :class:`~sigal.gallery.Media`).
 
 .. autoclass:: sigal.gallery.Media
    :members:
