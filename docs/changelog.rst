@@ -7,6 +7,17 @@ Version 0.7.dev
 
 Released on 2014-xx-xx.
 
+- Refactor the way to store album and media informations. Albums, images and
+  videos are now represented by objects, and these objects are directly
+  available in the templates. The following template variables have been
+  renamed:
+
+  ``albums`` => ``album.albums``, ``breadcrumb`` => ``album.breadcrumb``,
+  ``description`` => ``album.description``, ``index_url`` =>
+  ``album.index_url``, ``medias`` => ``album.medias``, ``title`` =>
+  ``album.title``, ``media.file`` => ``media.filename``, ``media.thumb`` =>
+  ``media.thumbnail``, ``zip_gallery`` => ``album.zip``
+
 Version 0.6.0
 ~~~~~~~~~~~~~
 

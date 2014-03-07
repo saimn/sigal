@@ -105,8 +105,8 @@ def build(source, destination, debug=False, verbose=False, force=False,
         sys.exit(1)
 
     locale.setlocale(locale.LC_ALL, settings['locale'])
-    gal = Gallery(settings, force=force, theme=theme, ncpu=ncpu)
-    gal.build()
+    gal = Gallery(settings, theme=theme, ncpu=ncpu)
+    gal.build(force=force)
 
     # copy extra files
     for src, dst in settings['files_to_copy']:

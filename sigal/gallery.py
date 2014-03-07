@@ -24,7 +24,6 @@
 from __future__ import absolute_import, print_function
 
 import codecs
-import locale
 import logging
 import markdown
 import multiprocessing
@@ -32,163 +31,364 @@ import os
 import sys
 import zipfile
 
-from os.path import join, normpath
+from collections import defaultdict
+from os.path import isfile, join
 from PIL import Image as PILImage
-from pprint import pformat
 
-from . import compat
-from .image import process_image
+from . import image, video
+from .compat import UnicodeMixin, alpha_sort
+from .image import process_image, get_exif_tags
 from .log import colored, BLUE
+from .settings import get_thumb, get_orig
 from .utils import copy, check_or_create_dir
 from .video import process_video
 from .writer import Writer
 
-DESCRIPTION_FILE = "index.md"
 
+class Media(UnicodeMixin):
+    """Base Class for media files.
 
-class FileExtensionError(Exception):
-    """Raised if we made an error when handling file extensions"""
-    pass
+    Attributes:
 
-
-class PathsDb(object):
-    """Container for all the information on the directory structure.
-
-    All the info is stored in a dictionnary, `self.db`. This class also has
-    methods to build this dictionnary.
+    - ``type``: ``"image"`` or ``"video"``.
+    - ``filename``: Filename of the resized image.
+    - ``thumbnail``: Location of the corresponding thumbnail image.
+    - ``big``: If not None, location of the unmodified image.
+    - ``exif``: If not None contains a dict with the most common tags. For more
+        information, see :ref:`simple-exif-data`.
+    - ``raw_exif``: If not ``None``, it contains the raw EXIF tags.
 
     """
 
-    def __init__(self, path, img_ext_list, vid_ext_list):
-        self.img_ext_list = img_ext_list
-        self.vid_ext_list = vid_ext_list
-        self.ext_list = self.img_ext_list + self.vid_ext_list
+    type = ''
+    extensions = ()
+
+    def __init__(self, filename, path, settings):
+        self.filename = filename
+        self.settings = settings
+        self.file_path = join(path, filename)
+        self.src_path = join(settings['source'], path, filename)
+        self.dst_path = join(settings['destination'], path, filename)
+
+        self.thumb_name = get_thumb(self.settings, self.filename)
+        self.thumb_path = join(settings['destination'], path, self.thumb_name)
+
         self.logger = logging.getLogger(__name__)
+        self.raw_exif = None
+        self.exif = None
 
-        # The dict containing all information
-        self.db = {
-            'paths_list': [],
-            'skipped_dir': []
-        }
+    def __repr__(self):
+        return "<%s>(%r)" % (self.__class__.__name__, self.file_path)
 
-        # basepath must to be a unicode string so that os.walk will return
-        # unicode dirnames and filenames. If basepath is a str, we must
-        # convert it to unicode.
-        if compat.PY2 and isinstance(path, str):
-            enc = locale.getpreferredencoding()
-            self.basepath = path.decode(enc)
+    def __unicode__(self):
+        return self.file_path
+
+    @property
+    def big(self):
+        """Path to the original image, if ``keep_orig`` is set (relative to the
+        album directory).
+        """
+        if self.settings['keep_orig']:
+            return get_orig(self.settings, self.filename)
         else:
-            self.basepath = path
+            return None
 
-        self.build()
+    @property
+    def thumbnail(self):
+        """Path to the thumbnail image (relative to the album directory)."""
 
-    def get_subdirs(self, path):
-        """Return the list of all sub-directories of path."""
+        if not os.path.isfile(self.thumb_path):
+            # if thumbnail is missing (if settings['make_thumbs'] is False)
+            if self.type == 'image':
+                generator = image.generate_thumbnail
+            elif self.type == 'video':
+                generator = video.generate_thumbnail
 
-        for name in self.db[path].get('subdir', []):
-            subdir = normpath(join(path, name))
-            yield subdir
-            for subname in self.get_subdirs(subdir):
-                yield subname
+            self.logger.debug('Generating thumbnail for %r', self)
+            generator(self.src_path, self.thumb_path,
+                      self.settings['thumb_size'],
+                      fit=self.settings['thumb_fit'])
+        return self.thumb_name
 
-    def build(self):
-        "Build the list of directories with images"
 
-        if compat.PY2:
-            sort_args = {'cmp': locale.strcoll}
+class Image(Media):
+    """Gather all informations on an image file."""
+
+    type = 'image'
+    extensions = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png')
+
+    def __init__(self, filename, path, settings):
+        super(Image, self).__init__(filename, path, settings)
+        self.raw_exif, self.exif = get_exif_tags(self.src_path)
+
+
+class Video(Media):
+    """Gather all informations on a video file."""
+
+    type = 'video'
+    extensions = ('.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv')
+
+    def __init__(self, filename, path, settings):
+        super(Video, self).__init__(filename, path, settings)
+        base = os.path.splitext(filename)[0]
+        self.file_path = join(path, base + '.webm')
+        self.dst_path = join(settings['destination'], path, base + '.webm')
+
+
+class Album(UnicodeMixin):
+    """Gather all informations on an album.
+
+    Attributes:
+
+    :var description_file: Name of the Markdown file which gives information
+        on an album
+    :ivar index_url: URL to the index page.
+    :ivar output_file: Name of the output HTML file
+    :ivar meta: Meta data from the Markdown file.
+    :ivar description: description from the Markdown file.
+
+    For details how to annotate your albums with meta data, see
+    :doc:`album_information`.
+
+    """
+
+    description_file = "index.md"
+    output_file = 'index.html'
+
+    def __init__(self, path, settings, dirnames, filenames, gallery):
+        self.path = path
+        self.name = path.split(os.path.sep)[-1]
+        self.gallery = gallery
+        self.settings = settings
+        self.orig_path = None
+        self._thumbnail = None
+
+        if path == '.':
+            self.src_path = settings['source']
+            self.dst_path = settings['destination']
         else:
-            from functools import cmp_to_key
-            sort_args = {'key': cmp_to_key(locale.strcoll)}
+            self.src_path = join(settings['source'], path)
+            self.dst_path = join(settings['destination'], path)
 
-        # get information for each directory
-        for path, dirnames, filenames in os.walk(self.basepath,
-                                                 followlinks=True):
-            relpath = os.path.relpath(path, self.basepath)
+        self.logger = logging.getLogger(__name__)
+        self._get_metadata()
 
-            # sort images and sub-albums by name
-            filenames.sort(**sort_args)
-            dirnames.sort(**sort_args)
+        # Create thumbnails directory and optionally the one for original img
+        check_or_create_dir(self.dst_path)
+        check_or_create_dir(join(self.dst_path, settings['thumb_dir']))
 
-            self.db['paths_list'].append(relpath)
-            self.db[relpath] = {
-                'medias': [f for f in filenames
-                           if os.path.splitext(f)[1] in self.ext_list],
-                'subdir': dirnames
-            }
-            self.db[relpath].update(get_metadata(path))
+        if settings['keep_orig']:
+            self.orig_path = join(self.dst_path, settings['orig_dir'])
+            check_or_create_dir(self.orig_path)
 
-        path_media = (path for path in self.db['paths_list']
-                      if self.db[path]['medias'] and path != '.')
-        path_nomedia = (path for path in self.db['paths_list']
-                        if not self.db[path]['medias'] and path != '.')
+        # optionally add index.html to the URLs
+        self.url_ext = self.output_file if settings['index_in_url'] else ''
+        self.url = self.name + '/' + self.url_ext
 
-        # dir with images: check the thumbnail, and find it if necessary
-        for path in path_media:
-            self.check_thumbnail(path)
+        self.index_url = os.path.relpath(settings['destination'],
+                                         self.dst_path) + '/' + self.url_ext
 
-        # dir without images, start with the deepest ones
-        for path in reversed(sorted(path_nomedia, key=lambda x: x.count('/'))):
-            # stop if it is already set and a valid file
-            alb_thumb = self.db[path].setdefault('thumbnail', '')
-            if alb_thumb and os.path.isfile(join(self.basepath, path,
-                                                 alb_thumb)):
-                self.logger.debug("Thumb for %s : %s", path, alb_thumb)
+        # sort images and sub-albums by name
+        filenames.sort(**alpha_sort)
+        dirnames.sort(**alpha_sort)
+
+        self.subdirs = dirnames
+
+        #: List of all medias in the album (:class:`~sigal.gallery.Image` and
+        #: :class:`~sigal.gallery.Video`).
+        self.medias = []
+        self.medias_count = defaultdict(int)
+
+        for f in filenames:
+            ext = os.path.splitext(f)[1]
+            if ext in Image.extensions:
+                media = Image(f, self.path, settings)
+            elif ext in Video.extensions:
+                media = Video(f, self.path, settings)
+            else:
                 continue
 
-            for subdir in self.get_subdirs(path):
-                # use the thumbnail of their sub-directories
-                if self.db[subdir].get('thumbnail', ''):
-                    self.db[path]['thumbnail'] = join(
-                        os.path.relpath(subdir, path),
-                        self.db[subdir]['thumbnail'])
-                    self.logger.debug("Found thumb for %s : %s", path,
-                                      self.db[path]['thumbnail'])
-                    break
+            self.medias_count[media.type] += 1
+            self.medias.append(media)
 
-            if not self.db[path].get('thumbnail', ''):
-                # else remove all info about this directory
-                self.logger.info("Directory '%s' is empty", path)
-                self.db['skipped_dir'].append(path)
-                self.db['paths_list'].remove(path)
-                del self.db[path]
-                parent = normpath(join(path, '..'))
-                child = os.path.relpath(path, parent)
-                self.db[parent]['subdir'].remove(child)
+    def __repr__(self):
+        return "<%s>(%r)" % (self.__class__.__name__, self.path)
 
-        self.logger.debug('Database:\n%s', pformat(self.db, width=120))
+    def __unicode__(self):
+        return (u"{} : ".format(self.path) +
+                ', '.join("{} {}s".format(count, _type)
+                          for _type, count in self.medias_count.items()))
 
-    def check_thumbnail(self, path):
-        "Find the thumbnail image for a given path."
+    def __len__(self):
+        return sum(self.medias_count.values())
 
-        # stop if it is already set and a valid file
-        alb_thumb = self.db[path].setdefault('thumbnail', '')
-        if alb_thumb and os.path.isfile(join(self.basepath, path, alb_thumb)):
-            return
+    def __iter__(self):
+        return iter(self.medias)
 
-        # find and return the first landscape image
-        for f in self.db[path]['medias']:
-            base, ext = os.path.splitext(f)
-            if ext in self.img_ext_list:
-                im = PILImage.open(join(self.basepath, path, f))
-                if im.size[0] > im.size[1]:
-                    self.db[path]['thumbnail'] = f
-                    return
+    def _get_metadata(self):
+        """Get album metadata from `description_file` (`index.md`):
 
-        # else simply return the 1st media file
-        if self.db[path]['medias']:
-            self.db[path]['thumbnail'] = self.db[path]['medias'][0]
+        -> title, thumbnail image, description
+
+        """
+        descfile = join(self.src_path, self.description_file)
+
+        if isfile(descfile):
+            with codecs.open(descfile, "r", "utf-8") as f:
+                text = f.read()
+
+            md = markdown.Markdown(extensions=['meta'])
+            html = md.convert(text)
+
+            self.title = md.Meta.get('title', [''])[0]
+            self.description = html
+            self.meta = md.Meta.copy()
+        else:
+            # default: get title from directory name
+            self.title = os.path.basename(self.path).replace('_', ' ')\
+                .replace('-', ' ').capitalize()
+            self.description = ''
+            self.meta = {}
+
+    @property
+    def images(self):
+        """List of images (:class:`~sigal.gallery.Image`)."""
+        for media in self.medias:
+            if media.type == 'image':
+                yield media
+
+    @property
+    def videos(self):
+        """List of videos (:class:`~sigal.gallery.Video`)."""
+        for media in self.medias:
+            if media.type == 'video':
+                yield media
+
+    @property
+    def albums(self):
+        """List of :class:`~sigal.gallery.Album` objects for each
+        sub-directory.
+        """
+        root_path = self.path if self.path != '.' else ''
+        return [self.gallery.albums[join(root_path, path)]
+                for path in self.subdirs]
+
+    @property
+    def thumbnail(self):
+        """Path to the thumbnail of the album."""
+
+        if self._thumbnail:
+            # stop if it is already set
+            return self._thumbnail
+
+        # Test the thumbnail from the Markdown file.
+        thumbnail = self.meta.get('thumbnail', [''])[0]
+
+        if thumbnail and isfile(join(self.src_path, thumbnail)):
+            self._thumbnail = join(self.name, get_thumb(self.settings,
+                                                        thumbnail))
+            self.logger.debug("Thumbnail for %r : %s", self, self._thumbnail)
+            return self._thumbnail
+        else:
+            # find and return the first landscape image
+            for f in self.medias:
+                ext = os.path.splitext(f.filename)[1]
+                if ext in Image.extensions:
+                    im = PILImage.open(f.src_path)
+                    if im.size[0] > im.size[1]:
+                        self._thumbnail = join(self.name, f.thumbnail)
+                        self.logger.debug(
+                            "Use 1st landscape image as thumbnail for %r : %s",
+                            self, self._thumbnail)
+                        return self._thumbnail
+
+            # else simply return the 1st media file
+            if not self._thumbnail and self.medias:
+                self._thumbnail = join(self.name, self.medias[0].thumbnail)
+                self.logger.debug("Use the 1st image as thumbnail for %r : %s",
+                                  self, self._thumbnail)
+                return self._thumbnail
+
+            # use the thumbnail of their sub-directories
+            if not self._thumbnail:
+                for path, album in self.gallery.get_albums(self.path):
+                    if album.thumbnail:
+                        self._thumbnail = join(self.name, album.thumbnail)
+                        self.logger.debug(
+                            "Using thumbnail from sub-directory for %r : %s",
+                            self, self._thumbnail)
+                        return self._thumbnail
+
+        self.logger.error('Thumbnail not found for %r', self)
+        return None
+
+    @property
+    def breadcrumb(self):
+        """List of ``(url, title)`` tuples defining the current breadcrumb
+        path.
+        """
+        if self.path == '.':
+            return []
+
+        path = self.path
+        breadcrumb = [((self.url_ext or '.'), self.title)]
+
+        while True:
+            path = os.path.normpath(os.path.join(path, '..'))
+            if path == '.':
+                break
+
+            url = os.path.relpath(path, self.path) + '/' + self.url_ext
+            breadcrumb.append((url, self.gallery.albums[path].title))
+
+        breadcrumb.reverse()
+        return breadcrumb
+
+    @property
+    def zip(self):
+        """Make a ZIP archive with all media files and return its path.
+
+        If the ``zip_gallery`` setting is set,it contains the location of a zip
+        archive with all original images of the corresponding directory.
+
+        """
+        zip_gallery = self.settings['zip_gallery']
+        if zip_gallery:
+            archive_path = join(self.dst_path, zip_gallery)
+            archive = zipfile.ZipFile(archive_path, 'w')
+
+            for p in self:
+                archive.write(p.dst_path, os.path.split(p.dst_path)[1])
+
+            archive.close()
+            self.logger.debug('Created ZIP archive %s', archive_path)
+            return zip_gallery
+        else:
+            return None
 
 
 class Gallery(object):
 
-    def __init__(self, settings, force=False, theme=None, ncpu=None):
+    def __init__(self, settings, theme=None, ncpu=None):
         self.settings = settings
-        self.force = force
         self.theme = theme
         self.logger = logging.getLogger(__name__)
         self.stats = {'image': 0, 'image_skipped': 0,
                       'video': 0, 'video_skipped': 0}
+        self.init_pool(ncpu)
+        check_or_create_dir(settings['destination'])
 
+        # Build the list of directories with images
+        albums = self.albums = {}
+        src_path = self.settings['source']
+
+        for path, dirs, files in os.walk(src_path, followlinks=True):
+            relpath = os.path.relpath(path, src_path)
+            albums[relpath] = Album(relpath, self.settings, dirs, files, self)
+
+        self.logger.debug('Albums:\n%r', albums.values())
+
+    def init_pool(self, ncpu):
         try:
             cpu_count = multiprocessing.cpu_count()
         except NotImplementedError:
@@ -203,33 +403,41 @@ class Gallery(object):
                 self.logger.error('ncpu should be an integer value')
                 ncpu = cpu_count
 
+        self.logger.info("Using %s cores", ncpu)
         if ncpu > 1:
             self.pool = multiprocessing.Pool(processes=ncpu)
         else:
             self.pool = None
 
-        self.logger.info("Using %s cores", ncpu)
+    def get_albums(self, path):
+        """Return the list of all sub-directories of path."""
 
-        paths = PathsDb(self.settings['source'], self.settings['img_ext_list'],
-                        self.settings['vid_ext_list'])
-        self.db = paths.db
+        for name in self.albums[path].subdirs:
+            subdir = os.path.normpath(join(path, name))
+            yield subdir, self.albums[subdir]
+            for subname, album in self.get_albums(subdir):
+                yield subname, self.albums[subdir]
 
-    def build(self):
+    def build(self, force=False):
         "Create the image gallery"
-
-        check_or_create_dir(self.settings['destination'])
 
         # loop on directories in reversed order, to process subdirectories
         # before their parent
-
         if self.pool:
             media_list = []
+            processor = media_list.append
+        else:
+            processor = process_file
 
-            for path in reversed(self.db['paths_list']):
-                if len(self.db[path]['medias']) != 0:
-                    for files in self.process_dir(path):
-                        media_list.append(files)
+        try:
+            for album in self.albums.values():
+                if len(album) > 0:
+                    for files in self.process_dir(album, force=force):
+                        processor(files)
+        except KeyboardInterrupt:
+            sys.exit('Interrupted')
 
+        if self.pool:
             try:
                 # map_async is needed to handle KeyboardInterrupt correctly
                 self.pool.map_async(worker, media_list).get(9999)
@@ -240,86 +448,48 @@ class Gallery(object):
                 sys.exit('Interrupted')
 
             print('')
-        else:
-            try:
-                for path in reversed(self.db['paths_list']):
-                    if len(self.db[path]['medias']) != 0:
-                        for files in self.process_dir(path):
-                            process_file(files)
-                        print('')
-            except KeyboardInterrupt:
-                sys.exit('Interrupted')
 
         if self.settings['write_html']:
-            self.writer = Writer(self.settings, self.settings['destination'],
-                                 theme=self.theme)
+            self.writer = Writer(self.settings, theme=self.theme,
+                                 index_title=self.albums['.'].title)
 
-            for path in reversed(self.db['paths_list']):
-                self.writer.write(self.db, path)
+            for album in self.albums.values():
+                self.writer.write(album)
 
-    def process_dir(self, path):
+    def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
 
-        media_files = [normpath(join(self.settings['source'], path, f))
-                       for f in self.db[path]['medias']]
-
-        # output dir for the current path
-        outpath = normpath(join(self.settings['destination'], path))
-        check_or_create_dir(outpath)
-
-        # Create thumbnails directory and optionally the one for original img
-        check_or_create_dir(join(outpath, self.settings['thumb_dir']))
-
-        if self.settings['keep_orig']:
-            check_or_create_dir(join(outpath, self.settings['orig_dir']))
-
         if sys.stdout.isatty():
-            print(colored('->', BLUE),
-                  u"{} : {} files".format(path, len(media_files)))
+            print(colored('->', BLUE), str(album))
         else:
-            self.logger.warn("%s : %d files", path, len(media_files))
+            self.logger.warn(album)
 
-        # loop on images
-        if self.settings['zip_gallery']:
-            zip_files(join(outpath, self.settings['zip_gallery']), media_files)
-
-        for f in media_files:
-            filename = os.path.split(f)[1]
-            base, ext = os.path.splitext(filename)
-
-            if ext in self.settings['img_ext_list']:
-                outname = join(outpath, filename)
-                filetype = 'image'
-            elif ext in self.settings['vid_ext_list']:
-                outname = join(outpath, base + '.webm')
-                filetype = 'video'
-            else:
-                raise FileExtensionError
-
-            if os.path.isfile(outname) and not self.force:
-                self.logger.info("%s exists - skipping", filename)
-                self.stats[filetype + '_skipped'] += 1
+        for f in album:
+            if isfile(f.dst_path) and not force:
+                self.logger.info("%s exists - skipping", f.filename)
+                self.stats[f.type + '_skipped'] += 1
             else:
                 if self.settings['keep_orig']:
-                    copy(f, join(outpath, self.settings['orig_dir'], filename),
+                    copy(f.src_path, join(album.orig_path, f.filename),
                          symlink=self.settings['orig_link'])
 
-                self.stats[filetype] += 1
-                yield filetype, f, outpath, self.settings
+                self.stats[f.type] += 1
+                yield f.type, f.src_path, album.dst_path, self.settings
 
 
 def process_file(args):
+    ftype, src_path, dst_path, settings = args
     logger = logging.getLogger(__name__)
-    logger.info('Processing %s', args[1])
+    logger.info('Processing %s', src_path)
 
     if logger.getEffectiveLevel() > 20:
         print('.', end='')
         sys.stdout.flush()
 
-    if args[0] == 'image':
-        return process_image(*args[1:])
-    elif args[0] == 'video':
-        return process_video(*args[1:])
+    if ftype == 'image':
+        return process_image(src_path, dst_path, settings)
+    elif ftype == 'video':
+        return process_video(src_path, dst_path, settings)
 
 
 def worker(args):
@@ -327,49 +497,3 @@ def worker(args):
         process_file(args)
     except KeyboardInterrupt:
         return 'KeyboardException'
-
-
-def get_metadata(path):
-    """ Get album metadata from DESCRIPTION_FILE:
-
-    - title
-    - thumbnail image
-    - description
-
-    """
-    descfile = join(path, DESCRIPTION_FILE)
-
-    if not os.path.isfile(descfile):
-        # default: get title from directory name
-        meta = {
-            'title': os.path.basename(path).replace('_', ' ')
-            .replace('-', ' ').capitalize(),
-            'description': '',
-            'thumbnail': '',
-            'meta': {}
-        }
-    else:
-        with codecs.open(descfile, "r", "utf-8") as f:
-            text = f.read()
-
-        md = markdown.Markdown(extensions=['meta'])
-        html = md.convert(text)
-
-        meta = {
-            'title': md.Meta.get('title', [''])[0],
-            'description': html,
-            'thumbnail': md.Meta.get('thumbnail', [''])[0],
-            'meta': md.Meta.copy()
-        }
-
-    return meta
-
-
-def zip_files(archive_path, filepaths):
-    archive = zipfile.ZipFile(archive_path, 'w')
-
-    for p in filepaths:
-        filename = os.path.split(p)[1]
-        archive.write(p, filename)
-
-    archive.close()
