@@ -203,7 +203,13 @@ def get_exif_tags(source):
         simple['focal'] = round(float(focal[0]) / focal[1])
 
     if 'ExposureTime' in data:
-        simple['exposure'] = '{0}/{1}'.format(*data['ExposureTime'])
+        if isinstance(data['ExposureTime'], tuple):
+            simple['exposure'] = '{0}/{1}'.format(*data['ExposureTime'])
+        elif isinstance(data['ExposureTime'], int):
+            simple['exposure'] = str(data['ExposureTime'])
+        else:
+            logger.warning('Unknown format for ExposureTime: %r (%s)',
+                           data['ExposureTime'], source)
 
     if 'ISOSpeedRatings' in data:
         simple['iso'] = data['ISOSpeedRatings']
