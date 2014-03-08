@@ -220,7 +220,7 @@ class Album(UnicodeMixin):
                           for _type, count in self.medias_count.items()))
 
     def __len__(self):
-        return sum(self.medias_count.values())
+        return len(self.medias)
 
     def __iter__(self):
         return iter(self.medias)
@@ -382,9 +382,21 @@ class Gallery(object):
         albums = self.albums = {}
         src_path = self.settings['source']
 
-        for path, dirs, files in os.walk(src_path, followlinks=True):
+        for path, dirs, files in os.walk(src_path, followlinks=True,
+                                         topdown=False):
             relpath = os.path.relpath(path, src_path)
-            albums[relpath] = Album(relpath, self.settings, dirs, files, self)
+
+            for d in dirs[:]:
+                path = join(relpath, d) if relpath != '.' else d
+                if path not in albums.keys():
+                    dirs.remove(d)
+
+            album = Album(relpath, self.settings, dirs, files, self)
+
+            if not album.medias and not album.albums:
+                self.logger.info('Skip empty album: %r', album)
+            else:
+                albums[relpath] = album
 
         self.logger.debug('Albums:\n%r', albums.values())
 

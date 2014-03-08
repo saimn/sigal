@@ -157,3 +157,9 @@ def test_gallery(settings, tmpdir):
         html = f.read()
 
     assert '<title>Sigal test gallery</title>' in html
+
+
+def test_empty_dirs(settings):
+    gal = Gallery(settings, ncpu=1)
+    assert 'empty' not in gal.albums
+    assert 'dir1/empty' not in gal.albums
