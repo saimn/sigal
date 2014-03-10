@@ -6,6 +6,7 @@ before_install:
     # Dependencies to build PIL
     - sudo apt-get update -qq
     - sudo apt-get install -qq libfreetype6-dev libjpeg8-dev zlib1g-dev ffmpeg
+    - sudo locale-gen fr_FR.UTF-8
 install:
     - pip install pytest
     - pip install clint==0.3.1
