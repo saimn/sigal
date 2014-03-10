@@ -64,6 +64,11 @@ def generate_image(source, outname, settings, options=None):
     img = PILImage.open(source)
     original_format = img.format
 
+    if settings['copy_exif_data'] and settings['autorotate_images']:
+        logger.warning("The 'autorotate_images' and 'copy_exif_data' settings "
+                       "are not compatible because Sigal can't save the "
+                       "modified Orientation tag.")
+
     # Preserve EXIF data
     if settings['copy_exif_data'] and _has_exif_tags(img):
         if options is not None:
@@ -73,10 +78,11 @@ def generate_image(source, outname, settings, options=None):
         options['exif'] = img.info['exif']
 
     # Rotate the img, and catch IOError when PIL fails to read EXIF
-    try:
-        img = Transpose().process(img)
-    except (IOError, IndexError):
-        pass
+    if settings['autorotate_images']:
+        try:
+            img = Transpose().process(img)
+        except (IOError, IndexError):
+            pass
 
     # Resize the image
     if settings['img_processor']:

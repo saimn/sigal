@@ -107,8 +107,14 @@ medias_sort_reverse = False
 # contain all original files.
 # zip_gallery = False   # False or 'archive.zip'
 
+# Autorotate images
+# Warning: this setting is not compatible with `copy_exif_data` (see below),
+# because Sigal can't save the modified Orientation tag (currently Pillow can't
+# write EXIF).
+# autorotate_images = True
+
 # If True, EXIF data from the original image is copied to the resized image
-# copy_exif_data = True
+# copy_exif_data = False
 
 # Specify a different locale. If set to '', the default locale is used.
 # locale = ''

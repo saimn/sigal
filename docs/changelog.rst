@@ -20,6 +20,8 @@ Released on 2014-xx-xx.
 
 - New settings to define the sort order for albums and medias:
   ``albums_sort_reverse``, ``medias_sort_attr``, ``medias_sort_reverse``.
+- New setting ``autorotate_images`` to disable autorotation of images, and warn
+  about the incompatibility between autorotation and EXIF copy.
 
 Version 0.6.0
 ~~~~~~~~~~~~~
