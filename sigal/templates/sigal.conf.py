@@ -62,14 +62,14 @@ thumb_size = (280, 210)
 # orig_link = False
 
 # Reverse sort for albums
-albums_sort_reverse = False
+# albums_sort_reverse = False
 
 # Attribute of Media objects which is used to sort medias. 'date' can be used
 # to sort with EXIF dates.
-medias_sort_attr = 'filename'
+# medias_sort_attr = 'filename'
 
 # Reverse sort for medias
-medias_sort_reverse = False
+# medias_sort_reverse = False
 
 # Jpeg options
 # jpg_options = {'quality': 85,
