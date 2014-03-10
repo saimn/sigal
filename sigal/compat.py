@@ -9,9 +9,7 @@ if not PY2:
     text_type = str
     string_types = (str,)
     unichr = chr
-
-    from functools import cmp_to_key
-    alpha_sort = {'key': cmp_to_key(locale.strcoll)}
+    strxfrm = locale.strxfrm
 
     from http import server
     import socketserver
@@ -19,7 +17,9 @@ else:
     text_type = unicode  # NOQA
     string_types = (str, unicode)  # NOQA
     unichr = unichr
-    alpha_sort = {'cmp': locale.strcoll}
+
+    def strxfrm(s):
+        return locale.strxfrm(s.encode('utf-8'))
 
     import SimpleHTTPServer as server
     import SocketServer as socketserver

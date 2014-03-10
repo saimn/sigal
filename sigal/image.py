@@ -218,8 +218,8 @@ def get_exif_tags(source):
         try:
             # Remove null bytes at the end if necessary
             date = data['DateTimeOriginal'].rsplit('\x00')[0]
-            dt = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
-            dt = dt.strftime('%A, %d. %B %Y')
+            simple['dateobj'] = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
+            dt = simple['dateobj'].strftime('%A, %d. %B %Y')
 
             if compat.PY2:
                 simple['datetime'] = dt.decode('utf8')

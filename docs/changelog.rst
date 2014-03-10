@@ -18,6 +18,9 @@ Released on 2014-xx-xx.
   ``album.title``, ``media.file`` => ``media.filename``, ``media.thumb`` =>
   ``media.thumbnail``, ``zip_gallery`` => ``album.zip``
 
+- New settings to define the sort order for albums and medias:
+  ``albums_sort_reverse``, ``medias_sort_attr``, ``medias_sort_reverse``.
+
 Version 0.6.0
 ~~~~~~~~~~~~~
 

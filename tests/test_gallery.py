@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+import locale
 import os
 import pytest
 
@@ -31,7 +32,7 @@ REF = {
         'name': 'test2',
         'thumbnail': 'test2/thumbnails/21.tn.jpg',
         'subdirs': [],
-        'medias': ['21.jpg', '22.jpg'],
+        'medias': ['21.jpg', '22.jpg', 'archlinux-kiss-1024x640.png'],
     },
     'dir2': {
         'title': 'Another example gallery with a very long name',
@@ -39,9 +40,9 @@ REF = {
         'thumbnail': 'dir2/thumbnails/m57_the_ring_nebula-587px.tn.jpg',
         'subdirs': [],
         'medias': ['exo20101028-b-full.jpg',
-                   'm57_the_ring_nebula-587px.jpg',
+                   'Hubble Interacting Galaxy NGC 5257.jpg',
                    'Hubble ultra deep field.jpg',
-                   'Hubble Interacting Galaxy NGC 5257.jpg'],
+                   'm57_the_ring_nebula-587px.jpg'],
     },
     u'accentué': {
         'title': u'Accentué',
@@ -118,6 +119,7 @@ def test_video(settings, tmpdir):
 
 @pytest.mark.parametrize("path,album", REF.items())
 def test_album(path, album, settings, tmpdir):
+    locale.setlocale(locale.LC_ALL, 'fr_FR')
     gal = Gallery(settings, ncpu=1)
     a = Album(path, settings, album['subdirs'], album['medias'], gal)
 
@@ -129,7 +131,7 @@ def test_album(path, album, settings, tmpdir):
     assert len(a) == len(album['medias'])
 
 
-def test_album_medias(settings, tmpdir):
+def test_album_medias(settings):
     gal = Gallery(settings, ncpu=1)
 
     album = REF['dir1/test1']
@@ -141,6 +143,30 @@ def test_album_medias(settings, tmpdir):
     a = Album('video', settings, album['subdirs'], album['medias'], gal)
     assert list(im.filename for im in a.videos) == album['medias']
     assert list(a.images) == []
+
+
+def test_albums_sort(settings):
+    gal = Gallery(settings, ncpu=1)
+    album = REF['dir1']
+
+    settings['albums_sort_reverse'] = True
+    a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
+    assert [im.filename for im in a.images] == list(reversed(album['medias']))
+
+
+def test_medias_sort(settings):
+    gal = Gallery(settings, ncpu=1)
+    album = REF['dir1/test2']
+
+    settings['medias_sort_reverse'] = True
+    a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
+    assert [im.filename for im in a.images] == list(reversed(album['medias']))
+
+    settings['medias_sort_attr'] = 'date'
+    settings['medias_sort_reverse'] = False
+    a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
+    assert [im.filename for im in a.images] == ['22.jpg', '21.jpg',
+                                                'archlinux-kiss-1024x640.png']
 
 
 def test_gallery(settings, tmpdir):

@@ -32,11 +32,12 @@ import sys
 import zipfile
 
 from collections import defaultdict
-from os.path import isfile, join
+from datetime import datetime
+from os.path import isfile, join, splitext
 from PIL import Image as PILImage
 
 from . import image, video
-from .compat import UnicodeMixin, alpha_sort
+from .compat import UnicodeMixin, strxfrm
 from .image import process_image, get_exif_tags
 from .log import colored, BLUE
 from .settings import get_thumb, get_orig
@@ -76,6 +77,7 @@ class Media(UnicodeMixin):
         self.logger = logging.getLogger(__name__)
         self.raw_exif = None
         self.exif = None
+        self.date = None
 
     def __repr__(self):
         return "<%s>(%r)" % (self.__class__.__name__, self.file_path)
@@ -120,6 +122,8 @@ class Image(Media):
     def __init__(self, filename, path, settings):
         super(Image, self).__init__(filename, path, settings)
         self.raw_exif, self.exif = get_exif_tags(self.src_path)
+        if self.exif is not None and 'dateobj' in self.exif:
+            self.date = self.exif['dateobj']
 
 
 class Video(Media):
@@ -130,7 +134,7 @@ class Video(Media):
 
     def __init__(self, filename, path, settings):
         super(Video, self).__init__(filename, path, settings)
-        base = os.path.splitext(filename)[0]
+        base = splitext(filename)[0]
         self.file_path = join(path, base + '.webm')
         self.dst_path = join(settings['destination'], path, base + '.webm')
 
@@ -188,19 +192,17 @@ class Album(UnicodeMixin):
         self.index_url = os.path.relpath(settings['destination'],
                                          self.dst_path) + '/' + self.url_ext
 
-        # sort images and sub-albums by name
-        filenames.sort(**alpha_sort)
-        dirnames.sort(**alpha_sort)
-
+        # sort sub-albums
+        dirnames.sort(key=strxfrm, reverse=settings['albums_sort_reverse'])
         self.subdirs = dirnames
 
         #: List of all medias in the album (:class:`~sigal.gallery.Image` and
         #: :class:`~sigal.gallery.Video`).
-        self.medias = []
+        self.medias = medias = []
         self.medias_count = defaultdict(int)
 
         for f in filenames:
-            ext = os.path.splitext(f)[1]
+            ext = splitext(f)[1]
             if ext in Image.extensions:
                 media = Image(f, self.path, settings)
             elif ext in Video.extensions:
@@ -209,7 +211,16 @@ class Album(UnicodeMixin):
                 continue
 
             self.medias_count[media.type] += 1
-            self.medias.append(media)
+            medias.append(media)
+
+        # sort images
+        medias_sort_attr = settings['medias_sort_attr']
+        if medias_sort_attr == 'date':
+            key = lambda s: s.date or datetime.now()
+        else:
+            key = lambda s: strxfrm(getattr(s, medias_sort_attr))
+
+        medias.sort(key=key, reverse=settings['medias_sort_reverse'])
 
     def __repr__(self):
         return "<%s>(%r)" % (self.__class__.__name__, self.path)
@@ -292,7 +303,7 @@ class Album(UnicodeMixin):
         else:
             # find and return the first landscape image
             for f in self.medias:
-                ext = os.path.splitext(f.filename)[1]
+                ext = splitext(f.filename)[1]
                 if ext in Image.extensions:
                     im = PILImage.open(f.src_path)
                     if im.size[0] > im.size[1]:

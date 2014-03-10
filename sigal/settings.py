@@ -31,6 +31,7 @@ from .compat import PY2
 _DEFAULT_CONFIG = {
     'adjust_options': {'color': 1.0, 'brightness': 1.0,
                        'contrast': 1.0, 'sharpness': 1.0},
+    'albums_sort_reverse': False,
     'copy_exif_data': True,
     'copyright': '',
     'destination': '_build',
@@ -44,6 +45,8 @@ _DEFAULT_CONFIG = {
     'keep_orig': False,
     'links': '',
     'locale': '',
+    'medias_sort_attr': 'filename',
+    'medias_sort_reverse': False,
     'make_thumbs': True,
     'orig_dir': 'original',
     'orig_link': False,
