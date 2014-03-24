@@ -178,14 +178,6 @@ class Album(UnicodeMixin):
         self.logger = logging.getLogger(__name__)
         self._get_metadata()
 
-        # Create thumbnails directory and optionally the one for original img
-        check_or_create_dir(self.dst_path)
-        check_or_create_dir(join(self.dst_path, settings['thumb_dir']))
-
-        if settings['keep_orig']:
-            self.orig_path = join(self.dst_path, settings['orig_dir'])
-            check_or_create_dir(self.orig_path)
-
         # optionally add index.html to the URLs
         self.url_ext = self.output_file if settings['index_in_url'] else ''
         self.url = self.name + '/' + self.url_ext
@@ -215,13 +207,14 @@ class Album(UnicodeMixin):
             medias.append(media)
 
         # sort images
-        medias_sort_attr = settings['medias_sort_attr']
-        if medias_sort_attr == 'date':
-            key = lambda s: s.date or datetime.now()
-        else:
-            key = lambda s: strxfrm(getattr(s, medias_sort_attr))
+        if medias:
+            medias_sort_attr = settings['medias_sort_attr']
+            if medias_sort_attr == 'date':
+                key = lambda s: s.date or datetime.now()
+            else:
+                key = lambda s: strxfrm(getattr(s, medias_sort_attr))
 
-        medias.sort(key=key, reverse=settings['medias_sort_reverse'])
+            medias.sort(key=key, reverse=settings['medias_sort_reverse'])
 
     def __repr__(self):
         return "<%s>(%r)" % (self.__class__.__name__, self.path)
@@ -261,6 +254,18 @@ class Album(UnicodeMixin):
                 .replace('-', ' ').capitalize()
             self.description = ''
             self.meta = {}
+
+    def create_output_directories(self):
+        """Create output directories for thumbnails and original images."""
+        check_or_create_dir(self.dst_path)
+
+        if self.medias:
+            check_or_create_dir(join(self.dst_path,
+                                     self.settings['thumb_dir']))
+
+        if self.medias and self.settings['keep_orig']:
+            self.orig_path = join(self.dst_path, self.settings['orig_dir'])
+            check_or_create_dir(self.orig_path)
 
     @property
     def images(self):
@@ -429,8 +434,8 @@ class Gallery(object):
 
             if not album.medias and not album.albums:
                 self.logger.info('Skip empty album: %r', album)
-                # TODO delete empty directories
             else:
+                album.create_output_directories()
                 albums[relpath] = album
 
         self.logger.debug('Albums:\n%r', albums.values())

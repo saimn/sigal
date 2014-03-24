@@ -72,7 +72,8 @@ thumb_size = (280, 210)
 # medias_sort_reverse = False
 
 # Filter directories and files.
-# The settings take a list of patterns matched with the fnmatch module:
+# The settings take a list of patterns matched with the fnmatch module on the
+# path relative to the source directory:
 # http://docs.python.org/2/library/fnmatch.html
 ignore_directories = []
 ignore_files = []
