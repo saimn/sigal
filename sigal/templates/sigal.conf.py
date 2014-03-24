@@ -71,6 +71,12 @@ thumb_size = (280, 210)
 # Reverse sort for medias
 # medias_sort_reverse = False
 
+# Filter directories and files.
+# The settings take a list of patterns matched with the fnmatch module:
+# http://docs.python.org/2/library/fnmatch.html
+ignore_directories = []
+ignore_files = []
+
 # Jpeg options
 # jpg_options = {'quality': 85,
 #                'optimize': True,

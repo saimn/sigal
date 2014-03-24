@@ -28,6 +28,7 @@ from pprint import pformat
 
 from .compat import PY2
 
+
 _DEFAULT_CONFIG = {
     'adjust_options': {'color': 1.0, 'brightness': 1.0,
                        'contrast': 1.0, 'sharpness': 1.0},
@@ -38,6 +39,8 @@ _DEFAULT_CONFIG = {
     'destination': '_build',
     'files_to_copy': (),
     'google_analytics': '',
+    'ignore_directories': [],
+    'ignore_files': [],
     'img_ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
     'img_processor': 'ResizeToFit',
     'img_size': (640, 480),

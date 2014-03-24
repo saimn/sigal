@@ -24,6 +24,7 @@
 from __future__ import absolute_import, print_function
 
 import codecs
+import fnmatch
 import logging
 import markdown
 import multiprocessing
@@ -393,19 +394,42 @@ class Gallery(object):
         albums = self.albums = {}
         src_path = self.settings['source']
 
+        ignore_dirs = settings['ignore_directories']
+        ignore_files = settings['ignore_files']
+
         for path, dirs, files in os.walk(src_path, followlinks=True,
                                          topdown=False):
             relpath = os.path.relpath(path, src_path)
 
+            # Test if the directory match the ignore_dirs settings
+            if ignore_dirs and any(fnmatch.fnmatch(relpath, ignore)
+                                   for ignore in ignore_dirs):
+                self.logger.info('Ignoring %s', relpath)
+                continue
+
+            # Remove files that match the ignore_files settings
+            if ignore_files:
+                files_path = {join(relpath, f) for f in files}
+                for ignore in ignore_files:
+                    files_path -= set(fnmatch.filter(files_path, ignore))
+
+                self.logger.debug('Files before filtering: %r', files)
+                files = [os.path.split(f)[1] for f in files_path]
+                self.logger.debug('Files after filtering: %r', files)
+
+            # Remove sub-directories that have been ignored in a previous
+            # iteration (as topdown=False, sub-directories are processed before
+            # their parent
             for d in dirs[:]:
                 path = join(relpath, d) if relpath != '.' else d
                 if path not in albums.keys():
                     dirs.remove(d)
 
-            album = Album(relpath, self.settings, dirs, files, self)
+            album = Album(relpath, settings, dirs, files, self)
 
             if not album.medias and not album.albums:
                 self.logger.info('Skip empty album: %r', album)
+                # TODO delete empty directories
             else:
                 albums[relpath] = album
 
