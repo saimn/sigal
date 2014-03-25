@@ -17,3 +17,12 @@ def check_or_create_dir(path):
 
     if not os.path.isdir(path):
         os.makedirs(path)
+
+
+def url_from_path(path):
+    """Transform path to url, converting backslashes to slashes if needed."""
+
+    if os.sep == '/':
+        return path
+    else:
+        return '/'.join(path.split(os.sep))

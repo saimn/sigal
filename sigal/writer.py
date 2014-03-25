@@ -34,6 +34,7 @@ from jinja2 import Environment, FileSystemLoader, ChoiceLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
 
 from .pkgmeta import __url__ as sigal_link
+from .utils import url_from_path
 
 THEMES_PATH = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'themes'))
@@ -99,7 +100,8 @@ class Writer(object):
             'settings': self.settings,
             'sigal_link': sigal_link,
             'theme': {'name': os.path.basename(self.theme),
-                      'url': os.path.relpath(self.theme_path, album.dst_path)},
+                      'url': url_from_path(os.path.relpath(self.theme_path,
+                                                           album.dst_path))},
         }
 
     def write(self, album):

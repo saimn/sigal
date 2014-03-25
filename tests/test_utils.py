@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from sigal.utils import copy, check_or_create_dir
+from sigal.utils import copy, check_or_create_dir, url_from_path
 
 CURRENT_DIR = os.path.dirname(__file__)
 SAMPLE_DIR = os.path.join(CURRENT_DIR, 'sample')
@@ -32,3 +32,7 @@ def test_check_or_create_dir(tmpdir):
     path = str(tmpdir.join('new_directory'))
     check_or_create_dir(path)
     assert os.path.isdir(path)
+
+
+def test_url_from_path():
+    assert url_from_path(os.sep.join(['foo', 'bar'])) == 'foo/bar'

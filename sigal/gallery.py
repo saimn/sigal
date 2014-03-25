@@ -42,7 +42,7 @@ from .compat import UnicodeMixin, strxfrm
 from .image import process_image, get_exif_tags
 from .log import colored, BLUE
 from .settings import get_thumb, get_orig
-from .utils import copy, check_or_create_dir
+from .utils import copy, check_or_create_dir, url_from_path
 from .video import process_video
 from .writer import Writer
 
@@ -67,6 +67,7 @@ class Media(UnicodeMixin):
 
     def __init__(self, filename, path, settings):
         self.filename = filename
+        self.url = filename
         self.settings = settings
         self.file_path = join(path, filename)
         self.src_path = join(settings['source'], path, filename)
@@ -182,8 +183,8 @@ class Album(UnicodeMixin):
         self.url_ext = self.output_file if settings['index_in_url'] else ''
         self.url = self.name + '/' + self.url_ext
 
-        self.index_url = os.path.relpath(settings['destination'],
-                                         self.dst_path) + '/' + self.url_ext
+        self.index_url = url_from_path(os.path.relpath(
+            settings['destination'], self.dst_path)) + '/' + self.url_ext
 
         # sort sub-albums
         dirnames.sort(key=strxfrm, reverse=settings['albums_sort_reverse'])
@@ -355,7 +356,8 @@ class Album(UnicodeMixin):
             if path == '.':
                 break
 
-            url = os.path.relpath(path, self.path) + '/' + self.url_ext
+            url = (url_from_path(os.path.relpath(path, self.path)) + '/' +
+                   self.url_ext)
             breadcrumb.append((url, self.gallery.albums[path].title))
 
         breadcrumb.reverse()
