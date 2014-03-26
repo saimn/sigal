@@ -24,6 +24,8 @@ Released on 2014-xx-xx.
   about the incompatibility between autorotation and EXIF copy.
 - New settings ``ignore_directories`` and ``ignore_files`` to filter
   directories and files with pattern matching.
+- New setting ``colorbox_column_size`` to customize the column width of the
+  colorbox theme.
 
 Version 0.6.0
 ~~~~~~~~~~~~~

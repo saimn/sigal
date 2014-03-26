@@ -34,6 +34,7 @@ _DEFAULT_CONFIG = {
                        'contrast': 1.0, 'sharpness': 1.0},
     'albums_sort_reverse': False,
     'autorotate_images': True,
+    'colorbox_column_size': 4,
     'copy_exif_data': False,
     'copyright': '',
     'destination': '_build',

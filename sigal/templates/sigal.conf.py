@@ -130,3 +130,10 @@ ignore_files = []
 # A symbolic link is used if ``orig_link`` is set to True (see above).
 # files_to_copy = (('extra/robots.txt', 'robots.txt'),
 #                  ('extra/favicon.ico', 'favicon.ico'),)
+
+# Colorbox theme config
+# The column size is given in number of column of the css grid of the Skeleton
+# framework which is used for this theme: http://www.getskeleton.com/#grid
+# Then the image size must be adapted to fit the column size.
+# The default is 4 columns which gives 220px. 3 columns gives 160px.
+# colorbox_column_size = 4
