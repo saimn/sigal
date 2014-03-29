@@ -6,10 +6,8 @@ import pytest
 
 from os.path import join
 from sigal.gallery import Album, Media, Image, Video, Gallery
-from sigal.settings import read_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
-SAMPLE_DIR = os.path.join(CURRENT_DIR, 'sample')
 
 REF = {
     'dir1': {
@@ -54,17 +52,12 @@ REF = {
     'video': {
         'title': 'Video',
         'name': 'video',
-        'thumbnail': 'video/thumbnails/stallman software-freedom-day-low.tn.jpg',
+        'thumbnail': ('video/thumbnails/'
+                      'stallman software-freedom-day-low.tn.jpg'),
         'subdirs': [],
         'medias': ['stallman software-freedom-day-low.ogv']
     }
 }
-
-
-@pytest.fixture(scope='module')
-def settings():
-    """Read the sample config file."""
-    return read_settings(os.path.join(SAMPLE_DIR, 'sigal.conf.py'))
 
 
 def test_media(settings):
