@@ -94,13 +94,6 @@ def get_thumb(settings, filename):
                         name + settings['thumb_suffix'] + ext)
 
 
-def get_orig(settings, filename):
-    """Return the path to the original image."""
-
-    path, filen = os.path.split(filename)
-    return os.path.join(path, settings['orig_dir'], filen)
-
-
 def read_settings(filename=None):
     """Read settings from a config file in the source_dir root."""
 

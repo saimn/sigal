@@ -55,7 +55,7 @@ REF = {
         'thumbnail': ('video/thumbnails/'
                       'stallman software-freedom-day-low.tn.jpg'),
         'subdirs': [],
-        'medias': ['stallman software-freedom-day-low.ogv']
+        'medias': ['stallman software-freedom-day-low.webm']
     }
 }
 
@@ -67,7 +67,6 @@ def test_media(settings):
     thumb = join('thumbnails', '11.tn.jpg')
 
     assert m.filename == '11.jpg'
-    assert m.file_path == file_path
     assert m.src_path == join(settings['source'], file_path)
     assert m.dst_path == join(settings['destination'], file_path)
     assert m.thumb_name == thumb
@@ -83,8 +82,12 @@ def test_media_orig(settings):
     assert m.big is None
 
     settings['keep_orig'] = True
-    m = Media('11.jpg', 'dir1/test1', settings)
+    m = Image('11.jpg', 'dir1/test1', settings)
     assert m.big == 'original/11.jpg'
+
+    m = Video('file.ogv', 'video', settings)
+    assert m.filename == 'file.webm'
+    assert m.big == 'original/file.ogv'
 
 
 def test_image(settings, tmpdir):
@@ -101,7 +104,7 @@ def test_video(settings, tmpdir):
     settings['destination'] = str(tmpdir)
     m = Video('stallman software-freedom-day-low.ogv', 'video', settings)
     file_path = join('video', 'stallman software-freedom-day-low.webm')
-    assert m.file_path == file_path
+    assert str(m) == file_path
     assert m.dst_path == join(settings['destination'], file_path)
 
     os.makedirs(join(settings['destination'], 'video', 'thumbnails'))

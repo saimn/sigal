@@ -2,7 +2,7 @@
 
 import os
 
-from sigal.settings import read_settings, get_thumb, get_orig
+from sigal.settings import read_settings, get_thumb
 
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -29,14 +29,6 @@ def test_get_thumb(settings):
              ('test/t/example.avi', 'test/t/thumbnails/example.tn.jpg')]
     for src, ref in tests:
         assert get_thumb(settings, src) == ref
-
-
-def test_get_orig(settings):
-    tests = [('example.jpg', 'original/example.jpg'),
-             ('test/example.jpg', 'test/original/example.jpg'),
-             ('test/t/example.jpg', 'test/t/original/example.jpg')]
-    for src, ref in tests:
-        assert get_orig(settings, src) == ref
 
 
 def test_img_sizes(tmpdir):

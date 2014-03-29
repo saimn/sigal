@@ -41,7 +41,7 @@ from . import image, video
 from .compat import UnicodeMixin, strxfrm
 from .image import process_image, get_exif_tags
 from .log import colored, BLUE
-from .settings import get_thumb, get_orig
+from .settings import get_thumb
 from .utils import copy, check_or_create_dir, url_from_path
 from .video import process_video
 from .writer import Writer
@@ -66,10 +66,10 @@ class Media(UnicodeMixin):
     extensions = ()
 
     def __init__(self, filename, path, settings):
-        self.filename = filename
-        self.url = filename
+        self.src_filename = self.filename = self.url = filename
+        self.path = path
         self.settings = settings
-        self.file_path = join(path, filename)
+
         self.src_path = join(settings['source'], path, filename)
         self.dst_path = join(settings['destination'], path, filename)
 
@@ -82,10 +82,10 @@ class Media(UnicodeMixin):
         self.date = None
 
     def __repr__(self):
-        return "<%s>(%r)" % (self.__class__.__name__, self.file_path)
+        return "<%s>(%r)" % (self.__class__.__name__, str(self))
 
     def __unicode__(self):
-        return self.file_path
+        return join(self.path, self.filename)
 
     @property
     def big(self):
@@ -93,7 +93,7 @@ class Media(UnicodeMixin):
         album directory).
         """
         if self.settings['keep_orig']:
-            return get_orig(self.settings, self.filename)
+            return os.path.join(self.settings['orig_dir'], self.src_filename)
         else:
             return None
 
@@ -137,7 +137,8 @@ class Video(Media):
     def __init__(self, filename, path, settings):
         super(Video, self).__init__(filename, path, settings)
         base = splitext(filename)[0]
-        self.file_path = join(path, base + '.webm')
+        self.src_filename = filename
+        self.filename = self.url = base + '.webm'
         self.dst_path = join(settings['destination'], path, base + '.webm')
 
 
