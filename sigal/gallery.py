@@ -38,7 +38,7 @@ from os.path import isfile, join, splitext
 from PIL import Image as PILImage
 
 from . import image, video
-from .compat import UnicodeMixin, strxfrm
+from .compat import UnicodeMixin, strxfrm, url_quote
 from .image import process_image, get_exif_tags
 from .log import colored, BLUE
 from .settings import get_thumb
@@ -182,7 +182,6 @@ class Album(UnicodeMixin):
 
         # optionally add index.html to the URLs
         self.url_ext = self.output_file if settings['index_in_url'] else ''
-        self.url = self.name + '/' + self.url_ext
 
         self.index_url = url_from_path(os.path.relpath(
             settings['destination'], self.dst_path)) + '/' + self.url_ext
@@ -252,8 +251,7 @@ class Album(UnicodeMixin):
             self.meta = md.Meta.copy()
         else:
             # default: get title from directory name
-            self.title = os.path.basename(self.path).replace('_', ' ')\
-                .replace('-', ' ').capitalize()
+            self.title = os.path.basename(self.path)
             self.description = ''
             self.meta = {}
 
@@ -291,6 +289,12 @@ class Album(UnicodeMixin):
         root_path = self.path if self.path != '.' else ''
         return [self.gallery.albums[join(root_path, path)]
                 for path in self.subdirs]
+
+    @property
+    def url(self):
+        """URL of the album, relative to its parent."""
+        url = self.name.encode('utf-8')
+        return url_quote(url) + '/' + self.url_ext
 
     @property
     def thumbnail(self):

@@ -26,7 +26,7 @@ REF = {
                    'flickr_jerquiaga_2394751088_cc-by-nc.jpg'],
     },
     'dir1/test2': {
-        'title': 'Test2',
+        'title': 'test2',
         'name': 'test2',
         'thumbnail': 'test2/thumbnails/21.tn.jpg',
         'subdirs': [],
@@ -43,14 +43,14 @@ REF = {
                    'm57_the_ring_nebula-587px.jpg'],
     },
     u'accentué': {
-        'title': u'Accentué',
+        'title': u'accentué',
         'name': u'accentué',
         'thumbnail': u'accentué/thumbnails/hélicoïde.tn.jpg',
         'subdirs': [],
         'medias': [u'hélicoïde.jpg', 'superdupont_source_wikipedia_en.jpg'],
     },
     'video': {
-        'title': 'Video',
+        'title': 'video',
         'name': 'video',
         'thumbnail': ('video/thumbnails/'
                       'stallman software-freedom-day-low.tn.jpg'),

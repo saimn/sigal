@@ -12,6 +12,7 @@ if not PY2:
     strxfrm = locale.strxfrm
 
     from http import server
+    from urllib.parse import quote as url_quote
     import socketserver
 else:
     text_type = unicode  # NOQA
@@ -21,6 +22,7 @@ else:
     def strxfrm(s):
         return locale.strxfrm(s.encode('utf-8'))
 
+    from urllib import quote as url_quote
     import SimpleHTTPServer as server
     import SocketServer as socketserver
 
