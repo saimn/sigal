@@ -111,8 +111,9 @@ ignore_files = []
 # google_analytics = ''
 
 # Set zip_gallery to either False or a file name. The final archive will
-# contain all original files.
+# contain all resized or original files (depending on `zip_media_format`).
 # zip_gallery = False   # False or 'archive.zip'
+# zip_media_format = 'resized'  # 'resized' or 'orig'
 
 # Autorotate images
 # Warning: this setting is not compatible with `copy_exif_data` (see below),

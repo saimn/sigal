@@ -373,12 +373,17 @@ class Album(UnicodeMixin):
 
         """
         zip_gallery = self.settings['zip_gallery']
-        if zip_gallery:
+
+        if zip_gallery and len(self) > 0:
             archive_path = join(self.dst_path, zip_gallery)
             archive = zipfile.ZipFile(archive_path, 'w')
 
-            for p in self:
-                archive.write(p.dst_path, os.path.split(p.dst_path)[1])
+            if self.settings['zip_media_format'] == 'orig':
+                for p in self:
+                    archive.write(p.src_path, os.path.split(p.src_path)[1])
+            else:
+                for p in self:
+                    archive.write(p.dst_path, os.path.split(p.dst_path)[1])
 
             archive.close()
             self.logger.debug('Created ZIP archive %s', archive_path)

@@ -26,6 +26,8 @@ Released on 2014-xx-xx.
   directories and files with pattern matching.
 - New setting ``colorbox_column_size`` to customize the column width of the
   colorbox theme.
+- New setting ``zip_media_format`` to choose the media format used for ZIP
+  archives.
 
 Version 0.6.0
 ~~~~~~~~~~~~~

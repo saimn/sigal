@@ -68,6 +68,7 @@ _DEFAULT_CONFIG = {
                      '-qmin', '4', '-qmax', '63'],
     'write_html': True,
     'zip_gallery': False,
+    'zip_media_format': 'resized',
 }
 
 
