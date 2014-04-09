@@ -240,7 +240,8 @@ class Album(UnicodeMixin):
         descfile = join(self.src_path, self.description_file)
 
         if isfile(descfile):
-            with codecs.open(descfile, "r", "utf-8") as f:
+            # Use utf-8-sig codec to remove BOM if it is present
+            with codecs.open(descfile, 'r', 'utf-8-sig') as f:
                 text = f.read()
 
             md = markdown.Markdown(extensions=['meta'])
