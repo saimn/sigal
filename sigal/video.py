@@ -155,7 +155,7 @@ def process_video(filepath, outpath, settings):
     #use temporary output file (so we now where we were if ffmpeg crashess)
     tempoutname = os.path.join(outpath, basename + '.webm.tmp')
 
-    generate_video(filepath, outname, tempoutname settings['video_size'],
+    generate_video(filepath, outname, tempoutname, settings['video_size'],
                     options=settings['webm_options'])
 
     if settings['make_thumbs']:
