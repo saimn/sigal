@@ -153,7 +153,7 @@ def process_video(filepath, outpath, settings):
     basename = os.path.splitext(filename)[0]
     outname = os.path.join(outpath, basename + '.webm')
     #use temporary output file (so we now where we were if ffmpeg crashess)
-    tempoutname = os.path.join(outpath, basename + '.webm.tmp')
+    tempoutname = os.path.join(outpath, basename + '.temp.webm')
 
     generate_video(filepath, outname, tempoutname, settings['video_size'],
                     options=settings['webm_options'])
