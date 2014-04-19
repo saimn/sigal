@@ -161,5 +161,5 @@ def process_video(filepath, outpath, settings):
     if settings['make_thumbs']:
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
         generate_thumbnail(
-            tempoutname, thumb_name, settings['thumb_size'],
+            outname, thumb_name, settings['thumb_size'],
             fit=settings['thumb_fit'], options=settings['jpg_options'])
