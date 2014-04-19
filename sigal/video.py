@@ -70,7 +70,7 @@ def video_size(source):
     return x, y
 
 
-def generate_video(source, outname, tempoutname size, options=None):
+def generate_video(source, outname, tempoutname, size, options=None):
     """Video processor
 
     :param source: path to a video
