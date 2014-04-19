@@ -120,8 +120,8 @@ def generate_video(source, outname, tempoutname, size, options=None):
     logger.debug('Processing video: %s', ' '.join(cmd))
     try:
         check_subprocess(cmd, error_msg='Failed to process ' + source)
-	#rename temporary file to actual filename
-	os.rename(tempoutname,outname)
+        #rename temporary file to actual filename
+        os.rename(tempoutname,outname)
     except subprocess.CalledProcessError:
         return
 
