@@ -109,9 +109,9 @@ def generate_video(source, outname, size, options=None):
     #use temporary output file (so we now where we were if ffmpeg crashess)
     tempoutname=outname+'.tmp'
     
-    #if tempoutfile already exists, ffmpeg crashed here last time
+    #if tempoutfile already exists, which means ffmpeg crashed or was interrupted in an earlier run
     if os.path.isfile(tempoutname):
-        logger.debug('temporary file already exists, removing temp file')
+        logger.debug('temporary file already exists (probably from interrupted earlier run), removing temp file')
         os.remove(tempoutname)
     # Encoding options improved, thanks to
     # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
@@ -123,6 +123,8 @@ def generate_video(source, outname, size, options=None):
     logger.debug('Processing video: %s', ' '.join(cmd))
     try:
         check_subprocess(cmd, error_msg='Failed to process ' + source)
+	#rename temporary file to actual filename
+	os.rename(tempoutname,outname)
     except subprocess.CalledProcessError:
         return
 
