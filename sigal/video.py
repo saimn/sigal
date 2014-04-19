@@ -105,13 +105,20 @@ def generate_video(source, outname, size, options=None):
     # do not resize if input dimensions are smaller than output dimensions
     if w_src <= w_dst and h_src <= h_dst:
         resize_opt = []
-
+        
+    #use temporary output file (so we now where we were if ffmpeg crashess)
+    tempoutname=outname+'.tmp'
+    
+    #if tempoutfile already exists, ffmpeg crashed here last time
+    if os.path.isfile(tempoutname):
+        logger.debug('temporary file already exists, removing temp file')
+        os.remove(tempoutname)
     # Encoding options improved, thanks to
     # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
     cmd = ['ffmpeg', '-i', source, '-y']  # -y to overwrite output files
     if options is not None:
         cmd += options
-    cmd += resize_opt + [outname]
+    cmd += resize_opt + [tempoutname]
 
     logger.debug('Processing video: %s', ' '.join(cmd))
     try:
