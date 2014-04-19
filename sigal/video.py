@@ -70,7 +70,7 @@ def video_size(source):
     return x, y
 
 
-def generate_video(source, outname, size, options=None):
+def generate_video(source, outname, tempoutname size, options=None):
     """Video processor
 
     :param source: path to a video
@@ -105,9 +105,6 @@ def generate_video(source, outname, size, options=None):
     # do not resize if input dimensions are smaller than output dimensions
     if w_src <= w_dst and h_src <= h_dst:
         resize_opt = []
-        
-    #use temporary output file (so we now where we were if ffmpeg crashess)
-    tempoutname=outname+'.tmp'
     
     #if tempoutfile already exists, which means ffmpeg crashed or was interrupted in an earlier run
     if os.path.isfile(tempoutname):
@@ -155,12 +152,14 @@ def process_video(filepath, outpath, settings):
     filename = os.path.split(filepath)[1]
     basename = os.path.splitext(filename)[0]
     outname = os.path.join(outpath, basename + '.webm')
+    #use temporary output file (so we now where we were if ffmpeg crashess)
+    tempoutname = os.path.join(outpath, basename + '.webm.tmp')
 
-    generate_video(filepath, outname, settings['video_size'],
+    generate_video(filepath, outname, tempoutname settings['video_size'],
                     options=settings['webm_options'])
 
     if settings['make_thumbs']:
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
         generate_thumbnail(
-            outname, thumb_name, settings['thumb_size'],
+            tempoutname, thumb_name, settings['thumb_size'],
             fit=settings['thumb_fit'], options=settings['jpg_options'])
