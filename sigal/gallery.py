@@ -218,7 +218,8 @@ class Album(UnicodeMixin):
             medias.sort(key=key, reverse=settings['medias_sort_reverse'])
 
     def __repr__(self):
-        return "<%s>(%r)" % (self.__class__.__name__, self.path)
+        return "<%s>(path=%r, title=%r)" % (self.__class__.__name__, self.path,
+                                            self.title)
 
     def __unicode__(self):
         return (u"{} : ".format(self.path) +
@@ -251,10 +252,11 @@ class Album(UnicodeMixin):
             self.description = html
             self.meta = md.Meta.copy()
         else:
-            # default: get title from directory name
-            self.title = os.path.basename(self.path)
             self.description = ''
             self.meta = {}
+            # default: get title from directory name
+            self.title = os.path.basename(self.path if self.path != '.'
+                                          else self.src_path)
 
     def create_output_directories(self):
         """Create output directories for thumbnails and original images."""

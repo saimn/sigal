@@ -93,7 +93,7 @@ class Writer(object):
     def generate_context(self, album):
         """Generate the context dict for the given path."""
 
-        self.logger.info("Output album : %s", album.dst_path)
+        self.logger.info("Output album : %r", album)
         return {
             'album': album,
             'index_title': self.index_title,
