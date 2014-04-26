@@ -51,6 +51,7 @@ def check_subprocess(cmd, error_msg=''):
     if returncode:
         logger = logging.getLogger(__name__)
         logger.error(error_msg)
+        logger.error(cmd)
         logger.error('STDOUT:\n %s', stdout)
         logger.error('STDERR:\n %s', stderr)
         raise subprocess.CalledProcessError(returncode, cmd)
@@ -115,7 +116,7 @@ def generate_video(source, outname, tempoutname, size, options=None):
     cmd = ['ffmpeg', '-i', source, '-y']  # -y to overwrite output files
     if options is not None:
         cmd += options
-        cmd +=['-f','webm']
+        cmd +=['-f', "webm" ]
     cmd += resize_opt + [tempoutname]
     
 
