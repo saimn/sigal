@@ -115,7 +115,9 @@ def generate_video(source, outname, tempoutname, size, options=None):
     cmd = ['ffmpeg', '-i', source, '-y']  # -y to overwrite output files
     if options is not None:
         cmd += options
+        cmd +=['-f','webm']
     cmd += resize_opt + [tempoutname]
+    
 
     logger.debug('Processing video: %s', ' '.join(cmd))
     try:
@@ -153,7 +155,7 @@ def process_video(filepath, outpath, settings):
     basename = os.path.splitext(filename)[0]
     outname = os.path.join(outpath, basename + '.webm')
     #use temporary output file (so we now where we were if ffmpeg crashess)
-    tempoutname = os.path.join(outpath, basename + '.temp.webm')
+    tempoutname = os.path.join(outpath, basename + '.webm.tmp')
 
     generate_video(filepath, outname, tempoutname, settings['video_size'],
                     options=settings['webm_options'])
