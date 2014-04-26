@@ -120,7 +120,7 @@ def generate_video(source, outname, size, options=None):
     if options is not None:
         cmd += options
     cmd += ['-f','webm'] #force webm because temp file has another extension
-    cmd += resize_opt + [outname]
+    cmd += resize_opt + [tempoutname]
 
     logger.debug('Processing video: %s', ' '.join(cmd))
     try:
