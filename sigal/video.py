@@ -51,8 +51,9 @@ def check_subprocess(cmd, error_msg=''):
     if returncode:
         logger = logging.getLogger(__name__)
         logger.error(error_msg)
-        logger.debug('STDOUT:\n %s', stdout)
-        logger.debug('STDERR:\n %s', stderr)
+        logger.error(cmd)
+        logger.error('STDOUT:\n %s', stdout)
+        logger.error('STDERR:\n %s', stderr)
         raise subprocess.CalledProcessError(returncode, cmd)
 
 
@@ -70,7 +71,7 @@ def video_size(source):
     return x, y
 
 
-def generate_video(source, outname, size, options=None):
+def generate_video(source, outname, tempoutname, size, options=None):
     """Video processor
 
     :param source: path to a video
@@ -105,17 +106,25 @@ def generate_video(source, outname, size, options=None):
     # do not resize if input dimensions are smaller than output dimensions
     if w_src <= w_dst and h_src <= h_dst:
         resize_opt = []
-
+    
+    #if tempoutfile already exists, which means ffmpeg crashed or was interrupted in an earlier run
+    if os.path.isfile(tempoutname):
+        logger.debug('temporary file already exists (probably from interrupted earlier run), removing temp file')
+        os.remove(tempoutname)
     # Encoding options improved, thanks to
     # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
     cmd = ['ffmpeg', '-i', source, '-y']  # -y to overwrite output files
     if options is not None:
         cmd += options
-    cmd += resize_opt + [outname]
+    cmd +=['-f', "webm" ]
+    cmd += resize_opt + [tempoutname]
+    
 
     logger.debug('Processing video: %s', ' '.join(cmd))
     try:
         check_subprocess(cmd, error_msg='Failed to process ' + source)
+        #rename temporary file to actual filename
+        os.rename(tempoutname,outname)
     except subprocess.CalledProcessError:
         return
 
@@ -146,8 +155,10 @@ def process_video(filepath, outpath, settings):
     filename = os.path.split(filepath)[1]
     basename = os.path.splitext(filename)[0]
     outname = os.path.join(outpath, basename + '.webm')
+    #use temporary output file (so we now where we were if ffmpeg crashess)
+    tempoutname = os.path.join(outpath, basename + '.webm.tmp')
 
-    generate_video(filepath, outname, settings['video_size'],
+    generate_video(filepath, outname, tempoutname, settings['video_size'],
                     options=settings['webm_options'])
 
     if settings['make_thumbs']:
