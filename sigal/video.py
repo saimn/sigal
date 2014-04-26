@@ -116,7 +116,7 @@ def generate_video(source, outname, tempoutname, size, options=None):
     cmd = ['ffmpeg', '-i', source, '-y']  # -y to overwrite output files
     if options is not None:
         cmd += options
-        cmd +=['-f', "webm" ]
+    cmd +=['-f', "webm" ]
     cmd += resize_opt + [tempoutname]
     
 
