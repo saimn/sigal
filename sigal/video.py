@@ -106,16 +106,27 @@ def generate_video(source, outname, size, options=None):
     if w_src <= w_dst and h_src <= h_dst:
         resize_opt = []
 
+    #use temporary output file (so we now where we were if ffmpeg crashess)
+    tempoutname= outname + '.tmp'
+
+    #if tempoutfile already exists, which means ffmpeg crashed or was interrupted in an earlier run
+    if os.path.isfile(tempoutname):
+        logger.debug('temporary file already exists (probably from interrupted earlier run), removing temp file')
+        os.remove(tempoutname)
+        
     # Encoding options improved, thanks to
     # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
     cmd = ['ffmpeg', '-i', source, '-y']  # -y to overwrite output files
     if options is not None:
         cmd += options
+    cmd += ['-f','webm'] #force webm because temp file has another extension
     cmd += resize_opt + [outname]
 
     logger.debug('Processing video: %s', ' '.join(cmd))
     try:
         check_subprocess(cmd, error_msg='Failed to process ' + source)
+        #rename temporary file to actual filename
+        os.rename(tempoutname,outname)
     except subprocess.CalledProcessError:
         return
 
