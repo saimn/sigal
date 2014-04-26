@@ -51,8 +51,8 @@ def check_subprocess(cmd, error_msg=''):
     if returncode:
         logger = logging.getLogger(__name__)
         logger.error(error_msg)
-        logger.debug('STDOUT:\n %s', stdout)
-        logger.debug('STDERR:\n %s', stderr)
+        logger.error('STDOUT:\n %s', stdout)
+        logger.error('STDERR:\n %s', stderr)
         raise subprocess.CalledProcessError(returncode, cmd)
 
 
