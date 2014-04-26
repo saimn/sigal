@@ -16,7 +16,7 @@ def test_generate_video_fit_height(tmpdir):
 
     base, ext = os.path.splitext(TEST_VIDEO)
     dstfile = str(tmpdir.join(base + '.webm'))
-    tmpfile = str(tmpdir.join(base + '.tmp.webm'))
+    tmpfile = str(tmpdir.join(base + '.webm.temp'))
     generate_video(SRCFILE, dstfile, tmpfile, (50, 100))
 
     size_src = video_size(SRCFILE)
@@ -32,7 +32,7 @@ def test_generate_video_fit_width(tmpdir):
 
     base, ext = os.path.splitext(TEST_VIDEO)
     dstfile = str(tmpdir.join(base + '.webm'))
-    tmpfile = str(tmpdir.join(base + '.tmp.webm'))
+    tmpfile = str(tmpdir.join(base + '.webm.temp'))
     generate_video(SRCFILE, dstfile, tmpfile, (100, 50))
 
     size_src = video_size(SRCFILE)
@@ -48,7 +48,7 @@ def test_generate_video_dont_enlarge(tmpdir):
 
     base, ext = os.path.splitext(TEST_VIDEO)
     dstfile = str(tmpdir.join(base + '.webm'))
-    tmpfile = str(tmpdir.join(base + '.tmp.webm'))
+    tmpfile = str(tmpdir.join(base + '.webm.temp'))
     generate_video(SRCFILE, dstfile, tmpfile, (1000, 1000))
 
     size_src = video_size(SRCFILE)
