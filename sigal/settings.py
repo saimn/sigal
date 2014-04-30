@@ -24,6 +24,7 @@
 import locale
 import logging
 import os
+from os.path import abspath, isabs, join, normpath
 from pprint import pformat
 
 from .compat import PY2
@@ -42,7 +43,6 @@ _DEFAULT_CONFIG = {
     'google_analytics': '',
     'ignore_directories': [],
     'ignore_files': [],
-    'img_ext_list': ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png'],
     'img_processor': 'ResizeToFit',
     'img_size': (640, 480),
     'index_in_url': False,
@@ -62,7 +62,6 @@ _DEFAULT_CONFIG = {
     'thumb_prefix': '',
     'thumb_size': (200, 150),
     'thumb_suffix': '',
-    'vid_ext_list': ['.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv'],
     'video_size': (480, 360),
     'webm_options': ['-crf', '10', '-b:v', '1.6M',
                      '-qmin', '4', '-qmax', '63'],
@@ -89,10 +88,12 @@ def get_thumb(settings, filename):
 
     path, filen = os.path.split(filename)
     name, ext = os.path.splitext(filen)
-    if ext in settings['vid_ext_list']:
+
+    # FIXME: replace this list with Video.extensions
+    if ext in ('.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv'):
         ext = '.jpg'
-    return os.path.join(path, settings['thumb_dir'], settings['thumb_prefix'] +
-                        name + settings['thumb_suffix'] + ext)
+    return join(path, settings['thumb_dir'], settings['thumb_prefix'] +
+                name + settings['thumb_suffix'] + ext)
 
 
 def read_settings(filename=None):
@@ -117,20 +118,20 @@ def read_settings(filename=None):
         # Make the paths relative to the settings file
         paths = ['source', 'destination']
 
-        if os.path.isdir(os.path.join(settings_path, settings['theme'])):
+        if os.path.isdir(join(settings_path, settings['theme'])):
             paths.append('theme')
+
+        enc = locale.getpreferredencoding() if PY2 else None
 
         for p in paths:
             path = settings[p]
-            if path and not os.path.isabs(path):
-                settings[p] = os.path.abspath(os.path.normpath(os.path.join(
-                    settings_path, path)))
+            if path and not isabs(path):
+                settings[p] = abspath(normpath(join(settings_path, path)))
                 logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
 
             # paths must to be unicode strings so that os.walk will return
             # unicode dirnames and filenames
             if PY2 and isinstance(settings[p], str):
-                enc = locale.getpreferredencoding()
                 settings[p] = settings[p].decode(enc)
 
     for key in ('img_size', 'thumb_size', 'video_size'):
