@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 # Copyright (c)      2013 - Christophe-Marie Duquesne
-# Copyright (c)      2013 - Simon Conseil
+# Copyright (c) 2013-2014 - Simon Conseil
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -34,7 +34,7 @@ from .settings import get_thumb
 
 
 def call_subprocess(cmd):
-    """Wrapper to call subprocess.Popen and return stdout & stderr."""
+    """Wrapper to call ``subprocess.Popen`` and return stdout & stderr."""
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
 
@@ -45,7 +45,10 @@ def call_subprocess(cmd):
 
 
 def check_subprocess(cmd, error_msg=''):
+    """Wrapper to call ``subprocess.Popen`` which log errors and raise
+    a ``subprocess.CalledProcessError`` if the return code is not 0.
 
+    """
     returncode, stdout, stderr = call_subprocess(cmd)
 
     if returncode:
@@ -148,7 +151,7 @@ def process_video(filepath, outpath, settings):
     outname = os.path.join(outpath, basename + '.webm')
 
     generate_video(filepath, outname, settings['video_size'],
-                    options=settings['webm_options'])
+                   options=settings['webm_options'])
 
     if settings['make_thumbs']:
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
