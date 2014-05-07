@@ -109,9 +109,13 @@ class Media(UnicodeMixin):
                 generator = video.generate_thumbnail
 
             self.logger.debug('Generating thumbnail for %r', self)
-            generator(self.src_path, self.thumb_path,
-                      self.settings['thumb_size'],
-                      fit=self.settings['thumb_fit'])
+            try:
+                generator(self.src_path, self.thumb_path,
+                          self.settings['thumb_size'],
+                          fit=self.settings['thumb_fit'])
+            except Exception as e:
+                self.logger.error('Failed to generate thumbnail: %s', e)
+                return
         return self.thumb_name
 
 

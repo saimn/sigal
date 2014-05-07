@@ -128,6 +128,7 @@ def generate_thumbnail(source, outname, box, fit=True, options=None):
 def process_image(filepath, outpath, settings):
     """Process one image: resize, create thumbnail."""
 
+    logger = logging.getLogger(__name__)
     filename = os.path.split(filepath)[1]
     outname = os.path.join(outpath, filename)
     ext = os.path.splitext(filename)[1]
@@ -139,7 +140,11 @@ def process_image(filepath, outpath, settings):
     else:
         options = {}
 
-    generate_image(filepath, outname, settings, options=options)
+    try:
+        generate_image(filepath, outname, settings, options=options)
+    except Exception as e:
+        logger.error('Failed to process image: %s', e)
+        return
 
     if settings['make_thumbs']:
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
