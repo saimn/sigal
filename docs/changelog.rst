@@ -2,10 +2,15 @@
  Changelog
 ===========
 
-Version 0.7.dev
+Version 0.8.dev
 ~~~~~~~~~~~~~~~
 
 Released on 2014-xx-xx.
+
+Version 0.7
+~~~~~~~~~~~
+
+Released on 2014-05-10.
 
 - Refactor the way to store album and media informations. Albums, images and
   videos are now represented by objects, and these objects are directly
