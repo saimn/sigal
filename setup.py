@@ -39,7 +39,7 @@ setup(
     test_requires=['pytest'],
     entry_points=entry_points,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
@@ -47,6 +47,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Multimedia :: Graphics :: Viewers',
         'Topic :: Software Development :: Libraries :: Python Modules',
