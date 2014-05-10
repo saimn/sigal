@@ -147,6 +147,9 @@ def serve(path):
 
 
 def main():
+    reload(sys)
+    sys.setdefaultencoding("utf-8")
+    
     parser = ArghParser(description='Simple static gallery generator.')
     parser.add_commands([init, build, serve])
     parser.add_argument('--version', action='version',
