@@ -12,22 +12,29 @@ Released on 2014-xx-xx.
   available in the templates. The following template variables have been
   renamed:
 
-  ``albums`` => ``album.albums``, ``breadcrumb`` => ``album.breadcrumb``,
-  ``description`` => ``album.description``, ``index_url`` =>
-  ``album.index_url``, ``medias`` => ``album.medias``, ``title`` =>
-  ``album.title``, ``media.file`` => ``media.filename``, ``media.thumb`` =>
-  ``media.thumbnail``, ``zip_gallery`` => ``album.zip``
+  - ``albums`` => ``album.albums``
+  - ``breadcrumb`` => ``album.breadcrumb``
+  - ``description`` => ``album.description``
+  - ``index_url`` => ``album.index_url``
+  - ``medias`` => ``album.medias``
+  - ``title`` => ``album.title``
+  - ``media.file`` => ``media.filename``
+  - ``media.thumb`` => ``media.thumbnail``
+  - ``zip_gallery`` => ``album.zip``
 
 - New settings to define the sort order for albums and medias:
-  ``albums_sort_reverse``, ``medias_sort_attr``, ``medias_sort_reverse``.
-- New setting ``autorotate_images`` to disable autorotation of images, and warn
-  about the incompatibility between autorotation and EXIF copy.
-- New settings ``ignore_directories`` and ``ignore_files`` to filter
-  directories and files with pattern matching.
-- New setting ``colorbox_column_size`` to customize the column width of the
-  colorbox theme.
-- New setting ``zip_media_format`` to choose the media format used for ZIP
-  archives.
+  ``albums_sort_reverse``, ``medias_sort_attr``, ``medias_sort_reverse`` [#2].
+- New setting (``autorotate_images``) to disable autorotation of images, and
+  warn about the incompatibility between autorotation and EXIF copy [#72].
+- New settings to filter directories and files with pattern matching
+  (``ignore_directories`` and ``ignore_files``) [#63].
+- New setting to customize the column width of the colorbox theme
+  (``colorbox_column_size``).
+- New setting to choose the media format used for ZIP archives
+  (``zip_media_format``).
+- Update galleria to 1.3.5 and add the history plugin [#93].
+- Skip image instead of failing when the image is corrupted [#69].
+- Better handling of album urls (quoting special caracters).
 
 Version 0.6.0
 ~~~~~~~~~~~~~
@@ -37,10 +44,10 @@ Released on 2014-01-25.
 - Add support for Python 3.3.
 - Parallel processing (new command-line option ``-n|--ncpu``, uses all cores by
   default).
-- Adding keyboard shortcuts for the galleria theme.
+- Adding keyboard shortcuts for the galleria theme [#32, #39].
 - Include symlinked directories in the source directory.
-- New setting to use symbolic links for original files (``orig_link``).
-- New setting for the video size (``video_size``).
+- New setting to use symbolic links for original files (``orig_link``) [#36].
+- New setting for the video size (``video_size``) [#35].
 - Add a colored formatter for verbose and debug modes.
 - ``webm_options`` is now a list with ffmpeg options, to allow better
   flexibility and compatibility with avconv.
@@ -50,8 +57,8 @@ Released on 2014-01-25.
 Bugfixes:
 
 - Avoid issues with corrupted exif data.
-- Fix exif data not read from .JPEG files.
-- Fix whitespace issues with video filenames.
+- Fix exif data not read from .JPEG files [#58].
+- Fix whitespace issues with video filenames [#54].
 
 Version 0.5.1
 ~~~~~~~~~~~~~

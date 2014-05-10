@@ -4,3 +4,5 @@ Markdown
 Pillow
 pilkit
 pytest
+Sphinx
+sphinxcontrib-issuetracker
