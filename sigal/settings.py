@@ -31,13 +31,10 @@ from .compat import PY2
 
 
 _DEFAULT_CONFIG = {
-    'adjust_options': {'color': 1.0, 'brightness': 1.0,
-                       'contrast': 1.0, 'sharpness': 1.0},
     'albums_sort_reverse': False,
     'autorotate_images': True,
     'colorbox_column_size': 4,
     'copy_exif_data': False,
-    'copyright': '',
     'destination': '_build',
     'files_to_copy': (),
     'google_analytics': '',
@@ -55,6 +52,8 @@ _DEFAULT_CONFIG = {
     'make_thumbs': True,
     'orig_dir': 'original',
     'orig_link': False,
+    'plugins': [],
+    'plugin_paths': [],
     'source': '',
     'theme': 'colorbox',
     'thumb_dir': 'thumbnails',
