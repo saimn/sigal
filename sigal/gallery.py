@@ -116,7 +116,7 @@ class Media(UnicodeMixin):
             except Exception as e:
                 self.logger.error('Failed to generate thumbnail: %s', e)
                 return
-        return self.thumb_name
+        return url_from_path(self.thumb_name)
 
 
 class Image(Media):
@@ -309,7 +309,7 @@ class Album(UnicodeMixin):
 
         if self._thumbnail:
             # stop if it is already set
-            return self._thumbnail
+            return url_from_path(self._thumbnail)
 
         # Test the thumbnail from the Markdown file.
         thumbnail = self.meta.get('thumbnail', [''])[0]
@@ -318,7 +318,7 @@ class Album(UnicodeMixin):
             self._thumbnail = join(self.name, get_thumb(self.settings,
                                                         thumbnail))
             self.logger.debug("Thumbnail for %r : %s", self, self._thumbnail)
-            return self._thumbnail
+            return url_from_path(self._thumbnail)
         else:
             # find and return the first landscape image
             for f in self.medias:
@@ -330,14 +330,14 @@ class Album(UnicodeMixin):
                         self.logger.debug(
                             "Use 1st landscape image as thumbnail for %r : %s",
                             self, self._thumbnail)
-                        return self._thumbnail
+                        return url_from_path(self._thumbnail)
 
             # else simply return the 1st media file
             if not self._thumbnail and self.medias:
                 self._thumbnail = join(self.name, self.medias[0].thumbnail)
                 self.logger.debug("Use the 1st image as thumbnail for %r : %s",
                                   self, self._thumbnail)
-                return self._thumbnail
+                return url_from_path(self._thumbnail)
 
             # use the thumbnail of their sub-directories
             if not self._thumbnail:
@@ -347,7 +347,7 @@ class Album(UnicodeMixin):
                         self.logger.debug(
                             "Using thumbnail from sub-directory for %r : %s",
                             self, self._thumbnail)
-                        return self._thumbnail
+                        return url_from_path(self._thumbnail)
 
         self.logger.error('Thumbnail not found for %r', self)
         return None
