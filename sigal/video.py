@@ -120,26 +120,40 @@ def generate_video(source, outname, size, options=None):
     try:
         check_subprocess(cmd, error_msg='Failed to process ' + source)
     except subprocess.CalledProcessError:
+        logger.debug('Process failed, removing file %s', outname)
+        os.remove(outname)
         return
+    except KeyboardInterrupt:
+        logger.debug('Process terminated, removing file %s', outname)
+        os.remove(outname)
+        raise
 
 
 def generate_thumbnail(source, outname, box, fit=True, options=None):
     """Create a thumbnail image for the video source, based on ffmpeg."""
 
-    # 1) dump an image of the video
+    logger = logging.getLogger(__name__)
     tmpfile = outname + ".tmp.jpg"
-    try:
-        check_subprocess(
-            ['ffmpeg', '-i', source, '-an', '-r', '1',
-             '-vframes', '1', '-y', tmpfile],
-            error_msg='Failed to create a thumbnail for ' + source
-        )
-    except subprocess.CalledProcessError:
-        return
 
-    # 2) use the generate_thumbnail function from sigal.image
+    try:
+        # dump an image of the video
+        cmd = ['ffmpeg', '-i', source, '-an', '-r', '1',
+               '-vframes', '1', '-y', tmpfile]
+        logger.debug('Create thumbnail for video: %s', ' '.join(cmd))
+        check_subprocess(cmd, error_msg='Failed to create a thumbnail for ' +
+                         source)
+    except subprocess.CalledProcessError:
+        logger.debug('Process failed, removing file %s', outname)
+        os.remove(outname)
+        return
+    except KeyboardInterrupt:
+        logger.debug('Process terminated, removing file %s', outname)
+        os.remove(outname)
+        raise
+
+    # use the generate_thumbnail function from sigal.image
     image.generate_thumbnail(tmpfile, outname, box, fit, options)
-    # 3) remove the image
+    # remove the image
     os.unlink(tmpfile)
 
 
