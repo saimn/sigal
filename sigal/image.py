@@ -164,16 +164,11 @@ def _get_exif_data(filename):
 
     img = PILImage.open(filename)
     exif = img._getexif() or {}
-    data = dict((TAGS.get(t, t), v) for (t, v) in exif.items())
+    data = {TAGS.get(tag, tag): value for tag, value in exif.items()}
 
     if 'GPSInfo' in data:
-        gps_data = {}
-
-        for tag in data['GPSInfo']:
-            gps_data[GPSTAGS.get(tag, tag)] = data['GPSInfo'][tag]
-
-        data['GPSInfo'] = gps_data
-
+        data['GPSInfo'] = {GPSTAGS.get(tag, tag): value
+                           for tag, value in data['GPSInfo'].items()}
     return data
 
 
