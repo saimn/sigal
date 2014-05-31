@@ -189,7 +189,8 @@ def dms_to_degrees(v):
 def get_exif_tags(source):
     """Read EXIF tags from file @source and return a tuple of two dictionaries,
     the first one containing the raw EXIF data, the second one a simplified
-    version with common tags."""
+    version with common tags.
+    """
 
     logger = logging.getLogger(__name__)
 
@@ -199,7 +200,7 @@ def get_exif_tags(source):
     try:
         data = _get_exif_data(source)
     except (IOError, IndexError, TypeError, AttributeError):
-        logger.warning(u'Could not read EXIF data from {0}'.format(source))
+        logger.warning(u'Could not read EXIF data from %s', source)
         return (None, None)
 
     simple = {}
@@ -237,8 +238,8 @@ def get_exif_tags(source):
             else:
                 simple['datetime'] = dt
         except (ValueError, TypeError) as e:
-            msg = u'Could not parse DateTimeOriginal of %s: %s' % (source, e)
-            logger.warning(msg)
+            logger.warning(u'Could not parse DateTimeOriginal of %s: %s',
+                           source, e)
 
     if 'GPSInfo' in data:
         info = data['GPSInfo']
@@ -248,15 +249,17 @@ def get_exif_tags(source):
         lon_ref_info = info.get('GPSLongitudeRef')
 
         if lat_info and lon_info and lat_ref_info and lon_ref_info:
-            lat = dms_to_degrees(lat_info)
-            lon = dms_to_degrees(lon_info)
+            try:
+                lat = dms_to_degrees(lat_info)
+                lon = dms_to_degrees(lon_info)
+            except (ZeroDivisionError, ValueError):
+                logger.warning('Failed to read GPS info for %s', source)
+                lat = lon = None
 
-            if lat_ref_info != 'N':
-                lat = 0 - lat
-
-            if lon_ref_info != 'E':
-                lon = 0 - lon
-
-            simple['gps'] = {'lat': lat, 'lon': lon}
+            if lat and lon:
+                simple['gps'] = {
+                    'lat': - lat if lat_ref_info != 'N' else lat,
+                    'lon': - lon if lon_ref_info != 'E' else lon,
+                }
 
     return (data, simple)
