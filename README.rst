@@ -26,6 +26,7 @@ Links :
 * Latest documentation on the `website`_
 * Source, issues and pull requests on `Github`_
 * Releases on `PyPI`_
+* ``#sigal`` on Freenode, or with the `webchat`_ interface.
 
 Themes & Demo
 -------------
@@ -43,4 +44,4 @@ Javascript libraries:
 .. _colorbox: http://www.jacklmoore.com/colorbox
 .. _galleria demo: http://saimon.org/sigal-demo/galleria/
 .. _colorbox demo: http://saimon.org/sigal-demo/colorbox/
-
+.. _webchat: http://webchat.freenode.net/?channels=sigal

@@ -13,3 +13,5 @@ install:
     - pip install clint==0.3.1
     - pip install .
 script: py.test
+notifications:
+    irc: "chat.freenode.net#sigal"
