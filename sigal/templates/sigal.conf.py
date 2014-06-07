@@ -27,13 +27,6 @@ img_size = (800, 600)
 # - None: don't resize
 # img_processor = 'ResizeToFit'
 
-# Adjust the image after resizing it. A default value of 1.0 leaves the images
-# untouched.
-# adjust_options = {'color': 1.0,
-#                   'brightness': 1.0,
-#                   'contrast': 1.0,
-#                   'sharpness': 1.0}
-
 # Generate thumbnails
 # make_thumbs = True
 
@@ -104,9 +97,6 @@ ignore_files = []
 # links = [('Example link', 'http://example.org'),
 #          ('Another link', 'http://example.org')]
 
-# Add a copyright text on the image (default: '')
-# copyright = "An example copyright message"
-
 # Google Analytics tracking code (UA-xxxx-x)
 # google_analytics = ''
 
@@ -138,3 +128,17 @@ ignore_files = []
 # Then the image size must be adapted to fit the column size.
 # The default is 4 columns which gives 220px. 3 columns gives 160px.
 # colorbox_column_size = 4
+
+# --------
+# Plugins
+# --------
+
+# Add a copyright text on the image (default: '')
+# copyright = "© An example copyright message"
+
+# Adjust the image after resizing it. A default value of 1.0 leaves the images
+# untouched.
+# adjust_options = {'color': 1.0,
+#                   'brightness': 1.0,
+#                   'contrast': 1.0,
+#                   'sharpness': 1.0}

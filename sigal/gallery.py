@@ -37,7 +37,7 @@ from datetime import datetime
 from os.path import isfile, join, splitext
 from PIL import Image as PILImage
 
-from . import image, video
+from . import image, video, signals
 from .compat import UnicodeMixin, strxfrm, url_quote
 from .image import process_image, get_exif_tags
 from .log import colored, BLUE
@@ -80,6 +80,7 @@ class Media(UnicodeMixin):
         self.raw_exif = None
         self.exif = None
         self.date = None
+        signals.media_initialized.send(self)
 
     def __repr__(self):
         return "<%s>(%r)" % (self.__class__.__name__, str(self))
@@ -220,6 +221,8 @@ class Album(UnicodeMixin):
                 key = lambda s: strxfrm(getattr(s, medias_sort_attr))
 
             medias.sort(key=key, reverse=settings['medias_sort_reverse'])
+
+        signals.album_initialized.send(self)
 
     def __repr__(self):
         return "<%s>(path=%r, title=%r)" % (self.__class__.__name__, self.path,
@@ -458,6 +461,7 @@ class Gallery(object):
                 albums[relpath] = album
 
         self.logger.debug('Albums:\n%r', albums.values())
+        signals.gallery_initialized.send(self)
 
     def init_pool(self, ncpu):
         try:
@@ -526,6 +530,8 @@ class Gallery(object):
 
             for album in self.albums.values():
                 self.writer.write(album)
+
+        signals.gallery_build.send(self)
 
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""

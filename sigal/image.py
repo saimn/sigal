@@ -38,11 +38,11 @@ from copy import deepcopy
 from datetime import datetime
 from PIL.ExifTags import TAGS, GPSTAGS
 from PIL import Image as PILImage
-from PIL import ImageDraw, ImageOps
-from pilkit.processors import Transpose, Adjust
+from PIL import ImageOps
+from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
-from . import compat
+from . import compat, signals
 from .settings import get_thumb
 
 
@@ -97,11 +97,10 @@ def generate_image(source, outname, settings, options=None):
         processor = processor_cls(*settings['img_size'], upscale=False)
         img = processor.process(img)
 
-    # Adjust the image after resizing
-    img = Adjust(**settings['adjust_options']).process(img)
-
-    if settings['copyright']:
-        add_copyright(img, settings['copyright'])
+    # signal.send() does not work here as plugins can modify the image, so we
+    # iterate other the receivers to call them with the image.
+    for receiver in signals.img_resized.receivers_for(img):
+        img = receiver(img, settings=settings)
 
     outformat = img.format or original_format or 'JPEG'
     logger.debug(u'Save resized image to {0} ({1})'.format(outname, outformat))
@@ -150,13 +149,6 @@ def process_image(filepath, outpath, settings):
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
         generate_thumbnail(outname, thumb_name, settings['thumb_size'],
                            fit=settings['thumb_fit'], options=options)
-
-
-def add_copyright(img, text):
-    """Add a copyright to the image."""
-
-    draw = ImageDraw.Draw(img)
-    draw.text((5, img.size[1] - 15), '\xa9 ' + text)
 
 
 def _get_exif_data(filename):

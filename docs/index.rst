@@ -11,4 +11,5 @@ Documentation
    configuration
    album_information
    themes
+   plugins
    changelog

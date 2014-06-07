@@ -28,10 +28,12 @@ sigal is yet another python script to prepare a static gallery of images:
 
 * resize images, create thumbnails with some options (squared thumbs, ...).
 * generate html pages.
+
 """
 
 from __future__ import absolute_import, print_function
 
+import importlib
 import io
 import locale
 import logging
@@ -41,6 +43,7 @@ import time
 
 from argh import ArghParser, arg
 
+from .compat import server, socketserver, string_types
 from .gallery import Gallery
 from .log import init_logging
 from .pkgmeta import __version__
@@ -105,6 +108,8 @@ def build(source, destination, debug=False, verbose=False, force=False,
         sys.exit(1)
 
     locale.setlocale(locale.LC_ALL, settings['locale'])
+    init_plugins(settings)
+
     gal = Gallery(settings, theme=theme, ncpu=ncpu)
     gal.build(force=force)
 
@@ -120,14 +125,36 @@ def build(source, destination, debug=False, verbose=False, force=False,
            'seconds.').format(duration=time.time() - start_time, **gal.stats))
 
 
+def init_plugins(settings):
+    """Load plugins and call register()."""
+
+    logger = logging.getLogger(__name__)
+    logger.debug('Plugin paths: %s', settings['plugin_paths'])
+
+    for path in settings['plugin_paths']:
+        sys.path.insert(0, path)
+
+    for plugin in settings['plugins']:
+        try:
+            if isinstance(plugin, string_types):
+                mod = importlib.import_module(plugin)
+                mod.register(settings)
+            else:
+                plugin.register(settings)
+            logger.debug('Registered plugin %s', plugin)
+        except Exception as e:
+            logger.error('Failed to load plugin %s: %r', plugin, e)
+
+    for path in settings['plugin_paths']:
+        sys.path.remove(path)
+
+
 @arg('path', nargs='?', default='_build',
      help='Directory to serve (default: _build/)')
 def serve(path):
     """Run a simple web server."""
 
     if os.path.exists(path):
-        from .compat import server, socketserver
-
         os.chdir(path)
         PORT = 8000
         Handler = server.SimpleHTTPRequestHandler
