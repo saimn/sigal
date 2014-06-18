@@ -124,7 +124,7 @@ class Image(Media):
     """Gather all informations on an image file."""
 
     type = 'image'
-    extensions = ('.jpg', '.jpeg', '.JPG', '.JPEG', '.png')
+    extensions = ('.jpg', '.jpeg', '.png')
 
     def __init__(self, filename, path, settings):
         super(Image, self).__init__(filename, path, settings)
@@ -137,7 +137,7 @@ class Video(Media):
     """Gather all informations on a video file."""
 
     type = 'video'
-    extensions = ('.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv')
+    extensions = ('.mov', '.avi', '.mp4', '.webm', '.ogv')
 
     def __init__(self, filename, path, settings):
         super(Video, self).__init__(filename, path, settings)
@@ -202,9 +202,9 @@ class Album(UnicodeMixin):
 
         for f in filenames:
             ext = splitext(f)[1]
-            if ext in Image.extensions:
+            if ext.lower() in Image.extensions:
                 media = Image(f, self.path, settings)
-            elif ext in Video.extensions:
+            elif ext.lower() in Video.extensions:
                 media = Video(f, self.path, settings)
             else:
                 continue
@@ -326,7 +326,7 @@ class Album(UnicodeMixin):
             # find and return the first landscape image
             for f in self.medias:
                 ext = splitext(f.filename)[1]
-                if ext in Image.extensions:
+                if ext.lower() in Image.extensions:
                     im = PILImage.open(f.src_path)
                     if im.size[0] > im.size[1]:
                         self._thumbnail = join(self.name, f.thumbnail)

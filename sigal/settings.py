@@ -89,7 +89,7 @@ def get_thumb(settings, filename):
     name, ext = os.path.splitext(filen)
 
     # FIXME: replace this list with Video.extensions
-    if ext in ('.MOV', '.mov', '.avi', '.mp4', '.webm', '.ogv'):
+    if ext.lower() in ('.mov', '.avi', '.mp4', '.webm', '.ogv'):
         ext = '.jpg'
     return join(path, settings['thumb_dir'], settings['thumb_prefix'] +
                 name + settings['thumb_suffix'] + ext)
@@ -101,10 +101,10 @@ def read_settings(filename=None):
     logger = logging.getLogger(__name__)
     logger.info("Reading settings ...")
     settings = _DEFAULT_CONFIG.copy()
-    settings_path = os.path.dirname(filename)
 
     if filename:
         logger.debug("Settings file: %s", filename)
+        settings_path = os.path.dirname(filename)
         tempdict = {}
 
         with open(filename) as f:
