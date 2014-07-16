@@ -10,6 +10,7 @@ Documentation
    getting_started
    configuration
    album_information
+   image_information
    themes
    plugins
    changelog

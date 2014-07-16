@@ -71,6 +71,8 @@ def test_media(settings):
     assert m.dst_path == join(settings['destination'], file_path)
     assert m.thumb_name == thumb
     assert m.thumb_path == join(settings['destination'], path, thumb)
+    assert m.title == "Foo Bar"
+    assert m.description == "<p>This is a funny description of this image</p>"
 
     assert repr(m) == "<Media>('{}')".format(file_path)
     assert str(m) == file_path
