@@ -60,8 +60,7 @@
         {% if album.medias %}
           {% macro img_description(media) -%}
             {%- if media.big %}<a href='{{ media.big }}'>Full size</a>{% endif %}
-            {% if media.title %}Title: {{ media.title }} </br>{% endif %}
-            {% if media.description %}Description: {{ media.description }}</br> {% endif %}
+            {% if media.description %}<br>{{ media.description }}{% endif %}
 
             {%- if media.exif %}
               <br>
@@ -79,16 +78,18 @@
             {% if media.type == "image" %}
               <a href="{{ media.filename }}">
                 <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
-                    data-title="{{ media.filename }}"
+                    data-title="{{ media.title if media.title else media.filename }}"
                     data-description="{{ img_description(media) }}"/>
               </a>
             {% endif %}
             {% if media.type == "video" %}
               <a href="{{ theme.url }}/img/empty.png">
                 <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
-                     data-layer="<video controls>
-                                   <source src='{{ media.filename }}' type='video/webm' />
-                                 </video>" />
+                    data-title="{{ media.title if media.title else media.filename }}"
+                    data-description="{{ img_description(media) }}"
+                    data-layer="<video controls>
+                                  <source src='{{ media.filename }}' type='video/webm' />
+                                </video>" />
               </a>
             {% endif %}
           {% endfor %}

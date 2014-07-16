@@ -23,10 +23,8 @@
 
 from __future__ import absolute_import, print_function
 
-import codecs
 import fnmatch
 import logging
-import markdown
 import multiprocessing
 import os
 import sys
@@ -42,7 +40,7 @@ from .compat import UnicodeMixin, strxfrm, url_quote
 from .image import process_image, get_exif_tags
 from .log import colored, BLUE
 from .settings import get_thumb
-from .utils import copy, check_or_create_dir, url_from_path
+from .utils import copy, check_or_create_dir, url_from_path, read_markdown
 from .video import process_video
 from .writer import Writer
 
@@ -80,6 +78,7 @@ class Media(UnicodeMixin):
         self.raw_exif = None
         self.exif = None
         self.date = None
+        self._get_metadata()
         signals.media_initialized.send(self)
 
     def __repr__(self):
@@ -118,6 +117,18 @@ class Media(UnicodeMixin):
                 self.logger.error('Failed to generate thumbnail: %s', e)
                 return
         return url_from_path(self.thumb_name)
+
+    def _get_metadata(self):
+        """ Get image metadata from filename.md: title, description, meta."""
+        self.description = ''
+        self.meta = {}
+        self.title = ''
+
+        descfile = splitext(self.src_path)[0] + '.md'
+        if isfile(descfile):
+            meta = read_markdown(descfile)
+            for key, val in meta.items():
+                setattr(self, key, val)
 
 
 class Image(Media):
@@ -246,24 +257,16 @@ class Album(UnicodeMixin):
 
         """
         descfile = join(self.src_path, self.description_file)
+        self.description = ''
+        self.meta = {}
+        # default: get title from directory name
+        self.title = os.path.basename(self.path if self.path != '.'
+                                      else self.src_path)
 
         if isfile(descfile):
-            # Use utf-8-sig codec to remove BOM if it is present
-            with codecs.open(descfile, 'r', 'utf-8-sig') as f:
-                text = f.read()
-
-            md = markdown.Markdown(extensions=['meta'])
-            html = md.convert(text)
-
-            self.title = md.Meta.get('title', [''])[0]
-            self.description = html
-            self.meta = md.Meta.copy()
-        else:
-            self.description = ''
-            self.meta = {}
-            # default: get title from directory name
-            self.title = os.path.basename(self.path if self.path != '.'
-                                          else self.src_path)
+            meta = read_markdown(descfile)
+            for key, val in meta.items():
+                setattr(self, key, val)
 
     def create_output_directories(self):
         """Create output directories for thumbnails and original images."""

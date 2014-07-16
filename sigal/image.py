@@ -33,8 +33,6 @@ import logging
 import os
 import pilkit.processors
 import sys
-import codecs
-import markdown
 
 from copy import deepcopy
 from datetime import datetime
@@ -43,7 +41,6 @@ from PIL import Image as PILImage
 from PIL import ImageOps
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
-from os.path import join
 
 from . import compat, signals
 from .settings import get_thumb
@@ -253,39 +250,3 @@ def get_exif_tags(source):
                 }
 
     return (data, simple)
-
-def get_image_metadata(source, img):
-    """
-    Get image metadata from filename.md:
-
-    - title
-    - description
-
-    return for usage in templates
-    """
-    logger = logging.getLogger(__name__)
-    descfile = join(source, img + ".md")
-
-    if not os.path.isfile(descfile):
-        # set some defaults  
-        meta = {
-            'title': '',
-            'description': '',
-            'meta': {}
-           
-        }
-        logger.info(u'No markdown file named {0}'.format(descfile))
-    else:
-        with codecs.open(descfile, "r", "utf-8") as f:
-            text = f.read()
-
-        md = markdown.Markdown(extensions=['meta'])
-        html = md.convert(text)
-
-        meta = {
-            'title': md.Meta.get('title', [''])[0],
-            'description': html,
-            'meta': md.Meta.copy()
-        }
-
-    return meta

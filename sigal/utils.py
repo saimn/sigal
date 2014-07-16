@@ -20,6 +20,8 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import codecs
+import markdown
 import os
 import shutil
 
@@ -46,3 +48,18 @@ def url_from_path(path):
         return path
     else:
         return '/'.join(path.split(os.sep))
+
+
+def read_markdown(filename):
+    # Use utf-8-sig codec to remove BOM if it is present
+    with codecs.open(filename, 'r', 'utf-8-sig') as f:
+        text = f.read()
+
+    md = markdown.Markdown(extensions=['meta'])
+    html = md.convert(text)
+
+    return {
+        'title': md.Meta.get('title', [''])[0],
+        'description': html,
+        'meta': md.Meta.copy()
+    }

@@ -90,7 +90,7 @@
                         {% if loop.index % nb_columns == 0 %}omega{% endif%}">
               <a href="{{ media.filename }}" class="gallery" title="{{ media.filename }}" {{ img_description(media) }}>
                 <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
-                    title="{{ media.filename }}" /></a>
+                    title="{{ media.title if media.title else media.filename }}" /></a>
             </div>
             {% endif %}
             {% if media.type == "video" %}
@@ -101,7 +101,7 @@
                   class="gallery" inline='yes' title="{{ media.filename }}"
                   {% if media.big %} data-big="{{ media.big }}"{% endif %}>
                   <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
-                      title="{{ media.filename }}" /></a>
+                      title="{{ media.title if media.title else media.filename }}" /></a>
               </div>
               <!-- This contains the hidden content for the video -->
               <div style='display:none'>
