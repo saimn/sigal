@@ -32,6 +32,7 @@ import zipfile
 
 from collections import defaultdict
 from datetime import datetime
+from functools import partial
 from os.path import isfile, join, splitext
 from PIL import Image as PILImage
 
@@ -507,9 +508,15 @@ class Gallery(object):
         else:
             processor = process_file
 
+        if sys.stdout.isatty():
+            log_func = partial(print, colored('->', BLUE))
+        else:
+            log_func = self.logger.warn
+
         try:
             for album in self.albums.values():
                 if len(album) > 0:
+                    log_func(str(album))
                     for files in self.process_dir(album, force=force):
                         processor(files)
         except KeyboardInterrupt:
@@ -538,11 +545,6 @@ class Gallery(object):
 
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
-
-        if sys.stdout.isatty():
-            print(colored('->', BLUE), str(album))
-        else:
-            self.logger.warn(album)
 
         for f in album:
             if isfile(f.dst_path) and not force:

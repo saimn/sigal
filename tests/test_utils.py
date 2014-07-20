@@ -52,3 +52,13 @@ def test_read_markdown():
     assert m['meta']['location'][0] == "Bavaria"
     assert m['description'] == \
         "<p>This is a funny description of this image</p>"
+
+
+def test_call_subprocess():
+    returncode, stdout, stderr = utils.call_subprocess(['echo', 'ok'])
+    assert returncode == 0
+    assert stdout == 'ok\n'
+    assert stderr == ''
+
+    returncode, stdout, stderr = utils.call_subprocess(['/usr/bin/false'])
+    assert returncode == 1

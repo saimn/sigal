@@ -27,36 +27,32 @@ import logging
 import os
 import re
 import shutil
-import subprocess
+from os.path import splitext
 
-from . import compat, image
+from . import image
 from .settings import get_thumb
+from .utils import call_subprocess
 
 
-def call_subprocess(cmd):
-    """Wrapper to call ``subprocess.Popen`` and return stdout & stderr."""
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = p.communicate()
-
-    if not compat.PY2:
-        stderr = stderr.decode('utf8')
-        stdout = stdout.decode('utf8')
-    return p.returncode, stdout, stderr
-
-
-def check_subprocess(cmd, error_msg=''):
-    """Wrapper to call ``subprocess.Popen`` which log errors and raise
-    a ``subprocess.CalledProcessError`` if the return code is not 0.
+def check_subprocess(cmd, source, outname):
+    """Run the command to resize the video and remove the output file if the
+    processing fails.
 
     """
-    returncode, stdout, stderr = call_subprocess(cmd)
+    logger = logging.getLogger(__name__)
+    try:
+        returncode, stdout, stderr = call_subprocess(cmd)
+    except KeyboardInterrupt:
+        logger.debug('Process terminated, removing file %s', outname)
+        os.remove(outname)
+        raise
 
     if returncode:
-        logger = logging.getLogger(__name__)
-        logger.error(error_msg)
+        logger.error('Failed to process ' + source)
         logger.debug('STDOUT:\n %s', stdout)
         logger.debug('STDERR:\n %s', stderr)
-        raise subprocess.CalledProcessError(returncode, cmd)
+        logger.debug('Process failed, removing file %s', outname)
+        os.remove(outname)
 
 
 def video_size(source):
@@ -74,10 +70,11 @@ def video_size(source):
 
 
 def generate_video(source, outname, size, options=None):
-    """Video processor
+    """Video processor.
 
     :param source: path to a video
-    :param outname: name of the generated video
+    :param outname: path to the generated video
+    :param size: size of the resized video `(width, height)`
     :param options: array of options passed to ffmpeg
 
     """
@@ -89,8 +86,8 @@ def generate_video(source, outname, size, options=None):
     w_dst, h_dst = size
     logger.debug('Video size: %i, %i -> %i, %i', w_src, h_src, w_dst, h_dst)
 
-    base, src_ext = os.path.splitext(source)
-    base, dst_ext = os.path.splitext(outname)
+    base, src_ext = splitext(source)
+    base, dst_ext = splitext(outname)
     if dst_ext == src_ext and w_src <= w_dst and h_src <= h_dst:
         logger.debug('Video is smaller than the max size, copying it instead')
         shutil.copy(source, outname)
@@ -117,16 +114,7 @@ def generate_video(source, outname, size, options=None):
     cmd += resize_opt + [outname]
 
     logger.debug('Processing video: %s', ' '.join(cmd))
-    try:
-        check_subprocess(cmd, error_msg='Failed to process ' + source)
-    except subprocess.CalledProcessError:
-        logger.debug('Process failed, removing file %s', outname)
-        os.remove(outname)
-        return
-    except KeyboardInterrupt:
-        logger.debug('Process terminated, removing file %s', outname)
-        os.remove(outname)
-        raise
+    check_subprocess(cmd, source, outname)
 
 
 def generate_thumbnail(source, outname, box, fit=True, options=None):
@@ -135,21 +123,11 @@ def generate_thumbnail(source, outname, box, fit=True, options=None):
     logger = logging.getLogger(__name__)
     tmpfile = outname + ".tmp.jpg"
 
-    try:
-        # dump an image of the video
-        cmd = ['ffmpeg', '-i', source, '-an', '-r', '1',
-               '-vframes', '1', '-y', tmpfile]
-        logger.debug('Create thumbnail for video: %s', ' '.join(cmd))
-        check_subprocess(cmd, error_msg='Failed to create a thumbnail for ' +
-                         source)
-    except subprocess.CalledProcessError:
-        logger.debug('Process failed, removing file %s', outname)
-        os.remove(outname)
-        return
-    except KeyboardInterrupt:
-        logger.debug('Process terminated, removing file %s', outname)
-        os.remove(outname)
-        raise
+    # dump an image of the video
+    cmd = ['ffmpeg', '-i', source, '-an', '-r', '1',
+           '-vframes', '1', '-y', tmpfile]
+    logger.debug('Create thumbnail for video: %s', ' '.join(cmd))
+    check_subprocess(cmd, source, outname)
 
     # use the generate_thumbnail function from sigal.image
     image.generate_thumbnail(tmpfile, outname, box, fit, options)
@@ -161,7 +139,7 @@ def process_video(filepath, outpath, settings):
     """Process a video: resize, create thumbnail."""
 
     filename = os.path.split(filepath)[1]
-    basename = os.path.splitext(filename)[0]
+    basename = splitext(filename)[0]
     outname = os.path.join(outpath, basename + '.webm')
 
     generate_video(filepath, outname, settings['video_size'],

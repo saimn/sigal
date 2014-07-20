@@ -21,9 +21,12 @@
 # IN THE SOFTWARE.
 
 import codecs
-import markdown
 import os
 import shutil
+from markdown import Markdown
+from subprocess import Popen, PIPE
+
+from . import compat
 
 
 def copy(src, dst, symlink=False):
@@ -55,7 +58,7 @@ def read_markdown(filename):
     with codecs.open(filename, 'r', 'utf-8-sig') as f:
         text = f.read()
 
-    md = markdown.Markdown(extensions=['meta'])
+    md = Markdown(extensions=['meta'])
     html = md.convert(text)
 
     return {
@@ -63,3 +66,14 @@ def read_markdown(filename):
         'description': html,
         'meta': md.Meta.copy()
     }
+
+
+def call_subprocess(cmd):
+    """Wrapper to call ``subprocess.Popen`` and return stdout & stderr."""
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate()
+
+    if not compat.PY2:
+        stderr = stderr.decode('utf8')
+        stdout = stdout.decode('utf8')
+    return p.returncode, stdout, stderr
