@@ -11,6 +11,11 @@ TEST_VIDEO = 'stallman software-freedom-day-low.ogv'
 SRCFILE = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'video', TEST_VIDEO)
 
 
+def test_video_size():
+    size_src = video_size(SRCFILE)
+    assert size_src == (480, 270)
+
+
 def test_generate_video_fit_height(tmpdir):
     """largest fitting dimension is height"""
 

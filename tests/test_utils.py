@@ -38,6 +38,13 @@ def test_url_from_path():
     assert utils.url_from_path(os.sep.join(['foo', 'bar'])) == 'foo/bar'
 
 
+def test_url_from_windows_path(monkeypatch):
+    monkeypatch.setattr('os.sep', "\\")
+    path = os.sep.join(['foo', 'bar'])
+    assert path == r'foo\bar'
+    assert utils.url_from_path(path) == 'foo/bar'
+
+
 def test_read_markdown():
     src = os.path.join(SAMPLE_DIR, 'pictures', 'dir1', 'test1', '11.md')
     m = utils.read_markdown(src)
