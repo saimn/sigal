@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
 
 import os
+from click.testing import CliRunner
+
 from sigal import init
 
 
 def test_init(tmpdir):
     config_file = str(tmpdir.join('sigal.conf.py'))
-    init(path=config_file)
+    runner = CliRunner()
+    result = runner.invoke(init, [config_file])
+    assert result.exit_code == 0
+    assert result.output.startswith('Sample config file created:')
     assert os.path.isfile(config_file)
+
+    result = runner.invoke(init, [config_file])
+    assert result.exit_code == 1
+    assert result.output == ("Found an existing config file, will abort to "
+                             "keep it safe.\n")

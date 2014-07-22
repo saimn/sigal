@@ -13,7 +13,7 @@ or alternatively if you have pip installed::
 Dependencies
 ~~~~~~~~~~~~
 
-- Argh
+- Click
 - Jinja2
 - Pilkit
 - Python Imaging Library (PIL / Pillow, see below)

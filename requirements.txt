@@ -1,5 +1,5 @@
-argh
 blinker
+click
 cssmin
 Jinja2
 Markdown

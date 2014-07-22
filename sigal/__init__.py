@@ -20,19 +20,9 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-"""
-sigal - simple static gallery generator
-=======================================
-
-sigal is yet another python script to prepare a static gallery of images:
-
-* resize images, create thumbnails with some options (squared thumbs, ...).
-* generate html pages.
-
-"""
-
 from __future__ import absolute_import, print_function
 
+import click
 import importlib
 import io
 import locale
@@ -41,7 +31,7 @@ import os
 import sys
 import time
 
-from argh import ArghParser, arg
+from click import argument, option
 
 from .compat import server, socketserver, string_types
 from .gallery import Gallery
@@ -53,14 +43,27 @@ from .utils import copy
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
 
 
-@arg('path', nargs='?', default=_DEFAULT_CONFIG_FILE,
-     help='Path of the sample config file')
+@click.group()
+@click.version_option(version=__version__)
+def main():
+    """Sigal - Simple Static Gallery Generator.
+
+    Sigal is yet another python script to prepare a static gallery of images:
+    resize images, create thumbnails with some options, generate html pages.
+
+    """
+    pass
+
+
+@main.command()
+@argument('path', default=_DEFAULT_CONFIG_FILE)
 def init(path):
-    """Copy a sample config file in the current directory."""
+    """Copy a sample config file in the current directory (default to
+    'sigal.conf.py'), or use the provided 'path'."""
 
     if os.path.isfile(path):
         print("Found an existing config file, will abort to keep it safe.")
-        return
+        sys.exit(1)
 
     from pkg_resources import resource_string
     conf = resource_string(__name__, 'templates/sigal.conf.py')
@@ -70,28 +73,36 @@ def init(path):
     print("Sample config file created: {}".format(path))
 
 
-@arg('source', nargs='?', help='Input directory')
-@arg('destination', nargs='?', help='Output directory (default: _build/)')
-@arg('-f', '--force', help="Force the reprocessing of existing images")
-@arg('-v', '--verbose', help="Show all messages")
-@arg('-d', '--debug', help="Show all message, including debug messages")
-@arg('-c', '--config', help="Configuration file")
-@arg('-t', '--theme', help="Specify a theme directory, or a theme name for "
-     "the themes included with Sigal")
-@arg('-n', '--ncpu', help="Number of cpu to use (default: all)")
-def build(source, destination, debug=False, verbose=False, force=False,
-          config=_DEFAULT_CONFIG_FILE, theme=None, ncpu=None):
-    """Run sigal to process a directory. """
+@main.command()
+@argument('source', required=False)
+@argument('destination', required=False)
+@option('-f', '--force', is_flag=True,
+        help="Force the reprocessing of existing images")
+@option('-v', '--verbose', is_flag=True, help="Show all messages")
+@option('-d', '--debug', is_flag=True,
+        help="Show all message, including debug messages")
+@option('-c', '--config', default=_DEFAULT_CONFIG_FILE, show_default=True,
+        help="Configuration file")
+@option('-t', '--theme', help="Specify a theme directory, or a theme name for "
+        "the themes included with Sigal")
+@option('-n', '--ncpu', help="Number of cpu to use (default: all)")
+def build(source, destination, debug, verbose, force, config, theme, ncpu):
+    """Run sigal to process a directory.
 
+    If provided, 'source', 'destination' and 'theme' will override the
+    corresponding values from the settings file.
+
+    """
     level = ((debug and logging.DEBUG) or (verbose and logging.INFO)
              or logging.WARNING)
     init_logging(__name__, level=level)
     logger = logging.getLogger(__name__)
 
-    start_time = time.time()
     if not os.path.isfile(config):
         logger.error("Settings file not found: %s", config)
         sys.exit(1)
+
+    start_time = time.time()
     settings = read_settings(config)
 
     for key in ('source', 'destination', 'theme'):
@@ -152,8 +163,8 @@ def init_plugins(settings):
         sys.path.remove(path)
 
 
-@arg('path', nargs='?', default='_build',
-     help='Directory to serve (default: _build/)')
+@main.command()
+@argument('path', default='_build')
 def serve(path):
     """Run a simple web server."""
 
@@ -174,11 +185,3 @@ def serve(path):
             print('\nAll done!')
     else:
         sys.stderr.write("The '%s' directory doesn't exist.\n" % path)
-
-
-def main():
-    parser = ArghParser(description='Simple static gallery generator.')
-    parser.add_commands([init, build, serve])
-    parser.add_argument('--version', action='version',
-                        version='%(prog)s {}'.format(__version__))
-    parser.dispatch()
