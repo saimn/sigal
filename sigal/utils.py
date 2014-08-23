@@ -58,7 +58,7 @@ def read_markdown(filename):
     with codecs.open(filename, 'r', 'utf-8-sig') as f:
         text = f.read()
 
-    md = Markdown(extensions=['meta'])
+    md = Markdown(extensions=['meta'], output_format='html5')
     html = md.convert(text)
 
     return {
