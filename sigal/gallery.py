@@ -331,13 +331,17 @@ class Album(UnicodeMixin):
             for f in self.medias:
                 ext = splitext(f.filename)[1]
                 if ext.lower() in Image.extensions:
-                    im = PILImage.open(f.src_path)
-                    if im.size[0] > im.size[1]:
-                        self._thumbnail = join(self.name, f.thumbnail)
-                        self.logger.debug(
-                            "Use 1st landscape image as thumbnail for %r : %s",
-                            self, self._thumbnail)
-                        return url_from_path(self._thumbnail)
+                    try:
+                        im = PILImage.open(f.src_path)
+                    except:
+                        self.logger.error("Failed to open %s", f.src_path)
+                    else:
+                        if im.size[0] > im.size[1]:
+                            self._thumbnail = join(self.name, f.thumbnail)
+                            self.logger.debug(
+                                "Use 1st landscape image as thumbnail for %r :"
+                                " %s", self, self._thumbnail)
+                            return url_from_path(self._thumbnail)
 
             # else simply return the 1st media file
             if not self._thumbnail and self.medias:
