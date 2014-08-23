@@ -1,0 +1,147 @@
+body {
+  font: 16px/1.5 Molengo, sans-serif;
+  background-color: #242424;
+  color: #aaaaaa;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.container {
+  margin: 0 auto;
+  text-align: left;
+  width: 96%;
+}
+
+a, a:link, a:visited {
+  color: #999999;
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #dadada;
+}
+
+/* header */
+header {
+  padding: 1em 0;
+  color: #eeeeee;
+}
+header h1, header h2 {
+  color: #eeeeee;
+  margin: 10px 0;
+}
+header h1 a, header h1 a:link, header h1 a:visited,
+header h2 a, header h2 a:link, header h2 a:visited {
+  color: #eeeeee;
+  text-shadow: 0 2px 0 #000;
+  text-decoration: none;
+}
+header h1 a:hover, header h2 a:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+#menu ul {
+  list-style-type: none;
+  margin: 0 0 10px;
+  padding: 0;
+}
+#menu ul li {
+  display: inline-block;
+}
+#menu ul li a, #menu ul li a:link, #menu ul li a:visited {
+  color: #aaaaaa;
+  border-bottom: 1px solid #aaaaaa;
+  padding-bottom: 2px;
+  margin-left: 5px;
+  text-decoration: none;
+}
+#menu ul li a:hover {
+  color: #eeeeee;
+  border-color: #eeeeee;
+  text-decoration: none;
+}
+
+/* gallery */
+#albums ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+#albums ul li {
+  display: inline-block;
+  margin: 0 55px 30px 0;
+  text-align: center;
+  vertical-align: top;
+  width: 280px;
+}
+#albums ul li:nth-child(3n+3) {
+  margin-right: 0;
+}
+#albums ul li a img {
+  opacity: 1;
+  -webkit-transition: opacity 0.2s ease-in;
+  -moz-transition-property: opacity;
+  -moz-transition-duration: 0.2s;
+  -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  -o-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+#albums ul li a:hover img {
+  opacity: .5;
+}
+
+.album_title {
+  display: block;
+  color: #eeeeee;
+  font-size: 1.3em;
+  font-variant: small-caps;
+  font-weight: bold;
+}
+
+/* galleria */
+#gallery {
+  line-height: 0;
+  width: 100%;
+  height: 600px;
+}
+#gallery video {
+  position: absolute;
+  top: 10%;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* footer */
+footer {
+  clear: both;
+  display: block;
+  margin: 1em 0;
+  text-align: center;
+}
+footer a:link, footer a:visited {
+  font-weight: bold;
+  text-decoration: none;
+}
+footer a:hover {
+  border-bottom: 1px solid;
+  text-decoration: none;
+}
+
+@media only screen and (min-width: 980px) {
+  .container {
+    width: 960px;
+  }
+
+  #gallery {
+    width: 980px;
+    margin: 0 0 40px -10px;
+  }
+
+  header h1, #menu {
+    display: inline-block;
+    width: 49.5%;
+  }
+  #menu {
+    text-align: right;
+  }
+}
