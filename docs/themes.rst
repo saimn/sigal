@@ -10,16 +10,13 @@ be located in ``THEME_DIR/templates``.
 Bundled themes
 ~~~~~~~~~~~~~~
 
-Sigal comes with two themes, based on the `colorbox`_ and `galleria`_
-Javascript libraries, and located in the ``sigal/themes`` folder.
-
-The stylesheets for these themes are written with sass_ (``gem install sass``).
-A Makefile is available to compile the scss files to css
-(``sigal/themes/Makefile``).
+Sigal comes with two themes, based on the colorbox_ and galleria_ Javascript
+libraries, and located in the ``sigal/themes`` folder. A Makefile is available
+to concatenate and minify the css files, using cssmin_ (``pip install cssmin``).
 
 .. _galleria: http://galleria.io/
 .. _colorbox: http://www.jacklmoore.com/colorbox
-.. _sass: http://sass-lang.com/
+.. _cssmin: https://pypi.python.org/pypi/cssmin
 
 Variables
 ~~~~~~~~~

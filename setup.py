@@ -3,12 +3,6 @@
 import os
 from setuptools import setup
 
-requires = ['argh', 'blinker', 'jinja2', 'Markdown', 'Pillow', 'pilkit']
-
-entry_points = {
-    'console_scripts': ['sigal = sigal:main']
-}
-
 with open('README.rst') as f:
     README = f.read()
 
@@ -35,9 +29,13 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms='any',
-    install_requires=requires,
+    install_requires=['argh', 'blinker', 'jinja2', 'Markdown', 'Pillow',
+                      'pilkit'],
     test_requires=['pytest'],
-    entry_points=entry_points,
+    extras_require={'CSS':  ['cssmin']},
+    entry_points={
+        'console_scripts': ['sigal = sigal:main']
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
