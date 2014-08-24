@@ -504,18 +504,17 @@ class Gallery(object):
     def build(self, force=False):
         "Create the image gallery"
 
+        if not self.albums:
+            self.logger.warning("No albums found.")
+            return
+
+        log_func = (partial(print, colored('->', BLUE)) if sys.stdout.isatty()
+                    else self.logger.warn)
+
         # loop on directories in reversed order, to process subdirectories
         # before their parent
-        if self.pool:
-            media_list = []
-            processor = media_list.append
-        else:
-            processor = process_file
-
-        if sys.stdout.isatty():
-            log_func = partial(print, colored('->', BLUE))
-        else:
-            log_func = self.logger.warn
+        media_list = []
+        processor = media_list.append if self.pool else process_file
 
         try:
             for album in self.albums.values():
@@ -523,6 +522,8 @@ class Gallery(object):
                     log_func(str(album))
                     for files in self.process_dir(album, force=force):
                         processor(files)
+                else:
+                    self.logger.info('Album %r is empty', album)
         except KeyboardInterrupt:
             sys.exit('Interrupted')
 
@@ -539,11 +540,11 @@ class Gallery(object):
             print('')
 
         if self.settings['write_html']:
-            self.writer = Writer(self.settings, theme=self.theme,
-                                 index_title=self.albums['.'].title)
+            writer = Writer(self.settings, theme=self.theme,
+                            index_title=self.albums['.'].title)
 
             for album in self.albums.values():
-                self.writer.write(album)
+                writer.write(album)
 
         signals.gallery_build.send(self)
 
