@@ -94,17 +94,16 @@ def build(source, destination, debug=False, verbose=False, force=False,
         sys.exit(1)
     settings = read_settings(config)
 
-    if source:
-        settings['source'] = os.path.abspath(source)
-    if destination:
-        settings['destination'] = os.path.abspath(destination)
+    for key in ('source', 'destination', 'theme'):
+        arg = locals()[key]
+        if arg is not None:
+            settings[key] = os.path.abspath(arg)
+        logger.info("%12s : %s", key.capitalize(), settings[key])
 
-    logger.info("Input  : %s", settings['source'])
     if not settings['source'] or not os.path.isdir(settings['source']):
         logger.error("Input directory not found: %s", settings['source'])
         sys.exit(1)
 
-    logger.info("Output : %s", settings['destination'])
     if not os.path.relpath(settings['destination'],
                            settings['source']).startswith('..'):
         logger.error("Output directory should be outside of the input "
@@ -114,7 +113,7 @@ def build(source, destination, debug=False, verbose=False, force=False,
     locale.setlocale(locale.LC_ALL, settings['locale'])
     init_plugins(settings)
 
-    gal = Gallery(settings, theme=theme, ncpu=ncpu)
+    gal = Gallery(settings, ncpu=ncpu)
     gal.build(force=force)
 
     # copy extra files

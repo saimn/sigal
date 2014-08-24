@@ -416,9 +416,8 @@ class Album(UnicodeMixin):
 
 class Gallery(object):
 
-    def __init__(self, settings, theme=None, ncpu=None):
+    def __init__(self, settings, ncpu=None):
         self.settings = settings
-        self.theme = theme
         self.logger = logging.getLogger(__name__)
         self.stats = {'image': 0, 'image_skipped': 0,
                       'video': 0, 'video_skipped': 0}
@@ -540,8 +539,7 @@ class Gallery(object):
             print('')
 
         if self.settings['write_html']:
-            writer = Writer(self.settings, theme=self.theme,
-                            index_title=self.albums['.'].title)
+            writer = Writer(self.settings, index_title=self.albums['.'].title)
 
             for album in self.albums.values():
                 writer.write(album)

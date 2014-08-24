@@ -45,10 +45,10 @@ class Writer(object):
 
     template_file = 'index.html'
 
-    def __init__(self, settings, theme=None, index_title=''):
+    def __init__(self, settings, index_title=''):
         self.settings = settings
         self.output_dir = settings['destination']
-        self.theme = theme or settings['theme']
+        self.theme = settings['theme']
         self.index_title = index_title
         self.logger = logging.getLogger(__name__)
 
