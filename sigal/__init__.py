@@ -53,12 +53,16 @@ from .utils import copy
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
 
 
-@arg('path', nargs='?', help='Path of the sample config file')
+@arg('path', nargs='?', default=_DEFAULT_CONFIG_FILE,
+     help='Path of the sample config file')
 def init(path):
     """Copy a sample config file in the current directory."""
 
+    if os.path.isfile(path):
+        print("Found an existing config file, will abort to keep it safe.")
+        return
+
     from pkg_resources import resource_string
-    path = path or 'sigal.conf.py'
     conf = resource_string(__name__, 'templates/sigal.conf.py')
 
     with io.open(path, 'w', encoding='utf-8') as f:
