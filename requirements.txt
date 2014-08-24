@@ -1,5 +1,6 @@
 argh
 blinker
+cssmin
 Jinja2
 Markdown
 Pillow
