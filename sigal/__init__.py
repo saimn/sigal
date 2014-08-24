@@ -165,16 +165,15 @@ def init_plugins(settings):
 
 @main.command()
 @argument('path', default='_build')
-def serve(path):
+@option('-p', '--port', help="Port to use", default=8000)
+def serve(path, port):
     """Run a simple web server."""
 
     if os.path.exists(path):
         os.chdir(path)
-        PORT = 8000
         Handler = server.SimpleHTTPRequestHandler
-        httpd = socketserver.TCPServer(("", PORT), Handler, False)
-
-        print(" * Running on http://127.0.0.1:{}/".format(PORT))
+        httpd = socketserver.TCPServer(("", port), Handler, False)
+        print(" * Running on http://127.0.0.1:{}/".format(port))
 
         try:
             httpd.allow_reuse_address = True
@@ -185,3 +184,4 @@ def serve(path):
             print('\nAll done!')
     else:
         sys.stderr.write("The '%s' directory doesn't exist.\n" % path)
+        sys.exit(1)
