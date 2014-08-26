@@ -7,6 +7,23 @@ Version 0.8.dev
 
 Released on 2014-xx-xx.
 
+- Add a mailing list at Librelist (sigal at librelist.com).
+- Add an option to specify the port to use for the serve command.
+- Replace argh with click.
+- Don't overwrite existing config file (with the init command).
+- Don't fail if there are no pictures.
+- Use plain css to simplify theme customizing (no more sass).
+- Upgrade colorbox 1.5.13
+- Upgrade galleria 1.4.2
+- Use HTML5 output for Markdown.
+- Allow to read additional data for images from markdown files.
+- Use case insensitive check for file extensions (fix #99).
+- Add a plugin system with blinker, and make plugins for copyright and adjust.
+- Mention the irc channel on freenode and add travis notifications.
+- Avoid failure if GPS tags contain zero values (fix #96).
+- Remove output file when the ffmpeg process has been interrupted (ref #90).
+- Fix thumbnail urls to always use slashes (ref #81).
+
 Version 0.7
 ~~~~~~~~~~~
 

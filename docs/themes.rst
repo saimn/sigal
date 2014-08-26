@@ -43,6 +43,9 @@ You can use the following variables in your template:
 ``theme.name``, ``theme.url``
     Name and url of the currently used theme.
 
+Documentation of sigal's main classes
+-------------------------------------
+
 .. autoclass:: sigal.gallery.Album
    :members:
    :undoc-members:
