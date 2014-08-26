@@ -7,6 +7,8 @@ Version 0.8.dev
 
 Released on 2014-xx-xx.
 
+- Add a setting and a cli option to specify the gallery title (``title`` and
+  ``--title``) (ref #91).
 - Add a mailing list at Librelist (sigal at librelist.com).
 - Add an option to specify the port to use for the serve command.
 - Replace argh with click.

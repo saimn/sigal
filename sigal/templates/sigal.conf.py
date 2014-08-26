@@ -4,6 +4,11 @@
 # to show the default. Default values are specified when modified in this
 # example config file
 
+# Gallery title. Can be set here or as the '--title' option of the `sigal
+# build` command, or in the 'index.md' file of the source directory.
+# The priority order is: cli option > settings file > index.md file
+# title = "Sigal test gallery"
+
 # Source directory. Can be set here or as the first argument of the `sigal
 # build` command
 source = 'pictures'

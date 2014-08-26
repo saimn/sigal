@@ -85,8 +85,10 @@ def init(path):
         help="Configuration file")
 @option('-t', '--theme', help="Specify a theme directory, or a theme name for "
         "the themes included with Sigal")
+@option('--title', help="Title of the gallery (overrides the title setting.")
 @option('-n', '--ncpu', help="Number of cpu to use (default: all)")
-def build(source, destination, debug, verbose, force, config, theme, ncpu):
+def build(source, destination, debug, verbose, force, config, theme, title,
+          ncpu):
     """Run sigal to process a directory.
 
     If provided, 'source', 'destination' and 'theme' will override the
@@ -120,6 +122,9 @@ def build(source, destination, debug, verbose, force, config, theme, ncpu):
         logger.error("Output directory should be outside of the input "
                      "directory.")
         sys.exit(1)
+
+    if title:
+        settings['title'] = title
 
     locale.setlocale(locale.LC_ALL, settings['locale'])
     init_plugins(settings)

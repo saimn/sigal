@@ -470,6 +470,11 @@ class Gallery(object):
         self.logger.debug('Albums:\n%r', albums.values())
         signals.gallery_initialized.send(self)
 
+    @property
+    def title(self):
+        """Title of the gallery."""
+        return self.settings['title'] or self.albums['.'].title
+
     def init_pool(self, ncpu):
         try:
             cpu_count = multiprocessing.cpu_count()
@@ -539,8 +544,7 @@ class Gallery(object):
             print('')
 
         if self.settings['write_html']:
-            writer = Writer(self.settings, index_title=self.albums['.'].title)
-
+            writer = Writer(self.settings, index_title=self.title)
             for album in self.albums.values():
                 writer.write(album)
 
