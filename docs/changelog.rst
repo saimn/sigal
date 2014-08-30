@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 0.8.dev
-~~~~~~~~~~~~~~~
+Version 0.8.0
+~~~~~~~~~~~~~
 
-Released on 2014-xx-xx.
+Released on 2014-08-30.
 
 - Add a setting and a cli option to specify the gallery title (``title`` and
   ``--title``) (ref #91).
