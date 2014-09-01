@@ -173,28 +173,21 @@ def init_plugins(settings):
 @option('-p', '--port', help="Port to use", default=8000)
 @option('-c', '--config', default=_DEFAULT_CONFIG_FILE, show_default=True,
           help='Configuration file')
-@option('-d', '--debug', is_flag=True, show_default=True,
-        help="Show all message, including debug messages")
-@option('-v', '--verbose', is_flag=True, help="Show all messages")
-def serve(destination, port, config, debug, verbose):
+def serve(destination, port, config):
     """Run a simple web server."""
-    level = ((debug and logging.DEBUG) or (verbose and logging.INFO)
-             or logging.WARNING)
-    init_logging(__name__, level=level)
-    logger = logging.getLogger(__name__)
-
     if os.path.exists(destination):
         pass
     elif os.path.exists(config):
         settings = read_settings(config)
         destination = settings.get('destination')
         if not os.path.exists(destination):
-            logger.error("The '%s' directory doesn't exist, maybe try building first?\n" % destination)
+            sys.stderr.write("The '{}' directory doesn't exist, maybe try building first?\n".format(destination))
             sys.exit(1)
     else:
-        logger.error("The '%s' directory doesn't exist and the config file could not be read." % destination)
+        sys.stderr.write("The {destination} directory doesn't exist and the config file ({config}) could not be read.".format(destination=destination, config=config))
+        sys.exit(2)
 
-    logger.info('%12s : %s', 'DESTINATION', destination)
+    print('DESTINATION : {}'.format(destination))
     os.chdir(destination)
     Handler = server.SimpleHTTPRequestHandler
     httpd = socketserver.TCPServer(("", port), Handler, False)
@@ -207,5 +200,4 @@ def serve(destination, port, config, debug, verbose):
         httpd.serve_forever()
     except KeyboardInterrupt:
         print('\nAll done!')
-
 
