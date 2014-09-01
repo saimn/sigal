@@ -191,6 +191,8 @@ def serve(destination, port, config, debug, verbose):
         if not os.path.exists(destination):
             logger.error("The '%s' directory doesn't exist, maybe try building first?\n" % destination)
             sys.exit(1)
+    else:
+        logger.error("The '%s' directory doesn't exist and the config file could not be read." % destination)
 
     logger.info('%12s : %s', 'DESTINATION', destination)
     os.chdir(destination)
