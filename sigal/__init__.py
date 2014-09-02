@@ -171,8 +171,8 @@ def init_plugins(settings):
 @main.command()
 @argument('destination', default='_build')
 @option('-p', '--port', help="Port to use", default=8000)
-@option('-c', '--config', default=_DEFAULT_CONFIG_FILE, show_default=True,
-          help='Configuration file')
+@option('-c', '--config', default=_DEFAULT_CONFIG_FILE, 
+        show_default=True, help='Configuration file')
 def serve(destination, port, config):
     """Run a simple web server."""
     if os.path.exists(destination):
@@ -181,10 +181,15 @@ def serve(destination, port, config):
         settings = read_settings(config)
         destination = settings.get('destination')
         if not os.path.exists(destination):
-            sys.stderr.write("The '{}' directory doesn't exist, maybe try building first?\n".format(destination))
+            sys.stderr.write("The '{}' directory doesn't exist, "
+                             "maybe try building first?"
+                             "\n".format(destination))
             sys.exit(1)
     else:
-        sys.stderr.write("The {destination} directory doesn't exist and the config file ({config}) could not be read.".format(destination=destination, config=config))
+        sys.stderr.write("The {destination} directory doesn't exist "
+                         "and the config file ({config}) could not be "
+                         "read."
+                         "\n".format(destination=destination, config=config))
         sys.exit(2)
 
     print('DESTINATION : {}'.format(destination))
