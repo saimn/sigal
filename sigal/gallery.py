@@ -31,7 +31,7 @@ import pickle
 import sys
 import zipfile
 
-from click import progressbar
+from click import progressbar, get_terminal_size
 from collections import defaultdict
 from datetime import datetime
 from functools import partial
@@ -48,6 +48,10 @@ from .utils import copy, check_or_create_dir, url_from_path, read_markdown
 from .video import process_video
 from .writer import Writer
 
+class Devnull(object):
+    """'Black hole' for output that should not be printed"""
+    def write(self, *_): pass
+    def flush(self, *_): pass
 
 class Media(UnicodeMixin):
     """Base Class for media files.
@@ -472,10 +476,15 @@ class Gallery(object):
         ignore_files = settings['ignore_files']
 
         progressChars = cycle(["/", "-", "\\", "|"])
+        if self.logger.getEffectiveLevel() >= logging.WARNING:
+            self.progressbar_target = None
+        else:
+            self.progressbar_target = Devnull()
 
         for path, dirs, files in os.walk(src_path, followlinks=True,
                                          topdown=False):
-            print("\rCollecting albums " + next(progressChars), end="")
+            if self.logger.getEffectiveLevel() >= logging.WARNING:
+                print("\rCollecting albums " + next(progressChars), end="")
             relpath = os.path.relpath(path, src_path)
 
             # Test if the directory match the ignore_dirs settings
@@ -510,7 +519,9 @@ class Gallery(object):
                 album.create_output_directories()
                 albums[relpath] = album
 
-        with progressbar(albums.values(), label="Sorting media") as progressAlbums:
+        with progressbar(albums.values(),
+                            label="Sorting media",
+                            file=self.progressbar_target) as progressAlbums:
             for album in progressAlbums:
                 album.sort_medias(settings['medias_sort_attr'])
 
@@ -559,12 +570,21 @@ class Gallery(object):
             self.logger.warning("No albums found.")
             return
 
-        log_func = lambda x: str(x) if x else ""
+        def log_func(x):
+            #63 is the total length of progressbar, label, percentage, etc
+            available_length = get_terminal_size()[0] - 64
+            if x and available_length > 10:
+                return unicode(x.name)[:available_length].encode('utf-8')
+            else:
+                return ""
+
         media_list = []
 
         try:
             with progressbar(self.albums.values(), label="Collecting files",
-                                item_show_func=log_func) as albums:
+                                item_show_func=log_func,
+                                show_eta=False,
+                                file=self.progressbar_target) as albums:
                 for album in albums:
                     if len(album) > 0:
                         for files in self.process_dir(album, force=force):
@@ -578,7 +598,8 @@ class Gallery(object):
             try:
                 with progressbar(length=len(media_list), 
                                     label="Processing files",
-                                    show_pos=True) as bar:
+                                    show_pos=True,
+                                    file=self.progressbar_target) as bar:
                     for _ in self.pool.imap_unordered(worker, media_list):
                         next(bar)
                 self.pool.close()
@@ -596,7 +617,8 @@ class Gallery(object):
 
             print('')
         else:
-            with progressbar(media_list, show_pos=True) as media_list:
+            with progressbar(media_list, show_pos=True,
+                                file=self.progressbar_target) as media_list:
                 for media_item in media_list:
                     process_file(media_item)
 
