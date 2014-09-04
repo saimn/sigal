@@ -148,9 +148,40 @@ class Image(Media):
 
     def __init__(self, filename, path, settings):
         super(Image, self).__init__(filename, path, settings)
-        self.raw_exif, self.exif = get_exif_tags(self.src_path)
+        self._raw_exif = None
+        self._exif = None
+
+    @property
+    def date(self):
         if self.exif is not None and 'dateobj' in self.exif:
-            self.date = self.exif['dateobj']
+            return self.exif['dateobj']
+        else:
+            return self._date
+
+    @date.setter
+    def date(self, value):
+        self._date = value
+
+    @property
+    def exif(self):
+        if not self._exif:
+            self._raw_exif, self._exif = get_exif_tags(self.src_path)
+        return self._exif
+
+    @exif.setter
+    def exif(self, value):
+        self._exif = value
+
+    @property
+    def raw_exif(self):
+        if not self._raw_exif:
+            self._raw_exif, self._exif = get_exif_tags(self.src_path)
+        return self._raw_exif
+
+    @raw_exif.setter
+    def raw_exif(self, value):
+        self._raw_exif = value
+
 
 
 class Video(Media):
@@ -231,16 +262,6 @@ class Album(UnicodeMixin):
             self.medias_count[media.type] += 1
             medias.append(media)
 
-        # sort images
-        if medias:
-            medias_sort_attr = settings['medias_sort_attr']
-            if medias_sort_attr == 'date':
-                key = lambda s: s.date or datetime.now()
-            else:
-                key = lambda s: strxfrm(getattr(s, medias_sort_attr))
-
-            medias.sort(key=key, reverse=settings['medias_sort_reverse'])
-
         signals.album_initialized.send(self)
 
     def __repr__(self):
@@ -283,6 +304,22 @@ class Album(UnicodeMixin):
         if self.medias:
             check_or_create_dir(join(self.dst_path,
                                      self.settings['thumb_dir']))
+
+        if self.medias and self.settings['keep_orig']:
+            self.orig_path = join(self.dst_path, self.settings['orig_dir'])
+            check_or_create_dir(self.orig_path)
+
+    def sort_medias(self, medias_sort_attr):
+        if self.medias:
+            if medias_sort_attr == 'date':
+                key = lambda s: s.date or datetime.now()
+            else:
+                key = lambda s: strxfrm(getattr(s, medias_sort_attr))
+
+            self.medias.sort(key=key,
+                                reverse=self.settings['medias_sort_reverse'])
+
+        signals.medias_sorted.send(self)
 
     @property
     def images(self):
@@ -472,6 +509,10 @@ class Gallery(object):
             else:
                 album.create_output_directories()
                 albums[relpath] = album
+
+        with progressbar(albums.values(), label="Sorting media") as progressAlbums:
+            for album in progressAlbums:
+                album.sort_medias(settings['medias_sort_attr'])
 
         self.logger.debug('Albums:\n%r', albums.values())
         signals.gallery_initialized.send(self)
