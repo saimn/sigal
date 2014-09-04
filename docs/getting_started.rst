@@ -34,7 +34,7 @@ Serve
   ``index.html`` to the urls to allow browsing without a server.
 
 
-Help of the ``sigal build`` command
+Help on the ``sigal build`` command
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
@@ -73,3 +73,22 @@ Optional arguments:
 
 ``-n NCPU, --ncpu NCPU``
   Number of cpu to use (default: all)
+
+Help on the ``sigal serve`` command
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    $ sigal serve [-c CONFIG] [-p PORT] [destination]
+
+Optional arguments:
+
+``-c CONFIG, --config CONFIG``
+  Configuration file (default: ``sigal.conf.py`` in the current working
+  directory)
+
+``-p PORT, --port PORT``
+  Port number to start the server on (default: 8000)
+
+``destination``
+  Destination directory where the output of build is located (default: _build)
