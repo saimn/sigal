@@ -9,13 +9,22 @@ Plugins must be specified with the ``plugins`` setting:
 
 .. code-block:: python
 
+   plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright']
+
+You can either specify the name of the module which contains the plugin, or
+import the plugin before adding it to the list:
+
+.. code-block:: python
+
    from sigal.plugins import copyright
    plugins = ['sigal.plugins.adjust', copyright]
 
-You can either specify the name of the module which contains the plugin, or
-import the plugin before adding it to the list. The ``plugin_paths`` setting
-can be used to specify paths to search for plugins (if they are not in the
-python path).
+.. note:: Using an import like this will break the multiprocessing feature,
+    because the settings dict must be serializable. So in most cases you should
+    prefer the first option.
+
+The ``plugin_paths`` setting can be used to specify paths to search for plugins
+(if they are not in the python path).
 
 Write a new plugin
 ------------------

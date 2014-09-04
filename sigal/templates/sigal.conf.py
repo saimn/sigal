@@ -138,6 +138,12 @@ ignore_files = []
 # Plugins
 # --------
 
+# List of plugins to use. The values must be a path than can be imported.
+# Another option is to import the plugin and put the module in the list, but
+# this will break with the multiprocessing feature (the settings dict obtained
+# from this file must be serializable).
+# plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright']
+
 # Add a copyright text on the image (default: '')
 # copyright = "© An example copyright message"
 
