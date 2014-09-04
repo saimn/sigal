@@ -7,8 +7,7 @@ init:
 	pip install -r requirements.txt
 
 docs:
-	cd docs && make html
-	@echo "\033[95m\n\nBuild successful! View the docs homepage at docs/_build/html/index.html.\n\033[0m"
+	make -C docs html
 
 colorbox:
 	cat $(COLORBOX_PATH)/{base,skeleton,colorbox,style}.css | cssmin > $(COLORBOX_PATH)/style.min.css
@@ -27,4 +26,4 @@ publish:
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 
-.PHONY: colorbox galleria
+.PHONY: colorbox galleria docs

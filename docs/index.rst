@@ -13,4 +13,5 @@ Documentation
    image_information
    themes
    plugins
+   contribute
    changelog
