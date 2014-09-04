@@ -23,11 +23,11 @@
 
 from __future__ import absolute_import, print_function
 
-import cPickle
 import fnmatch
 import logging
 import multiprocessing
 import os
+import pickle
 import sys
 import zipfile
 
@@ -541,7 +541,7 @@ class Gallery(object):
             except KeyboardInterrupt:
                 self.pool.terminate()
                 sys.exit('Interrupted')
-            except cPickle.PicklingError:
+            except pickle.PicklingError:
                 self.logger.critical(
                     "Failed to process files with the multiprocessing feature."
                     " This can be caused by some module import or object "
