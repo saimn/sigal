@@ -23,6 +23,7 @@
 
 from __future__ import absolute_import, print_function
 
+import cPickle
 import fnmatch
 import logging
 import multiprocessing
@@ -540,6 +541,13 @@ class Gallery(object):
             except KeyboardInterrupt:
                 self.pool.terminate()
                 sys.exit('Interrupted')
+            except cPickle.PicklingError:
+                self.logger.critical(
+                    "Failed to process files with the multiprocessing feature."
+                    " This can be caused by some module import or object "
+                    "defined in the settings file, which can't be serialized.",
+                    exc_info=True)
+                sys.exit('Abort')
 
             print('')
 
