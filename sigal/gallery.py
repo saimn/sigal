@@ -31,9 +31,11 @@ import pickle
 import sys
 import zipfile
 
+from click import progressbar
 from collections import defaultdict
 from datetime import datetime
 from functools import partial
+from itertools import cycle
 from os.path import isfile, join, splitext
 from PIL import Image as PILImage
 
@@ -432,8 +434,11 @@ class Gallery(object):
         ignore_dirs = settings['ignore_directories']
         ignore_files = settings['ignore_files']
 
+        progressChars = cycle(["/", "-", "\\", "|"])
+
         for path, dirs, files in os.walk(src_path, followlinks=True,
                                          topdown=False):
+            print("\rCollecting albums " + next(progressChars), end="")
             relpath = os.path.relpath(path, src_path)
 
             # Test if the directory match the ignore_dirs settings
@@ -513,29 +518,28 @@ class Gallery(object):
             self.logger.warning("No albums found.")
             return
 
-        log_func = (partial(print, colored('->', BLUE)) if sys.stdout.isatty()
-                    else self.logger.warn)
-
-        # loop on directories in reversed order, to process subdirectories
-        # before their parent
+        log_func = lambda x: str(x) if x else ""
         media_list = []
-        processor = media_list.append if self.pool else process_file
 
         try:
-            for album in self.albums.values():
-                if len(album) > 0:
-                    log_func(str(album))
-                    for files in self.process_dir(album, force=force):
-                        processor(files)
-                else:
-                    self.logger.info('Album %r is empty', album)
+            with progressbar(self.albums.values(), label="Collecting files",
+                                item_show_func=log_func) as albums:
+                for album in albums:
+                    if len(album) > 0:
+                        for files in self.process_dir(album, force=force):
+                            media_list.append(files)
+                    else:
+                        self.logger.info('Album %r is empty', album)
         except KeyboardInterrupt:
             sys.exit('Interrupted')
 
         if self.pool:
             try:
-                # map_async is needed to handle KeyboardInterrupt correctly
-                self.pool.map_async(worker, media_list).get(9999)
+                with progressbar(length=len(media_list), 
+                                    label="Processing files",
+                                    show_pos=True) as bar:
+                    for _ in self.pool.imap_unordered(worker, media_list):
+                        next(bar)
                 self.pool.close()
                 self.pool.join()
             except KeyboardInterrupt:
@@ -550,6 +554,10 @@ class Gallery(object):
                 sys.exit('Abort')
 
             print('')
+        else:
+            with progressbar(media_list, show_pos=True) as media_list:
+                for media_item in media_list:
+                    process_file(media_item)
 
         if self.settings['write_html']:
             writer = Writer(self.settings, index_title=self.title)
@@ -573,10 +581,6 @@ def process_file(args):
     ftype, src_path, dst_path, settings = args
     logger = logging.getLogger(__name__)
     logger.info('Processing %s', src_path)
-
-    if logger.getEffectiveLevel() > 20:
-        print('.', end='')
-        sys.stdout.flush()
 
     if ftype == 'image':
         return process_image(src_path, dst_path, settings)
