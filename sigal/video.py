@@ -44,7 +44,8 @@ def check_subprocess(cmd, source, outname):
         returncode, stdout, stderr = call_subprocess(cmd)
     except KeyboardInterrupt:
         logger.debug('Process terminated, removing file %s', outname)
-        os.remove(outname)
+        if os.path.isfile(outname):
+            os.remove(outname)
         raise
 
     if returncode:
@@ -52,7 +53,8 @@ def check_subprocess(cmd, source, outname):
         logger.debug('STDOUT:\n %s', stdout)
         logger.debug('STDERR:\n %s', stderr)
         logger.debug('Process failed, removing file %s', outname)
-        os.remove(outname)
+        if os.path.isfile(outname):
+            os.remove(outname)
 
 
 def video_size(source):
