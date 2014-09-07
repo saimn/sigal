@@ -92,10 +92,15 @@ class Media(UnicodeMixin):
     @property
     def big(self):
         """Path to the original image, if ``keep_orig`` is set (relative to the
-        album directory).
+        album directory). Copy the file if needed.
         """
         if self.settings['keep_orig']:
-            return os.path.join(self.settings['orig_dir'], self.src_filename)
+            s = self.settings
+            orig_path = join(s['destination'], self.path, s['orig_dir'])
+            check_or_create_dir(orig_path)
+            copy(self.src_path, join(orig_path, self.src_filename),
+                 symlink=s['orig_link'])
+            return url_from_path(join(s['orig_dir'], self.src_filename))
         else:
             return None
 
@@ -185,7 +190,6 @@ class Album(UnicodeMixin):
         self.name = path.split(os.path.sep)[-1]
         self.gallery = gallery
         self.settings = settings
-        self.orig_path = None
         self._thumbnail = None
 
         if path == '.':
@@ -277,10 +281,6 @@ class Album(UnicodeMixin):
         if self.medias:
             check_or_create_dir(join(self.dst_path,
                                      self.settings['thumb_dir']))
-
-        if self.medias and self.settings['keep_orig']:
-            self.orig_path = join(self.dst_path, self.settings['orig_dir'])
-            check_or_create_dir(self.orig_path)
 
     @property
     def images(self):
@@ -560,16 +560,11 @@ class Gallery(object):
 
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
-
         for f in album:
             if isfile(f.dst_path) and not force:
                 self.logger.info("%s exists - skipping", f.filename)
                 self.stats[f.type + '_skipped'] += 1
             else:
-                if self.settings['keep_orig']:
-                    copy(f.src_path, join(album.orig_path, f.src_filename),
-                         symlink=self.settings['orig_link'])
-
                 self.stats[f.type] += 1
                 yield f.type, f.src_path, album.dst_path, self.settings
 

@@ -78,18 +78,21 @@ def test_media(settings):
     assert str(m) == file_path
 
 
-def test_media_orig(settings):
+def test_media_orig(settings, tmpdir):
     settings['keep_orig'] = False
     m = Media('11.jpg', 'dir1/test1', settings)
     assert m.big is None
 
     settings['keep_orig'] = True
+    settings['destination'] = str(tmpdir)
+
     m = Image('11.jpg', 'dir1/test1', settings)
     assert m.big == 'original/11.jpg'
 
-    m = Video('file.ogv', 'video', settings)
-    assert m.filename == 'file.webm'
-    assert m.big == 'original/file.ogv'
+    m = Video('stallman software-freedom-day-low.ogv', 'video', settings)
+    assert m.filename == 'stallman software-freedom-day-low.webm'
+    assert m.big == 'original/stallman software-freedom-day-low.ogv'
+    assert os.path.isfile(join(settings['destination'], m.path, m.big))
 
 
 def test_image(settings, tmpdir):
