@@ -567,7 +567,7 @@ class Gallery(object):
                 self.stats[f.type + '_skipped'] += 1
             else:
                 if self.settings['keep_orig']:
-                    copy(f.src_path, join(album.orig_path, f.filename),
+                    copy(f.src_path, join(album.orig_path, f.src_filename),
                          symlink=self.settings['orig_link'])
 
                 self.stats[f.type] += 1
