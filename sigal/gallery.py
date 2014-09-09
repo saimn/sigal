@@ -31,9 +31,11 @@ import pickle
 import sys
 import zipfile
 
+from click import progressbar, get_terminal_size
 from collections import defaultdict
 from datetime import datetime
 from functools import partial
+from itertools import cycle
 from os.path import isfile, join, splitext
 from PIL import Image as PILImage
 
@@ -46,6 +48,10 @@ from .utils import copy, check_or_create_dir, url_from_path, read_markdown
 from .video import process_video
 from .writer import Writer
 
+class Devnull(object):
+    """'Black hole' for output that should not be printed"""
+    def write(self, *_): pass
+    def flush(self, *_): pass
 
 class Media(UnicodeMixin):
     """Base Class for media files.
@@ -146,9 +152,40 @@ class Image(Media):
 
     def __init__(self, filename, path, settings):
         super(Image, self).__init__(filename, path, settings)
-        self.raw_exif, self.exif = get_exif_tags(self.src_path)
+        self._raw_exif = None
+        self._exif = None
+
+    @property
+    def date(self):
         if self.exif is not None and 'dateobj' in self.exif:
-            self.date = self.exif['dateobj']
+            return self.exif['dateobj']
+        else:
+            return self._date
+
+    @date.setter
+    def date(self, value):
+        self._date = value
+
+    @property
+    def exif(self):
+        if not self._exif:
+            self._raw_exif, self._exif = get_exif_tags(self.src_path)
+        return self._exif
+
+    @exif.setter
+    def exif(self, value):
+        self._exif = value
+
+    @property
+    def raw_exif(self):
+        if not self._raw_exif:
+            self._raw_exif, self._exif = get_exif_tags(self.src_path)
+        return self._raw_exif
+
+    @raw_exif.setter
+    def raw_exif(self, value):
+        self._raw_exif = value
+
 
 
 class Video(Media):
@@ -229,16 +266,6 @@ class Album(UnicodeMixin):
             self.medias_count[media.type] += 1
             medias.append(media)
 
-        # sort images
-        if medias:
-            medias_sort_attr = settings['medias_sort_attr']
-            if medias_sort_attr == 'date':
-                key = lambda s: s.date or datetime.now()
-            else:
-                key = lambda s: strxfrm(getattr(s, medias_sort_attr))
-
-            medias.sort(key=key, reverse=settings['medias_sort_reverse'])
-
         signals.album_initialized.send(self)
 
     def __repr__(self):
@@ -281,6 +308,22 @@ class Album(UnicodeMixin):
         if self.medias:
             check_or_create_dir(join(self.dst_path,
                                      self.settings['thumb_dir']))
+
+        if self.medias and self.settings['keep_orig']:
+            self.orig_path = join(self.dst_path, self.settings['orig_dir'])
+            check_or_create_dir(self.orig_path)
+
+    def sort_medias(self, medias_sort_attr):
+        if self.medias:
+            if medias_sort_attr == 'date':
+                key = lambda s: s.date or datetime.now()
+            else:
+                key = lambda s: strxfrm(getattr(s, medias_sort_attr))
+
+            self.medias.sort(key=key,
+                                reverse=self.settings['medias_sort_reverse'])
+
+        signals.medias_sorted.send(self)
 
     @property
     def images(self):
@@ -432,8 +475,16 @@ class Gallery(object):
         ignore_dirs = settings['ignore_directories']
         ignore_files = settings['ignore_files']
 
+        progressChars = cycle(["/", "-", "\\", "|"])
+        if self.logger.getEffectiveLevel() >= logging.WARNING:
+            self.progressbar_target = None
+        else:
+            self.progressbar_target = Devnull()
+
         for path, dirs, files in os.walk(src_path, followlinks=True,
                                          topdown=False):
+            if self.logger.getEffectiveLevel() >= logging.WARNING:
+                print("\rCollecting albums " + next(progressChars), end="")
             relpath = os.path.relpath(path, src_path)
 
             # Test if the directory match the ignore_dirs settings
@@ -467,6 +518,12 @@ class Gallery(object):
             else:
                 album.create_output_directories()
                 albums[relpath] = album
+
+        with progressbar(albums.values(),
+                            label="Sorting media",
+                            file=self.progressbar_target) as progressAlbums:
+            for album in progressAlbums:
+                album.sort_medias(settings['medias_sort_attr'])
 
         self.logger.debug('Albums:\n%r', albums.values())
         signals.gallery_initialized.send(self)
@@ -513,29 +570,38 @@ class Gallery(object):
             self.logger.warning("No albums found.")
             return
 
-        log_func = (partial(print, colored('->', BLUE)) if sys.stdout.isatty()
-                    else self.logger.warn)
+        def log_func(x):
+            #63 is the total length of progressbar, label, percentage, etc
+            available_length = get_terminal_size()[0] - 64
+            if x and available_length > 10:
+                return unicode(x.name)[:available_length].encode('utf-8')
+            else:
+                return ""
 
-        # loop on directories in reversed order, to process subdirectories
-        # before their parent
         media_list = []
-        processor = media_list.append if self.pool else process_file
 
         try:
-            for album in self.albums.values():
-                if len(album) > 0:
-                    log_func(str(album))
-                    for files in self.process_dir(album, force=force):
-                        processor(files)
-                else:
-                    self.logger.info('Album %r is empty', album)
+            with progressbar(self.albums.values(), label="Collecting files",
+                                item_show_func=log_func,
+                                show_eta=False,
+                                file=self.progressbar_target) as albums:
+                for album in albums:
+                    if len(album) > 0:
+                        for files in self.process_dir(album, force=force):
+                            media_list.append(files)
+                    else:
+                        self.logger.info('Album %r is empty', album)
         except KeyboardInterrupt:
             sys.exit('Interrupted')
 
         if self.pool:
             try:
-                # map_async is needed to handle KeyboardInterrupt correctly
-                self.pool.map_async(worker, media_list).get(9999)
+                with progressbar(length=len(media_list), 
+                                    label="Processing files",
+                                    show_pos=True,
+                                    file=self.progressbar_target) as bar:
+                    for _ in self.pool.imap_unordered(worker, media_list):
+                        next(bar)
                 self.pool.close()
                 self.pool.join()
             except KeyboardInterrupt:
@@ -550,6 +616,11 @@ class Gallery(object):
                 sys.exit('Abort')
 
             print('')
+        else:
+            with progressbar(media_list, show_pos=True,
+                                file=self.progressbar_target) as media_list:
+                for media_item in media_list:
+                    process_file(media_item)
 
         if self.settings['write_html']:
             writer = Writer(self.settings, index_title=self.title)
@@ -573,10 +644,6 @@ def process_file(args):
     ftype, src_path, dst_path, settings = args
     logger = logging.getLogger(__name__)
     logger.info('Processing %s', src_path)
-
-    if logger.getEffectiveLevel() > 20:
-        print('.', end='')
-        sys.stdout.flush()
 
     if ftype == 'image':
         return process_image(src_path, dst_path, settings)

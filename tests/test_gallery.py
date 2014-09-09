@@ -3,6 +3,7 @@
 import locale
 import os
 import pytest
+import datetime
 
 from os.path import join
 from sigal.gallery import Album, Media, Image, Video, Gallery
@@ -98,6 +99,7 @@ def test_media_orig(settings, tmpdir):
 def test_image(settings, tmpdir):
     settings['destination'] = str(tmpdir)
     m = Image('11.jpg', 'dir1/test1', settings)
+    assert m.date == datetime.datetime(2006, 1, 22, 10, 32, 42)
     assert m.exif['datetime'] == u'Sunday, 22. January 2006'
 
     os.makedirs(join(settings['destination'], 'dir1', 'test1', 'thumbnails'))
@@ -169,11 +171,13 @@ def test_medias_sort(settings):
 
     settings['medias_sort_reverse'] = True
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
+    a.sort_medias(settings['medias_sort_attr'])
     assert [im.filename for im in a.images] == list(reversed(album['medias']))
 
     settings['medias_sort_attr'] = 'date'
     settings['medias_sort_reverse'] = False
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
+    a.sort_medias(settings['medias_sort_attr'])
     assert [im.filename for im in a.images] == ['22.jpg', '21.jpg',
                                                 'archlinux-kiss-1024x640.png']
 
