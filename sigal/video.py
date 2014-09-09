@@ -34,6 +34,10 @@ from .settings import get_thumb
 from .utils import call_subprocess
 
 
+class SubprocessException(Exception):
+    pass
+
+
 def check_subprocess(cmd, source, outname):
     """Run the command to resize the video and remove the output file if the
     processing fails.
@@ -52,9 +56,10 @@ def check_subprocess(cmd, source, outname):
         logger.error('Failed to process ' + source)
         logger.debug('STDOUT:\n %s', stdout)
         logger.debug('STDERR:\n %s', stderr)
-        logger.debug('Process failed, removing file %s', outname)
         if os.path.isfile(outname):
+            logger.debug('Removing file %s', outname)
             os.remove(outname)
+        raise SubprocessException('Failed to process ' + source)
 
 
 def video_size(source):
@@ -116,7 +121,10 @@ def generate_video(source, outname, size, options=None):
     cmd += resize_opt + [outname]
 
     logger.debug('Processing video: %s', ' '.join(cmd))
-    check_subprocess(cmd, source, outname)
+    try:
+        check_subprocess(cmd, source, outname)
+    except Exception:
+        pass
 
 
 def generate_thumbnail(source, outname, box, fit=True, options=None):
@@ -129,7 +137,11 @@ def generate_thumbnail(source, outname, box, fit=True, options=None):
     cmd = ['ffmpeg', '-i', source, '-an', '-r', '1',
            '-vframes', '1', '-y', tmpfile]
     logger.debug('Create thumbnail for video: %s', ' '.join(cmd))
-    check_subprocess(cmd, source, outname)
+
+    try:
+        check_subprocess(cmd, source, outname)
+    except Exception as e:
+        return
 
     # use the generate_thumbnail function from sigal.image
     image.generate_thumbnail(tmpfile, outname, box, fit, options)
