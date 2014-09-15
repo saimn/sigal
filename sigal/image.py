@@ -153,8 +153,8 @@ def process_image(filepath, outpath, settings):
     return Status.SUCCESS
 
 
-def _get_exif_data(filename):
-    """Return a dict with EXIF data."""
+def get_exif_data(filename):
+    """Return a dict with the raw EXIF data."""
 
     img = PILImage.open(filename)
     exif = img._getexif() or {}
@@ -175,23 +175,10 @@ def dms_to_degrees(v):
     return d + (m / 60.0) + (s / 3600.0)
 
 
-def get_exif_tags(source):
-    """Read EXIF tags from file @source and return a tuple of two dictionaries,
-    the first one containing the raw EXIF data, the second one a simplified
-    version with common tags.
-    """
+def get_exif_tags(data):
+    """Make a simplified version with common tags from raw EXIF data."""
 
     logger = logging.getLogger(__name__)
-
-    if os.path.splitext(source)[1].lower() not in ('.jpg', '.jpeg'):
-        return (None, None)
-
-    try:
-        data = _get_exif_data(source)
-    except (IOError, IndexError, TypeError, AttributeError):
-        logger.warning(u'Could not read EXIF data from %s', source)
-        return (None, None)
-
     simple = {}
 
     # Provide more accessible tags in the 'simple' key
@@ -209,8 +196,8 @@ def get_exif_tags(source):
         elif isinstance(data['ExposureTime'], int):
             simple['exposure'] = str(data['ExposureTime'])
         else:
-            logger.warning('Unknown format for ExposureTime: %r (%s)',
-                           data['ExposureTime'], source)
+            logger.warning('Unknown format for ExposureTime: %r',
+                           data['ExposureTime'])
 
     if 'ISOSpeedRatings' in data:
         simple['iso'] = data['ISOSpeedRatings']
@@ -227,8 +214,7 @@ def get_exif_tags(source):
             else:
                 simple['datetime'] = dt
         except (ValueError, TypeError) as e:
-            logger.warning(u'Could not parse DateTimeOriginal of %s: %s',
-                           source, e)
+            logger.warning(u'Could not parse DateTimeOriginal: %s', e)
 
     if 'GPSInfo' in data:
         info = data['GPSInfo']
@@ -242,7 +228,7 @@ def get_exif_tags(source):
                 lat = dms_to_degrees(lat_info)
                 lon = dms_to_degrees(lon_info)
             except (ZeroDivisionError, ValueError):
-                logger.warning('Failed to read GPS info for %s', source)
+                logger.warning('Failed to read GPS info')
                 lat = lon = None
 
             if lat and lon:
@@ -251,4 +237,4 @@ def get_exif_tags(source):
                     'lon': - lon if lon_ref_info != 'E' else lon,
                 }
 
-    return (data, simple)
+    return simple

@@ -87,3 +87,39 @@ def call_subprocess(cmd):
         stderr = stderr.decode('utf8')
         stdout = stdout.decode('utf8')
     return p.returncode, stdout, stderr
+
+
+class cached_property(object):
+    '''Decorator for read-only properties evaluated only once.
+
+    © 2011 Christopher Arndt, MIT License
+    https://wiki.python.org/moin/PythonDecoratorLibrary#Cached_Properties
+
+    The value is cached in the '_cache' attribute of the object instance that
+    has the property getter method wrapped by this decorator. The '_cache'
+    attribute value is a dictionary which has a key for every property of the
+    object which is wrapped by this decorator. Each entry in the cache is
+    created only when the property is accessed for the first time and is a
+    two-element tuple with the last computed property value and the last time
+    it was updated in seconds since the epoch.
+
+    '''
+
+    def __call__(self, fget, doc=None):
+        self.fget = fget
+        self.__doc__ = doc or fget.__doc__
+        self.__name__ = fget.__name__
+        self.__module__ = fget.__module__
+        return self
+
+    def __get__(self, inst, owner):
+        try:
+            value = inst._cache[self.__name__]
+        except (KeyError, AttributeError):
+            value = self.fget(inst)
+            try:
+                cache = inst._cache
+            except AttributeError:
+                cache = inst._cache = {}
+            cache[self.__name__] = value
+        return value

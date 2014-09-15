@@ -40,10 +40,10 @@ from PIL import Image as PILImage
 
 from . import image, video, signals
 from .compat import UnicodeMixin, strxfrm, url_quote
-from .image import process_image, get_exif_tags
+from .image import process_image, get_exif_tags, get_exif_data
 from .settings import get_thumb
 from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
-                    read_markdown)
+                    read_markdown, cached_property)
 from .video import process_video
 from .writer import Writer
 
@@ -70,6 +70,7 @@ class Media(UnicodeMixin):
         self.src_filename = self.filename = self.url = filename
         self.path = path
         self.settings = settings
+        self.ext = os.path.splitext(filename)[1].lower()
 
         self.src_path = join(settings['source'], path, filename)
         self.dst_path = join(settings['destination'], path, filename)
@@ -78,9 +79,6 @@ class Media(UnicodeMixin):
         self.thumb_path = join(settings['destination'], path, self.thumb_name)
 
         self.logger = logging.getLogger(__name__)
-        self.raw_exif = None
-        self.exif = None
-        self.date = None
         self._get_metadata()
         signals.media_initialized.send(self)
 
@@ -145,41 +143,24 @@ class Image(Media):
     type = 'image'
     extensions = ('.jpg', '.jpeg', '.png')
 
-    def __init__(self, filename, path, settings):
-        super(Image, self).__init__(filename, path, settings)
-        self._raw_exif = None
-        self._exif = None
-
-    @property
+    @cached_property()
     def date(self):
-        if self.exif is not None and 'dateobj' in self.exif:
-            return self.exif['dateobj']
-        else:
-            return self._date
+        return self.exif and self.exif.get('dateobj', None) or None
 
-    @date.setter
-    def date(self, value):
-        self._date = value
-
-    @property
+    @cached_property()
     def exif(self):
-        if not self._exif:
-            self._raw_exif, self._exif = get_exif_tags(self.src_path)
-        return self._exif
+        return (get_exif_tags(self.raw_exif)
+                if self.raw_exif and self.ext in ('.jpg', '.jpeg') else None)
 
-    @exif.setter
-    def exif(self, value):
-        self._exif = value
-
-    @property
+    @cached_property()
     def raw_exif(self):
-        if not self._raw_exif:
-            self._raw_exif, self._exif = get_exif_tags(self.src_path)
-        return self._raw_exif
-
-    @raw_exif.setter
-    def raw_exif(self, value):
-        self._raw_exif = value
+        try:
+            return (get_exif_data(self.src_path)
+                    if self.ext in ('.jpg', '.jpeg') else None)
+        except (IOError, IndexError, TypeError, AttributeError):
+            self.logger.warning(u'Could not read EXIF data from %s',
+                                self.src_path)
+            return None
 
 
 class Video(Media):
@@ -191,6 +172,7 @@ class Video(Media):
     def __init__(self, filename, path, settings):
         super(Video, self).__init__(filename, path, settings)
         base = splitext(filename)[0]
+        self.date = None
         self.src_filename = filename
         self.filename = self.url = base + '.webm'
         self.dst_path = join(settings['destination'], path, base + '.webm')

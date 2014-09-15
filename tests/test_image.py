@@ -5,7 +5,8 @@ import pytest
 from PIL import Image
 
 from sigal import init_logging
-from sigal.image import generate_image, generate_thumbnail, get_exif_tags
+from sigal.image import (generate_image, generate_thumbnail, get_exif_tags,
+                         get_exif_data)
 from sigal.settings import create_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -62,13 +63,12 @@ def test_exif_copy(tmpdir):
 
     settings = create_settings(img_size=(300, 400), copy_exif_data=True)
     generate_image(src_file, dst_file, settings)
-    raw, simple = get_exif_tags(dst_file)
+    simple = get_exif_tags(get_exif_data(dst_file))
     assert simple['iso'] == 50
 
     settings['copy_exif_data'] = False
     generate_image(src_file, dst_file, settings)
-    raw, simple = get_exif_tags(dst_file)
-    assert not raw
+    simple = get_exif_tags(get_exif_data(dst_file))
     assert not simple
 
 
@@ -82,7 +82,7 @@ def test_exif_gps(tmpdir):
 
     settings = create_settings(img_size=(400, 300), copy_exif_data=True)
     generate_image(src_file, dst_file, settings)
-    raw, simple = get_exif_tags(dst_file)
+    simple = get_exif_tags(get_exif_data(dst_file))
     assert 'gps' in simple
 
     lat = 34.029167
