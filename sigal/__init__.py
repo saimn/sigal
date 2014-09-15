@@ -171,7 +171,7 @@ def init_plugins(settings):
 @main.command()
 @argument('destination', default='_build')
 @option('-p', '--port', help="Port to use", default=8000)
-@option('-c', '--config', default=_DEFAULT_CONFIG_FILE, 
+@option('-c', '--config', default=_DEFAULT_CONFIG_FILE,
         show_default=True, help='Configuration file')
 def serve(destination, port, config):
     """Run a simple web server."""
@@ -205,4 +205,3 @@ def serve(destination, port, config):
         httpd.serve_forever()
     except KeyboardInterrupt:
         print('\nAll done!')
-

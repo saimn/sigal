@@ -34,7 +34,6 @@ import zipfile
 from click import progressbar, get_terminal_size
 from collections import defaultdict
 from datetime import datetime
-from functools import partial
 from itertools import cycle
 from os.path import isfile, join, splitext
 from PIL import Image as PILImage
@@ -42,16 +41,21 @@ from PIL import Image as PILImage
 from . import image, video, signals
 from .compat import UnicodeMixin, strxfrm, url_quote
 from .image import process_image, get_exif_tags
-from .log import colored, BLUE
 from .settings import get_thumb
 from .utils import copy, check_or_create_dir, url_from_path, read_markdown
 from .video import process_video
 from .writer import Writer
 
+
 class Devnull(object):
     """'Black hole' for output that should not be printed"""
-    def write(self, *_): pass
-    def flush(self, *_): pass
+
+    def write(self, *_):
+        pass
+
+    def flush(self, *_):
+        pass
+
 
 class Media(UnicodeMixin):
     """Base Class for media files.
@@ -187,7 +191,6 @@ class Image(Media):
         self._raw_exif = value
 
 
-
 class Video(Media):
     """Gather all informations on a video file."""
 
@@ -321,7 +324,7 @@ class Album(UnicodeMixin):
                 key = lambda s: strxfrm(getattr(s, medias_sort_attr))
 
             self.medias.sort(key=key,
-                                reverse=self.settings['medias_sort_reverse'])
+                             reverse=self.settings['medias_sort_reverse'])
 
         signals.medias_sorted.send(self)
 
@@ -519,9 +522,8 @@ class Gallery(object):
                 album.create_output_directories()
                 albums[relpath] = album
 
-        with progressbar(albums.values(),
-                            label="Sorting media",
-                            file=self.progressbar_target) as progressAlbums:
+        with progressbar(albums.values(), label="Sorting media",
+                         file=self.progressbar_target) as progressAlbums:
             for album in progressAlbums:
                 album.sort_medias(settings['medias_sort_attr'])
 
@@ -571,7 +573,7 @@ class Gallery(object):
             return
 
         def log_func(x):
-            #63 is the total length of progressbar, label, percentage, etc
+            # 63 is the total length of progressbar, label, percentage, etc
             available_length = get_terminal_size()[0] - 64
             if x and available_length > 10:
                 return unicode(x.name)[:available_length].encode('utf-8')
@@ -582,9 +584,8 @@ class Gallery(object):
 
         try:
             with progressbar(self.albums.values(), label="Collecting files",
-                                item_show_func=log_func,
-                                show_eta=False,
-                                file=self.progressbar_target) as albums:
+                             item_show_func=log_func, show_eta=False,
+                             file=self.progressbar_target) as albums:
                 for album in albums:
                     if len(album) > 0:
                         for files in self.process_dir(album, force=force):
@@ -596,10 +597,9 @@ class Gallery(object):
 
         if self.pool:
             try:
-                with progressbar(length=len(media_list), 
-                                    label="Processing files",
-                                    show_pos=True,
-                                    file=self.progressbar_target) as bar:
+                with progressbar(length=len(media_list),
+                                 label="Processing files", show_pos=True,
+                                 file=self.progressbar_target) as bar:
                     for _ in self.pool.imap_unordered(worker, media_list):
                         next(bar)
                 self.pool.close()
@@ -618,7 +618,7 @@ class Gallery(object):
             print('')
         else:
             with progressbar(media_list, show_pos=True,
-                                file=self.progressbar_target) as media_list:
+                             file=self.progressbar_target) as media_list:
                 for media_item in media_list:
                     process_file(media_item)
 

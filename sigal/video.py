@@ -140,7 +140,7 @@ def generate_thumbnail(source, outname, box, fit=True, options=None):
 
     try:
         check_subprocess(cmd, source, outname)
-    except Exception as e:
+    except Exception:
         return
 
     # use the generate_thumbnail function from sigal.image
