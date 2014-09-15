@@ -446,13 +446,15 @@ class Album(UnicodeMixin):
         if zip_gallery and len(self) > 0:
             archive_path = join(self.dst_path, zip_gallery)
             archive = zipfile.ZipFile(archive_path, 'w')
+            attr = ('src_path' if self.settings['zip_media_format'] == 'orig'
+                    else 'dst_path')
 
-            if self.settings['zip_media_format'] == 'orig':
-                for p in self:
-                    archive.write(p.src_path, os.path.split(p.src_path)[1])
-            else:
-                for p in self:
-                    archive.write(p.dst_path, os.path.split(p.dst_path)[1])
+            for p in self:
+                path = getattr(p, attr)
+                try:
+                    archive.write(path, os.path.split(path)[1])
+                except OSError as e:
+                    self.logger.warn('Failed to add %s to the ZIP: %s', p, e)
 
             archive.close()
             self.logger.debug('Created ZIP archive %s', archive_path)
