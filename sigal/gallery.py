@@ -525,8 +525,8 @@ class Gallery(object):
                 albums[relpath] = album
 
         with progressbar(albums.values(), label="Sorting media",
-                         file=self.progressbar_target) as progressAlbums:
-            for album in progressAlbums:
+                         file=self.progressbar_target) as progress_albums:
+            for album in progress_albums:
                 album.sort_medias(settings['medias_sort_attr'])
 
         self.logger.debug('Albums:\n%r', albums.values())
@@ -582,26 +582,21 @@ class Gallery(object):
             else:
                 return ""
 
-        media_list = []
-
         try:
             with progressbar(self.albums.values(), label="Collecting files",
                              item_show_func=log_func, show_eta=False,
                              file=self.progressbar_target) as albums:
-                for album in albums:
-                    if len(album) > 0:
-                        for files in self.process_dir(album, force=force):
-                            media_list.append(files)
-                    else:
-                        self.logger.info('Album %r is empty', album)
+                media_list = [f for album in albums
+                              for f in self.process_dir(album, force=force)]
         except KeyboardInterrupt:
             sys.exit('Interrupted')
 
+        bar_opt = {'label': "Processing files",
+                   'show_pos': True,
+                   'file': self.progressbar_target}
         if self.pool:
             try:
-                with progressbar(length=len(media_list),
-                                 label="Processing files", show_pos=True,
-                                 file=self.progressbar_target) as bar:
+                with progressbar(length=len(media_list), **bar_opt) as bar:
                     for _ in self.pool.imap_unordered(worker, media_list):
                         next(bar)
                 self.pool.close()
@@ -619,9 +614,8 @@ class Gallery(object):
 
             print('')
         else:
-            with progressbar(media_list, show_pos=True,
-                             file=self.progressbar_target) as media_list:
-                for media_item in media_list:
+            with progressbar(media_list, **bar_opt) as medias:
+                for media_item in medias:
                     process_file(media_item)
 
         if self.settings['write_html']:
