@@ -43,7 +43,7 @@ from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
 from . import compat, signals
-from .settings import get_thumb
+from .settings import get_thumb, Status
 
 
 def _has_exif_tags(img):
@@ -128,6 +128,7 @@ def process_image(filepath, outpath, settings):
     """Process one image: resize, create thumbnail."""
 
     logger = logging.getLogger(__name__)
+    logger.info('Processing %s', filepath)
     filename = os.path.split(filepath)[1]
     outname = os.path.join(outpath, filename)
     ext = os.path.splitext(filename)[1]
@@ -141,14 +142,15 @@ def process_image(filepath, outpath, settings):
 
     try:
         generate_image(filepath, outname, settings, options=options)
-    except Exception as e:
-        logger.error('Failed to process image: %s', e)
-        return
+    except Exception:
+        return Status.FAILURE
 
     if settings['make_thumbs']:
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
         generate_thumbnail(outname, thumb_name, settings['thumb_size'],
                            fit=settings['thumb_fit'], options=options)
+
+    return Status.SUCCESS
 
 
 def _get_exif_data(filename):

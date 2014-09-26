@@ -30,7 +30,7 @@ import shutil
 from os.path import splitext
 
 from . import image
-from .settings import get_thumb
+from .settings import get_thumb, Status
 from .utils import call_subprocess
 
 
@@ -53,7 +53,6 @@ def check_subprocess(cmd, source, outname):
         raise
 
     if returncode:
-        logger.error('Failed to process ' + source)
         logger.debug('STDOUT:\n %s', stdout)
         logger.debug('STDERR:\n %s', stderr)
         if os.path.isfile(outname):
@@ -121,10 +120,7 @@ def generate_video(source, outname, size, options=None):
     cmd += resize_opt + [outname]
 
     logger.debug('Processing video: %s', ' '.join(cmd))
-    try:
-        check_subprocess(cmd, source, outname)
-    except Exception:
-        pass
+    check_subprocess(cmd, source, outname)
 
 
 def generate_thumbnail(source, outname, box, fit=True, options=None):
@@ -156,11 +152,19 @@ def process_video(filepath, outpath, settings):
     basename = splitext(filename)[0]
     outname = os.path.join(outpath, basename + '.webm')
 
-    generate_video(filepath, outname, settings['video_size'],
-                   options=settings['webm_options'])
+    try:
+        generate_video(filepath, outname, settings['video_size'],
+                       options=settings['webm_options'])
+    except Exception:
+        return Status.FAILURE
 
     if settings['make_thumbs']:
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
-        generate_thumbnail(
-            outname, thumb_name, settings['thumb_size'],
-            fit=settings['thumb_fit'], options=settings['jpg_options'])
+        try:
+            generate_thumbnail(
+                outname, thumb_name, settings['thumb_size'],
+                fit=settings['thumb_fit'], options=settings['jpg_options'])
+        except Exception:
+            return Status.FAILURE
+
+    return Status.SUCCESS

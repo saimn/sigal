@@ -71,6 +71,11 @@ _DEFAULT_CONFIG = {
 }
 
 
+class Status(object):
+    SUCCESS = 0
+    FAILURE = 1
+
+
 def get_thumb(settings, filename):
     """Return the path to the thumb.
 

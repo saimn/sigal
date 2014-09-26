@@ -42,19 +42,10 @@ from . import image, video, signals
 from .compat import UnicodeMixin, strxfrm, url_quote
 from .image import process_image, get_exif_tags
 from .settings import get_thumb
-from .utils import copy, check_or_create_dir, url_from_path, read_markdown
+from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
+                    read_markdown)
 from .video import process_video
 from .writer import Writer
-
-
-class Devnull(object):
-    """'Black hole' for output that should not be printed"""
-
-    def write(self, *_):
-        pass
-
-    def flush(self, *_):
-        pass
 
 
 class Media(UnicodeMixin):
@@ -468,8 +459,7 @@ class Gallery(object):
     def __init__(self, settings, ncpu=None):
         self.settings = settings
         self.logger = logging.getLogger(__name__)
-        self.stats = {'image': 0, 'image_skipped': 0,
-                      'video': 0, 'video_skipped': 0}
+        self.stats = defaultdict(int)
         self.init_pool(ncpu)
         check_or_create_dir(settings['destination'])
 
@@ -594,10 +584,14 @@ class Gallery(object):
         bar_opt = {'label': "Processing files",
                    'show_pos': True,
                    'file': self.progressbar_target}
+
         if self.pool:
+            failed_files = []
             try:
                 with progressbar(length=len(media_list), **bar_opt) as bar:
-                    for _ in self.pool.imap_unordered(worker, media_list):
+                    for res in self.pool.imap_unordered(worker, media_list):
+                        if res:
+                            failed_files.append(res)
                         next(bar)
                 self.pool.close()
                 self.pool.join()
@@ -612,6 +606,8 @@ class Gallery(object):
                     exc_info=True)
                 sys.exit('Abort')
 
+            if failed_files:
+                self.remove_files(failed_files)
             print('')
         else:
             with progressbar(media_list, **bar_opt) as medias:
@@ -625,6 +621,19 @@ class Gallery(object):
 
         signals.gallery_build.send(self)
 
+    def remove_files(self, files):
+        self.logger.error('Some files have failed to be processed:')
+        for path, filename in files:
+            self.logger.error('  - %s/%s', path, filename)
+            album = self.albums[path]
+            for f in album.medias:
+                if f.filename == filename:
+                    self.stats[f.type + '_failed'] += 1
+                    album.medias.remove(f)
+                    break
+        self.logger.error('You can run sigal in verbose (--verbose) or debug '
+                          '(--debug) mode to get more details.')
+
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
         for f in album:
@@ -633,22 +642,21 @@ class Gallery(object):
                 self.stats[f.type + '_skipped'] += 1
             else:
                 self.stats[f.type] += 1
-                yield f.type, f.src_path, album.dst_path, self.settings
+                yield (f.type, f.path, f.filename, f.src_path, album.dst_path,
+                       self.settings)
 
 
 def process_file(args):
-    ftype, src_path, dst_path, settings = args
-    logger = logging.getLogger(__name__)
-    logger.info('Processing %s', src_path)
-
-    if ftype == 'image':
-        return process_image(src_path, dst_path, settings)
-    elif ftype == 'video':
-        return process_video(src_path, dst_path, settings)
+    # args => ftype, path, filename, src_path, dst_path, settings
+    processor = process_image if args[0] == 'image' else process_video
+    ret = processor(*args[3:])
+    # If the processor return an error (ret != 0), then we return the path and
+    # filename of the failed file to the parent process.
+    return args[1:3] if ret else None
 
 
 def worker(args):
     try:
-        process_file(args)
+        return process_file(args)
     except KeyboardInterrupt:
-        return 'KeyboardException'
+        pass
