@@ -139,9 +139,18 @@ def build(source, destination, debug, verbose, force, config, theme, title,
         logger.debug('Copy %s to %s', src, dst)
         copy(src, dst, symlink=settings['orig_link'])
 
-    print(('Done.\nProcessed {image} images ({image_skipped} skipped) and '
-           '{video} videos ({video_skipped} skipped) in {duration:.2f} '
-           'seconds.').format(duration=time.time() - start_time, **gal.stats))
+    stats = gal.stats
+
+    def format_stats(_type):
+        opt = ["{} {}".format(stats[_type + '_' + subtype], subtype)
+               for subtype in ('skipped', 'failed')
+               if stats[_type + '_' + subtype] > 0]
+        opt = ' ({})'.format(', '.join(opt)) if opt else ''
+        return '{} {}s{}'.format(stats[_type], _type, opt)
+
+    print('Done.\nProcessed {} and {} in {:.2f} seconds.'
+          .format(format_stats('image'), format_stats('video'),
+                  time.time() - start_time))
 
 
 def init_plugins(settings):

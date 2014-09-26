@@ -468,8 +468,7 @@ class Gallery(object):
     def __init__(self, settings, ncpu=None):
         self.settings = settings
         self.logger = logging.getLogger(__name__)
-        self.stats = {'image': 0, 'image_skipped': 0,
-                      'video': 0, 'video_skipped': 0}
+        self.stats = defaultdict(int)
         self.init_pool(ncpu)
         check_or_create_dir(settings['destination'])
 
@@ -638,6 +637,7 @@ class Gallery(object):
             album = self.albums[path]
             for f in album.medias:
                 if f.filename == filename:
+                    self.stats[f.type + '_failed'] += 1
                     album.medias.remove(f)
                     break
         self.logger.error('You can run sigal in verbose (--verbose) or debug '
