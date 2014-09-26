@@ -29,6 +29,16 @@ from subprocess import Popen, PIPE
 from . import compat
 
 
+class Devnull(object):
+    """'Black hole' for output that should not be printed"""
+
+    def write(self, *_):
+        pass
+
+    def flush(self, *_):
+        pass
+
+
 def copy(src, dst, symlink=False):
     """Copy or symlink the file."""
     func = os.symlink if symlink else shutil.copy2

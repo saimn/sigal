@@ -42,19 +42,10 @@ from . import image, video, signals
 from .compat import UnicodeMixin, strxfrm, url_quote
 from .image import process_image, get_exif_tags
 from .settings import get_thumb
-from .utils import copy, check_or_create_dir, url_from_path, read_markdown
+from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
+                    read_markdown)
 from .video import process_video
 from .writer import Writer
-
-
-class Devnull(object):
-    """'Black hole' for output that should not be printed"""
-
-    def write(self, *_):
-        pass
-
-    def flush(self, *_):
-        pass
 
 
 class Media(UnicodeMixin):
