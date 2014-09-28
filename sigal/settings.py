@@ -50,6 +50,7 @@ _DEFAULT_CONFIG = {
     'medias_sort_attr': 'filename',
     'medias_sort_reverse': False,
     'make_thumbs': True,
+    'output_filename': 'index.html',
     'orig_dir': 'original',
     'orig_link': False,
     'plugins': [],
