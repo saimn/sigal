@@ -95,7 +95,10 @@ ignore_files = []
 # Write HTML files. If False, sigal will only process the images.
 # write_html = True
 
-# Add index.html to the URLs
+# Name of the generated HTML files
+# output_filename = 'index.html'
+
+# Add output filename (see above) to the URLs
 # index_in_url = False
 
 # A list of links (tuples (title, URL))
