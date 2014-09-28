@@ -223,13 +223,13 @@ class Album(UnicodeMixin):
     """
 
     description_file = "index.md"
-    output_file = 'index.html'
 
-    def __init__(self, path, settings, dirnames, filenames, gallery):
+    def __init__(self, path, settings, dirnames, filenames, gallery, output_file):
         self.path = path
         self.name = path.split(os.path.sep)[-1]
         self.gallery = gallery
         self.settings = settings
+        self.output_file = output_file
         self._thumbnail = None
 
         if path == '.':
@@ -480,6 +480,8 @@ class Gallery(object):
         ignore_dirs = settings['ignore_directories']
         ignore_files = settings['ignore_files']
 
+        output_filename = settings['output_filename']
+
         progressChars = cycle(["/", "-", "\\", "|"])
         if self.logger.getEffectiveLevel() >= logging.WARNING:
             self.progressbar_target = None
@@ -516,7 +518,7 @@ class Gallery(object):
                 if path not in albums.keys():
                     dirs.remove(d)
 
-            album = Album(relpath, settings, dirs, files, self)
+            album = Album(relpath, settings, dirs, files, self, output_filename)
 
             if not album.medias and not album.albums:
                 self.logger.info('Skip empty album: %r', album)
