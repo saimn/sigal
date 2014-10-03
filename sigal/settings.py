@@ -55,6 +55,7 @@ _DEFAULT_CONFIG = {
     'plugins': [],
     'plugin_paths': [],
     'source': '',
+    'use_google_cdn': False,
     'theme': 'colorbox',
     'thumb_dir': 'thumbnails',
     'thumb_fit': True,

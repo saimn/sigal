@@ -105,6 +105,9 @@ ignore_files = []
 # Google Analytics tracking code (UA-xxxx-x)
 # google_analytics = ''
 
+# Use google CDN to serve some css and js files or serve them yourself
+# use_google_cdn = False
+
 # Set zip_gallery to either False or a file name. The final archive will
 # contain all resized or original files (depending on `zip_media_format`).
 # zip_gallery = False   # False or 'archive.zip'
