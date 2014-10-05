@@ -62,6 +62,7 @@ _DEFAULT_CONFIG = {
     'thumb_size': (200, 150),
     'thumb_suffix': '',
     'title': '',
+    'use_orig': False,
     'video_size': (480, 360),
     'webm_options': ['-crf', '10', '-b:v', '1.6M',
                      '-qmin', '4', '-qmax', '63'],

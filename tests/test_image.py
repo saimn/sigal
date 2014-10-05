@@ -25,6 +25,30 @@ def test_generate_image(tmpdir):
         assert im.size == size
 
 
+def test_generate_image_passthrough(tmpdir):
+    "Test the generate_image function with use_orig=True."
+
+    dstfile = str(tmpdir.join(TEST_IMAGE))
+    settings = create_settings(use_orig=True)
+    generate_image(SRCFILE, dstfile, settings)
+    # Check the file was copied, not (sym)linked
+    st_src = os.stat(SRCFILE)
+    st_dst = os.stat(dstfile)
+    assert st_src.st_size == st_dst.st_size
+    assert not os.path.samestat(st_src, st_dst)
+
+
+def test_generate_image_passthrough_symlink(tmpdir):
+    "Test the generate_image function with use_orig=True and orig_link=True."
+
+    dstfile = str(tmpdir.join(TEST_IMAGE))
+    settings = create_settings(use_orig=True, orig_link=True)
+    generate_image(SRCFILE, dstfile, settings)
+    # Check the file was symlinked
+    assert os.path.islink(dstfile)
+    assert os.path.samefile(SRCFILE, dstfile)
+
+
 def test_generate_image_processor(tmpdir):
     "Test generate_image with a wrong processor name."
 
