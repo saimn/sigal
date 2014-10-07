@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.rst') as f:
     README = f.read()
@@ -25,7 +25,7 @@ setup(
     author_email='contact@saimon.org',
     description='Simple static gallery generator',
     long_description=README + '\n' + CHANGELOG,
-    packages=['sigal'],
+    packages=find_packages(exclude=['tests*']),
     zip_safe=False,
     include_package_data=True,
     platforms='any',

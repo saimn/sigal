@@ -2,6 +2,13 @@
  Changelog
 ===========
 
+Version 0.8.1
+~~~~~~~~~~~~~
+
+Released on 2014-10-07.
+
+- Include plugins in the distributed package.
+
 Version 0.8.0
 ~~~~~~~~~~~~~
 
