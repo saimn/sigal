@@ -7,6 +7,13 @@ Version 0.9.dev
 
 Released on 2014-xx-xx.
 
+Version 0.8.1
+~~~~~~~~~~~~~
+
+Released on 2014-10-07.
+
+- Include plugins in the distributed package.
+
 Version 0.8.0
 ~~~~~~~~~~~~~
 
