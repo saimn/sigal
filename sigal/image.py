@@ -42,7 +42,7 @@ from PIL import ImageOps
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
-from . import compat, signals
+from . import compat, signals, utils
 from .settings import get_thumb, Status
 
 
@@ -61,6 +61,11 @@ def generate_image(source, outname, settings, options=None):
     """
 
     logger = logging.getLogger(__name__)
+
+    if settings['use_orig']:
+        utils.copy(source, outname, symlink=settings['orig_link'])
+        return
+
     img = PILImage.open(source)
     original_format = img.format
 

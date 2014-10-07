@@ -95,6 +95,11 @@ def test_media_orig(settings, tmpdir):
     assert m.big == 'original/stallman software-freedom-day-low.ogv'
     assert os.path.isfile(join(settings['destination'], m.path, m.big))
 
+    settings['use_orig'] = True
+
+    m = Image('21.jpg', 'dir1/test2', settings)
+    assert m.big == '21.jpg'
+
 
 def test_image(settings, tmpdir):
     settings['destination'] = str(tmpdir)

@@ -9,6 +9,10 @@
 # The priority order is: cli option > settings file > index.md file
 # title = "Sigal test gallery"
 
+# ---------------------
+# General configuration
+# ---------------------
+
 # Source directory. Can be set here or as the first argument of the `sigal
 # build` command
 source = 'pictures'
@@ -21,6 +25,16 @@ source = 'pictures'
 # - colorbox (default), galleria, or the path to a custom theme directory
 theme = 'galleria'
 
+# Use originals in gallery (default: False). If True, this will bypass all
+# processing steps (resize, auto-orient, recompress, and any plugin-specific
+# step).
+# Originals will be symlinked if orig_link = True, else they will be copied.
+# use_orig = False
+
+# ----------------
+# Image processing (ignored if use_orig = True)
+# ----------------
+
 # Size of resized image (default: (640, 480))
 img_size = (800, 600)
 
@@ -31,6 +45,19 @@ img_size = (800, 600)
 # - SmartResize: identical to ResizeToFill, but uses entropy to crop the image
 # - None: don't resize
 # img_processor = 'ResizeToFit'
+
+# Autorotate images
+# Warning: this setting is not compatible with `copy_exif_data` (see below),
+# because Sigal can't save the modified Orientation tag (currently Pillow can't
+# write EXIF).
+# autorotate_images = True
+
+# If True, EXIF data from the original image is copied to the resized image
+# copy_exif_data = False
+
+# --------------------
+# Thumbnail generation
+# --------------------
 
 # Generate thumbnails
 # make_thumbs = True
@@ -49,6 +76,10 @@ thumb_size = (280, 210)
 
 # Crop the image to fill the box
 # thumb_fit = True
+
+# -------------
+# Album options
+# -------------
 
 # Keep original image (default: False)
 # keep_orig = True
@@ -75,6 +106,10 @@ thumb_size = (280, 210)
 # http://docs.python.org/2/library/fnmatch.html
 ignore_directories = []
 ignore_files = []
+
+# -------------
+# Miscellaneous
+# -------------
 
 # Jpeg options
 # jpg_options = {'quality': 85,
@@ -109,15 +144,6 @@ ignore_files = []
 # contain all resized or original files (depending on `zip_media_format`).
 # zip_gallery = False   # False or 'archive.zip'
 # zip_media_format = 'resized'  # 'resized' or 'orig'
-
-# Autorotate images
-# Warning: this setting is not compatible with `copy_exif_data` (see below),
-# because Sigal can't save the modified Orientation tag (currently Pillow can't
-# write EXIF).
-# autorotate_images = True
-
-# If True, EXIF data from the original image is copied to the resized image
-# copy_exif_data = False
 
 # Specify a different locale. If set to '', the default locale is used.
 # locale = ''
