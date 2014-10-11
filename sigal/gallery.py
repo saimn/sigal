@@ -2,6 +2,7 @@
 
 # Copyright (c) 2009-2014 - Simon Conseil
 # Copyright (c) 2013      - Christophe-Marie Duquesne
+# Copyright (c) 2014      - Jonas Kaufmann
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -224,12 +225,12 @@ class Album(UnicodeMixin):
 
     description_file = "index.md"
 
-    def __init__(self, path, settings, dirnames, filenames, gallery, output_file='index.html'):
+    def __init__(self, path, settings, dirnames, filenames, gallery):
         self.path = path
         self.name = path.split(os.path.sep)[-1]
         self.gallery = gallery
         self.settings = settings
-        self.output_file = output_file
+        self.output_file = settings['output_filename']
         self._thumbnail = None
 
         if path == '.':
@@ -480,8 +481,6 @@ class Gallery(object):
         ignore_dirs = settings['ignore_directories']
         ignore_files = settings['ignore_files']
 
-        output_filename = settings['output_filename']
-
         progressChars = cycle(["/", "-", "\\", "|"])
         if self.logger.getEffectiveLevel() >= logging.WARNING:
             self.progressbar_target = None
@@ -518,7 +517,7 @@ class Gallery(object):
                 if path not in albums.keys():
                     dirs.remove(d)
 
-            album = Album(relpath, settings, dirs, files, self, output_filename)
+            album = Album(relpath, settings, dirs, files, self)
 
             if not album.medias and not album.albums:
                 self.logger.info('Skip empty album: %r', album)
