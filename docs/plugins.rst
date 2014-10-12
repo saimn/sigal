@@ -93,3 +93,8 @@ Copyright plugin
 ================
 
 .. automodule:: sigal.plugins.copyright
+
+Upload to S3 plugin
+===================
+
+.. automodule:: sigal.plugins.upload_s3
