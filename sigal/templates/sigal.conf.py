@@ -142,7 +142,8 @@ ignore_files = []
 # Another option is to import the plugin and put the module in the list, but
 # this will break with the multiprocessing feature (the settings dict obtained
 # from this file must be serializable).
-# plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright']
+# plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright', 
+#            'sigal.plugins.upload_s3']
 
 # Add a copyright text on the image (default: '')
 # copyright = "© An example copyright message"
@@ -153,3 +154,10 @@ ignore_files = []
 #                   'brightness': 1.0,
 #                   'contrast': 1.0,
 #                   'sharpness': 1.0}
+
+# Settings for upload to s3 plugin
+# upload_s3_options = {
+# 	'bucket': 'my-bucket',
+# 	'policy': 'public-read',
+# 	'overwrite': False
+# }

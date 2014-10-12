@@ -13,6 +13,10 @@ can be found on the boto_ documentation.
 Settings (all settings are wrapped in ``upload_s3_options`` dict):
 
 - ``bucket``: The to-be-used bucket for uploading.
+- ``policy``: Specifying access control to the uploaded files. Possible values:
+              private, public-read, public-read-write, authenticated-read
+- ``overwrite``: Boolean indicating if all files should be uploaded and overwritten
+                 or if already uploaded files should be skipped.
 
 """
 
@@ -21,6 +25,7 @@ import os
 from sigal import signals
 import boto
 from boto.s3.key import Key
+from click import progressbar
 
 logger = logging.getLogger(__name__)
 
@@ -28,33 +33,38 @@ logger = logging.getLogger(__name__)
 def upload_s3(gallery, settings=None):
     upload_files = []
 
-    for album in gallery.albums.values():
-        logger.debug("Processing album: %s" % (album))
-        for media in album.medias:
-            upload_files.append(os.path.join(album.path, media.filename))
-            upload_files.append(os.path.join(album.path, gallery.settings['thumb_dir'], media.filename))
+    # Get local files
+    for root, dirs, files in os.walk(gallery.settings['destination']):
+        for f in files:
+            path = os.path.join(root[len(gallery.settings['destination'])+1:], f)
+            size = os.path.getsize(os.path.join(root, f))
+            upload_files += [ (path, size) ]
 
-        # generated HTML files
-        html_file_upload_path = album.path if album.path != '.' else ''
-        upload_files.append(os.path.join(html_file_upload_path, album.output_file))
-
-    # static directory from template
-    static_path = os.path.join(gallery.settings['destination'], 'static')
-    static_files = [ os.path.join(root[len(gallery.settings['destination'])+1:], name) 
-                     for root, dirs, files in os.walk(static_path) 
-                     for name in files ]
-    upload_files += static_files
-
-
+    # Connect to specified bucket
     conn = boto.connect_s3()
     bucket = conn.get_bucket(gallery.settings['upload_s3_options']['bucket'])
-    for f in upload_files:
-        logger.debug("Uploading file %s" % (f))
-        key = Key(bucket)
-        key.key = f
-        key.set_contents_from_filename(os.path.join(gallery.settings['destination'], f))
-    return None
 
+    # Upload the files
+    with progressbar(upload_files, label="Uploading files to S3") as progress_upload:
+        for (f, size) in progress_upload:
+            if gallery.settings['upload_s3_options']['overwrite'] == False:
+                # Check if file was uploaded before
+                key = bucket.get_key(f)
+                if key != None and key.size == size:
+                    logger.debug("Skipping file %s" % (f))
+                else:
+                    upload_file(gallery, bucket, f)
+            else:
+                # File is not available on S3 yet
+                upload_file(gallery, bucket, f)
+
+def upload_file(gallery, bucket, f):
+    logger.debug("Uploading file %s" % (f))
+    key = Key(bucket)
+    key.key = f
+    key.set_contents_from_filename(
+        os.path.join(gallery.settings['destination'], f), 
+        policy = gallery.settings['upload_s3_options']['policy'])
 
 def register(settings):
     if settings.get('upload_s3_options'):
