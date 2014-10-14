@@ -2,6 +2,7 @@
 
 # Copyright (c) 2009-2014 - Simon Conseil
 # Copyright (c) 2013      - Christophe-Marie Duquesne
+# Copyright (c) 2014      - Jonas Kaufmann
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -199,13 +200,13 @@ class Album(UnicodeMixin):
     """
 
     description_file = "index.md"
-    output_file = 'index.html'
 
     def __init__(self, path, settings, dirnames, filenames, gallery):
         self.path = path
         self.name = path.split(os.path.sep)[-1]
         self.gallery = gallery
         self.settings = settings
+        self.output_file = settings['output_filename']
         self._thumbnail = None
 
         if path == '.':
