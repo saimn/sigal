@@ -64,18 +64,27 @@ def url_from_path(path):
 
 
 def read_markdown(filename):
-    # Use utf-8-sig codec to remove BOM if it is present
+    """Reads markdown file, converts output and fetches title and meta-data for
+    further processing.
+    """
+    # Use utf-8-sig codec to remove BOM if it is present. This is only possible
+    # this way prior to feeding the text to the markdown parser (which would
+    # also default to pure utf-8)
     with codecs.open(filename, 'r', 'utf-8-sig') as f:
         text = f.read()
 
     md = Markdown(extensions=['meta'], output_format='html5')
-    html = md.convert(text)
+    output = {'description': md.convert(text)}
 
-    return {
-        'title': md.Meta.get('title', [''])[0],
-        'description': html,
-        'meta': md.Meta.copy()
-    }
+    try:
+        meta = md.Meta.copy()
+    except AttributeError:
+        pass
+    else:
+        output['meta'] = meta
+        output['title'] = md.Meta.get('title', [''])[0]
+
+    return output
 
 
 def call_subprocess(cmd):

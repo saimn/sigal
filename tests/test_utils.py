@@ -54,6 +54,22 @@ def test_read_markdown():
         "<p>This is a funny description of this image</p>"
 
 
+def test_read_markdown_empty_file(tmpdir):
+    src = tmpdir.join("file.txt")
+    src.write("content")
+    m = utils.read_markdown(str(src))
+    assert m['title'] == ''
+    assert m['meta'] == {}
+    assert m['description'] == '<p>content</p>'
+
+    src = tmpdir.join("empty.txt")
+    src.write("")
+    m = utils.read_markdown(str(src))
+    assert 'title' not in m
+    assert 'meta' not in m
+    assert m['description'] == ''
+
+
 def test_call_subprocess():
     returncode, stdout, stderr = utils.call_subprocess(['echo', 'ok'])
     assert returncode == 0
