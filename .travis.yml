@@ -9,9 +9,11 @@ before_install:
     - sudo apt-get install -qq libfreetype6-dev libjpeg8-dev zlib1g-dev ffmpeg
     - sudo locale-gen fr_FR.UTF-8
 install:
-    - pip install pytest
-    - pip install clint==0.3.1
+    - pip install pytest pytest-cov
+    - pip install coveralls
     - pip install .
-script: py.test
+script: py.test --cov sigal --cov-report term-missing tests/
+after_success:
+    coveralls
 notifications:
     irc: "chat.freenode.net#sigal"
