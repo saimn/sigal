@@ -45,7 +45,10 @@ class Writer(object):
 
     template_file = 'index.html'
 
-    def __init__(self, settings, index_title=''):
+    def __init__(self, settings, index_title='', template_file=None):
+        if template_file:
+            self.template_file = template_file
+
         self.settings = settings
         self.output_dir = settings['destination']
         self.theme = settings['theme']
