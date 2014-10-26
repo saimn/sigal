@@ -1,0 +1,86 @@
+body {
+  font: 100%/1.4 "PT Sans", sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "PT Sans", sans-serif;
+}
+
+ul {
+  list-style: disc outside;
+  padding-left: 20px;
+}
+
+.container {
+  margin: 0 0 0 40px;
+}
+
+header h1 a {
+  text-decoration: none;
+}
+
+.sidebar h1 {
+  font-size: 35px;
+  line-height: 40px;
+  margin: 40px 0;
+}
+.sidebar h1 a {
+  text-decoration: none;
+}
+.sidebar footer {
+  position: absolute;
+  bottom: 40px;
+}
+
+.thumbnail {
+  text-align: center;
+}
+.thumbnail img {
+  max-width: 100%;
+  height: auto;
+  margin: 0 5px 5px 0;
+  border: 10px solid #fff;
+  border-radius: 2px 2px 2px 2px;
+  box-shadow: 0 0 3px #B1B1B1;
+  padding: 0 0 2px;
+}
+.thumbnail img:hover {
+  box-shadow: 0 0 5px #818181;
+}
+
+.album_title {
+  display: block;
+}
+
+#cboxTitle {
+  max-width: 90%;
+}
+#cboxTitle a, #cboxTitle a:visited {
+  color: #ccc;
+}
+
+@media only screen and (min-width: 767px) {
+  header {
+    margin-top: 40px;
+  }
+
+  .sidebar {
+    position: fixed;
+    height: 100%;
+    width: 220px;
+  }
+}
+@media only screen and (max-width: 767px) {
+  .container {
+    padding-bottom: 40px;
+  }
+
+  .sidebar footer {
+    bottom: 10px;
+  }
+}
+@media only screen and (min-width: 768px) and (max-width: 959px) {
+  .sidebar {
+    width: 172px;
+  }
+}
