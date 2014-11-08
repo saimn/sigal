@@ -147,16 +147,16 @@ class Image(Media):
     type = 'image'
     extensions = ('.jpg', '.jpeg', '.png')
 
-    @cached_property()
+    @cached_property
     def date(self):
         return self.exif and self.exif.get('dateobj', None) or None
 
-    @cached_property()
+    @cached_property
     def exif(self):
         return (get_exif_tags(self.raw_exif)
                 if self.raw_exif and self.ext in ('.jpg', '.jpeg') else None)
 
-    @cached_property()
+    @cached_property
     def raw_exif(self):
         try:
             return (get_exif_data(self.src_path)
