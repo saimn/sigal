@@ -32,7 +32,10 @@ setup(
     install_requires=['blinker', 'click', 'jinja2', 'Markdown', 'Pillow',
                       'pilkit'],
     test_requires=['pytest'],
-    extras_require={'CSS':  ['cssmin']},
+    extras_require={
+        'CSS':  ['cssmin'],
+        'S3': ['boto']
+    },
     entry_points={
         'console_scripts': ['sigal = sigal:main']
     },

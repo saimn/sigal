@@ -1,4 +1,5 @@
 blinker
+boto
 click
 cssmin
 Jinja2
