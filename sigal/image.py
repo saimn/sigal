@@ -213,11 +213,7 @@ def get_exif_tags(data):
             date = data['DateTimeOriginal'].rsplit('\x00')[0]
             simple['dateobj'] = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
             dt = simple['dateobj'].strftime('%A, %d. %B %Y')
-
-            if compat.PY2:
-                simple['datetime'] = dt.decode('utf8')
-            else:
-                simple['datetime'] = dt
+            simple['datetime'] = dt.decode('utf8') if compat.PY2 else dt
         except (ValueError, TypeError) as e:
             logger.warning(u'Could not parse DateTimeOriginal: %s', e)
 
