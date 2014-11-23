@@ -141,6 +141,9 @@ def read_settings(filename=None):
             if PY2 and isinstance(settings[p], str):
                 settings[p] = settings[p].decode(enc)
 
+        if settings['title']:
+            settings['title'] = settings['title'].decode('utf8')
+
     for key in ('img_size', 'thumb_size', 'video_size'):
         w, h = settings[key]
         if h > w:
