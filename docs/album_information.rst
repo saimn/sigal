@@ -34,8 +34,8 @@ can be used in the template with:
 
 If this file does not exist or if some meta-data is missing:
 
-- The directory's name is used for the title (dashes and underscores are
-  replaced with spaces).
-- The first image of the directory is used as thumbnail.
+- The directory's name is used for the title.
+- The first landscape image of the directory is used as thumbnail, or the first
+  image if no landscape image is found.
 
 .. _markdown: http://daringfireball.net/projects/markdown/
