@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-title = "Sigal test gallery ☺"
+title = u"Sigal test gallery ☺"
 source = 'pictures'
 thumb_suffix = '.tn'
 thumb_size = (200, 150)

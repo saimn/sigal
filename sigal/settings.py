@@ -27,7 +27,7 @@ import os
 from os.path import abspath, isabs, join, normpath
 from pprint import pformat
 
-from .compat import PY2
+from .compat import PY2, text_type
 
 
 _DEFAULT_CONFIG = {
@@ -141,7 +141,7 @@ def read_settings(filename=None):
             if PY2 and isinstance(settings[p], str):
                 settings[p] = settings[p].decode(enc)
 
-        if settings['title']:
+        if settings['title'] and not isinstance(settings['title'], text_type):
             settings['title'] = settings['title'].decode('utf8')
 
     for key in ('img_size', 'thumb_size', 'video_size'):
