@@ -171,8 +171,8 @@ ignore_files = []
 # Another option is to import the plugin and put the module in the list, but
 # this will break with the multiprocessing feature (the settings dict obtained
 # from this file must be serializable).
-# plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright', 
-#            'sigal.plugins.upload_s3']
+# plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
+#            'sigal.plugins.upload_s3', 'sigal.plugins.media_page']
 
 # Add a copyright text on the image (default: '')
 # copyright = "© An example copyright message"

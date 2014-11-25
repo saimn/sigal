@@ -84,9 +84,5 @@ def generate_media_pages(gallery):
         for media_group in media_groups:
             writer.write(album,media_group)
 
-    filenames = [os.path.join(album.dst_path, media.filename)
-                    for album in gallery.albums.values()
-                    for media in album.medias]
-
 def register(settings):
     signals.gallery_build.connect(generate_media_pages)
