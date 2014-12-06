@@ -186,7 +186,6 @@ def get_exif_tags(data):
     logger = logging.getLogger(__name__)
     simple = {}
 
-    # Provide more accessible tags in the 'simple' key
     if 'FNumber' in data:
         fnumber = data['FNumber']
         simple['fstop'] = float(fnumber[0]) / fnumber[1]
@@ -201,8 +200,8 @@ def get_exif_tags(data):
         elif isinstance(data['ExposureTime'], int):
             simple['exposure'] = str(data['ExposureTime'])
         else:
-            logger.warning('Unknown format for ExposureTime: %r',
-                           data['ExposureTime'])
+            logger.info('Unknown format for ExposureTime: %r',
+                        data['ExposureTime'])
 
     if 'ISOSpeedRatings' in data:
         simple['iso'] = data['ISOSpeedRatings']
@@ -215,7 +214,7 @@ def get_exif_tags(data):
             dt = simple['dateobj'].strftime('%A, %d. %B %Y')
             simple['datetime'] = dt.decode('utf8') if compat.PY2 else dt
         except (ValueError, TypeError) as e:
-            logger.warning(u'Could not parse DateTimeOriginal: %s', e)
+            logger.info(u'Could not parse DateTimeOriginal: %s', e)
 
     if 'GPSInfo' in data:
         info = data['GPSInfo']
@@ -229,10 +228,8 @@ def get_exif_tags(data):
                 lat = dms_to_degrees(lat_info)
                 lon = dms_to_degrees(lon_info)
             except (ZeroDivisionError, ValueError):
-                logger.warning('Failed to read GPS info')
-                lat = lon = None
-
-            if lat and lon:
+                logger.info('Failed to read GPS info')
+            else:
                 simple['gps'] = {
                     'lat': - lat if lat_ref_info != 'N' else lat,
                     'lon': - lon if lon_ref_info != 'E' else lon,
