@@ -21,13 +21,19 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import os
+"""Plugin which generates HTML pages for each image.
 
-"""Plugin which generates pages for each image.
+Currently this plugin can be used only with the colorbox theme, the other
+themes have to be adapted.
+
+For themes, the ``previous_media`` and ``next_media`` variables contain the
+previous/next :class:`~sigal.gallery.Media` objects.
+
 """
 
 import codecs
 import logging
+import os
 
 from sigal import signals
 from sigal.writer import Writer

@@ -94,6 +94,11 @@ Copyright plugin
 
 .. automodule:: sigal.plugins.copyright
 
+Media page plugin
+=================
+
+.. automodule:: sigal.plugins.media_page
+
 Upload to S3 plugin
 ===================
 
