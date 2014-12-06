@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 0.9.dev
-~~~~~~~~~~~~~~~
+Version 0.9.0
+~~~~~~~~~~~~~
 
-Released on 2014-xx-xx.
+Released on 2014-12-07.
 
 - New plugin which adds the ability to generate media pages [#126].
 - Decrease logs level for the parsing of exif tags [#127].
