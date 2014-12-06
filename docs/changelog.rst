@@ -7,6 +7,27 @@ Version 0.9.dev
 
 Released on 2014-xx-xx.
 
+- New plugin which adds the ability to generate media pages [#126].
+- Decrease logs level for the parsing of exif tags [#127].
+- Enhance documentation for album information [#123].
+- Fix the title which was not unicode when using the settings file [#104].
+- Add more info on how the report a bug or contribute [#128].
+- Add more commands to the Makefile.
+- Add `coveralls.io <https://coveralls.io/r/saimn/sigal?branch=master>`_
+- New plugin to upload generated gallery to Amazon S3 [#114].
+- Handling of empty markdown or missing meta-data [#120].
+- Include plugins in the distributed package [#117].
+- Allow to use directly original files [#118].
+- Add settings to give a different output filename than index.html [#115].
+- Remove files that can't be processed for some reason [#112].
+- Skip files that don't exist in the ZIP archiving [#110].
+- Show progress (spinners & bars), read exif only on access [#109].
+- Use the correct filename for original videos [#111].
+- Check that the file exists before removing. [#110].
+- Enhance the ``serve`` command [#107].
+- Catch cPickle error and add a message about serialization error with the
+  settings file.
+
 Version 0.8.1
 ~~~~~~~~~~~~~
 
