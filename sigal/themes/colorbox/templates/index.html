@@ -64,7 +64,7 @@
                         {% if loop.index % nb_columns == 0 %}omega{% endif%}">
               <a href="{{ alb.url }}">
                 <img src="{{ alb.thumbnail }}" class="album_thumb"
-                    alt="{{ alb.name }}" title="{{ alb.name }}" /></a>
+                    alt="{{ alb.title }}" title="{{ alb.title }}" /></a>
               <span class="album_title">{{ alb.title }}</span>
             </div>
           {% if loop.last or loop.index % nb_columns == 0 %}
@@ -88,7 +88,13 @@
             <div class="{{ column_size_t }} columns thumbnail
                         {% if loop.index % nb_columns == 1 %}alpha{% endif%}
                         {% if loop.index % nb_columns == 0 %}omega{% endif%}">
+              {% if 'sigal.plugins.media_page' in settings.plugins %}
+              <a href="{{ media.filename}}.html" class="gallery"
+                title="{{ media.title if media.title else media.filename }}"
+                data-href="{{ media.filename }}" {{ img_description(media) }}> 
+              {% else %}
               <a href="{{ media.filename }}" class="gallery" title="{{ media.filename }}" {{ img_description(media) }}>
+              {% endif %}
                 <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
                     title="{{ media.title if media.title else media.filename }}" /></a>
             </div>
@@ -97,8 +103,13 @@
               <div class="{{ column_size_t }} columns thumbnail
                           {% if loop.index % nb_columns == 1 %}alpha{% endif%}
                           {% if loop.index % nb_columns == 0 %}omega{% endif%}">
+                {% if 'sigal.plugins.media_page' in settings.plugins %}
+                <a href="{{ media.filename }}.html"
+                  data-href="#{{ media.filename|replace('.', '')|replace(' ', '') }}"
+                {% else %}
                 <a href="#{{ media.filename|replace('.', '')|replace(' ', '') }}"
                   class="gallery" inline='yes' title="{{ media.filename }}"
+                {% endif %}
                   {% if media.big %} data-big="{{ media.big }}"{% endif %}>
                   <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
                       title="{{ media.title if media.title else media.filename }}" /></a>
@@ -154,6 +165,11 @@
           }
           return title;
         },
+        {% if 'sigal.plugins.media_page' in settings.plugins %}
+        href: function () {
+          return this.getAttribute("data-href");
+        },
+        {% endif %}
         inline: function() {
           return this.hasAttribute("inline");
         }
