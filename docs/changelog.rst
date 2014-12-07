@@ -5,7 +5,7 @@
 Version 0.9.1
 ~~~~~~~~~~~~~
 
-Released on 2014-12-xx.
+Released on 2014-12-08.
 
 - Fix images path for the galleria theme (fix #130).
 
