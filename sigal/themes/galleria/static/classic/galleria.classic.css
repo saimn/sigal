@@ -59,7 +59,7 @@
   right: 10px;
   z-index: 2;
   display: none;
-  background: url('../img/classic-loader.gif') no-repeat 2px 2px;
+  background: url('classic-loader.gif') no-repeat 2px 2px;
 }
 .galleria-info {
   width: 50%;
@@ -217,6 +217,6 @@
 .galleria-info-close,
 .galleria-image-nav-left,
 .galleria-image-nav-right {
-  background-image: url('../img/classic-map.png');
+  background-image: url('classic-map.png');
   background-repeat: no-repeat;
 }

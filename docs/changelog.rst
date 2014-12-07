@@ -2,6 +2,13 @@
  Changelog
 ===========
 
+Version 0.9.1
+~~~~~~~~~~~~~
+
+Released on 2014-12-xx.
+
+- Fix images path for the galleria theme (fix #130).
+
 Version 0.9.0
 ~~~~~~~~~~~~~
 
