@@ -2,6 +2,11 @@
  Changelog
 ===========
 
+Version 0.10.0
+~~~~~~~~~~~~~~
+
+Released on 2015-xx-xx.
+
 Version 0.9.2
 ~~~~~~~~~~~~~
 
