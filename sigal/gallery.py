@@ -646,3 +646,6 @@ def worker(args):
         return process_file(args)
     except KeyboardInterrupt:
         pass
+    except IOError:
+        logger = logging.getLogger(__name__)
+        logger.warn("File failed: %s"%os.path.sep.join(args[1:3]))
