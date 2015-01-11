@@ -147,13 +147,14 @@ def process_image(filepath, outpath, settings):
 
     try:
         generate_image(filepath, outname, settings, options=options)
-    except Exception:
-        return Status.FAILURE
 
-    if settings['make_thumbs']:
-        thumb_name = os.path.join(outpath, get_thumb(settings, filename))
-        generate_thumbnail(outname, thumb_name, settings['thumb_size'],
-                           fit=settings['thumb_fit'], options=options)
+        if settings['make_thumbs']:
+            thumb_name = os.path.join(outpath, get_thumb(settings, filename))
+            generate_thumbnail(outname, thumb_name, settings['thumb_size'],
+                               fit=settings['thumb_fit'], options=options)
+    except Exception as e:
+        logger.info('Failed to process: %r', e)
+        return Status.FAILURE
 
     return Status.SUCCESS
 
