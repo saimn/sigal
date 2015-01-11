@@ -570,9 +570,9 @@ class Gallery(object):
         bar_opt = {'label': "Processing files",
                    'show_pos': True,
                    'file': self.progressbar_target}
+        failed_files = []
 
         if self.pool:
-            failed_files = []
             try:
                 with progressbar(length=len(media_list), **bar_opt) as bar:
                     for res in self.pool.imap_unordered(worker, media_list):
@@ -591,14 +591,16 @@ class Gallery(object):
                     "defined in the settings file, which can't be serialized.",
                     exc_info=True)
                 sys.exit('Abort')
-
-            if failed_files:
-                self.remove_files(failed_files)
-            print('')
         else:
             with progressbar(media_list, **bar_opt) as medias:
                 for media_item in medias:
-                    process_file(media_item)
+                    res = process_file(media_item)
+                    if res:
+                        failed_files.append(res)
+
+        if failed_files:
+            self.remove_files(failed_files)
+        print('')
 
         if self.settings['write_html']:
             writer = Writer(self.settings, index_title=self.title)
