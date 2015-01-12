@@ -40,7 +40,7 @@ from os.path import isfile, join, splitext
 from PIL import Image as PILImage
 
 from . import image, video, signals
-from .compat import UnicodeMixin, strxfrm, url_quote, text_type
+from .compat import PY2, UnicodeMixin, strxfrm, url_quote, text_type
 from .image import process_image, get_exif_tags, get_exif_data
 from .settings import get_thumb
 from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
@@ -554,7 +554,10 @@ class Gallery(object):
             # 63 is the total length of progressbar, label, percentage, etc
             available_length = get_terminal_size()[0] - 64
             if x and available_length > 10:
-                return text_type(x.name)[:available_length].encode('utf-8')
+                text = text_type(x.name)[:available_length]
+                if PY2:
+                    text = text.encode('utf-8')
+                return text
             else:
                 return ""
 
