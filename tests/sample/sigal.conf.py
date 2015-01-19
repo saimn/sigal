@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+author = 'John Doe'
 title = u"Sigal test gallery ☺"
 source = 'pictures'
 thumb_suffix = '.tn'

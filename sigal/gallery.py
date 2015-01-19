@@ -281,6 +281,11 @@ class Album(UnicodeMixin):
             for key, val in meta.items():
                 setattr(self, key, val)
 
+        try:
+            self.author = self.meta['author'][0]
+        except KeyError:
+            self.author = self.settings.get('author')
+
     def create_output_directories(self):
         """Create output directories for thumbnails and original images."""
         check_or_create_dir(self.dst_path)
