@@ -2,6 +2,15 @@
  Changelog
 ===========
 
+Version 0.9.2
+~~~~~~~~~~~~~
+
+Released on 2015-01-25.
+
+- Allow to specify the author of an album (ref #139).
+- Fix encoding issue with the progress bar on py3 (fix #137).
+- Avoid failure when an image can't be read (fix #134).
+
 Version 0.9.1
 ~~~~~~~~~~~~~
 
