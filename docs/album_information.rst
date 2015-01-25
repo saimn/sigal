@@ -9,6 +9,7 @@ named ``index.md`` :
 
     Title: Another example gallery
     Thumbnail: test2.jpg
+    Author: John Doe
 
     And a description with *Markdown* syntax.
 
@@ -18,6 +19,8 @@ gallery:
 - *Title*: the gallery title.
 - *Thumbnail*: the thumbnail that will be used in the parent directory to
   represent the gallery.
+- *Author*: the author of the gallery, if present it is used instead of the
+  author setting.
 
 Any additional meta-data is available in the templates. For instance::
 
