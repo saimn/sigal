@@ -131,7 +131,7 @@ def generate_thumbnail(source, outname, box, fit=True, options=None):
 
     # dump an image of the video
     cmd = ['ffmpeg', '-i', source, '-an', '-r', '1',
-           '-vframes', '1', '-y', tmpfile]
+           '-ss', '2', '-vframes', '1', '-y', tmpfile]
     logger.debug('Create thumbnail for video: %s', ' '.join(cmd))
 
     try:
