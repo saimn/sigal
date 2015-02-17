@@ -93,7 +93,9 @@
                 title="{{ media.title if media.title else media.filename }}"
                 data-href="{{ media.filename }}" {{ img_description(media) }}>
               {% else %}
-              <a href="{{ media.filename }}" class="gallery" title="{{ media.filename }}" {{ img_description(media) }}>
+              <a href="{{ media.filename }}" class="gallery"
+                title="{{ media.title if media.title else media.filename }}"
+                {{ img_description(media) }}>
               {% endif %}
                 <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
                     title="{{ media.title if media.title else media.filename }}" /></a>
