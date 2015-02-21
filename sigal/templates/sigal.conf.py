@@ -80,6 +80,9 @@ thumb_size = (280, 210)
 # Crop the image to fill the box
 # thumb_fit = True
 
+# Delay in seconds to avoid black thumbnails in videos with fade-in
+# thumb_video_delay = '0'
+
 # -------------
 # Album options
 # -------------

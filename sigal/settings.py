@@ -62,6 +62,7 @@ _DEFAULT_CONFIG = {
     'thumb_prefix': '',
     'thumb_size': (200, 150),
     'thumb_suffix': '',
+    'thumb_video_delay': '0',
     'title': '',
     'use_orig': False,
     'video_size': (480, 360),

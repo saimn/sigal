@@ -123,7 +123,7 @@ def generate_video(source, outname, size, options=None):
     check_subprocess(cmd, source, outname)
 
 
-def generate_thumbnail(source, outname, box, fit=True, options=None):
+def generate_thumbnail(source, outname, box, delay, fit=True, options=None):
     """Create a thumbnail image for the video source, based on ffmpeg."""
 
     logger = logging.getLogger(__name__)
@@ -131,7 +131,7 @@ def generate_thumbnail(source, outname, box, fit=True, options=None):
 
     # dump an image of the video
     cmd = ['ffmpeg', '-i', source, '-an', '-r', '1',
-           '-ss', '2', '-vframes', '1', '-y', tmpfile]
+           '-ss', delay, '-vframes', '1', '-y', tmpfile]
     logger.debug('Create thumbnail for video: %s', ' '.join(cmd))
 
     try:
@@ -162,7 +162,7 @@ def process_video(filepath, outpath, settings):
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
         try:
             generate_thumbnail(
-                outname, thumb_name, settings['thumb_size'],
+                outname, thumb_name, settings['thumb_size'], settings['thumb_video_delay'],
                 fit=settings['thumb_fit'], options=settings['jpg_options'])
         except Exception:
             return Status.FAILURE
