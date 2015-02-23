@@ -112,7 +112,7 @@ def generate_image(source, outname, settings, options=None):
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
-def generate_thumbnail(source, outname, box, fit=True, options=None):
+def generate_thumbnail(source, outname, box, delay, fit=True, options=None):
     """Create a thumbnail image."""
 
     logger = logging.getLogger(__name__)
@@ -151,7 +151,8 @@ def process_image(filepath, outpath, settings):
         if settings['make_thumbs']:
             thumb_name = os.path.join(outpath, get_thumb(settings, filename))
             generate_thumbnail(outname, thumb_name, settings['thumb_size'],
-                               fit=settings['thumb_fit'], options=options)
+                settings['thumb_video_delay'], fit=settings['thumb_fit'],
+                options=options)
     except Exception as e:
         logger.info('Failed to process: %r', e)
         return Status.FAILURE
