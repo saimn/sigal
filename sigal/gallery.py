@@ -122,6 +122,7 @@ class Media(UnicodeMixin):
             try:
                 generator(self.src_path, self.thumb_path,
                           self.settings['thumb_size'],
+                          self.settings['thumb_video_delay'],
                           fit=self.settings['thumb_fit'])
             except Exception as e:
                 self.logger.error('Failed to generate thumbnail: %s', e)
