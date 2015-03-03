@@ -62,9 +62,9 @@ def add_watermark(img, settings=None):
     mark = Image.open(settings['watermark'])
     position = 'scale'
     opacity = 1
-    if settings['watermark_position']:
+    if settings.get('watermark_position'):
         position = settings['watermark_position']
-    if settings['watermark_opacity']:
+    if settings.get('watermark_opacity'):
         opacity = settings["watermark_opacity"]
 
     return watermark(img, mark, position, opacity)
