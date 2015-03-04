@@ -1,11 +1,13 @@
 blinker
 boto
 click
+coverage
 cssmin
 Jinja2
 Markdown
 Pillow
 pilkit
 pytest
+pytest-cov
 Sphinx
 sphinxcontrib-issuetracker

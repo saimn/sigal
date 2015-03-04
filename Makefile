@@ -21,7 +21,7 @@ test:
 coverage:
 	py.test --cov sigal --cov-report term --cov-report=html
 
-publish:
+publish: colorbox galleria
 	python setup.py register
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
