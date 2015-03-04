@@ -111,6 +111,11 @@ header h1 a:hover, header h2 a:hover {
   margin: 0 auto;
 }
 
+/* fullscreen display link */
+#fullscreen {
+  cursor: pointer;
+}
+
 /* footer */
 footer {
   clear: both;
