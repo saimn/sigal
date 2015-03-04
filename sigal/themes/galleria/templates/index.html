@@ -79,7 +79,8 @@
               <a href="{{ media.filename }}">
                 <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
                     data-title="{{ media.title if media.title else media.filename }}"
-                    data-description="{{ img_description(media) }}"/>
+                    data-description="{{ img_description(media) }}"
+                    {% if media.big %} data-big="{{ media.big }}"{% endif %} />
               </a>
             {% endif %}
             {% if media.type == "video" %}
@@ -94,6 +95,7 @@
             {% endif %}
           {% endfor %}
         </div>
+        <a id="fullscreen">fullscreen</a>
         {% endif %}
 
         {% if album.zip %}
@@ -134,8 +136,15 @@
     Galleria.ready(function() {
         this.attachKeyboard({
             right: this.next,
-            left: this.prev
-         });
+            left: this.prev,
+            /* Toggle fullscreen display on press of 'f' key */
+            0x46: this.toggleFullscreen,
+        });
+
+        var gallery = this;
+        $('#fullscreen').click(function() {
+          gallery.toggleFullscreen();
+        });
      });
 
     </script>
