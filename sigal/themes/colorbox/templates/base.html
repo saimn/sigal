@@ -9,21 +9,16 @@
     <meta name="description" content="">
     <meta name="author" content="{{ album.author }}">
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="{{ theme.url }}/css/style.min.css">
-    {% if settings.use_assets_cdn %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans">
-    <style>
-      body { font: 100%/1.4 "PT Sans", sans-serif; }
-      h1, h2, h3, h4, h5, h6 { font-family: "PT Sans", sans-serif; }
-    </style>
-    {% endif %}
+    <link rel="stylesheet" href="{{ theme.url }}/css/skeleton.css">
+    <link rel="stylesheet" href="{{ theme.url }}/css/colorbox.css">
+    <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
     {% endblock %}
     {% include 'analytics.html' %}
   </head>
   <body>
     {% include 'gtm.html' %}
     <div class="container">
-      <div class="four columns">
+      <div class="three columns">
         <div class="sidebar">
           <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
           {% if settings.links %}
@@ -44,7 +39,7 @@
           </footer>
         </div>
       </div>
-      <div id="main" role="main" class="twelve columns offset-by-four">
+      <div id="main" role="main" class="nine columns offset-by-three">
         {% block content %}{% endblock %}
       </div>
     </div>

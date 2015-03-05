@@ -11,10 +11,9 @@
     {% endif %}
   </header>
 
-  {% set numbers = ["zero", "one", "two", "three", "four", "five", "six",
-  "seven", "eight", "nine", "ten", "eleven", "twelve"] %}
+  {% set numbers = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"] %}
   {% set column_size = settings.colorbox_column_size %}
-  {% set nb_columns = (12 / column_size)|int %}
+  {% set nb_columns = (9 / column_size)|int %}
   {% set column_size_t = numbers[column_size] %}
 
   {% if album.albums %}
@@ -22,9 +21,7 @@
     {% if loop.index % nb_columns == 1 %}
     <div id="albums" class="row">
     {% endif%}
-      <div class="{{ column_size_t }} columns thumbnail
-                  {% if loop.index % nb_columns == 1 %}alpha{% endif%}
-                  {% if loop.index % nb_columns == 0 %}omega{% endif%}">
+      <div class="{{ column_size_t }} columns thumbnail">
         <a href="{{ alb.url }}">
           <img src="{{ alb.thumbnail }}" class="album_thumb"
               alt="{{ alb.title }}" title="{{ alb.title }}" /></a>
@@ -46,13 +43,14 @@
     {% endif %}
   {%- endmacro %}
 
-  <div id="gallery" class="row">
+  <div id="gallery">
     {% for media in album.medias %}
+      {% if loop.index % nb_columns == 1 %}
+      <div id="albums" class="row">
+      {% endif%}
       {% set media_title = media.title if media.title else media.filename %}
       {% if media.type == "image" %}
-      <div class="{{ column_size_t }} columns thumbnail
-                  {% if loop.index % nb_columns == 1 %}alpha{% endif%}
-                  {% if loop.index % nb_columns == 0 %}omega{% endif%}">
+      <div class="{{ column_size_t }} columns thumbnail">
         {% if 'sigal.plugins.media_page' in settings.plugins %}
         <a href="{{ media.filename}}.html" class="gallery"
           title="{{ media_title }}"
@@ -68,9 +66,7 @@
       {% endif %}
       {% if media.type == "video" %}
         {% set mhash = media.filename|replace('.', '')|replace(' ', '') %}
-        <div class="{{ column_size_t }} columns thumbnail
-                    {% if loop.index % nb_columns == 1 %}alpha{% endif%}
-                    {% if loop.index % nb_columns == 0 %}omega{% endif%}">
+        <div class="{{ column_size_t }} columns thumbnail">
           {% if 'sigal.plugins.media_page' in settings.plugins %}
           <a href="{{ media.filename }}.html" data-href="#{{ mhash }}"
           {% else %}
@@ -89,6 +85,9 @@
           </div>
         </div>
       {% endif %}
+      {% if loop.last or loop.index % nb_columns == 0 %}
+      </div>
+      {% endif%}
     {% endfor %}
   </div>
   {% endif %}

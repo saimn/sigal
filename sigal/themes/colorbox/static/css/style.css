@@ -1,3 +1,13 @@
+ /* Override a few styles from skeleton */
+h1 { font-size: 4.0rem; }
+h2 { font-size: 3.6rem; }
+h3 { font-size: 3.0rem; }
+h4 { font-size: 2.4rem; }
+h5 { font-size: 1.8rem; }
+h6 { font-size: 1.5rem; }
+a       { color: #222; }
+a:hover { color: #666; }
+
 ul {
   list-style: disc outside;
   padding-left: 20px;
@@ -12,8 +22,7 @@ header h1 a {
 }
 
 .sidebar h1 {
-  font-size: 35px;
-  line-height: 40px;
+  line-height: 1.25;
   margin: 40px 0;
 }
 .sidebar h1 a {

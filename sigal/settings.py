@@ -35,7 +35,7 @@ _DEFAULT_CONFIG = {
     'albums_sort_attr': 'name',
     'albums_sort_reverse': False,
     'autorotate_images': True,
-    'colorbox_column_size': 4,
+    'colorbox_column_size': 3,
     'copy_exif_data': False,
     'datetime_format': '%c',
     'destination': '_build',

@@ -223,8 +223,8 @@ ignore_files = []
 # The column size is given in number of column of the css grid of the Skeleton
 # framework which is used for this theme: http://www.getskeleton.com/#grid
 # Then the image size must be adapted to fit the column size.
-# The default is 4 columns which gives 220px. 3 columns gives 160px.
-# colorbox_column_size = 4
+# The default is 3 columns (176px).
+# colorbox_column_size = 3
 
 # --------
 # Plugins

@@ -14,29 +14,24 @@
   </header>
 
   {% if media %}
-      <div class="twelve columns thumbnail">
-      {% if media.type == "image" %}
-        <img src="{{ media.filename }}" alt="{{ media_title }}" title="{{ media_title }}" />
+  <div class="thumbnail">
+    {% if media.type == "image" %}
+      <img src="{{ media.filename }}" alt="{{ media_title }}" title="{{ media_title }}" />
+    {% endif %}
+    {% if media.type == "video" %}
+      <video controls>
+        <source src='{{ media.filename }}' type='video/webm' />
+      </video>
+    {% endif %}
+
+    <p>
+      {% if previous_media %}
+      <a href="{{ previous_media.filename }}.html">« previous</a>
       {% endif %}
-      {% if media.type == "video" %}
-        <video controls>
-          <source src='{{ media.filename }}' type='video/webm' />
-        </video>
+      {% if next_media %}
+      <a href="{{ next_media.filename }}.html">next »</a>
       {% endif %}
-      </div>
+    </p>
+  </div>
   {% endif %}
-
-  <div class="two columns offset-by-four">
-    {% if previous_media %}
-    <a href="{{ previous_media.filename }}.html">« previous</a>
-    {% else %}
-    &nbsp;
-    {% endif %}
-  </div>
-
-  <div class="two columns">
-    {% if next_media %}
-    <a href="{{ next_media.filename }}.html">next »</a>
-    {% endif %}
-  </div>
 {% endblock %}
