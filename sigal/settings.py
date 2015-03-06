@@ -66,6 +66,7 @@ _DEFAULT_CONFIG = {
     'title': '',
     'use_orig': False,
     'video_size': (480, 360),
+    'watermark': '',
     'webm_options': ['-crf', '10', '-b:v', '1.6M',
                      '-qmin', '4', '-qmax', '63'],
     'write_html': True,
@@ -124,7 +125,7 @@ def read_settings(filename=None):
                         if k not in ['__builtins__'])
 
         # Make the paths relative to the settings file
-        paths = ['source', 'destination']
+        paths = ['source', 'destination', 'watermark']
 
         if os.path.isdir(join(settings_path, settings['theme'])):
             paths.append('theme')
