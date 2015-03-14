@@ -29,7 +29,7 @@ import re
 import shutil
 from os.path import splitext
 
-from . import image
+from . import image, utils
 from .settings import get_thumb, Status
 from .utils import call_subprocess
 
@@ -75,21 +75,29 @@ def video_size(source):
     return x, y
 
 
-def generate_video(source, outname, size, options=None):
+def generate_video(source, outname, settings, options=None):
     """Video processor.
 
     :param source: path to a video
     :param outname: path to the generated video
-    :param size: size of the resized video `(width, height)`
+    :param settings: settings dict
     :param options: array of options passed to ffmpeg
 
     """
     logger = logging.getLogger(__name__)
 
+    if settings['use_orig']:
+        # Keep original filename
+        filename = os.path.split(source)[1]
+        outpath = os.path.split(outname)[0]
+        outname = os.path.join(outpath, filename)
+        utils.copy(source, outname, symlink=settings['orig_link'])
+        return outname
+
     # Don't transcode if source is in the required format and
     # has fitting datedimensions, copy instead.
     w_src, h_src = video_size(source)
-    w_dst, h_dst = size
+    w_dst, h_dst = settings['video_size']
     logger.debug('Video size: %i, %i -> %i, %i', w_src, h_src, w_dst, h_dst)
 
     base, src_ext = splitext(source)
@@ -97,7 +105,7 @@ def generate_video(source, outname, size, options=None):
     if dst_ext == src_ext and w_src <= w_dst and h_src <= h_dst:
         logger.debug('Video is smaller than the max size, copying it instead')
         shutil.copy(source, outname)
-        return
+        return outname
 
     # http://stackoverflow.com/questions/8218363/maintaining-ffmpeg-aspect-ratio
     # + I made a drawing on paper to figure this out
@@ -153,8 +161,8 @@ def process_video(filepath, outpath, settings):
     outname = os.path.join(outpath, basename + '.webm')
 
     try:
-        generate_video(filepath, outname, settings['video_size'],
-                       options=settings['webm_options'])
+        outname = generate_video(filepath, outname, settings,
+                                 options=settings['webm_options'])
     except Exception:
         return Status.FAILURE
 
