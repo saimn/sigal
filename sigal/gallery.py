@@ -179,8 +179,9 @@ class Video(Media):
         base = splitext(filename)[0]
         self.date = None
         self.src_filename = filename
-        self.filename = self.url = base + '.webm'
-        self.dst_path = join(settings['destination'], path, base + '.webm')
+        if not settings['use_orig']:
+            self.filename = self.url = base + '.webm'
+            self.dst_path = join(settings['destination'], path, base + '.webm')
 
 
 class Album(UnicodeMixin):

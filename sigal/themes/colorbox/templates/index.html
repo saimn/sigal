@@ -120,7 +120,7 @@
               <div style='display:none'>
                 <div id="{{ media.filename|replace('.', '')|replace(' ', '') }}">
                   <video controls>
-                  <source src='{{ media.filename }}' type='video/webm' />
+                  <source src='{{ media.filename }}' {% if not settings.use_orig %}type='video/webm'{% endif %}/>
                   </video>
                 </div>
               </div>
