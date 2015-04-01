@@ -19,16 +19,16 @@ and it allows to build a static gallery of images with the following features:
 * Parallel processing.
 * MIT licensed.
 
-The idea behind Sigal is to ease the use of the javascript librairies like
-galleria_. These librairies do a great job to display the images, Sigal does
-what is missing: resize images, create thumbnails, generate html pages.
+The idea behind Sigal is to ease the use of the javascript libraries like
+galleria_. These libraries do a great job to display the images, Sigal does
+what is missing: resize images, create thumbnails, generate HTML pages.
 
 Sigal is compatible with Python 2.7 and 3.3+.
 
 Links :
 
 * Latest documentation on the website_
-* Source, issues and pull requests on Github_
+* Source, issues and pull requests on GitHub_
 * Releases on PyPI_
 * ``#sigal`` on Freenode, or with the webchat_ interface.
 * `Mailing list`_ at Librelist (Archives_).
@@ -43,7 +43,7 @@ Javascript libraries:
 - `galleria demo`_
 
 .. _website: http://sigal.saimon.org/
-.. _Github: https://github.com/saimn/sigal/
+.. _GitHub: https://github.com/saimn/sigal/
 .. _PyPI: http://pypi.python.org/pypi/sigal
 .. _galleria: http://galleria.io/
 .. _colorbox: http://www.jacklmoore.com/colorbox
