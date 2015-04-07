@@ -9,10 +9,18 @@
     <meta name="author" content="{{ album.author }}">
     <meta name="viewport" content="width=device-width">
 
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans">
+    {% if settings.use_google_cdn %}
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans">
+    {% else %}
+      <link rel="stylesheet" href="{{ theme.url }}/css/webfont.css">
+    {% endif %}
     <link rel="stylesheet" href="{{ theme.url }}/css/style.min.css">
     <!--[if lt IE 9]>
+      {% if settings.use_google_cdn %}
         <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      {% else %}
+        <script src="{{ theme.url }}/js/html5.js"></script>
+      {% endif %}
     <![endif]-->
   </head>
   <body>
@@ -145,11 +153,14 @@
     </div>
 
     {% if album.medias %}
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    {% if settings.use_google_cdn %}
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    {% endif %}
     <script>!window.jQuery && document.write(unescape('%3Cscript src="{{ theme.url }}/js/jquery-1.10.2.min.js"%3E%3C/script%3E'))</script>
     <script src="{{ theme.url }}/js/jquery.colorbox.min.js"></script>
+    <script src="{{ theme.url }}/js/jquery.touchSwipe.min.js"></script>
 
-    <script>
+    <script type="text/javascript">
       $(".gallery").colorbox({
         rel:"gallery",
         transition:"none",
@@ -176,7 +187,22 @@
           return this.hasAttribute("inline");
         }
       });
+
+      $(document).bind('cbox_open', function(){
+        $("#cboxOverlay, #colorbox").swipe({
+          swipeLeft:function(event, direction, distance, duration, fingerCount) {
+            $.colorbox.next();
+          },
+          swipeRight:function(event, direction, distance, duration, fingerCount) {
+            $.colorbox.prev();
+          },
+          tap:function(event, target){
+            $.colorbox.close()
+          }}).unbind("click");
+      });
     </script>
+
+
     {% endif %}
     {% include 'analytics.html' %}
   </body>
