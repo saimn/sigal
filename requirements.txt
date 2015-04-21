@@ -12,3 +12,4 @@ pytest
 pytest-cov
 Sphinx
 sphinxcontrib-issuetracker
+twine
