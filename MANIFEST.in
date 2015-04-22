@@ -1,9 +1,14 @@
-include README.rst LICENSE
+include AUTHORS
+include CONTRIBUTING.rst
+include LICENSE
+include Makefile
+include README.rst
+include requirements.txt
+include tox.ini
 recursive-include docs *
 recursive-exclude docs *.pyc
 recursive-exclude docs *.pyo
 prune docs/_build
-prune docs/_themes/.git
 recursive-include sigal/themes *
 include sigal/templates/sigal.conf.py
 recursive-exclude tests *
