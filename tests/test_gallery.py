@@ -114,6 +114,7 @@ def test_image(settings, tmpdir):
 
 def test_video(settings, tmpdir):
     settings['destination'] = str(tmpdir)
+    settings['use_orig'] = False
     m = Video('stallman software-freedom-day-low.ogv', 'video', settings)
     file_path = join('video', 'stallman software-freedom-day-low.webm')
     assert str(m) == file_path

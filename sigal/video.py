@@ -29,9 +29,9 @@ import re
 import shutil
 from os.path import splitext
 
-from . import image
+from . import image, utils
 from .settings import get_thumb, Status
-from .utils import call_subprocess
+from .utils import call_subprocess, is_valid_html5_video
 
 
 class SubprocessException(Exception):
@@ -75,12 +75,12 @@ def video_size(source):
     return x, y
 
 
-def generate_video(source, outname, size, options=None):
+def generate_video(source, outname, settings, options=None):
     """Video processor.
 
     :param source: path to a video
     :param outname: path to the generated video
-    :param size: size of the resized video `(width, height)`
+    :param settings: settings dict
     :param options: array of options passed to ffmpeg
 
     """
@@ -89,7 +89,7 @@ def generate_video(source, outname, size, options=None):
     # Don't transcode if source is in the required format and
     # has fitting datedimensions, copy instead.
     w_src, h_src = video_size(source)
-    w_dst, h_dst = size
+    w_dst, h_dst = settings['video_size']
     logger.debug('Video size: %i, %i -> %i, %i', w_src, h_src, w_dst, h_dst)
 
     base, src_ext = splitext(source)
@@ -149,12 +149,16 @@ def process_video(filepath, outpath, settings):
     """Process a video: resize, create thumbnail."""
 
     filename = os.path.split(filepath)[1]
-    basename = splitext(filename)[0]
-    outname = os.path.join(outpath, basename + '.webm')
+    (basename, ext) = splitext(filename)
 
     try:
-        generate_video(filepath, outname, settings['video_size'],
-                       options=settings['webm_options'])
+        if settings['use_orig'] and is_valid_html5_video(ext):
+            outname = os.path.join(outpath, filename)
+            utils.copy(filepath, outname, symlink=settings['orig_link'])
+        else:
+            outname = os.path.join(outpath, basename + '.webm')
+            generate_video(filepath, outname, settings,
+                           options=settings['webm_options'])
     except Exception:
         return Status.FAILURE
 

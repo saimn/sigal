@@ -44,7 +44,7 @@ from .compat import PY2, UnicodeMixin, strxfrm, url_quote, text_type
 from .image import process_image, get_exif_tags, get_exif_data
 from .settings import get_thumb
 from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
-                    read_markdown, cached_property)
+                    read_markdown, cached_property, is_valid_html5_video)
 from .video import process_video
 from .writer import Writer
 
@@ -176,11 +176,12 @@ class Video(Media):
 
     def __init__(self, filename, path, settings):
         super(Video, self).__init__(filename, path, settings)
-        base = splitext(filename)[0]
+        (base, ext) = splitext(filename)
         self.date = None
         self.src_filename = filename
-        self.filename = self.url = base + '.webm'
-        self.dst_path = join(settings['destination'], path, base + '.webm')
+        if not settings['use_orig'] or not is_valid_html5_video(ext):
+            self.filename = self.url = base + '.webm'
+            self.dst_path = join(settings['destination'], path, base + '.webm')
 
 
 class Album(UnicodeMixin):

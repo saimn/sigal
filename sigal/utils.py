@@ -99,6 +99,9 @@ def call_subprocess(cmd):
         stdout = stdout.decode('utf8')
     return p.returncode, stdout, stderr
 
+def is_valid_html5_video(ext):
+    """Checks if ext is a supported HTML5 video."""
+    return ext in ('.mp4', '.webm', '.ogv')
 
 class cached_property(object):
     """ A property that is only computed once per instance and then replaces
