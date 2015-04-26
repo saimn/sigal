@@ -103,6 +103,13 @@ def is_valid_html5_video(ext):
     """Checks if ext is a supported HTML5 video."""
     return ext in ('.mp4', '.webm', '.ogv')
 
+def get_mime(ext):
+    """Returns mime type for extension."""
+    mimes = {'.mp4': 'video/mp4',
+             '.webm': 'video/webm',
+             '.ogv': 'video/ogg'}
+    return mimes[ext]
+
 class cached_property(object):
     """ A property that is only computed once per instance and then replaces
     itself with an ordinary attribute. Deleting the attribute resets the
