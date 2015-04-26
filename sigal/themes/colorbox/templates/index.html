@@ -74,7 +74,7 @@
           {% if 'sigal.plugins.media_page' in settings.plugins %}
           <a href="{{ media.filename }}.html" data-href="#{{ mhash }}"
           {% else %}
-          <a href="#{{ mhash }}" class="gallery" inline='yes' title="{{ media.filename }}"
+          <a href="#{{ mhash }}" class="gallery" inline='yes' title="{{ media.title if media.title else media.filename }}"
           {% endif %}
             {% if media.big %} data-big="{{ media.big }}"{% endif %}>
             <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
