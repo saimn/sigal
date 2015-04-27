@@ -28,6 +28,10 @@ from subprocess import Popen, PIPE
 
 from . import compat
 
+VIDEO_MIMES = {'.mp4': 'video/mp4',
+               '.webm': 'video/webm',
+               '.ogv': 'video/ogg'}
+
 
 class Devnull(object):
     """'Black hole' for output that should not be printed"""
@@ -99,16 +103,16 @@ def call_subprocess(cmd):
         stdout = stdout.decode('utf8')
     return p.returncode, stdout, stderr
 
+
 def is_valid_html5_video(ext):
     """Checks if ext is a supported HTML5 video."""
-    return ext in ('.mp4', '.webm', '.ogv')
+    return ext in VIDEO_MIMES.keys()
+
 
 def get_mime(ext):
     """Returns mime type for extension."""
-    mimes = {'.mp4': 'video/mp4',
-             '.webm': 'video/webm',
-             '.ogv': 'video/ogg'}
-    return mimes[ext]
+    return VIDEO_MIMES[ext]
+
 
 class cached_property(object):
     """ A property that is only computed once per instance and then replaces

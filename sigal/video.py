@@ -166,8 +166,9 @@ def process_video(filepath, outpath, settings):
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
         try:
             generate_thumbnail(
-                outname, thumb_name, settings['thumb_size'], settings['thumb_video_delay'],
-                fit=settings['thumb_fit'], options=settings['jpg_options'])
+                outname, thumb_name, settings['thumb_size'],
+                settings['thumb_video_delay'], fit=settings['thumb_fit'],
+                options=settings['jpg_options'])
         except Exception:
             return Status.FAILURE
 
