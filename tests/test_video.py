@@ -5,6 +5,7 @@ from __future__ import division
 import os
 
 from sigal.video import video_size, generate_video
+from sigal.settings import create_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_VIDEO = 'stallman software-freedom-day-low.ogv'
@@ -21,7 +22,8 @@ def test_generate_video_fit_height(tmpdir):
 
     base, ext = os.path.splitext(TEST_VIDEO)
     dstfile = str(tmpdir.join(base + '.webm'))
-    generate_video(SRCFILE, dstfile, (50, 100))
+    settings = create_settings(video_size=(50, 100))
+    generate_video(SRCFILE, dstfile, settings)
 
     size_src = video_size(SRCFILE)
     size_dst = video_size(dstfile)
@@ -36,7 +38,8 @@ def test_generate_video_fit_width(tmpdir):
 
     base, ext = os.path.splitext(TEST_VIDEO)
     dstfile = str(tmpdir.join(base + '.webm'))
-    generate_video(SRCFILE, dstfile, (100, 50))
+    settings = create_settings(video_size=(100, 50))
+    generate_video(SRCFILE, dstfile, settings)
 
     size_src = video_size(SRCFILE)
     size_dst = video_size(dstfile)
@@ -51,7 +54,8 @@ def test_generate_video_dont_enlarge(tmpdir):
 
     base, ext = os.path.splitext(TEST_VIDEO)
     dstfile = str(tmpdir.join(base + '.webm'))
-    generate_video(SRCFILE, dstfile, (1000, 1000))
+    settings = create_settings(video_size=(1000, 1000))
+    generate_video(SRCFILE, dstfile, settings)
 
     size_src = video_size(SRCFILE)
     size_dst = video_size(dstfile)
