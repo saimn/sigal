@@ -156,9 +156,15 @@ def process_video(filepath, outpath, settings):
             outname = os.path.join(outpath, filename)
             utils.copy(filepath, outname, symlink=settings['orig_link'])
         else:
-            outname = os.path.join(outpath, basename + '.webm')
+            valid_formats = ['mp4', 'webm']
+            video_format = settings['video_format']
+
+            if video_format not in valid_formats:
+                raise ValueError('Invalid video_format. Please choose one of: ' + str(valid_formats))
+
+            outname = os.path.join(outpath, basename + '.' + video_format)
             generate_video(filepath, outname, settings,
-                           options=settings['webm_options'])
+                           options=settings[video_format + '_options'])
     except Exception:
         return Status.FAILURE
 

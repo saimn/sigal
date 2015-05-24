@@ -181,9 +181,13 @@ class Video(Media):
         self.date = None
         self.src_filename = filename
         if not settings['use_orig'] or not is_valid_html5_video(ext):
-            self.filename = self.url = base + '.webm'
-            self.mime = get_mime('.webm')
-            self.dst_path = join(settings['destination'], path, base + '.webm')
+            video_format = settings['video_format']
+
+            ext = '.' + video_format
+
+            self.filename = self.url = base + ext
+            self.mime = get_mime(ext)
+            self.dst_path = join(settings['destination'], path, base + ext)
         else:
             self.mime = get_mime(ext)
 

@@ -72,7 +72,7 @@ def generate_cache_metadata(gallery, f):
 
     proposed_cache_control = None
     if 'media_max_age' in gallery.settings['upload_s3_options'] and \
-            file_extension in ['.jpg','.png','.webm']:
+            file_extension in ['.jpg','.png','.webm','.mp4']:
         proposed_cache_control = "max-age=%s" % \
             gallery.settings['upload_s3_options']['media_max_age']
     elif 'max_age' in gallery.settings['upload_s3_options']:
