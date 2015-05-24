@@ -117,8 +117,14 @@ def build(source, destination, debug, verbose, force, config, theme, title,
         logger.error("Input directory not found: %s", settings['source'])
         sys.exit(1)
 
-    if not os.path.relpath(settings['destination'],
-                           settings['source']).startswith('..'):
+    relative_check = True
+    try:
+        relative_check =  os.path.relpath(settings['destination'],
+                           settings['source']).startswith('..')
+    except:
+        pass
+
+    if not relative_check:
         logger.error("Output directory should be outside of the input "
                      "directory.")
         sys.exit(1)
