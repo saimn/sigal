@@ -6,6 +6,7 @@ python:
 before_install:
     # Dependencies to build PIL
     - sudo apt-get update -qq
+    - sudo apt-get install -qq ubuntu-restricted-extras
     - sudo apt-get install -qq libfreetype6-dev libjpeg8-dev zlib1g-dev ffmpeg
     - sudo locale-gen fr_FR.UTF-8
 install:
