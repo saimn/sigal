@@ -117,11 +117,14 @@ def build(source, destination, debug, verbose, force, config, theme, title,
         logger.error("Input directory not found: %s", settings['source'])
         sys.exit(1)
 
+    # on windows os.path.relpath raises a ValueError if the two paths are on 
+    # different drives, in that case we just ignore the exception as the two 
+    # paths are anyway not relative
     relative_check = True
     try:
         relative_check =  os.path.relpath(settings['destination'],
                            settings['source']).startswith('..')
-    except:
+    except ValueError:
         pass
 
     if not relative_check:
