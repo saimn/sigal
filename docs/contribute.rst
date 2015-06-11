@@ -12,7 +12,7 @@ Setting up the development environment
     git clone https://github.com/saimn/sigal.git
     cd sigal
     virtualenv venv
-    . venv/activate
+    . venv/bin/activate
 
 Install sigal in development mode::
 
