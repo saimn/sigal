@@ -122,6 +122,10 @@ ignore_files = []
 #                'optimize': True,
 #                'progressive': True}
 
+# Video format
+# specify an alternative format, valid are 'webm' (default) and 'mp4'
+# video_format = 'webm'
+
 # Webm options
 # Options used in ffmpeg to encode the webm video. You may want to read
 # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
@@ -129,6 +133,11 @@ ignore_files = []
 # using avconv (for example with Ubuntu), you will need to adapt the settings.
 # webm_options = ['-crf', '10', '-b:v', '1.6M',
 #                 '-qmin', '4', '-qmax', '63']
+
+# MP4 options
+# Options used to encode the mp4 video. You may want to read
+# https://trac.ffmpeg.org/wiki/Encode/H.264
+# mp4_options = ['-crf', '23' ]
 
 # Size of resized video (default: (480, 360))
 # video_size = (480, 360)

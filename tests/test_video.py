@@ -3,6 +3,7 @@
 from __future__ import division
 
 import os
+import pytest
 
 from sigal.video import video_size, generate_video
 from sigal.settings import create_settings
@@ -16,13 +17,16 @@ def test_video_size():
     size_src = video_size(SRCFILE)
     assert size_src == (480, 270)
 
-
-def test_generate_video_fit_height(tmpdir):
+@pytest.mark.parametrize("fmt", [
+    ('webm'),
+    ('mp4')
+])
+def test_generate_video_fit_height(tmpdir, fmt):
     """largest fitting dimension is height"""
 
     base, ext = os.path.splitext(TEST_VIDEO)
-    dstfile = str(tmpdir.join(base + '.webm'))
-    settings = create_settings(video_size=(50, 100))
+    dstfile = str(tmpdir.join(base + '.' + fmt))
+    settings = create_settings(video_size=(50, 100), video_format=fmt)
     generate_video(SRCFILE, dstfile, settings)
 
     size_src = video_size(SRCFILE)
@@ -32,13 +36,16 @@ def test_generate_video_fit_height(tmpdir):
     # less than 2% error on ratio
     assert abs(size_dst[0]/size_dst[1] - size_src[0]/size_src[1]) < 2e-2
 
-
-def test_generate_video_fit_width(tmpdir):
+@pytest.mark.parametrize("fmt", [
+    ('webm'),
+    ('mp4')
+])
+def test_generate_video_fit_width(tmpdir, fmt):
     """largest fitting dimension is width"""
 
     base, ext = os.path.splitext(TEST_VIDEO)
-    dstfile = str(tmpdir.join(base + '.webm'))
-    settings = create_settings(video_size=(100, 50))
+    dstfile = str(tmpdir.join(base + '.' + fmt))
+    settings = create_settings(video_size=(100, 50), video_format=fmt)
     generate_video(SRCFILE, dstfile, settings)
 
     size_src = video_size(SRCFILE)
@@ -48,15 +55,17 @@ def test_generate_video_fit_width(tmpdir):
     # less than 2% error on ratio
     assert abs(size_dst[0]/size_dst[1] - size_src[0]/size_src[1]) < 2e-2
 
-
-def test_generate_video_dont_enlarge(tmpdir):
+@pytest.mark.parametrize("fmt", [
+    ('webm'),
+    ('mp4')
+])
+def test_generate_video_dont_enlarge(tmpdir, fmt):
     """video dimensions should not be enlarged"""
 
     base, ext = os.path.splitext(TEST_VIDEO)
-    dstfile = str(tmpdir.join(base + '.webm'))
-    settings = create_settings(video_size=(1000, 1000))
+    dstfile = str(tmpdir.join(base + '.' + fmt))
+    settings = create_settings(video_size=(1000, 1000), video_format=fmt)
     generate_video(SRCFILE, dstfile, settings)
-
     size_src = video_size(SRCFILE)
     size_dst = video_size(dstfile)
 
