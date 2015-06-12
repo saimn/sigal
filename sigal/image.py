@@ -160,6 +160,18 @@ def process_image(filepath, outpath, settings):
     return Status.SUCCESS
 
 
+def get_size(filename):
+    """Return image size."""
+    big = PILImage.open(filename.dst_path)
+    widthBig,heightBig = big.size
+    thumb = PILImage.open(filename.thumb_path)
+    widthThumb,heightThumb = thumb.size
+    data = {
+        'big' : {'width': widthBig, 'height': heightBig},
+        'thumbnail': {'width': widthThumb, 'height': heightThumb},
+    }
+    return data
+
 def get_exif_data(filename):
     """Return a dict with the raw EXIF data."""
 

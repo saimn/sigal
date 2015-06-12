@@ -41,7 +41,7 @@ from PIL import Image as PILImage
 
 from . import image, video, signals
 from .compat import PY2, UnicodeMixin, strxfrm, url_quote, text_type
-from .image import process_image, get_exif_tags, get_exif_data
+from .image import process_image, get_exif_tags, get_exif_data, get_size
 from .settings import get_thumb
 from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
                     read_markdown, cached_property, is_valid_html5_video,
@@ -168,6 +168,14 @@ class Image(Media):
                                 self.src_path)
             return None
 
+    @cached_property
+    def size(self):
+        try:
+            return get_size(self)
+        except (IOError, IndexError, TypeError, AttributeError):
+            self.logger.warning(u'Could not read size %s',
+                                self.src_path)
+            return None
 
 class Video(Media):
     """Gather all informations on a video file."""
@@ -371,7 +379,7 @@ class Album(UnicodeMixin):
                     except:
                         self.logger.error("Failed to open %s", f.src_path)
                     else:
-                        if im.size[0] > im.size[1]:
+                        if im.size[0] > im.size[1]: 
                             self._thumbnail = join(self.name, f.thumbnail)
                             self.logger.debug(
                                 "Use 1st landscape image as thumbnail for %r :"
