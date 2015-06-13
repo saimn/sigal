@@ -70,7 +70,7 @@ _DEFAULT_CONFIG = {
     'video_format': 'webm',
     'webm_options': ['-crf', '10', '-b:v', '1.6M',
                      '-qmin', '4', '-qmax', '63'],
-    'mp4_options': ['-crf', '23', '-strict', '-2' ],
+    'mp4_options': ['-crf', '23', '-strict', '-2'],
     'write_html': True,
     'zip_gallery': False,
     'zip_media_format': 'resized',
