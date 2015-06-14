@@ -3,6 +3,7 @@
 # Copyright (c) 2009-2014 - Simon Conseil
 # Copyright (c) 2013      - Christophe-Marie Duquesne
 # Copyright (c) 2014      - Jonas Kaufmann
+# Copyright (c) 2015      - François D.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -171,11 +172,20 @@ class Image(Media):
     @cached_property
     def size(self):
         try:
-            return get_size(self)
+            return get_size(self.dst_path)
         except (IOError, IndexError, TypeError, AttributeError):
             self.logger.warning(u'Could not read size %s',
-                                self.src_path)
+                                self.dst_path)
             return None
+
+    @cached_property
+    def thumb_size(self):
+        try:
+            return get_size(self.thumb_path)
+        except (IOError, IndexError, TypeError, AttributeError):
+            self.logger.warning(u'Could not read size %s',
+                                self.thumb_path)
+            return None            
 
 class Video(Media):
     """Gather all informations on a video file."""

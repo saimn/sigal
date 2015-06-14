@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 # Copyright (c) 2009-2014 - Simon Conseil
+# Copyright (c) 2015 - François D.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -160,17 +161,19 @@ def process_image(filepath, outpath, settings):
     return Status.SUCCESS
 
 
-def get_size(filename):
-    """Return image size."""
-    big = PILImage.open(filename.dst_path)
-    widthBig,heightBig = big.size
-    thumb = PILImage.open(filename.thumb_path)
-    widthThumb,heightThumb = thumb.size
-    data = {
-        'big' : {'width': widthBig, 'height': heightBig},
-        'thumbnail': {'width': widthThumb, 'height': heightThumb},
-    }
-    return data
+def get_size(file_path):
+    """Return image size (width and height)."""
+    logger = logging.getLogger(__name__)
+    try:
+        im = PILImage.open(file_path)
+    except:
+        logger.error("Failed to open %s", file_path)
+    else:
+        width,height = im.size
+        return {
+            'width': width, 
+            'height': height
+        }
 
 def get_exif_data(filename):
     """Return a dict with the raw EXIF data."""
