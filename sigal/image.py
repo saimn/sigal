@@ -166,8 +166,8 @@ def get_size(file_path):
     logger = logging.getLogger(__name__)
     try:
         im = PILImage.open(file_path)
-    except:
-        logger.error("Failed to open %s", file_path)
+    except (IOError, IndexError, TypeError, AttributeError) as e :
+        logger.error("Could not read size of %s due to %r", file_path, e)
     else:
         width,height = im.size
         return {

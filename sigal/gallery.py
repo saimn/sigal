@@ -171,21 +171,11 @@ class Image(Media):
 
     @cached_property
     def size(self):
-        try:
-            return get_size(self.dst_path)
-        except (IOError, IndexError, TypeError, AttributeError):
-            self.logger.warning(u'Could not read size %s',
-                                self.dst_path)
-            return None
+        return get_size(self.dst_path)
 
     @cached_property
     def thumb_size(self):
-        try:
-            return get_size(self.thumb_path)
-        except (IOError, IndexError, TypeError, AttributeError):
-            self.logger.warning(u'Could not read size %s',
-                                self.thumb_path)
-            return None            
+        return get_size(self.thumb_path)
 
 class Video(Media):
     """Gather all informations on a video file."""
