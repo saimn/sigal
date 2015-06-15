@@ -125,3 +125,12 @@ def test_get_size(tmpdir):
 
     result = get_size(src_file)
     assert result == {'height': 800, 'width': 600}
+
+def test_get_size_with_invalid_path(tmpdir):
+    """Test reading out image size with a missing file"""
+
+    test_image = 'missing-file.jpg'
+    src_file = os.path.join(CURRENT_DIR, test_image)
+
+    result = get_size(src_file)
+    assert result == None
