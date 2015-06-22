@@ -6,7 +6,7 @@ from PIL import Image
 
 from sigal import init_logging
 from sigal.image import (generate_image, generate_thumbnail, get_exif_tags,
-                         get_exif_data)
+                         get_exif_data, get_size)
 from sigal.settings import create_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -115,3 +115,22 @@ def test_exif_gps(tmpdir):
 
     assert abs(simple['gps']['lat'] - lat) < 0.0001
     assert abs(simple['gps']['lon'] - lon) < 0.0001
+
+def test_get_size(tmpdir):
+    """Test reading out image size"""
+
+    test_image = 'flickr_jerquiaga_2394751088_cc-by-nc.jpg'
+    src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir1', 'test1',
+                            test_image)
+
+    result = get_size(src_file)
+    assert result == {'height': 800, 'width': 600}
+
+def test_get_size_with_invalid_path(tmpdir):
+    """Test reading out image size with a missing file"""
+
+    test_image = 'missing-file.jpg'
+    src_file = os.path.join(CURRENT_DIR, test_image)
+
+    result = get_size(src_file)
+    assert result == None

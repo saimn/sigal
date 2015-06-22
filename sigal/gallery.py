@@ -3,6 +3,7 @@
 # Copyright (c) 2009-2014 - Simon Conseil
 # Copyright (c) 2013      - Christophe-Marie Duquesne
 # Copyright (c) 2014      - Jonas Kaufmann
+# Copyright (c) 2015      - François D.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -41,7 +42,7 @@ from PIL import Image as PILImage
 
 from . import image, video, signals
 from .compat import PY2, UnicodeMixin, strxfrm, url_quote, text_type
-from .image import process_image, get_exif_tags, get_exif_data
+from .image import process_image, get_exif_tags, get_exif_data, get_size
 from .settings import get_thumb
 from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
                     read_markdown, cached_property, is_valid_html5_video,
@@ -167,6 +168,14 @@ class Image(Media):
             self.logger.warning(u'Could not read EXIF data from %s',
                                 self.src_path)
             return None
+
+    @cached_property
+    def size(self):
+        return get_size(self.dst_path)
+
+    @cached_property
+    def thumb_size(self):
+        return get_size(self.thumb_path)
 
 
 class Video(Media):
@@ -370,17 +379,18 @@ class Album(UnicodeMixin):
             for f in self.medias:
                 ext = splitext(f.filename)[1]
                 if ext.lower() in Image.extensions:
-                    try:
-                        im = PILImage.open(f.src_path)
-                    except:
-                        self.logger.error("Failed to open %s", f.src_path)
-                    else:
-                        if im.size[0] > im.size[1]:
-                            self._thumbnail = join(self.name, f.thumbnail)
-                            self.logger.debug(
-                                "Use 1st landscape image as thumbnail for %r :"
-                                " %s", self, self._thumbnail)
-                            return url_from_path(self._thumbnail)
+                    # Use f.size if available as it is quicker (in cache), but
+                    # fallback to the size of src_path if dst_path is missing
+                    size = f.size
+                    if size is None:
+                        size = get_size(f.src_path)
+
+                    if size['width'] > size['height']:
+                        self._thumbnail = join(self.name, f.thumbnail)
+                        self.logger.debug(
+                            "Use 1st landscape image as thumbnail for %r :"
+                            " %s", self, self._thumbnail)
+                        return url_from_path(self._thumbnail)
 
             # else simply return the 1st media file
             if not self._thumbnail and self.medias:
