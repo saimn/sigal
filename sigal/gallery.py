@@ -177,6 +177,7 @@ class Image(Media):
     def thumb_size(self):
         return get_size(self.thumb_path)
 
+
 class Video(Media):
     """Gather all informations on a video file."""
 
@@ -374,17 +375,18 @@ class Album(UnicodeMixin):
             for f in self.medias:
                 ext = splitext(f.filename)[1]
                 if ext.lower() in Image.extensions:
-                    try:
-                        im = PILImage.open(f.src_path)
-                    except:
-                        self.logger.error("Failed to open %s", f.src_path)
-                    else:
-                        if im.size[0] > im.size[1]: 
-                            self._thumbnail = join(self.name, f.thumbnail)
-                            self.logger.debug(
-                                "Use 1st landscape image as thumbnail for %r :"
-                                " %s", self, self._thumbnail)
-                            return url_from_path(self._thumbnail)
+                    # Use f.size if available as it is quicker (in cache), but
+                    # fallback to the size of src_path if dst_path is missing
+                    size = f.size
+                    if size is None:
+                        size = get_size(f.src_path)
+
+                    if size['width'] > size['height']:
+                        self._thumbnail = join(self.name, f.thumbnail)
+                        self.logger.debug(
+                            "Use 1st landscape image as thumbnail for %r :"
+                            " %s", self, self._thumbnail)
+                        return url_from_path(self._thumbnail)
 
             # else simply return the 1st media file
             if not self._thumbnail and self.medias:

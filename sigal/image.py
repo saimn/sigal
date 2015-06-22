@@ -152,8 +152,8 @@ def process_image(filepath, outpath, settings):
         if settings['make_thumbs']:
             thumb_name = os.path.join(outpath, get_thumb(settings, filename))
             generate_thumbnail(outname, thumb_name, settings['thumb_size'],
-                settings['thumb_video_delay'], fit=settings['thumb_fit'],
-                options=options)
+                               settings['thumb_video_delay'],
+                               fit=settings['thumb_fit'], options=options)
     except Exception as e:
         logger.info('Failed to process: %r', e)
         return Status.FAILURE
@@ -163,17 +163,18 @@ def process_image(filepath, outpath, settings):
 
 def get_size(file_path):
     """Return image size (width and height)."""
-    logger = logging.getLogger(__name__)
     try:
         im = PILImage.open(file_path)
-    except (IOError, IndexError, TypeError, AttributeError) as e :
+    except (IOError, IndexError, TypeError, AttributeError) as e:
+        logger = logging.getLogger(__name__)
         logger.error("Could not read size of %s due to %r", file_path, e)
     else:
-        width,height = im.size
+        width, height = im.size
         return {
-            'width': width, 
+            'width': width,
             'height': height
         }
+
 
 def get_exif_data(filename):
     """Return a dict with the raw EXIF data."""
