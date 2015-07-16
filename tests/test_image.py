@@ -78,6 +78,25 @@ def test_generate_thumbnail(tmpdir):
         assert im.size == thumb_size
 
 
+def test_get_exif_tags():
+    test_image = '11.jpg'
+    src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir1', 'test1',
+                            test_image)
+    data = get_exif_data(src_file)
+    simple = get_exif_tags(data)
+    assert simple['fstop'] == 3.9
+    assert simple['focal'] == 12.0
+    assert simple['iso'] == 50
+    assert simple['datetime'] == 'Sunday, 22. January 2006'
+    assert simple['exposure'] == '100603/100000000'
+
+    data = {'FNumber': [1, 0], 'FocalLength': [1, 0], 'ExposureTime': 10}
+    simple = get_exif_tags(data)
+    assert 'fstop' not in simple
+    assert 'focal' not in simple
+    assert simple['exposure'] == '10'
+
+
 def test_exif_copy(tmpdir):
     "Test if EXIF data can transfered copied to the resized image."
 
@@ -116,6 +135,7 @@ def test_exif_gps(tmpdir):
     assert abs(simple['gps']['lat'] - lat) < 0.0001
     assert abs(simple['gps']['lon'] - lon) < 0.0001
 
+
 def test_get_size(tmpdir):
     """Test reading out image size"""
 
@@ -126,6 +146,7 @@ def test_get_size(tmpdir):
     result = get_size(src_file)
     assert result == {'height': 800, 'width': 600}
 
+
 def test_get_size_with_invalid_path(tmpdir):
     """Test reading out image size with a missing file"""
 
@@ -133,4 +154,4 @@ def test_get_size_with_invalid_path(tmpdir):
     src_file = os.path.join(CURRENT_DIR, test_image)
 
     result = get_size(src_file)
-    assert result == None
+    assert result is None

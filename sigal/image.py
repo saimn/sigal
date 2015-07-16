@@ -206,11 +206,18 @@ def get_exif_tags(data):
 
     if 'FNumber' in data:
         fnumber = data['FNumber']
-        simple['fstop'] = float(fnumber[0]) / fnumber[1]
+        try:
+            simple['fstop'] = float(fnumber[0]) / fnumber[1]
+        except Exception:
+            logger.debug('Skipped invalid FNumber: %r', fnumber, exc_info=True)
 
     if 'FocalLength' in data:
         focal = data['FocalLength']
-        simple['focal'] = round(float(focal[0]) / focal[1])
+        try:
+            simple['focal'] = round(float(focal[0]) / focal[1])
+        except Exception:
+            logger.debug('Skipped invalid FocalLength: %r', focal,
+                         exc_info=True)
 
     if 'ExposureTime' in data:
         if isinstance(data['ExposureTime'], tuple):
