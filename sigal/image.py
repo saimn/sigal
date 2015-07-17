@@ -204,6 +204,10 @@ def get_exif_tags(data):
     logger = logging.getLogger(__name__)
     simple = {}
 
+    for tag in ('Model', 'Make', 'LensModel'):
+        if tag in data:
+            simple[tag] = data[tag].strip()
+
     if 'FNumber' in data:
         fnumber = data['FNumber']
         try:

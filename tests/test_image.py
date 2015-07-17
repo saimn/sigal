@@ -6,21 +6,36 @@ from PIL import Image
 
 from sigal import init_logging
 from sigal.image import (generate_image, generate_thumbnail, get_exif_tags,
-                         get_exif_data, get_size)
-from sigal.settings import create_settings
+                         get_exif_data, get_size, process_image)
+from sigal.settings import create_settings, Status
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_IMAGE = 'exo20101028-b-full.jpg'
 SRCFILE = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir2', TEST_IMAGE)
 
 
+def test_process_image(tmpdir):
+    "Test the process_image function."
+
+    status = process_image('foo.txt', 'none.txt', {})
+    assert status == Status.FAILURE
+
+    settings = create_settings(img_processor='ResizeToFill', make_thumbs=False)
+    status = process_image(SRCFILE, str(tmpdir), settings)
+    assert status == Status.SUCCESS
+    im = Image.open(os.path.join(str(tmpdir), TEST_IMAGE))
+    assert im.size == settings['img_size']
+
+
 def test_generate_image(tmpdir):
     "Test the generate_image function."
 
     dstfile = str(tmpdir.join(TEST_IMAGE))
-    for size in [(600, 600), (300, 200)]:
-        settings = create_settings(img_size=size, img_processor='ResizeToFill')
-        generate_image(SRCFILE, dstfile, settings)
+    for i, size in enumerate([(600, 600), (300, 200)]):
+        settings = create_settings(img_size=size, img_processor='ResizeToFill',
+                                   copy_exif_data=True)
+        options = None if i == 0 else {'quality': 85}
+        generate_image(SRCFILE, dstfile, settings, options=options)
         im = Image.open(dstfile)
         assert im.size == size
 
@@ -87,6 +102,7 @@ def test_get_exif_tags():
     assert simple['fstop'] == 3.9
     assert simple['focal'] == 12.0
     assert simple['iso'] == 50
+    assert simple['Make'] == 'NIKON'
     assert simple['datetime'] == 'Sunday, 22. January 2006'
     assert simple['exposure'] == '100603/100000000'
 
@@ -95,6 +111,16 @@ def test_get_exif_tags():
     assert 'fstop' not in simple
     assert 'focal' not in simple
     assert simple['exposure'] == '10'
+
+    data = {'ExposureTime': '--', 'DateTimeOriginal': '---',
+            'GPSInfo': {'GPSLatitude': ((34, 0), (1, 0), (4500, 100)),
+                        'GPSLatitudeRef': 'N',
+                        'GPSLongitude': ((116, 0), (8, 0), (3900, 100)),
+                        'GPSLongitudeRef': 'W'}}
+    simple = get_exif_tags(data)
+    assert 'exposure' not in simple
+    assert 'datetime' not in simple
+    assert 'gps' not in simple
 
 
 def test_exif_copy(tmpdir):
