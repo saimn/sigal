@@ -38,6 +38,7 @@ _DEFAULT_CONFIG = {
     'destination': '_build',
     'files_to_copy': (),
     'google_analytics': '',
+    'piwik': {'tracker_url': '', 'site_id': 0},
     'ignore_directories': [],
     'ignore_files': [],
     'img_processor': 'ResizeToFit',

@@ -158,6 +158,11 @@ ignore_files = []
 # Google Analytics tracking code (UA-xxxx-x)
 # google_analytics = ''
 
+# Piwik tracking
+# tracker_url must not contain trailing slash.
+# Example : {'tracker_url': 'http://stats.domain.com', 'site_id' : 2}
+# piwik = {'tracker_url': '', 'site_id' : 0}
+
 # Set zip_gallery to either False or a file name. The final archive will
 # contain all resized or original files (depending on `zip_media_format`).
 # zip_gallery = False   # False or 'archive.zip'
