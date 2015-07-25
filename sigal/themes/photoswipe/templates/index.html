@@ -11,23 +11,14 @@
     <meta name="viewport" content="width=device-width">
 
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans">
-    <link rel="stylesheet" href="{{ theme.url }}/styles.css"> 
-
-	<!-- Core CSS file -->
-	<link rel="stylesheet" href="{{ theme.url }}/photoswipe.css"> 
-
-	<!-- Skin CSS file (styling of UI - buttons, caption, etc.)
-	     In the folder of skin CSS file there are also:
-	     - .png and .svg icons sprite, 
-	     - preloader.gif (for browsers that do not support CSS animations) -->
-	<link rel="stylesheet" href="{{ theme.url }}/default-skin/default-skin.css"> 
+    <link rel="stylesheet" href="{{ theme.url }}/styles.min.css">
 
 	<!-- Core JS file -->
 	<script src="{{ theme.url }}/photoswipe.min.js"></script> 
 
 	<!-- UI JS file -->
 	<script src="{{ theme.url }}/photoswipe-ui-default.min.js"></script> 
-	<script src="{{ theme.url }}/echo/echo.js"></script>
+	<script src="{{ theme.url }}/echo/echo.min.js"></script>
 
     <!--[if lt IE 9]>
     	<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -405,5 +396,6 @@
 	{% endblock %}
 </div>
 {% include 'analytics.html' %}
+{% include 'piwik.html' %}
 </body>
 </html>
