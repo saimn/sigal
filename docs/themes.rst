@@ -10,12 +10,15 @@ be located in ``THEME_DIR/templates``.
 Bundled themes
 ~~~~~~~~~~~~~~
 
-Sigal comes with two themes, based on the colorbox_ and galleria_ Javascript
+Sigal comes with three themes, based on the colorbox_, galleria_ and photoswipe_ Javascript
 libraries, and located in the ``sigal/themes`` folder. A Makefile is available
 to concatenate and minify the css files, using cssmin_ (``pip install cssmin``).
 
+photoswipe_ theme comes with some limitations : It does not support video (see https://github.com/dimsemenov/PhotoSwipe/issues/651 for details). Video support will be added when available.
+
 .. _galleria: http://galleria.io/
 .. _colorbox: http://www.jacklmoore.com/colorbox
+.. _photoswipe: http://photoswipe.com/
 .. _cssmin: https://pypi.python.org/pypi/cssmin
 
 Variables
