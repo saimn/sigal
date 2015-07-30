@@ -176,6 +176,7 @@ figcaption {
   height: auto;
 }
 
+.menu-img,
 .gallery__img--secondary {
   width: 25%;
   float:left;
@@ -203,6 +204,7 @@ footer p {
   h1 {
     font-size: 40px;
   }
+  .menu-img,
   .gallery__img--secondary {
     width: 33%;
   }
@@ -210,6 +212,7 @@ footer p {
 
 
 @media screen and (max-width: 500px) {
+  .menu-img,
   .gallery__img--secondary {
     width: 50%;
   }
@@ -217,6 +220,7 @@ footer p {
 
 
 @media screen and (max-width: 300px) {
+  .menu-img,
   .gallery__img--secondary {
     width: 100%;
   }
