@@ -16,6 +16,8 @@ SRCFILE = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'video', TEST_VIDEO)
 def test_video_size():
     size_src = video_size(SRCFILE)
     assert size_src == (480, 270)
+    size_src = video_size('missing/file.mp4')
+    assert size_src == (0, 0)
 
 
 @pytest.mark.parametrize("fmt", ['webm', 'mp4'])

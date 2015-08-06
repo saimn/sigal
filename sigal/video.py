@@ -160,7 +160,8 @@ def process_video(filepath, outpath, settings):
             video_format = settings['video_format']
 
             if video_format not in valid_formats:
-                raise ValueError('Invalid video_format. Please choose one of: ' + str(valid_formats))
+                raise ValueError('Invalid video_format. Please choose one of: '
+                                 + str(valid_formats))
 
             outname = os.path.join(outpath, basename + '.' + video_format)
             generate_video(filepath, outname, settings,

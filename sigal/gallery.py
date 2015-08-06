@@ -38,7 +38,6 @@ from collections import defaultdict
 from datetime import datetime
 from itertools import cycle
 from os.path import isfile, join, splitext
-from PIL import Image as PILImage
 
 from . import image, video, signals
 from .compat import PY2, UnicodeMixin, strxfrm, url_quote, text_type
