@@ -7,6 +7,22 @@ Version 0.10.0
 
 Released on 2015-xx-xx.
 
+- Colorbox: Use the media title if available (fix #145).
+- Adds a thumb_video_delay parameter for the creation of thumbnails with fade-in
+  videos [#143].
+- Add fullscreen display support to Galleria theme [#149].
+- Add watermark plugin [#148].
+- Allow more settings for font, color, position in the copyright plugin [#150].
+- Tables support in markdown [#155].
+- Honor 'use_orig' for videos [#153].
+- Fix for the relative path checks for Windows [#160].
+- Add support for mp4 [#159].
+- Add size property into Image object [#164].
+- Make sure that bad exif data does not crash sigal.
+- Strip spaces for some exif tags (fix #154).
+- Add support for piwik [#165].
+- Add a theme using photoswipe [#163].
+
 Version 0.9.2
 ~~~~~~~~~~~~~
 
