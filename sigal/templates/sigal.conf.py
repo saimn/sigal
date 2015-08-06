@@ -22,7 +22,7 @@ source = 'pictures'
 # destination = '_build'
 
 # Theme :
-# - colorbox (default), galleria, or the path to a custom theme directory
+# - colorbox (default), galleria, photoswipe, or the path to a custom theme directory
 theme = 'galleria'
 
 # Author. Used in the footer of the pages and in the author meta tag.
@@ -74,7 +74,7 @@ img_size = (800, 600)
 
 # Thumbnail size (default: (200, 150))
 # For the galleria theme, use 280 px for the width
-# For the colorbox theme, use 200 px for the width
+# For the colorbox and photoswipe theme, use 200 px for the width
 thumb_size = (280, 210)
 
 # Crop the image to fill the box
