@@ -8,10 +8,19 @@
     <meta name="description" content="">
     <meta name="author" content="{{ album.author }}">
     <meta name="viewport" content="width=device-width">
-
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Molengo">
     <link rel="stylesheet" href="{{ theme.url }}/classic/galleria.classic.css">
     <link rel="stylesheet" href="{{ theme.url }}/css/style.min.css">
+    {% if settings.use_assets_cdn %}
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Molengo">
+    <style>
+      body { font: 16px/1.5 Molengo, sans-serif; }
+      h1, h2, h3, h4, h5, h6 { font-family: "PT Sans", sans-serif; }
+    </style>
+    {% else %}
+    <style>
+      body { font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; }
+    </style>
+    {% endif %}
     <!--[if lt IE 9]>
         <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -121,7 +130,9 @@
     </div>
 
     {% if album.medias %}
+    {% if settings.use_assets_cdn %}
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    {% endif %}
     <script>!window.jQuery && document.write(unescape('%3Cscript src="{{ theme.url }}/js/jquery-1.11.1.min.js"%3E%3C/script%3E'))</script>
     <script src="{{ theme.url }}/js/galleria-1.4.2.min.js"></script>
     <script src="{{ theme.url }}/js/galleria.classic.min.js"></script>

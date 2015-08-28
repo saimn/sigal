@@ -58,6 +58,11 @@ img_size = (800, 600)
 # If True, EXIF data from the original image is copied to the resized image
 # copy_exif_data = False
 
+# Jpeg options
+# jpg_options = {'quality': 85,
+#                'optimize': True,
+#                'progressive': True}
+
 # --------------------
 # Thumbnail generation
 # --------------------
@@ -82,10 +87,6 @@ thumb_size = (280, 210)
 
 # Delay in seconds to avoid black thumbnails in videos with fade-in
 # thumb_video_delay = '0'
-
-# -------------
-# Album options
-# -------------
 
 # Keep original image (default: False)
 # keep_orig = True
@@ -114,13 +115,8 @@ ignore_directories = []
 ignore_files = []
 
 # -------------
-# Miscellaneous
+# Video options
 # -------------
-
-# Jpeg options
-# jpg_options = {'quality': 85,
-#                'optimize': True,
-#                'progressive': True}
 
 # Video format
 # specify an alternative format, valid are 'webm' (default) and 'mp4'
@@ -142,6 +138,10 @@ ignore_files = []
 # Size of resized video (default: (480, 360))
 # video_size = (480, 360)
 
+# -------------
+# Miscellaneous
+# -------------
+
 # Write HTML files. If False, sigal will only process the images.
 # write_html = True
 
@@ -150,6 +150,10 @@ ignore_files = []
 
 # Add output filename (see above) to the URLs
 # index_in_url = False
+
+# Use CDN for assets (Google fonts, JQuery).
+# If False some fonts may not be available.
+# use_assets_cdn = True
 
 # A list of links (tuples (title, URL))
 # links = [('Example link', 'http://example.org'),
