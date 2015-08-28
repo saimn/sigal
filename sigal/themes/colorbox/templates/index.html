@@ -114,6 +114,7 @@
   {% endif %}
   <script>!window.jQuery && document.write(unescape('%3Cscript src="{{ theme.url }}/js/jquery-1.10.2.min.js"%3E%3C/script%3E'))</script>
   <script src="{{ theme.url }}/js/jquery.colorbox.min.js"></script>
+  <script src="{{ theme.url }}/js/jquery.touchSwipe.min.js"></script>
 
   <script>
     $(".gallery").colorbox({
@@ -141,6 +142,19 @@
       inline: function() {
         return this.hasAttribute("inline");
       }
+    });
+
+    $(document).bind('cbox_open', function(){
+      $("#cboxOverlay, #colorbox").swipe({
+        swipeLeft:function(event, direction, distance, duration, fingerCount) {
+          $.colorbox.next();
+        },
+        swipeRight:function(event, direction, distance, duration, fingerCount) {
+          $.colorbox.prev();
+        },
+        tap:function(event, target){
+          $.colorbox.close()
+        }}).unbind("click");
     });
   </script>
   {% endif %}
