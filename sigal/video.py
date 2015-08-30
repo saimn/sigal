@@ -148,8 +148,9 @@ def generate_thumbnail(source, outname, box, delay, fit=True, options=None):
 def process_video(filepath, outpath, settings):
     """Process a video: resize, create thumbnail."""
 
+    logger = logging.getLogger(__name__)
     filename = os.path.split(filepath)[1]
-    (basename, ext) = splitext(filename)
+    basename, ext = splitext(filename)
 
     try:
         if settings['use_orig'] and is_valid_html5_video(ext):
@@ -160,12 +161,13 @@ def process_video(filepath, outpath, settings):
             video_format = settings['video_format']
 
             if video_format not in valid_formats:
-                raise ValueError('Invalid video_format. Please choose one of: '
-                                 + str(valid_formats))
+                logger.error('Invalid video_format. Please choose one of: %s',
+                             valid_formats)
+                raise ValueError
 
             outname = os.path.join(outpath, basename + '.' + video_format)
             generate_video(filepath, outname, settings,
-                           options=settings[video_format + '_options'])
+                           options=settings.get(video_format + '_options'))
     except Exception:
         return Status.FAILURE
 

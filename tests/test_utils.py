@@ -78,3 +78,8 @@ def test_call_subprocess():
 
     # returncode, stdout, stderr = utils.call_subprocess(['/usr/bin/false'])
     # assert returncode == 1
+
+
+def test_is_valid_html5_video():
+    assert utils.is_valid_html5_video('.webm') is True
+    assert utils.is_valid_html5_video('.mpeg') is False
