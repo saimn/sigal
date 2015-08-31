@@ -159,7 +159,10 @@ def process_image(filepath, outpath, settings):
                                fit=settings['thumb_fit'], options=options)
     except Exception as e:
         logger.info('Failed to process: %r', e)
-        return Status.FAILURE
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            raise
+        else:
+            return Status.FAILURE
 
     return Status.SUCCESS
 
