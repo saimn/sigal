@@ -10,16 +10,30 @@ be located in ``THEME_DIR/templates``.
 Bundled themes
 ~~~~~~~~~~~~~~
 
-Sigal comes with three themes, based on the colorbox_, galleria_ and photoswipe_ Javascript
-libraries, and located in the ``sigal/themes`` folder. A Makefile is available
-to concatenate and minify the css files, using cssmin_ (``pip install cssmin``).
+Sigal comes with three themes, located in the ``sigal/themes`` folder:
 
-photoswipe_ theme comes with some limitations : It does not support video (see https://github.com/dimsemenov/PhotoSwipe/issues/651 for details). Video support will be added when available.
+**colorbox**:
+    `source <http://www.jacklmoore.com/colorbox>`_, `demo
+    <http://saimon.org/sigal-demo/colorbox/>`_. This theme uses a Swipe plugin
+    to browse pictures on touch devices.
 
-.. _galleria: http://galleria.io/
-.. _colorbox: http://www.jacklmoore.com/colorbox
-.. _photoswipe: http://photoswipe.com/
-.. _cssmin: https://pypi.python.org/pypi/cssmin
+**galleria**:
+    `source <http://galleria.io/>`_, `demo
+    <http://saimon.org/sigal-demo/galleria/>`_. This theme is based on the
+    classic theme, pictures can be browsed with left/right keys, fullscreen
+    support is available with the `f` key, and a map can be shown with the `m`
+    key if the ``show_map`` setting is True.
+
+**photoswipe**:
+    `source <http://photoswipe.com/>`_, `demo
+    <http://saimon.org/sigal-demo/photoswipe/>`_.  The photoswipe
+    theme comes with some limitations : It does not support video (see
+    https://github.com/dimsemenov/PhotoSwipe/issues/651 for details). Video
+    support will be added when available.
+
+For developers, a Makefile is available to concatenate and minify the css
+files, using `cssmin <https://pypi.python.org/pypi/cssmin>`_ (``pip install
+cssmin``).
 
 Variables
 ~~~~~~~~~
