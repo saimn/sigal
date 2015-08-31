@@ -22,6 +22,9 @@ Released on 2015-xx-xx.
 - Strip spaces for some exif tags (fix #154).
 - Add support for piwik [#165].
 - Add a theme using photoswipe [#163].
+- Add a setting to disable google fonts and jquery [#168].
+- Add swipe to colorbox theme [#116].
+- Map view for albums in galleria theme [#45].
 
 Version 0.9.2
 ~~~~~~~~~~~~~
