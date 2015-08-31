@@ -132,7 +132,9 @@ def read_settings(filename=None):
         # Make the paths relative to the settings file
         paths = ['source', 'destination', 'watermark']
 
-        if os.path.isdir(join(settings_path, settings['theme'])):
+        if os.path.isdir(join(settings_path, settings['theme'])) and \
+                os.path.isdir(join(settings_path, settings['theme'],
+                                   'templates')):
             paths.append('theme')
 
         enc = locale.getpreferredencoding() if PY2 else None

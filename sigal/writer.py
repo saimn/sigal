@@ -53,7 +53,8 @@ class Writer(object):
         self.logger = logging.getLogger(__name__)
 
         # search the theme in sigal/theme if the given one does not exists
-        if not os.path.exists(self.theme):
+        if not os.path.exists(self.theme) or \
+                not os.path.exists(os.path.join(self.theme, 'templates')):
             self.theme = os.path.join(THEMES_PATH, self.theme)
             if not os.path.exists(self.theme):
                 raise Exception("Impossible to find the theme %s" % self.theme)

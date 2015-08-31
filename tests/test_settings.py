@@ -48,6 +48,7 @@ def test_theme_path(tmpdir):
     """Test that image size is swaped if needed."""
 
     tmpdir.join('theme').mkdir()
+    tmpdir.join('theme').join('templates').mkdir()
     conf = tmpdir.join('sigal.conf.py')
     conf.write("""# -*- coding: utf-8 -*-
 
