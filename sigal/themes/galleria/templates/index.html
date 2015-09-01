@@ -190,7 +190,9 @@
     <script src="{{ theme.url }}/js/galleria.history.min.js"></script>
     <script>
     {% if settings.show_map and album.show_map %}
-    selected =-1;
+    var selected =-1;
+    /* Init markers */
+    var features = new Array();
 
     function selectMarker(marker) {
         if (selected >= 0 && features[selected] != null) {
@@ -230,11 +232,9 @@
     }
 
     function init_map() {
-        stage = $(".galleria-stage");
-
         /* Make sure we have the map div */
         if ($("#galleria-map").length == 0) {
-            stage.after("<div id='galleria-map'></div>");
+            $(".galleria-stage").after("<div id='galleria-map'></div>");
             map = L.map('galleria-map');
             var attrib = '&copy; <a href="https://osm.org/copyright" title="OpenStreetMap" target="_blank">OpenStreetMap</a> contributors | Tiles Courtesy of <a href="https://www.mapquest.com/" title="MapQuest" target="_blank">MapQuest</a> <img src="https://developer.mapquest.com/content/osm/mq_logo.png" width="16" height="16">';
             L.tileLayer('https://{s}-s.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png', {
@@ -242,9 +242,6 @@
                         subdomains: ['otile1','otile2','otile3','otile4']
                         }).addTo( map );
             map.setView([51.505, -0.09], 12);
-
-            /* Init markers */
-            features = new Array();
 
             {% for media in album.medias %}
               {% if media.exif and media.exif.gps %}
@@ -312,6 +309,7 @@
             /* Toggle fullscreen display on press of 'f' key */
             0x46: this.toggleFullscreen,
             {% if settings.show_map and album.show_map %}
+            /* Toggle map display on press of 'm' key */
             0x4D: galleryMapToggle,
             {% endif %}
         });
@@ -319,7 +317,7 @@
         var gallery = this;
         $('#fullscreen').click(function() {
           gallery.toggleFullscreen();
-        )};
+        });
         {% if settings.show_map and album.show_map %}
         this.bind('loadfinish', function(e) {
             init_map();
