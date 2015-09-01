@@ -125,7 +125,10 @@
           {%- endmacro %}
         {% if settings.show_map and album.show_map %}
         <div class="icons">
-          <a class="gallery-map-toggle"><img src="{{ theme.url }}/img/map.png"/></a>
+          <a class="gallery-map-toggle"><img src="{{ theme.url }}/img/map.png"
+            title="Show/Hide map" alt="Show/Hide Map" /></a>
+          <a id="fullscreen"><img src="{{ theme.url }}/img/fullscreen.png"
+            title="Fullscreen" alt="Fullscreen" /></a>
         </div>
         {% endif %}
         <div id="gallery">
@@ -150,7 +153,6 @@
             {% endif %}
           {% endfor %}
         </div>
-        <a id="fullscreen">fullscreen</a>
         {% endif %}
 
         {% if album.zip %}
