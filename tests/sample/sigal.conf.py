@@ -17,9 +17,9 @@ watermark = "watermark.png"
 watermark_position = "tile"
 watermark_opacity = 0.3
 
-# theme = 'colorbox'
-# thumb_size = (200, 150)
+theme = 'colorbox'
+thumb_size = (200, 150)
 
-theme = 'galleria'
-thumb_size = (280, 210)
-show_map = True
+# theme = 'galleria'
+# thumb_size = (280, 210)
+# show_map = True
