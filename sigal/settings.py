@@ -57,6 +57,7 @@ _DEFAULT_CONFIG = {
     'piwik': {'tracker_url': '', 'site_id': 0},
     'plugin_paths': [],
     'plugins': [],
+    'show_map': False,
     'source': '',
     'theme': 'colorbox',
     'thumb_dir': 'thumbnails',

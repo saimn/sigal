@@ -24,6 +24,41 @@
     <!--[if lt IE 9]>
         <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    {% if settings.show_map and album.show_map %}
+    <link rel="stylesheet" href="{{ theme.url }}/leaflet/leaflet.css" />
+    <script src="{{ theme.url }}/leaflet/leaflet.js"></script>
+
+
+    <style type="text/css">
+        .gallery-map-toggle {
+          cursor: pointer;
+        }
+
+        /* Mimic .galleria-stage to use the same area for the map */
+        #galleria-map {
+          position: absolute;
+          bottom: 80px;
+          left: 10px;
+          top: 0;
+          right: 10px;
+        }
+
+        /* We need to have more contract between active and inactive images
+           for maps, or we may not know which is the selected. */
+        .galleria-thumbnails .galleria-image.active {
+           opacity: 1;
+        }
+        .galleria-thumbnails .galleria-image {
+          opacity: 0.6;
+        }
+        .icons {
+          float: right;
+        }
+        #gallery {
+          clear: both;
+        }
+    </style>
+    {% endif %}
   </head>
   <body>
     <div class="container">
@@ -77,11 +112,22 @@
               {% if media.exif.focal %}Focal: {{ media.exif.focal }}, {% endif %}
               {% if media.exif.exposure %}Exposure: {{ media.exif.exposure }}, {% endif %}
               {% if media.exif.fstop %}Fstop: {{ media.exif.fstop }}{% endif %}
+              {% if media.exif.gps %}
+                <br/>Location: <a href='https://www.openstreetmap.org/?mlat={{
+                media.exif.gps.lat }}&amp;mlon={{ media.exif.gps.lon}}&amp;zoom=12&amp;layers=M' target='_blank' class='map'
+                >{{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}
+                 {{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}</a>
+              {% endif %}
               {% if media.exif.datetime %}
                 <br>Date: {{ media.exif.datetime }}
               {% endif %}
             {% endif %}
           {%- endmacro %}
+        {% if settings.show_map and album.show_map %}
+        <div class="icons">
+          <a class="gallery-map-toggle"><img src="{{ theme.url }}/img/map.png"/></a>
+        </div>
+        {% endif %}
         <div id="gallery">
           {% for media in album.medias %}
             {% if media.type == "image" %}
@@ -138,11 +184,118 @@
     <script src="{{ theme.url }}/js/galleria.classic.min.js"></script>
     <script src="{{ theme.url }}/js/galleria.history.min.js"></script>
     <script>
+    {% if settings.show_map and album.show_map %}
+    var selected =-1;
+    /* Init markers */
+    var features = new Array();
+
+    function selectMarker(marker) {
+        if (selected >= 0 && features[selected] != null) {
+            features[selected].setStyle({
+                radius: 7,
+                fillColor: "#888a85",
+                color: "#2e3436",
+                weight: 1,
+                fillOpacity: 1,
+                clickable: true
+            });
+            features[selected].redraw();
+        }
+
+        if (marker != null) {
+          marker.setStyle({
+              radius: 7,
+              fillColor: "#cc0000",
+              color: "#ef2929",
+              weight: 1,
+              fillOpacity: 1,
+              clickable: true
+          });
+          marker.bringToFront();
+          map.panTo(marker.getLatLng());
+        }
+    }
+
+    function onFeatureClick(e) {
+      selectMarker(e.target);
+      var id = features.indexOf(e.target);
+      var galleria = $("#gallery").data("galleria");
+      if (selected != id) {
+          selected = id;
+          galleria.show(id);
+      }
+    }
+
+    function init_map() {
+        /* Make sure we have the map div */
+        if ($("#galleria-map").length == 0) {
+            $(".galleria-stage").after("<div id='galleria-map'></div>");
+            map = L.map('galleria-map');
+            var attrib = '&copy; <a href="https://osm.org/copyright" title="OpenStreetMap" target="_blank">OpenStreetMap</a> contributors | Tiles Courtesy of <a href="https://www.mapquest.com/" title="MapQuest" target="_blank">MapQuest</a> <img src="https://developer.mapquest.com/content/osm/mq_logo.png" width="16" height="16">';
+            L.tileLayer('https://{s}-s.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png', {
+                        attribution: attrib,
+                        subdomains: ['otile1','otile2','otile3','otile4']
+                        }).addTo( map );
+            map.setView([51.505, -0.09], 12);
+
+            {% for media in album.medias %}
+              {% if media.exif and media.exif.gps %}
+            var lat = {{ media.exif.gps.lat }};
+            var lon = {{ media.exif.gps.lon }};
+            var marker = L.circleMarker([lat, lon], {
+                radius: 7,
+                fillColor: "#888a85",
+                color: "#2e3436",
+                weight: 1,
+                fillOpacity: 1,
+                clickable: true
+            });
+            marker.on('click', onFeatureClick);
+            features.push(marker);
+            marker.addTo(map);
+              {% else %}
+            features.push(null);
+              {% endif %}
+            {% endfor %}
+
+            $("#galleria-map").hide();
+        }
+    }
+    {% endif %}
+
     Galleria.configure({
         imageCrop: false,
         transition: "fade"
     });
     Galleria.run("#gallery");
+
+    {% if settings.show_map and album.show_map %}
+    function galleryMapToggle() {
+        /* Make sure the map is loaded */
+        init_map();
+
+        var stage = $(".galleria-stage");
+        var mapdiv = $("#galleria-map");
+
+        if (stage.attr.hidden == true) {
+            stage.attr.hidden = false;
+            $(".galleria-info-link").show();
+            mapdiv.hide();
+            stage.css("opacity", "1");
+            /* Change display of the Map link */
+            $(".gallery-map-toggle img")[0].src = "{{ theme.url }}/img/map.png";
+        } else {
+            stage.attr.hidden = true;
+            $(".galleria-info-link").hide();
+            mapdiv.show();
+            /* Play with the stage opacity otherwise galleria will go mad */
+            stage.css("opacity", "0");
+            /* Change display of the Map link */
+            $(".gallery-map-toggle img")[0].src = "{{ theme.url }}/img/photo.png";
+        }
+    }
+    $(".gallery-map-toggle").click(galleryMapToggle);
+    {% endif %}
 
     Galleria.ready(function() {
         this.attachKeyboard({
@@ -150,12 +303,25 @@
             left: this.prev,
             /* Toggle fullscreen display on press of 'f' key */
             0x46: this.toggleFullscreen,
+            {% if settings.show_map and album.show_map %}
+            /* Toggle map display on press of 'm' key */
+            0x4D: galleryMapToggle,
+            {% endif %}
         });
 
         var gallery = this;
         $('#fullscreen').click(function() {
           gallery.toggleFullscreen();
         });
+        {% if settings.show_map and album.show_map %}
+        this.bind('loadfinish', function(e) {
+            init_map();
+            if (selected != e.index) {
+                selectMarker(features[e.index]);
+                selected = e.index;
+            }
+        });
+        {% endif %}
      });
 
     </script>
