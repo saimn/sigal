@@ -29,7 +29,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms='any',
-    install_requires=['blinker', 'click', 'jinja2', 'Markdown', 'Pillow',
+    install_requires=['blinker', 'click', 'Jinja2', 'Markdown', 'Pillow',
                       'pilkit'],
     test_requires=['pytest'],
     extras_require={

@@ -2,6 +2,13 @@
  Changelog
 ===========
 
+Version 1.1.0
+~~~~~~~~~~~~~
+
+Released on 2015-xx-xx.
+
+Nothing yet.
+
 Version 1.0.0
 ~~~~~~~~~~~~~
 
