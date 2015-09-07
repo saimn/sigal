@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 0.10.0
-~~~~~~~~~~~~~~
+Version 1.0.0
+~~~~~~~~~~~~~
 
-Released on 2015-xx-xx.
+Released on 2015-09-07.
 
 - Colorbox: Use the media title if available (fix #145).
 - Adds a thumb_video_delay parameter for the creation of thumbnails with fade-in
