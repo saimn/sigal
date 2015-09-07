@@ -36,19 +36,22 @@ Links :
 Themes & Demo
 -------------
 
-Sigal comes with two themes, based on the colorbox_ and galleria_
+Sigal comes with three themes, based on the colorbox_, galleria_ and photoswipe_
 Javascript libraries:
 
 - `colorbox demo`_
 - `galleria demo`_
+- `photoswipe demo`_
 
 .. _website: http://sigal.saimon.org/
 .. _GitHub: https://github.com/saimn/sigal/
 .. _PyPI: http://pypi.python.org/pypi/sigal
 .. _galleria: http://galleria.io/
 .. _colorbox: http://www.jacklmoore.com/colorbox
+.. _photoswipe: http://photoswipe.com
 .. _galleria demo: http://saimon.org/sigal-demo/galleria/
 .. _colorbox demo: http://saimon.org/sigal-demo/colorbox/
+.. _photoswipe demo: http://saimon.org/sigal-demo/photoswipe/
 .. _webchat: http://webchat.freenode.net/?channels=sigal
 .. _Archives: http://librelist.com/browser/sigal/
 .. _Mailing list: mailto:sigal@librelist.com
