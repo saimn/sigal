@@ -184,8 +184,13 @@ def get_exif_data(filename):
     data = {TAGS.get(tag, tag): value for tag, value in exif.items()}
 
     if 'GPSInfo' in data:
-        data['GPSInfo'] = {GPSTAGS.get(tag, tag): value
-                           for tag, value in data['GPSInfo'].items()}
+        try:
+            data['GPSInfo'] = {GPSTAGS.get(tag, tag): value
+                               for tag, value in data['GPSInfo'].items()}
+        except AttributeError:
+            logger = logging.getLogger(__name__)
+            logger.info('Failed to get GPS Info', exc_info=True)
+            del data['GPSInfo']
     return data
 
 
@@ -211,21 +216,33 @@ def get_exif_tags(data):
     if 'FNumber' in data:
         fnumber = data['FNumber']
         try:
+            # Pillow < 3.0
             simple['fstop'] = float(fnumber[0]) / fnumber[1]
+        except IndexError:
+            # Pillow >= 3.0
+            simple['fstop'] = float(fnumber[0])
         except Exception:
             logger.debug('Skipped invalid FNumber: %r', fnumber, exc_info=True)
 
     if 'FocalLength' in data:
         focal = data['FocalLength']
         try:
+            # Pillow < 3.0
             simple['focal'] = round(float(focal[0]) / focal[1])
+        except IndexError:
+            # Pillow >= 3.0
+            simple['focal'] = round(focal[0])
         except Exception:
             logger.debug('Skipped invalid FocalLength: %r', focal,
                          exc_info=True)
 
     if 'ExposureTime' in data:
         if isinstance(data['ExposureTime'], tuple):
-            simple['exposure'] = '{0}/{1}'.format(*data['ExposureTime'])
+            try:
+                simple['exposure'] = '{0}/{1}'.format(*data['ExposureTime'])
+            except IndexError:
+                # Pillow >= 3.0
+                simple['exposure'] = data['ExposureTime']
         elif isinstance(data['ExposureTime'], int):
             simple['exposure'] = str(data['ExposureTime'])
         else:
@@ -239,6 +256,11 @@ def get_exif_tags(data):
         try:
             # Remove null bytes at the end if necessary
             date = data['DateTimeOriginal'].rsplit('\x00')[0]
+        except AttributeError:
+            # Pillow >= 3.0
+            date = data['DateTimeOriginal'][0]
+
+        try:
             simple['dateobj'] = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
             dt = simple['dateobj'].strftime('%A, %d. %B %Y')
             simple['datetime'] = dt.decode('utf8') if compat.PY2 else dt
