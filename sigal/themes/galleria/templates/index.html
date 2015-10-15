@@ -180,8 +180,9 @@
     {% if album.medias %}
     {% if settings.use_assets_cdn %}
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+	{% else %}
+	<script src="{{ theme.url }}/js/jquery-1.11.1.min.js"></script>
     {% endif %}
-    <script>!window.jQuery && document.write(unescape('%3Cscript src="{{ theme.url }}/js/jquery-1.11.1.min.js"%3E%3C/script%3E'))</script>
     <script src="{{ theme.url }}/js/galleria-1.4.2.min.js"></script>
     <script src="{{ theme.url }}/js/galleria.classic.min.js"></script>
     <script src="{{ theme.url }}/js/galleria.history.min.js"></script>
