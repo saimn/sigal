@@ -48,7 +48,7 @@ ul, ol {
 li {
   margin: 0 0 12px 0;
 }
-h1, h2, h3, h4, h5, h6 {
+h2, h3, h4, h5, h6 {
   margin: 0;
   font-weight: normal;
 }
@@ -86,8 +86,8 @@ figcaption {
 
 .menu {
   width: 100%;
-  background: #F7F7F7 none repeat scroll 0% 0%;
-  padding: 30px 0px;
+  background: #F7F7F7 none repeat scroll 0 0;
+  padding: 30px 0;
 }
 
 .menu ul {
@@ -98,14 +98,13 @@ figcaption {
 .menu li {
     display: inline;
     list-style: none; /* pour enlever les puces sur IE7 */
-    margin: 10px;
 }
 
 .album-list {
   width: 100%;
   padding: 2em 0;
   margin: auto;
-  background: #EEE none repeat scroll 0% 0%;
+  background: #EEE none repeat scroll 0 0;
   float:left;
 }
 
@@ -131,7 +130,7 @@ figcaption {
 }
 
 .video {
-  width: 100%%;
+  width: 100%;
   margin: 0 0 24px 0;
 }
 .video__container {
