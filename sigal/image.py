@@ -32,8 +32,10 @@
 
 import logging
 import os
+import PIL
 import pilkit.processors
 import sys
+import warnings
 
 from copy import deepcopy
 from datetime import datetime
@@ -179,8 +181,19 @@ def get_size(file_path):
 def get_exif_data(filename):
     """Return a dict with the raw EXIF data."""
 
+    logger = logging.getLogger(__name__)
+
+    if PIL.PILLOW_VERSION == '3.0.0':
+        warnings.warn('Pillow 3.0.0 is broken with EXIF data, consider using '
+                      'a previous version if you want to use EXIF data.')
+
     img = PILImage.open(filename)
-    exif = img._getexif() or {}
+    try:
+        exif = img._getexif() or {}
+    except ZeroDivisionError:
+        logger.warning('Failed to read EXIF data.')
+        return None
+
     data = {TAGS.get(tag, tag): value for tag, value in exif.items()}
 
     if 'GPSInfo' in data:
@@ -189,7 +202,7 @@ def get_exif_data(filename):
                                for tag, value in data['GPSInfo'].items()}
         except AttributeError:
             logger = logging.getLogger(__name__)
-            logger.info('Failed to get GPS Info', exc_info=True)
+            logger.info('Failed to get GPS Info')
             del data['GPSInfo']
     return data
 
@@ -211,7 +224,10 @@ def get_exif_tags(data):
 
     for tag in ('Model', 'Make', 'LensModel'):
         if tag in data:
-            simple[tag] = data[tag].strip()
+            if isinstance(data[tag], tuple):
+                simple[tag] = data[tag][0].strip()
+            else:
+                simple[tag] = data[tag].strip()
 
     if 'FNumber' in data:
         fnumber = data['FNumber']

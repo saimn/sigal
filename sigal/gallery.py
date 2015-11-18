@@ -163,7 +163,7 @@ class Image(Media):
         try:
             return (get_exif_data(self.src_path)
                     if self.ext in ('.jpg', '.jpeg') else None)
-        except (IOError, IndexError, TypeError, AttributeError):
+        except Exception:
             self.logger.warning(u'Could not read EXIF data from %s',
                                 self.src_path)
             return None
