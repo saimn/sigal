@@ -256,7 +256,7 @@ def get_exif_tags(data):
         exptime = data['ExposureTime']
         if isinstance(exptime, tuple):
             try:
-                simple['exposure'] = exptime[0] / exptime[1]
+                simple['exposure'] = exptime[0] / float(exptime[1])
             except IndexError:
                 # Pillow >= 3.0
                 simple['exposure'] = exptime[0]
