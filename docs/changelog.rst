@@ -2,12 +2,14 @@
  Changelog
 ===========
 
-Version 1.1.0
+Version 1.0.1
 ~~~~~~~~~~~~~
 
-Released on 2015-xx-xx.
+Released on 2015-11-19.
 
-Nothing yet.
+- Simplify a bit photoswipe's style [#181].
+- Improves CSP compatibility (Remove an inline javascript line) [#179].
+- Warn that Pillow 3.0 is broken [#184].
 
 Version 1.0.0
 ~~~~~~~~~~~~~
