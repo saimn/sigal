@@ -4,6 +4,9 @@ python:
     - "3.3"
     - "3.4"
     - "3.5"
+env:
+  - PILLOW_VERSION=2.9.0
+  - PILLOW_VERSION=3.0.0
 before_install:
     # Dependencies to build PIL
     - sudo apt-get update -qq
@@ -11,6 +14,7 @@ before_install:
     - sudo apt-get install -qq libfreetype6-dev libjpeg8-dev zlib1g-dev ffmpeg
     - sudo locale-gen fr_FR.UTF-8
 install:
+    - pip install -q Pillow==$PILLOW_VERSION
     - pip install pytest pytest-cov
     - pip install coveralls
     - pip install .
