@@ -25,9 +25,9 @@ test:
 coverage:
 	py.test --cov sigal --cov-report term --cov-report=html
 
-publish: colorbox galleria
+publish: colorbox galleria photoswipe
 	python setup.py register
 	python setup.py sdist bdist_wheel
 	twine upload dist/*
 
-.PHONY: colorbox galleria docs
+.PHONY: colorbox galleria photoswipe docs
