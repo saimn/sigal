@@ -105,8 +105,6 @@ class Media(UnicodeMixin):
             copy(self.src_path, join(orig_path, self.src_filename),
                  symlink=s['orig_link'])
             return url_from_path(join(s['orig_dir'], self.src_filename))
-        else:
-            return None
 
     @property
     def thumbnail(self):
@@ -166,7 +164,6 @@ class Image(Media):
         except Exception:
             self.logger.warning(u'Could not read EXIF data from %s',
                                 self.src_path)
-            return None
 
     @cached_property
     def size(self):
@@ -188,14 +185,12 @@ class Video(Media):
 
     def __init__(self, filename, path, settings):
         super(Video, self).__init__(filename, path, settings)
-        (base, ext) = splitext(filename)
+        base, ext = splitext(filename)
         self.date = None
         self.src_filename = filename
         if not settings['use_orig'] or not is_valid_html5_video(ext):
             video_format = settings['video_format']
-
             ext = '.' + video_format
-
             self.filename = self.url = base + ext
             self.mime = get_mime(ext)
             self.dst_path = join(settings['destination'], path, base + ext)
@@ -443,7 +438,6 @@ class Album(UnicodeMixin):
         """
         return any(image.has_location() for image in self.images)
 
-
     @property
     def zip(self):
         """Make a ZIP archive with all media files and return its path.
@@ -470,8 +464,6 @@ class Album(UnicodeMixin):
             archive.close()
             self.logger.debug('Created ZIP archive %s', archive_path)
             return zip_gallery
-        else:
-            return None
 
 
 class Gallery(object):
