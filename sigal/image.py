@@ -66,7 +66,7 @@ def generate_image(source, outname, settings, options=None):
 
     logger = logging.getLogger(__name__)
 
-    if settings['use_orig']:
+    if settings['use_orig'] or source.endswith('.gif'):
         utils.copy(source, outname, symlink=settings['orig_link'])
         return
 
