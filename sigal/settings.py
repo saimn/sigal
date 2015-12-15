@@ -140,15 +140,14 @@ def read_settings(filename=None):
         enc = locale.getpreferredencoding() if PY2 else None
 
         for p in paths:
-            path = settings[p]
-            if path and not isabs(path):
-                settings[p] = abspath(normpath(join(settings_path, path)))
-                logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
-
             # paths must to be unicode strings so that os.walk will return
             # unicode dirnames and filenames
             if PY2 and isinstance(settings[p], str):
                 settings[p] = settings[p].decode(enc)
+            path = settings[p]
+            if path and not isabs(path):
+                settings[p] = abspath(normpath(join(settings_path, path)))
+                logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
 
         if settings['title'] and not isinstance(settings['title'], text_type):
             settings['title'] = settings['title'].decode('utf8')
