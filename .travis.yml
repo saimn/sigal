@@ -1,5 +1,7 @@
 language: python
 cache: pip
+sudo: false
+
 env:
   global:
     - PILLOW="Pillow"
@@ -14,21 +16,32 @@ matrix:
     - python: 3.6
 
 
-before_install:
-    # Add PPA to get ffmpeg on trusty
-    - sudo add-apt-repository ppa:mc3man/trusty-media -y
-    # Dependencies to build PIL
-    - sudo apt-get update -qq
-    - sudo apt-get install -qq ubuntu-restricted-extras
-    - sudo apt-get install -qq libfreetype6-dev libjpeg8-dev zlib1g-dev ffmpeg
-    - sudo locale-gen fr_FR.UTF-8
-    - ffmpeg -version
+addons:
+  apt:
+    sources:
+      - trusty-media
+    packages:
+      - ubuntu-restricted-extras
+      - ffmpeg
+      - language-pack-fr
+      - libavcodec-extra-54
+      # Dependencies to build PIL
+      - libfreetype6-dev
+      - libjpeg8-dev
+      - zlib1g-dev
+
 install:
     - pip install -q $PILLOW
     - pip install pytest pytest-cov coveralls
     - pip install .
+
+before_script:
+  ffmpeg --help
+
 script: py.test -sv --cov sigal --cov-report term-missing tests/
+
 after_success:
     coveralls
+
 notifications:
     irc: "chat.freenode.net#sigal"
