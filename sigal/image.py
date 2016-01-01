@@ -185,7 +185,7 @@ def get_exif_data(filename):
 
     if PIL.PILLOW_VERSION == '3.0.0':
         warnings.warn('Pillow 3.0.0 is broken with EXIF data, consider using '
-                      'a previous version if you want to use EXIF data.')
+                      'another version if you want to use EXIF data.')
 
     img = PILImage.open(filename)
     try:
@@ -232,10 +232,9 @@ def get_exif_tags(data):
     if 'FNumber' in data:
         fnumber = data['FNumber']
         try:
-            # Pillow < 3.0
             simple['fstop'] = float(fnumber[0]) / fnumber[1]
         except IndexError:
-            # Pillow >= 3.0
+            # Pillow == 3.0
             simple['fstop'] = float(fnumber[0])
         except Exception:
             logger.debug('Skipped invalid FNumber: %r', fnumber, exc_info=True)
@@ -243,10 +242,9 @@ def get_exif_tags(data):
     if 'FocalLength' in data:
         focal = data['FocalLength']
         try:
-            # Pillow < 3.0
             simple['focal'] = round(float(focal[0]) / focal[1])
         except IndexError:
-            # Pillow >= 3.0
+            # Pillow == 3.0
             simple['focal'] = round(focal[0])
         except Exception:
             logger.debug('Skipped invalid FocalLength: %r', focal,
@@ -258,7 +256,7 @@ def get_exif_tags(data):
             try:
                 simple['exposure'] = exptime[0] / float(exptime[1])
             except IndexError:
-                # Pillow >= 3.0
+                # Pillow == 3.0
                 simple['exposure'] = exptime[0]
         elif isinstance(exptime, int):
             simple['exposure'] = str(exptime)
@@ -267,7 +265,7 @@ def get_exif_tags(data):
 
     if 'ISOSpeedRatings' in data:
         if isinstance(data['ISOSpeedRatings'], tuple):
-            # Pillow >= 3.0
+            # Pillow == 3.0
             simple['iso'] = data['ISOSpeedRatings'][0]
         else:
             simple['iso'] = data['ISOSpeedRatings']
@@ -277,7 +275,7 @@ def get_exif_tags(data):
             # Remove null bytes at the end if necessary
             date = data['DateTimeOriginal'].rsplit('\x00')[0]
         except AttributeError:
-            # Pillow >= 3.0
+            # Pillow == 3.0
             date = data['DateTimeOriginal'][0]
 
         try:
