@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import os
+import PIL
 import pytest
 from PIL import Image
 
@@ -104,7 +105,10 @@ def test_get_exif_tags():
     assert simple['iso'] == 50
     assert simple['Make'] == 'NIKON'
     assert simple['datetime'] == 'Sunday, 22. January 2006'
-    assert simple['exposure'] == 0.00100603
+    if PIL.PILLOW_VERSION == '3.0.0':
+        assert simple['exposure'] == 0.00100603
+    else:
+        assert simple['exposure'] == '100603/100000000'
 
     data = {'FNumber': [1, 0], 'FocalLength': [1, 0], 'ExposureTime': 10}
     simple = get_exif_tags(data)
@@ -142,7 +146,8 @@ def test_exif_copy(tmpdir):
     assert not simple
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail(PIL.PILLOW_VERSION == '3.0.0',
+                   reason="Pillow 3.0.0 was broken")
 def test_exif_gps(tmpdir):
     """Test reading out correct geo tags"""
 
