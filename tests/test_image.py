@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import os
+import PIL
 import pytest
 from PIL import Image
 
@@ -142,7 +143,8 @@ def test_exif_copy(tmpdir):
     assert not simple
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail(PIL.PILLOW_VERSION == '3.0.0',
+                   reason="Pillow 3.0.0 was broken")
 def test_exif_gps(tmpdir):
     """Test reading out correct geo tags"""
 
