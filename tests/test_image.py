@@ -14,6 +14,10 @@ CURRENT_DIR = os.path.dirname(__file__)
 TEST_IMAGE = 'exo20101028-b-full.jpg'
 SRCFILE = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir2', TEST_IMAGE)
 
+TEST_GIF_IMAGE = '50a1d0bc-763d-457e-b634-c87f16a64270.gif'
+SRC_GIF_FILE = os.path.join(CURRENT_DIR, 'sample', 'pictures',
+                            'dir1', 'test1', TEST_GIF_IMAGE)
+
 
 def test_process_image(tmpdir):
     "Test the process_image function."
@@ -39,6 +43,18 @@ def test_generate_image(tmpdir):
         generate_image(SRCFILE, dstfile, settings, options=options)
         im = Image.open(dstfile)
         assert im.size == size
+
+
+def test_generate_gif_image_passthrough(tmpdir):
+    "Test the generate_image function with gif images."
+    dstfile = str(tmpdir.join(TEST_GIF_IMAGE))
+    settings = create_settings()
+    generate_image(SRC_GIF_FILE, dstfile, settings)
+    # Check the file was copied, not (sym)linked
+    st_src = os.stat(SRC_GIF_FILE)
+    st_dst = os.stat(dstfile)
+    assert st_src.st_size == st_dst.st_size
+    assert not os.path.samestat(st_src, st_dst)
 
 
 def test_generate_image_passthrough(tmpdir):
@@ -90,6 +106,23 @@ def test_generate_thumbnail(tmpdir):
     for size, thumb_size in [((200, 150), (185, 150)),
                              ((150, 200), (150, 122))]:
         generate_thumbnail(SRCFILE, dstfile, size, delay, fit=False)
+        im = Image.open(dstfile)
+        assert im.size == thumb_size
+
+
+def test_generate_gif_thumbnail(tmpdir):
+    "Test the generate_thumbnail function."
+
+    dstfile = str(tmpdir.join(TEST_GIF_IMAGE))
+    delay = 0
+    for size in [(200, 150), (150, 200)]:
+        generate_thumbnail(SRC_GIF_FILE, dstfile, size, delay)
+        im = Image.open(dstfile)
+        assert im.size == size
+
+    for size, thumb_size in [((200, 150), (127, 150)),
+                             ((150, 200), (150, 177))]:
+        generate_thumbnail(SRC_GIF_FILE, dstfile, size, delay, fit=False)
         im = Image.open(dstfile)
         assert im.size == thumb_size
 
