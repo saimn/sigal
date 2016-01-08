@@ -24,7 +24,8 @@ REF = {
         'thumbnail': 'test1/thumbnails/11.tn.jpg',
         'subdirs': [],
         'medias': ['11.jpg', 'archlinux-kiss-1024x640.png',
-                   'flickr_jerquiaga_2394751088_cc-by-nc.jpg'],
+                   'flickr_jerquiaga_2394751088_cc-by-nc.jpg',
+                   '50a1d0bc-763d-457e-b634-c87f16a64270.gif'],
     },
     'dir1/test2': {
         'title': 'test2',
