@@ -101,6 +101,9 @@ thumb_size = (280, 210)
 # Use symbolic links instead of copying the original images
 # orig_link = False
 
+# Attribute of Album objects which is used to sort medias (eg 'title').
+# albums_sort_attr = 'name'
+
 # Reverse sort for albums
 # albums_sort_reverse = False
 
