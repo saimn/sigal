@@ -29,7 +29,6 @@ import fnmatch
 import logging
 import multiprocessing
 import os
-import pickle
 import sys
 import zipfile
 
@@ -40,7 +39,7 @@ from itertools import cycle
 from os.path import isfile, join, splitext
 
 from . import image, video, signals
-from .compat import PY2, UnicodeMixin, strxfrm, url_quote, text_type
+from .compat import PY2, UnicodeMixin, strxfrm, url_quote, text_type, pickle
 from .image import process_image, get_exif_tags, get_exif_data, get_size
 from .settings import get_thumb
 from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
