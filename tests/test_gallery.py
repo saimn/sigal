@@ -15,7 +15,7 @@ REF = {
         'title': 'An example gallery',
         'name': 'dir1',
         'thumbnail': 'dir1/test1/thumbnails/11.tn.jpg',
-        'subdirs': ['test1', 'test2'],
+        'subdirs': ['test1', 'test2', 'test3'],
         'medias': [],
     },
     'dir1/test1': {
@@ -33,6 +33,13 @@ REF = {
         'thumbnail': 'test2/thumbnails/21.tn.jpg',
         'subdirs': [],
         'medias': ['21.jpg', '22.jpg', 'archlinux-kiss-1024x640.png'],
+    },
+    'dir1/test3': {
+        'title': '01 First title alphabetically',
+        'name': 'test3',
+        'thumbnail': 'test3/thumbnails/3.tn.jpg',
+        'subdirs': [],
+        'medias': ['3.jpg'],
     },
     'dir2': {
         'title': 'Another example gallery with a very long name',
@@ -165,10 +172,29 @@ def test_album_medias(settings):
 def test_albums_sort(settings):
     gal = Gallery(settings, ncpu=1)
     album = REF['dir1']
+    subdirs = list(album['subdirs'])
+
+    settings['albums_sort_reverse'] = False
+    a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
+    a.sort_subdirs('')
+    assert [alb.name for alb in a.albums] == subdirs
 
     settings['albums_sort_reverse'] = True
     a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
-    assert [im.filename for im in a.images] == list(reversed(album['medias']))
+    a.sort_subdirs('')
+    assert [alb.name for alb in a.albums] == list(reversed(subdirs))
+
+    titles = [im.title for im in a.albums]
+    titles.sort()
+    settings['albums_sort_reverse'] = False
+    a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
+    a.sort_subdirs('title')
+    assert [im.title for im in a.albums] == titles
+
+    settings['albums_sort_reverse'] = True
+    a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
+    a.sort_subdirs('title')
+    assert [im.title for im in a.albums] == list(reversed(titles))
 
 
 def test_medias_sort(settings):

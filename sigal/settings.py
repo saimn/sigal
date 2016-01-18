@@ -31,6 +31,7 @@ from .compat import PY2, text_type
 
 
 _DEFAULT_CONFIG = {
+    'albums_sort_attr': 'name',
     'albums_sort_reverse': False,
     'autorotate_images': True,
     'colorbox_column_size': 4,

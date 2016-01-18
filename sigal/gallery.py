@@ -221,6 +221,7 @@ class Album(UnicodeMixin):
         self.name = path.split(os.path.sep)[-1]
         self.gallery = gallery
         self.settings = settings
+        self.subdirs = dirnames
         self.output_file = settings['output_filename']
         self._thumbnail = None
 
@@ -239,10 +240,6 @@ class Album(UnicodeMixin):
 
         self.index_url = url_from_path(os.path.relpath(
             settings['destination'], self.dst_path)) + '/' + self.url_ext
-
-        # sort sub-albums
-        dirnames.sort(key=strxfrm, reverse=settings['albums_sort_reverse'])
-        self.subdirs = dirnames
 
         #: List of all medias in the album (:class:`~sigal.gallery.Image` and
         #: :class:`~sigal.gallery.Video`).
@@ -312,6 +309,20 @@ class Album(UnicodeMixin):
         if self.medias and self.settings['keep_orig']:
             self.orig_path = join(self.dst_path, self.settings['orig_dir'])
             check_or_create_dir(self.orig_path)
+
+    def sort_subdirs(self, albums_sort_attr):
+        if self.subdirs:
+            if albums_sort_attr:
+                root_path = self.path if self.path != '.' else ''
+                key = lambda s: strxfrm(getattr(
+                    self.gallery.albums[join(root_path, s)], albums_sort_attr))
+            else:
+                key = strxfrm
+
+            self.subdirs.sort(key=key,
+                              reverse=self.settings['albums_sort_reverse'])
+
+        signals.albums_sorted.send(self)
 
     def sort_medias(self, medias_sort_attr):
         if self.medias:
@@ -524,6 +535,11 @@ class Gallery(object):
             else:
                 album.create_output_directories()
                 albums[relpath] = album
+
+        with progressbar(albums.values(), label="Sorting albums",
+                         file=self.progressbar_target) as progress_albums:
+            for album in progress_albums:
+                album.sort_subdirs(settings['albums_sort_attr'])
 
         with progressbar(albums.values(), label="Sorting media",
                          file=self.progressbar_target) as progress_albums:
