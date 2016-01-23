@@ -108,3 +108,8 @@ Watermark plugin
 ===================
 
 .. automodule:: sigal.plugins.watermark
+
+Feeds plugin
+============
+
+.. automodule:: sigal.plugins.feeds
