@@ -233,10 +233,14 @@ def test_gallery(settings, tmpdir):
 
     assert '<title>Sigal test gallery</title>' in html
 
-    logging.getLogger('sigal').setLevel(logging.DEBUG)
-    gal = Gallery(settings, ncpu=1)
-    with pytest.raises(SubprocessException):
-        gal.build()
+    logger = logging.getLogger('sigal')
+    logger.setLevel(logging.DEBUG)
+    try:
+        gal = Gallery(settings, ncpu=1)
+        with pytest.raises(SubprocessException):
+            gal.build()
+    finally:
+        logger.setLevel(logging.INFO)
 
 
 def test_empty_dirs(settings):
