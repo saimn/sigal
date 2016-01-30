@@ -143,18 +143,19 @@ def test_album(path, album, settings, tmpdir):
     # locale.setlocale(locale.LC_ALL, 'fr_FR')
     locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 
-    gal = Gallery(settings, ncpu=1)
-    a = Album(path, settings, album['subdirs'], album['medias'], gal)
+    try:
+        gal = Gallery(settings, ncpu=1)
+        a = Album(path, settings, album['subdirs'], album['medias'], gal)
 
-    assert a.title == album['title']
-    assert a.name == album['name']
-    assert a.subdirs == album['subdirs']
-    assert a.thumbnail == album['thumbnail']
-    assert [m.filename for m in a.medias] == album['medias']
-    assert len(a) == len(album['medias'])
-
-    # restore locale back
-    locale.setlocale(locale.LC_ALL, old_locale)
+        assert a.title == album['title']
+        assert a.name == album['name']
+        assert a.subdirs == album['subdirs']
+        assert a.thumbnail == album['thumbnail']
+        assert [m.filename for m in a.medias] == album['medias']
+        assert len(a) == len(album['medias'])
+    finally:
+        # restore locale back
+        locale.setlocale(locale.LC_ALL, old_locale)
 
 
 def test_album_medias(settings):
