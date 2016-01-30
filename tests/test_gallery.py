@@ -1,12 +1,14 @@
 # -*- coding:utf-8 -*-
 
 import locale
+import logging
 import os
 import pytest
 import datetime
 
 from os.path import join
 from sigal.gallery import Album, Media, Image, Video, Gallery
+from sigal.video import SubprocessException
 
 CURRENT_DIR = os.path.dirname(__file__)
 
@@ -218,6 +220,8 @@ def test_gallery(settings, tmpdir):
     "Test the Gallery class."
 
     settings['destination'] = str(tmpdir)
+    settings['webm_options'] = ['-missing-option', 'foobar']
+
     gal = Gallery(settings, ncpu=1)
     gal.build()
 
@@ -228,6 +232,11 @@ def test_gallery(settings, tmpdir):
         html = f.read()
 
     assert '<title>Sigal test gallery</title>' in html
+
+    logging.getLogger('sigal').setLevel(logging.DEBUG)
+    gal = Gallery(settings, ncpu=1)
+    with pytest.raises(SubprocessException):
+        gal.build()
 
 
 def test_empty_dirs(settings):

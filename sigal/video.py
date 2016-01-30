@@ -133,11 +133,7 @@ def generate_thumbnail(source, outname, box, delay, fit=True, options=None):
     cmd = ['ffmpeg', '-i', source, '-an', '-r', '1',
            '-ss', delay, '-vframes', '1', '-y', tmpfile]
     logger.debug('Create thumbnail for video: %s', ' '.join(cmd))
-
-    try:
-        check_subprocess(cmd, source, outname)
-    except Exception:
-        return
+    check_subprocess(cmd, source, outname)
 
     # use the generate_thumbnail function from sigal.image
     image.generate_thumbnail(tmpfile, outname, box, fit, options)
@@ -169,7 +165,10 @@ def process_video(filepath, outpath, settings):
             generate_video(filepath, outname, settings,
                            options=settings.get(video_format + '_options'))
     except Exception:
-        return Status.FAILURE
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            raise
+        else:
+            return Status.FAILURE
 
     if settings['make_thumbs']:
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
@@ -179,6 +178,9 @@ def process_video(filepath, outpath, settings):
                 settings['thumb_video_delay'], fit=settings['thumb_fit'],
                 options=settings['jpg_options'])
         except Exception:
-            return Status.FAILURE
+            if logger.getEffectiveLevel() == logging.DEBUG:
+                raise
+            else:
+                return Status.FAILURE
 
     return Status.SUCCESS
