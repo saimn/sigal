@@ -66,7 +66,7 @@ REF = {
         'thumbnail': ('video/thumbnails/'
                       'stallman software-freedom-day-low.tn.jpg'),
         'subdirs': [],
-        'medias': ['stallman software-freedom-day-low.webm']
+        'medias': ['stallman software-freedom-day-low.ogv']
     }
 }
 
@@ -151,25 +151,17 @@ def test_album(path, album, settings, tmpdir):
         assert a.name == album['name']
         assert a.subdirs == album['subdirs']
         assert a.thumbnail == album['thumbnail']
-        assert [m.filename for m in a.medias] == album['medias']
+        if path == 'video':
+            assert list(a.images) == []
+            assert [m.filename for m in a.medias] == \
+                [album['medias'][0].replace('.ogv', '.webm')]
+        else:
+            assert list(a.videos) == []
+            assert [m.filename for m in a.medias] == album['medias']
         assert len(a) == len(album['medias'])
     finally:
         # restore locale back
         locale.setlocale(locale.LC_ALL, old_locale)
-
-
-def test_album_medias(settings):
-    gal = Gallery(settings, ncpu=1)
-
-    album = REF['dir1/test1']
-    a = Album('dir1/test1', settings, album['subdirs'], album['medias'], gal)
-    assert list(im.filename for im in a.images) == album['medias']
-    assert list(a.videos) == []
-
-    album = REF['video']
-    a = Album('video', settings, album['subdirs'], album['medias'], gal)
-    assert list(im.filename for im in a.videos) == album['medias']
-    assert list(a.images) == []
 
 
 def test_albums_sort(settings):
