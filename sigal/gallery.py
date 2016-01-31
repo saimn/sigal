@@ -401,7 +401,14 @@ class Album(UnicodeMixin):
 
             # else simply return the 1st media file
             if not self._thumbnail and self.medias:
-                self._thumbnail = join(self.name, self.medias[0].thumbnail)
+                for media in self.medias:
+                    if media.thumbnail is not None:
+                        self._thumbnail = join(self.name, media.thumbnail)
+                        break
+                else:
+                    self.logger.warning("No thumbnail found for %r", self)
+                    return None
+
                 self.logger.debug("Use the 1st image as thumbnail for %r : %s",
                                   self, self._thumbnail)
                 return url_from_path(self._thumbnail)
