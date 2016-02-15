@@ -137,6 +137,12 @@ def test_get_exif_tags():
     assert 'gps' not in simple
 
 
+def test_null_exposure_time():
+    data = {'ExposureTime': (0, 0)}
+    simple = get_exif_tags(data)
+    assert 'exposure' not in simple
+
+
 def test_exif_copy(tmpdir):
     "Test if EXIF data can transfered copied to the resized image."
 

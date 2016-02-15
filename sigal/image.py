@@ -263,6 +263,8 @@ def get_exif_tags(data):
             except IndexError:
                 # Pillow == 3.0
                 simple['exposure'] = exptime[0]
+            except ZeroDivisionError:
+                logger.info('Invalid ExposureTime: %r', exptime)
         elif isinstance(exptime, int):
             simple['exposure'] = str(exptime)
         else:
