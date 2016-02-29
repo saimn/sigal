@@ -65,7 +65,7 @@ class Writer(object):
                                                        'templates'))
 
         # setup jinja env
-        env_options = {'trim_blocks': True}
+        env_options = {'trim_blocks': True, 'autoescape': True}
         try:
             if tuple(int(x) for x in jinja2.__version__.split('.')) >= (2, 7):
                 env_options['lstrip_blocks'] = True
