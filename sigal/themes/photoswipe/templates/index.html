@@ -3,24 +3,16 @@
   <head>
     {% block head %}
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
 
     <title>{{ album.title }}</title>
     <meta name="description" content="">
     <meta name="author" content="{{ album.author }}">
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="{{ theme.url }}/styles.min.css">
-
-	<!-- Core JS file -->
-	<script src="{{ theme.url }}/photoswipe.min.js"></script>
-
-	<!-- UI JS file -->
-	<script src="{{ theme.url }}/photoswipe-ui-default.min.js"></script>
-	<script src="{{ theme.url }}/echo/echo.min.js"></script>
-
-    <!--[if lt IE 9]>
-    	<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
-	<![endif]-->
+    <script src="{{ theme.url }}/photoswipe.min.js"></script>
+    <script src="{{ theme.url }}/photoswipe-ui-default.min.js"></script>
+    <script src="{{ theme.url }}/echo/echo.min.js"></script>
     {% endblock %}
   </head>
   <body>
