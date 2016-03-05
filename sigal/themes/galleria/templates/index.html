@@ -147,7 +147,7 @@
                     data-title="{{ media.title if media.title else media.filename }}"
                     data-description="{{ img_description(media) }}"
                     data-layer="<video controls>
-                                  <source src='{{ media.filename }}' type='video/webm' />
+                                  <source src='{{ media.filename }}' type='{{ media.mime }}' />
                                 </video>" />
               </a>
             {% endif %}
