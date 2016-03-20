@@ -25,33 +25,6 @@
     <link rel="stylesheet" href="{{ theme.url }}/leaflet/leaflet.css" />
     <script src="{{ theme.url }}/leaflet/leaflet.js"></script>
     <style type="text/css">
-        .gallery-map-toggle {
-          cursor: pointer;
-        }
-
-        /* Mimic .galleria-stage to use the same area for the map */
-        #galleria-map {
-          position: absolute;
-          bottom: 80px;
-          left: 10px;
-          top: 0;
-          right: 10px;
-        }
-
-        /* We need to have more contract between active and inactive images
-           for maps, or we may not know which is the selected. */
-        .galleria-thumbnails .galleria-image.active {
-           opacity: 1;
-        }
-        .galleria-thumbnails .galleria-image {
-          opacity: 0.6;
-        }
-        .icons {
-          float: right;
-        }
-        #gallery {
-          clear: both;
-        }
     </style>
     {% endif %}
   </head>
@@ -118,14 +91,14 @@
               {% endif %}
             {% endif %}
           {%- endmacro %}
-        {% if settings.show_map and album.show_map %}
         <div class="icons">
+          {% if settings.show_map and album.show_map %}
           <a class="gallery-map-toggle"><img src="{{ theme.url }}/img/map.png"
             title="Show/Hide map" alt="Show/Hide Map" /></a>
+          {% endif %}
           <a id="fullscreen"><img src="{{ theme.url }}/img/fullscreen.png"
             title="Fullscreen" alt="Fullscreen" /></a>
         </div>
-        {% endif %}
         <div id="gallery">
           {% for media in album.medias %}
             {% if media.type == "image" %}

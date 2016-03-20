@@ -102,12 +102,30 @@ header h1 a:hover, header h2 a:hover {
   line-height: 0;
   width: 100%;
   height: 600px;
+  clear: both;
 }
 #gallery video {
   position: absolute;
   top: 10%;
   width: 100%;
   margin: 0 auto;
+}
+
+.icons {
+  float: right;
+}
+
+.gallery-map-toggle {
+  cursor: pointer;
+}
+
+/* Mimic .galleria-stage to use the same area for the map */
+#galleria-map {
+  position: absolute;
+  bottom: 80px;
+  left: 10px;
+  top: 0;
+  right: 10px;
 }
 
 /* fullscreen display link */
