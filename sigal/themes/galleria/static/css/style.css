@@ -112,17 +112,21 @@ header h1 a:hover, header h2 a:hover {
 }
 
 .icons {
-  float: right;
+  top: 10px;
+  right: 20px;
+  padding: 5px;
+  z-index: 2;
+  position: absolute;
+  text-align: right;
+}
+.icons a {
+  cursor: pointer;
 }
 .icons img {
-  opacity: .6;
+  opacity: .7;
 }
 .icons img:hover {
   opacity: .9;
-}
-
-.gallery-map-toggle {
-  cursor: pointer;
 }
 
 /* Mimic .galleria-stage to use the same area for the map */
@@ -132,11 +136,6 @@ header h1 a:hover, header h2 a:hover {
   left: 10px;
   top: 0;
   right: 10px;
-}
-
-/* fullscreen display link */
-#fullscreen {
-  cursor: pointer;
 }
 
 /* footer */
