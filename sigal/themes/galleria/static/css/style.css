@@ -114,6 +114,12 @@ header h1 a:hover, header h2 a:hover {
 .icons {
   float: right;
 }
+.icons img {
+  opacity: .6;
+}
+.icons img:hover {
+  opacity: .9;
+}
 
 .gallery-map-toggle {
   cursor: pointer;
