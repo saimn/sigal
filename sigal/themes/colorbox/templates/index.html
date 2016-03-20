@@ -25,9 +25,14 @@
       <div class="{{ column_size_t }} columns thumbnail
                   {% if loop.index % nb_columns == 1 %}alpha{% endif%}
                   {% if loop.index % nb_columns == 0 %}omega{% endif%}">
-        <a href="{{ alb.url }}">
+        <a href="{{ alb.url }}" class="album_thumb_container">
+          <img src="{{ alb.thumbnail }}" class="album_thumb_prev"
+              alt="{{ alb.title }}" title="{{ alb.title }}" />
+          <img src="{{ alb.thumbnail }}" class="album_thumb_next"
+              alt="{{ alb.title }}" title="{{ alb.title }}" />
           <img src="{{ alb.thumbnail }}" class="album_thumb"
-              alt="{{ alb.title }}" title="{{ alb.title }}" /></a>
+              alt="{{ alb.title }}" title="{{ alb.title }}" />
+        </a>
         <span class="album_title">{{ alb.title }}</span>
       </div>
     {% if loop.last or loop.index % nb_columns == 0 %}

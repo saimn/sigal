@@ -40,6 +40,20 @@ header h1 a {
   box-shadow: 0 0 5px #818181;
 }
 
+.thumbnails {
+  position: relative;
+}
+.album_thumb_prev {
+  position: absolute;
+  transform: rotate(-5deg);
+  z-index: -1;
+}
+.album_thumb_next {
+  position: absolute;
+  transform: rotate(5deg);
+  z-index: -1;
+}
+
 .album_title {
   display: block;
 }
