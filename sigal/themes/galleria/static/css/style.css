@@ -102,6 +102,7 @@ header h1 a:hover, header h2 a:hover {
   line-height: 0;
   width: 100%;
   height: 600px;
+  clear: both;
 }
 #gallery video {
   position: absolute;
@@ -110,9 +111,31 @@ header h1 a:hover, header h2 a:hover {
   margin: 0 auto;
 }
 
-/* fullscreen display link */
-#fullscreen {
+.icons {
+  top: 10px;
+  right: 20px;
+  padding: 5px;
+  z-index: 2;
+  position: absolute;
+  text-align: right;
+}
+.icons a {
   cursor: pointer;
+}
+.icons img {
+  opacity: .7;
+}
+.icons img:hover {
+  opacity: .9;
+}
+
+/* Mimic .galleria-stage to use the same area for the map */
+#galleria-map {
+  position: absolute;
+  bottom: 80px;
+  left: 10px;
+  top: 0;
+  right: 10px;
 }
 
 /* footer */
