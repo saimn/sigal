@@ -137,6 +137,20 @@ def test_get_exif_tags():
     assert 'gps' not in simple
 
 
+def test_iso_speed_ratings():
+    data = {'ISOSpeedRatings': ()}
+    simple = get_exif_tags(data)
+    assert 'iso' not in simple
+
+    data = {'ISOSpeedRatings': None}
+    simple = get_exif_tags(data)
+    assert 'iso' not in simple
+
+    data = {'ISOSpeedRatings': 125}
+    simple = get_exif_tags(data)
+    assert 'iso' in simple
+
+
 def test_null_exposure_time():
     data = {'ExposureTime': (0, 0)}
     simple = get_exif_tags(data)
