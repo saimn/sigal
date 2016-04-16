@@ -2,6 +2,26 @@
  Changelog
 ===========
 
+Version 1.1.dev
+~~~~~~~~~~~~~~~
+
+Released on 2016-xx-xx.
+
+- Add GIF support [#185].
+- Add a feeds plugin [#98].
+- Implement album sorting [#192].
+- Enable autoescape in jinja templates [#195].
+- Raise exceptions in debug mode (``--debug``).
+- Fix unicode bug with special characters in path names.
+- Better representation for exposure time fraction  [#187].
+- Catch cPickle.PicklingError on python 2 [#191].
+- Fix ZeroDivisionError when ExposureTime contains null values [#193].
+- Fix hard-coded video mime-type in the galleria theme [#196].
+- Update theme librairies: colorbox 1.6.3, jQuery 2.2.1, touchSwipe 1.6.15,
+  photoswipe 4.1.1
+- Galleria: always show fullscreen icon, replace fullscreen and map icons.
+- Use https for external resources, remove html5shiv.
+
 Version 1.0.1
 ~~~~~~~~~~~~~
 
