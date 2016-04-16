@@ -270,7 +270,7 @@ def get_exif_tags(data):
         else:
             logger.info('Unknown format for ExposureTime: %r', exptime)
 
-    if 'ISOSpeedRatings' in data:
+    if 'ISOSpeedRatings' in data and data['ISOSpeedRatings']:
         if isinstance(data['ISOSpeedRatings'], tuple):
             # Pillow == 3.0
             simple['iso'] = data['ISOSpeedRatings'][0]
