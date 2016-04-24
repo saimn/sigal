@@ -23,6 +23,8 @@ import shutil
 from markdown import Markdown
 from markupsafe import Markup
 
+from urllib.parse import quote
+
 VIDEO_MIMES = {'.mp4': 'video/mp4',
                '.webm': 'video/webm',
                '.ogv': 'video/ogg'}
@@ -58,10 +60,9 @@ def check_or_create_dir(path):
 def url_from_path(path):
     """Transform path to url, converting backslashes to slashes if needed."""
 
-    if os.sep == '/':
-        return path
-    else:
-        return '/'.join(path.split(os.sep))
+    if os.sep != '/':
+        path = '/'.join(path.split(os.sep))
+    return quote(path)
 
 
 def read_markdown(filename):

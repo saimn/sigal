@@ -4,6 +4,7 @@ import pytest
 import datetime
 
 from os.path import join
+from urllib.parse import quote
 from sigal.gallery import Album, Media, Image, Video, Gallery
 from sigal.video import SubprocessException
 
@@ -53,7 +54,7 @@ REF = {
     'accentué': {
         'title': 'accentué',
         'name': 'accentué',
-        'thumbnail': 'accentué/thumbnails/hélicoïde.tn.jpg',
+        'thumbnail': 'accentué/thumbnails/h%C3%A9lico%C3%AFde.tn.jpg',
         'subdirs': [],
         'medias': ['hélicoïde.jpg', '11.jpg'],
     },

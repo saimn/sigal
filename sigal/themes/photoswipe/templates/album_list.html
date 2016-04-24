@@ -67,21 +67,20 @@
 		{% if album.medias %}
 			<div class="gallery" itemscope itemtype="http://schema.org/ImageGallery">
 				{% for media in album.medias %}
-				  {% set media_title = media.title if media.title else media.filename %}
 					    {% if media.type == "image" %}
 						  	{% if loop.first %}
 						  		<figure class="gallery__img--main thumbnail" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
-									<a href="{{ media.filename }}" itemprop="contentUrl" data-size="{{media.size.width}}x{{media.size.height}}">
+									<a href="{{ media.url }}" itemprop="contentUrl" data-size="{{media.size.width}}x{{media.size.height}}">
 									<img src="{{ theme.url }}/echo/blank.gif" data-echo="{{ media.filename }}" alt="{{ media.filename }}" itemprop="thumbnail" title="{{ media.exif.datetime }}" />
 									</a>
-									<figcaption itemprop="caption description">{{ media_title }} - {{ media.exif.datetime }}</figcaption>
+									<figcaption itemprop="caption description">{{ media.title }} - {{ media.exif.datetime }}</figcaption>
 							    </figure>
 						  	{% else %}
 							    <figure class="gallery__img--secondary thumbnail" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
-									<a href="{{ media.filename }}" itemprop="contentUrl" data-size="{{media.size.width}}x{{media.size.height}}">
+									<a href="{{ media.url }}" itemprop="contentUrl" data-size="{{media.size.width}}x{{media.size.height}}">
 									<img src="{{ theme.url }}/echo/blank.gif" data-echo="{{ media.thumbnail }}" alt="{{ media.filename }}" itemprop="thumbnail" title="{{ media.exif.datetime }}" />
 									</a>
-									<figcaption itemprop="caption description">{{ media_title }} - {{ media.exif.datetime }}</figcaption>
+									<figcaption itemprop="caption description">{{ media.title }} - {{ media.exif.datetime }}</figcaption>
 							    </figure>
 						    {% endif %}
 					    {% endif %}

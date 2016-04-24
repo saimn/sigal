@@ -69,7 +69,7 @@ class Media:
     type = ''
 
     def __init__(self, filename, path, settings):
-        self.src_filename = self.filename = self.url = filename
+        self.src_filename = self.filename = filename
         self.path = path
         self.settings = settings
         self.ext = os.path.splitext(filename)[1].lower()
@@ -89,6 +89,11 @@ class Media:
 
     def __str__(self):
         return join(self.path, self.filename)
+
+    @property
+    def url(self):
+        """URL of the media."""
+        return url_from_path(self.filename)
 
     @property
     def big(self):
@@ -137,7 +142,8 @@ class Media:
         """ Get image metadata from filename.md: title, description, meta."""
         self.description = ''
         self.meta = {}
-        self.title = ''
+        # default: title is the filename
+        self.title = self.filename
 
         descfile = splitext(self.src_path)[0] + '.md'
         if isfile(descfile):
@@ -219,7 +225,7 @@ class Video(Media):
         if not settings['use_orig'] or not is_valid_html5_video(ext):
             video_format = settings['video_format']
             ext = '.' + video_format
-            self.filename = self.url = base + ext
+            self.filename = base + ext
             self.mime = get_mime(ext)
             self.dst_path = join(settings['destination'], path, base + ext)
         else:
@@ -409,16 +415,16 @@ class Album:
 
         if self._thumbnail:
             # stop if it is already set
-            return url_from_path(self._thumbnail)
+            return self._thumbnail
 
         # Test the thumbnail from the Markdown file.
         thumbnail = self.meta.get('thumbnail', [''])[0]
 
         if thumbnail and isfile(join(self.src_path, thumbnail)):
-            self._thumbnail = join(self.name, get_thumb(self.settings,
-                                                        thumbnail))
+            self._thumbnail = url_from_path(join(
+                self.name, get_thumb(self.settings, thumbnail)))
             self.logger.debug("Thumbnail for %r : %s", self, self._thumbnail)
-            return url_from_path(self._thumbnail)
+            return self._thumbnail
         else:
             # find and return the first landscape image
             for f in self.medias:
@@ -431,17 +437,17 @@ class Album:
                         size = get_size(f.src_path)
 
                     if size['width'] > size['height']:
-                        self._thumbnail = join(self.name, f.thumbnail)
+                        self._thumbnail = self.name + '/' + f.thumbnail
                         self.logger.debug(
-                            "Use 1st landscape image as thumbnail for %r :"
-                            " %s", self, self._thumbnail)
-                        return url_from_path(self._thumbnail)
+                            "Use 1st landscape image as thumbnail for %r : %s",
+                            self, self._thumbnail)
+                        return self._thumbnail
 
             # else simply return the 1st media file
             if not self._thumbnail and self.medias:
                 for media in self.medias:
                     if media.thumbnail is not None:
-                        self._thumbnail = join(self.name, media.thumbnail)
+                        self._thumbnail = self.name + '/' + media.thumbnail
                         break
                 else:
                     self.logger.warning("No thumbnail found for %r", self)
@@ -449,17 +455,17 @@ class Album:
 
                 self.logger.debug("Use the 1st image as thumbnail for %r : %s",
                                   self, self._thumbnail)
-                return url_from_path(self._thumbnail)
+                return self._thumbnail
 
             # use the thumbnail of their sub-directories
             if not self._thumbnail:
                 for path, album in self.gallery.get_albums(self.path):
                     if album.thumbnail:
-                        self._thumbnail = join(self.name, album.thumbnail)
+                        self._thumbnail = self.name + '/' + album.thumbnail
                         self.logger.debug(
                             "Using thumbnail from sub-directory for %r : %s",
                             self, self._thumbnail)
-                        return url_from_path(self._thumbnail)
+                        return self._thumbnail
 
         self.logger.error('Thumbnail not found for %r', self)
         return None
