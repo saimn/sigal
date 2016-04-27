@@ -101,14 +101,16 @@ thumb_size = (280, 210)
 # Use symbolic links instead of copying the original images
 # orig_link = False
 
-# Attribute of Album objects which is used to sort medias (eg 'title').
+# Attribute of Album objects which is used to sort medias (eg 'title'). To sort
+# on a metadata key, use 'meta.key'.
 # albums_sort_attr = 'name'
 
 # Reverse sort for albums
 # albums_sort_reverse = False
 
 # Attribute of Media objects which is used to sort medias. 'date' can be used
-# to sort with EXIF dates.
+# to sort with EXIF dates, and 'meta.key' to sort on a metadata key (which then
+# must exist for all images).
 # medias_sort_attr = 'filename'
 
 # Reverse sort for medias
