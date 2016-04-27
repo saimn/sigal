@@ -223,3 +223,23 @@ def serve(destination, port, config):
         httpd.serve_forever()
     except KeyboardInterrupt:
         print('\nAll done!')
+
+@main.command()
+@argument('image')
+@argument('title')
+@option('-f', '--force', default=False, is_flag=True,
+        help='Overwrite existing .md file')
+def title(image, title, force=False):
+    "Write image title to corresponding .md file"
+
+    if not os.path.exists(image):
+        sys.stderr.write("The image {} does not exist.\n".format(image))
+        sys.exit(1)
+    descfile = os.path.splitext(image)[0] + '.md'
+    if os.path.exists(descfile) and not force:
+        sys.stderr.write("Description file for {} already exists. "
+                         "Use --force to overwrite it.\n".format(image))
+        sys.exit(2)
+
+    with open(descfile, "w") as fp:
+        fp.write("Title: {}\n".format(title))
