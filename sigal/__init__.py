@@ -225,21 +225,38 @@ def serve(destination, port, config):
         print('\nAll done!')
 
 @main.command()
-@argument('image')
-@argument('title')
-@option('-f', '--force', default=False, is_flag=True,
+@argument('target')
+@argument('keys', nargs=-1)
+@option('-o', '--overwrite', default=False, is_flag=True,
         help='Overwrite existing .md file')
-def title(image, title, force=False):
-    "Write image title to corresponding .md file"
+def set_meta(target, keys, overwrite=False):
+    """Write metadata keys to .md file.
 
-    if not os.path.exists(image):
-        sys.stderr.write("The image {} does not exist.\n".format(image))
+    TARGET can be a media file or an album directory. KEYS are key/value pairs.
+
+    Ex, to set the title of test.jpg to "My test image":
+
+    sigal set_meta test.jpg title "My test image"
+    """
+
+    if not os.path.exists(target):
+        sys.stderr.write("The target {} does not exist.\n".format(target))
         sys.exit(1)
-    descfile = os.path.splitext(image)[0] + '.md'
-    if os.path.exists(descfile) and not force:
-        sys.stderr.write("Description file for {} already exists. "
-                         "Use --force to overwrite it.\n".format(image))
+    if len(keys) < 2 or len(keys) % 2 > 0:
+        sys.stderr.write("Need an even number of arguments.\n")
+        sys.exit(1)
+
+    if os.path.isdir(target):
+        descfile = os.path.join(target, 'index.md')
+    else:
+        descfile = os.path.splitext(target)[0] + '.md'
+    if os.path.exists(descfile) and not overwrite:
+        sys.stderr.write("Description file '{}' already exists. "
+                         "Use --overwrite to overwrite it.\n".format(descfile))
         sys.exit(2)
 
     with open(descfile, "w") as fp:
-        fp.write("Title: {}\n".format(title))
+        for i in range(len(keys)//2):
+            k,v = keys[i*2:(i+1)*2]
+            fp.write("{}: {}\n".format(k.capitalize(), v))
+    print("{} metadata key(s) written to {}".format(len(keys)//2, descfile))
