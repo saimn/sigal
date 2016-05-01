@@ -90,7 +90,10 @@ def read_markdown(filename):
         pass
     else:
         output['meta'] = meta
-        output['title'] = md.Meta.get('title', [''])[0]
+        try:
+            output['title'] = md.Meta['title'][0]
+        except KeyError:
+            pass
 
     return output
 

@@ -58,7 +58,7 @@ def test_read_markdown_empty_file(tmpdir):
     src = tmpdir.join("file.txt")
     src.write("content")
     m = utils.read_markdown(str(src))
-    assert m['title'] == ''
+    assert 'title' not in m
     assert m['meta'] == {}
     assert m['description'] == '<p>content</p>'
 
