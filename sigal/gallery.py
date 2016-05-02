@@ -314,7 +314,12 @@ class Album(UnicodeMixin):
         if self.subdirs:
             if albums_sort_attr:
                 root_path = self.path if self.path != '.' else ''
-                key = lambda s: strxfrm(getattr(
+                if albums_sort_attr.startswith("meta."):
+                    meta_key = albums_sort_attr.split(".", 1)[1]
+                    key = lambda s: strxfrm(
+                        self.gallery.albums[join(root_path, s)].meta.get(meta_key, [''])[0])
+                else:
+                    key = lambda s: strxfrm(getattr(
                     self.gallery.albums[join(root_path, s)], albums_sort_attr))
             else:
                 key = strxfrm
@@ -328,6 +333,9 @@ class Album(UnicodeMixin):
         if self.medias:
             if medias_sort_attr == 'date':
                 key = lambda s: s.date or datetime.now()
+            elif medias_sort_attr.startswith('meta.'):
+                meta_key = medias_sort_attr.split(".", 1)[1]
+                key = lambda s: strxfrm(s.meta.get(meta_key, [''])[0])
             else:
                 key = lambda s: strxfrm(getattr(s, medias_sort_attr))
 

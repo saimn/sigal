@@ -191,6 +191,18 @@ def test_albums_sort(settings):
     a.sort_subdirs('title')
     assert [im.title for im in a.albums] == list(reversed(titles))
 
+    orders = ['01', '02', '03']
+    orders.sort()
+    settings['albums_sort_reverse'] = False
+    a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
+    a.sort_subdirs('meta.order')
+    assert [d.meta['order'][0] for d in a.albums] == orders
+
+    settings['albums_sort_reverse'] = True
+    a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
+    a.sort_subdirs('meta.order')
+    assert [d.meta['order'][0] for d in a.albums] == list(reversed(orders))
+
 
 def test_medias_sort(settings):
     gal = Gallery(settings, ncpu=1)
@@ -207,6 +219,12 @@ def test_medias_sort(settings):
     a.sort_medias(settings['medias_sort_attr'])
     assert [im.filename for im in a.images] == ['22.jpg', '21.jpg',
                                                 'archlinux-kiss-1024x640.png']
+
+    settings['medias_sort_attr'] = 'meta.order'
+    settings['medias_sort_reverse'] = False
+    a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
+    a.sort_medias(settings['medias_sort_attr'])
+    assert [im.filename for im in a.images] == ['archlinux-kiss-1024x640.png', '21.jpg', '22.jpg']
 
 
 def test_gallery(settings, tmpdir):
