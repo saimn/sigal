@@ -2,6 +2,20 @@
  Changelog
 ===========
 
+Version 1.2.0
+~~~~~~~~~~~~~
+
+Released on 2016-06-05.
+
+- Fix videos not opening correctly with colorbox [#201].
+- Allow to create large zip files [#205].
+- Allow sorting on metadata keys (for ``albums_sort_attr`` and
+  ``medias_sort_attr``) [#202].
+- Add a ``set_meta`` command to write metadata keys to ``.md`` files [#203]. For
+  example, to set the title of ``test.jpg`` to *"My test image"*::
+
+    sigal set_meta test.jpg title "My test image"
+
 Version 1.1.0
 ~~~~~~~~~~~~~
 
