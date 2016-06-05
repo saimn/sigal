@@ -154,7 +154,9 @@
         },
         tap:function(event, target){
           $.colorbox.close()
-        }}).unbind("click");
+        },
+        excludedElements: $.fn.swipe.defaults.excludedElements + ", #colorbox"
+      }).unbind("click");
     });
   </script>
   {% endif %}
