@@ -12,8 +12,11 @@ import alabaster
 sys.path.append(os.path.abspath('..'))
 
 pkgmeta = {}
-execfile(os.path.join(os.path.dirname(__file__), '..', 'sigal', 'pkgmeta.py'),
-         pkgmeta)
+pkgmeta_file = os.path.join(os.path.dirname(__file__), '..', 'sigal',
+                            'pkgmeta.py')
+with open(pkgmeta_file) as f:
+    code = compile(f.read(), 'pkgmeta.py', 'exec')
+    exec(code, pkgmeta)
 
 # -- General configuration ----------------------------------------------------
 
