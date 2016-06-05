@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-# Copyright (c) 2009-2014 - Simon Conseil
+# Copyright (c) 2009-2016 - Simon Conseil
 # Copyright (c) 2015 - François D.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
