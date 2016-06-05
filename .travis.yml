@@ -1,13 +1,21 @@
 language: python
-python:
-    - "2.7"
-    - "3.3"
-    - "3.4"
-    - "3.5"
+cache: pip
 env:
-  - PILLOW_VERSION=2.9.0
-  - PILLOW_VERSION=3.0.0
-  - PILLOW_VERSION=3.1.0
+  global:
+    - PILLOW_VERSION=3.2.0
+
+matrix:
+  include:
+    - python: 2.7
+      env: PILLOW_VERSION=2.9.0
+    - python: 2.7
+      env: PILLOW_VERSION=3.0.0
+    - python: 2.7
+    - python: 3.3
+    - python: 3.4
+    - python: 3.5
+
+
 before_install:
     # Dependencies to build PIL
     - sudo apt-get update -qq
@@ -17,8 +25,7 @@ before_install:
     - ffmpeg -version
 install:
     - pip install -q Pillow==$PILLOW_VERSION
-    - pip install pytest pytest-cov
-    - pip install coveralls
+    - pip install pytest pytest-cov coveralls
     - pip install .
 script: py.test -sv --cov sigal --cov-report term-missing tests/
 after_success:
