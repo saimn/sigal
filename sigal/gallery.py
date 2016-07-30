@@ -513,43 +513,46 @@ class Gallery(object):
         else:
             self.progressbar_target = Devnull()
 
-        for path, dirs, files in os.walk(src_path, followlinks=True,
-                                         topdown=False):
-            if self.logger.getEffectiveLevel() >= logging.WARNING:
-                print("\rCollecting albums " + next(progressChars), end="")
-            relpath = os.path.relpath(path, src_path)
+        with progressbar([], label="Collecting albums", width=1,
+                         item_show_func=lambda x: next(progressChars),
+                         file=self.progressbar_target) as progress_albums:
+            for path, dirs, files in os.walk(src_path, followlinks=True,
+                                             topdown=False):
+                progress_albums.render_progress()
+                relpath = os.path.relpath(path, src_path)
 
-            # Test if the directory match the ignore_dirs settings
-            if ignore_dirs and any(fnmatch.fnmatch(relpath, ignore)
-                                   for ignore in ignore_dirs):
-                self.logger.info('Ignoring %s', relpath)
-                continue
+                # Test if the directory match the ignore_dirs settings
+                if ignore_dirs and any(fnmatch.fnmatch(relpath, ignore)
+                                       for ignore in ignore_dirs):
+                    self.logger.info('Ignoring %s', relpath)
+                    continue
 
-            # Remove files that match the ignore_files settings
-            if ignore_files:
-                files_path = {join(relpath, f) for f in files}
-                for ignore in ignore_files:
-                    files_path -= set(fnmatch.filter(files_path, ignore))
+                # Remove files that match the ignore_files settings
+                if ignore_files:
+                    files_path = {join(relpath, f) for f in files}
+                    for ignore in ignore_files:
+                        files_path -= set(fnmatch.filter(files_path, ignore))
 
-                self.logger.debug('Files before filtering: %r', files)
-                files = [os.path.split(f)[1] for f in files_path]
-                self.logger.debug('Files after filtering: %r', files)
+                    self.logger.debug('Files before filtering: %r', files)
+                    files = [os.path.split(f)[1] for f in files_path]
+                    self.logger.debug('Files after filtering: %r', files)
 
-            # Remove sub-directories that have been ignored in a previous
-            # iteration (as topdown=False, sub-directories are processed before
-            # their parent
-            for d in dirs[:]:
-                path = join(relpath, d) if relpath != '.' else d
-                if path not in albums.keys():
-                    dirs.remove(d)
+                # Remove sub-directories that have been ignored in a previous
+                # iteration (as topdown=False, sub-directories are processed before
+                # their parent
+                for d in dirs[:]:
+                    path = join(relpath, d) if relpath != '.' else d
+                    if path not in albums.keys():
+                        dirs.remove(d)
 
-            album = Album(relpath, settings, dirs, files, self)
+                album = Album(relpath, settings, dirs, files, self)
 
-            if not album.medias and not album.albums:
-                self.logger.info('Skip empty album: %r', album)
-            else:
-                album.create_output_directories()
-                albums[relpath] = album
+                if not album.medias and not album.albums:
+                    self.logger.info('Skip empty album: %r', album)
+                else:
+                    album.create_output_directories()
+                    albums[relpath] = album
+            progress_albums.update(1)
 
         with progressbar(albums.values(), label="Sorting albums",
                          file=self.progressbar_target) as progress_albums:
