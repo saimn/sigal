@@ -117,9 +117,10 @@ class Media(UnicodeMixin):
                 generator = video.generate_thumbnail
 
             self.logger.debug('Generating thumbnail for %r', self)
+            path = (self.dst_path if os.path.exists(self.dst_path)
+                    else self.src_path)
             try:
-                generator(self.src_path, self.thumb_path,
-                          self.settings['thumb_size'],
+                generator(path, self.thumb_path, self.settings['thumb_size'],
                           self.settings['thumb_video_delay'],
                           fit=self.settings['thumb_fit'])
             except Exception as e:
