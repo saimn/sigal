@@ -552,6 +552,7 @@ class Gallery(object):
                 else:
                     album.create_output_directories()
                     albums[relpath] = album
+            progress_albums.item_show_func = lambda x: ''
             progress_albums.update(1)
 
         with progressbar(albums.values(), label="Sorting albums",
