@@ -81,6 +81,14 @@
 							    </figure>
 						    {% endif %}
 					    {% endif %}
+                        {% if media.type == "video" %}
+                            <figure class="gallery__img--secondary thumbnail" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+                                <a href="{{ media.filename }}" itemprop="contentUrl" data-type="video" data-video='<div class="video"><div class="video__container"><video controls><source src="{{ media.filename }}" type="{{ media.mime }}" /></video></div></div>'>
+                                <img src="{{ theme.url }}/echo/blank.gif" data-echo="{{ media.thumbnail }}" alt="{{ media.thumbnail }}" itemprop="thumbnail" title="" />
+                                </a>
+                                <figcaption itemprop="caption description">{{ media_title }}</figcaption>
+                            </figure>
+                        {% endif %}
 				{% endfor %}
 			</div>
 		{% endif %}
@@ -198,16 +206,19 @@
 
 	            linkEl = figureEl.children[0]; // <a> element
 
-	            size = linkEl.getAttribute('data-size').split('x');
-
 	            // create slide object
-	            item = {
-	                src: linkEl.getAttribute('href'),
-	                w: parseInt(size[0], 10),
-	                h: parseInt(size[1], 10)
-	            };
-
-
+                if (linkEl.getAttribute('data-type') == 'video') {
+                    item = {
+                      html: linkEl.getAttribute('data-video')
+                    };
+                } else {
+                    size = linkEl.getAttribute('data-size').split('x');
+                    item = {
+                        src: linkEl.getAttribute('href'),
+                        w: parseInt(size[0], 10),
+                        h: parseInt(size[1], 10)
+                    };
+                }
 
 	            if(figureEl.children.length > 1) {
 	                // <figcaption> content

@@ -141,12 +141,14 @@ figcaption {
   height: 0;
   overflow: hidden;
 }
-.video__container iframe {
+.video__container iframe,
+.video__container video {
   position: absolute;
   top:0;
   left: 0;
   width: 100%;
   height: 100%;
+  padding: 2% 0 15% 0;
 }
 .video-desc {
   width: 100%;
