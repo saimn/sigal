@@ -26,10 +26,7 @@ Sigal comes with three themes, located in the ``sigal/themes`` folder:
 
 **photoswipe**:
     `source <http://photoswipe.com/>`_, `demo
-    <http://saimon.org/sigal-demo/photoswipe/>`_.  The photoswipe
-    theme comes with some limitations : It does not support video (see
-    https://github.com/dimsemenov/PhotoSwipe/issues/651 for details). Video
-    support will be added when available.
+    <http://saimon.org/sigal-demo/photoswipe/>`_. 
 
 For developers, a Makefile is available to concatenate and minify the css
 files, using `cssmin <https://pypi.python.org/pypi/cssmin>`_ (``pip install
