@@ -171,6 +171,9 @@ ignore_files = []
 # Google Analytics tracking code (UA-xxxx-x)
 # google_analytics = ''
 
+# Google Tag Manager tracking code (GTM-xxxxxx)
+# google_tag_manager = ''
+
 # Piwik tracking
 # tracker_url must not contain trailing slash.
 # Example : {'tracker_url': 'http://stats.domain.com', 'site_id' : 2}
