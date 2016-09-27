@@ -18,6 +18,7 @@
     </style>
     {% endif %}
     {% endblock %}
+    {% include 'analytics.html' %}
   </head>
   <body>
     {% include 'gtm.html' %}
@@ -46,7 +47,6 @@
     </div>
 
     {% block footer %}{% endblock %}
-    {% include 'analytics.html' %}
     {% include 'piwik.html' %}
   </body>
 </html>
