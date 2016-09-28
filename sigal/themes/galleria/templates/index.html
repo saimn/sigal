@@ -27,8 +27,10 @@
     <style type="text/css">
     </style>
     {% endif %}
+    {% include 'analytics.html' %}
   </head>
   <body>
+    {% include 'gtm.html' %}
     <div class="container">
       <header>
         <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
@@ -303,7 +305,6 @@
 
     </script>
     {% endif %}
-    {% include 'analytics.html' %}
     {% include 'piwik.html' %}
   </body>
 </html>

@@ -39,6 +39,7 @@ _DEFAULT_CONFIG = {
     'destination': '_build',
     'files_to_copy': (),
     'google_analytics': '',
+    'google_tag_manager': '',   
     'ignore_directories': [],
     'ignore_files': [],
     'img_processor': 'ResizeToFit',

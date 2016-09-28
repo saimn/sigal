@@ -14,8 +14,10 @@
     <script src="{{ theme.url }}/photoswipe-ui-default.min.js"></script>
     <script src="{{ theme.url }}/echo/echo.min.js"></script>
     {% endblock %}
+    {% include 'analytics.html' %}
   </head>
   <body>
+  {% include 'gtm.html' %}
   <div class="container">
 	<h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
 
@@ -396,7 +398,6 @@
 	  {% endif %}
 	{% endblock %}
 </div>
-{% include 'analytics.html' %}
 {% include 'piwik.html' %}
 </body>
 </html>
