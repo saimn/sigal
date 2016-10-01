@@ -263,12 +263,13 @@ def test_empty_dirs(settings):
 def test_ignores(settings, tmpdir):
     tmp = str(tmpdir)
     settings['destination'] = tmp
-    settings['ignore_directories'] = ['*test2']
+    settings['ignore_directories'] = ['*test2', u'accentué']
     settings['ignore_files'] = ['dir2/Hubble*', '*.png']
     gal = Gallery(settings, ncpu=1)
     gal.build()
 
     assert 'test2' not in os.listdir(join(tmp, 'dir1'))
+    assert 'accentué' not in os.listdir(tmp)
     assert 'archlinux-kiss-1024x640.png' not in os.listdir(
         join(tmp, 'dir1', 'test1'))
     assert 'Hubble Interacting Galaxy NGC 5257.jpg' not in os.listdir(
