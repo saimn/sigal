@@ -22,11 +22,13 @@ Sigal comes with three themes, located in the ``sigal/themes`` folder:
     <http://saimon.org/sigal-demo/galleria/>`_. This theme is based on the
     classic theme, pictures can be browsed with left/right keys, fullscreen
     support is available with the `f` key, and a map can be shown with the `m`
-    key if the ``show_map`` setting is True.
+    key if the ``show_map`` setting is True. The ``leaflet_provider`` setting
+    can be used to customize the tile provider (using `Leaflet-providers
+    <https://github.com/leaflet-extras/leaflet-providers#providers>`_).
 
 **photoswipe**:
     `source <http://photoswipe.com/>`_, `demo
-    <http://saimon.org/sigal-demo/photoswipe/>`_. 
+    <http://saimon.org/sigal-demo/photoswipe/>`_.
 
 For developers, a Makefile is available to concatenate and minify the css
 files, using `cssmin <https://pypi.python.org/pypi/cssmin>`_ (``pip install

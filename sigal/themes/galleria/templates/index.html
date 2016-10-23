@@ -24,6 +24,7 @@
     {% if settings.show_map and album.show_map %}
     <link rel="stylesheet" href="{{ theme.url }}/leaflet/leaflet.css" />
     <script src="{{ theme.url }}/leaflet/leaflet.js"></script>
+    <script src="{{ theme.url }}/leaflet/leaflet-providers.js"></script>
     <style type="text/css">
     </style>
     {% endif %}
@@ -204,11 +205,7 @@
         if ($("#galleria-map").length == 0) {
             $(".galleria-stage").after("<div id='galleria-map'></div>");
             map = L.map('galleria-map');
-            var attrib = '&copy; <a href="https://osm.org/copyright" title="OpenStreetMap" target="_blank">OpenStreetMap</a> contributors | Tiles Courtesy of <a href="https://www.mapquest.com/" title="MapQuest" target="_blank">MapQuest</a> <img src="https://developer.mapquest.com/content/osm/mq_logo.png" width="16" height="16">';
-            L.tileLayer('https://{s}-s.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png', {
-                        attribution: attrib,
-                        subdomains: ['otile1','otile2','otile3','otile4']
-                        }).addTo( map );
+            L.tileLayer.provider('{{ settings.leaflet_provider }}').addTo(map);
             map.setView([51.505, -0.09], 12);
 
             {% for media in album.medias %}
