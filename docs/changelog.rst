@@ -2,6 +2,19 @@
  Changelog
 ===========
 
+Version 1.3.0-dev
+~~~~~~~~~~~~~~~~~
+
+Released on 2016-xx-xx.
+
+- Support videos with rotation [#210].
+- Generate missing thumbnails from the resized image if possible [#211].
+- Fix background-image url in the PhotoSwipe theme [#213].
+- Implement a first version of video support for the PhotoSwipe theme [#216].
+- Update Google Analytics UA Code [#221].
+- Use leaflet-providers.js to allow chosing the tile provider for the map in
+  the Galleria theme [#218].
+
 Version 1.2.0
 ~~~~~~~~~~~~~
 
