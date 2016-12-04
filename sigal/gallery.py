@@ -29,6 +29,7 @@ import fnmatch
 import logging
 import multiprocessing
 import os
+import random
 import sys
 import zipfile
 
@@ -438,6 +439,13 @@ class Album(UnicodeMixin):
 
         self.logger.error('Thumbnail not found for %r', self)
         return None
+
+    @property
+    def random_thumbnail(self):
+        try :
+            return url_from_path(join(self.name, random.choice(self.medias).thumbnail))
+        except IndexError:
+            return self.thumbnail
 
     @property
     def breadcrumb(self):
