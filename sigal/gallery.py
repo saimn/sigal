@@ -101,8 +101,10 @@ class Media(UnicodeMixin):
                 return self.filename
             orig_path = join(s['destination'], self.path, s['orig_dir'])
             check_or_create_dir(orig_path)
-            copy(self.src_path, join(orig_path, self.src_filename),
-                 symlink=s['orig_link'])
+            big_path = join(orig_path, self.src_filename)
+            if not os.path.isfile(big_path):
+                copy(self.src_path, big_path,
+                     symlink=s['orig_link'])
             return url_from_path(join(s['orig_dir'], self.src_filename))
 
     @property
