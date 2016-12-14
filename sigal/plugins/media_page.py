@@ -63,7 +63,7 @@ class PageWriter(Writer):
             'sigal_link': sigal_link,
             'theme': {'name': os.path.basename(self.theme),
                       'url': url_from_path(os.path.relpath(self.theme_path,
-                                                           file_path))},
+                                                           album.dst_path))},
         })
 
         output_file = "%s.html" % file_path
