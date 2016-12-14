@@ -24,7 +24,7 @@ thumb_size = (200, 150)
 rss_feed = {'feed_url': 'http://example.org/feed.rss', 'nb_items': 10}
 atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
 
-# theme = 'galleria'
 # theme = 'photoswipe'
+# theme = 'galleria'
 # thumb_size = (280, 210)
 # show_map = True

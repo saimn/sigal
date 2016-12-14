@@ -22,7 +22,8 @@ source = 'pictures'
 # destination = '_build'
 
 # Theme :
-# - colorbox (default), galleria, photoswipe, or the path to a custom theme directory
+# - colorbox (default), galleria, photoswipe, or the path to a custom theme
+# directory
 theme = 'galleria'
 
 # Author. Used in the footer of the pages and in the author meta tag.
@@ -41,9 +42,12 @@ theme = 'galleria'
 # Size of resized image (default: (640, 480))
 img_size = (800, 600)
 
-# Should we use openlayers to show a map of the images where possible?
+# Show a map of the images where possible?
 # This option only has an effect on the galleria theme for the while.
+# The leaflet_provider setting allow to customize the tile provider (see
+# https://github.com/leaflet-extras/leaflet-providers#providers)
 # show_map = False
+# leaflet_provider = 'OpenStreetMap.Mapnik'
 
 # Pilkit processor used to resize the image
 # (see http://pilkit.readthedocs.org/en/latest/#processors)

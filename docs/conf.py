@@ -101,7 +101,6 @@ html_theme_options = {
     'github_user': 'saimn',
     'github_repo': 'sigal',
     'description': "Yet another simple static gallery generator.",
-    'gratipay_user': 'saimn',
     # 'analytics_id': 'UA-18486793-2',
     # 'travis_button': True,
 }
