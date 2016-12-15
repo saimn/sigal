@@ -14,6 +14,7 @@ Released on 2016-xx-xx.
 - Update Google Analytics UA Code [#221].
 - Use leaflet-providers.js to allow chosing the tile provider for the map in
   the Galleria theme [#218].
+- Fix theme.url path in the media page plugin for the Colorbox theme. [#224]
 
 Version 1.2.0
 ~~~~~~~~~~~~~
