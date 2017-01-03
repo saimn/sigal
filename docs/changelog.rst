@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 1.3.0-dev
-~~~~~~~~~~~~~~~~~
+Version 1.3.0
+~~~~~~~~~~~~~
 
-Released on 2016-xx-xx.
+Released on 2017-01-03.
 
 - Support videos with rotation [#210].
 - Generate missing thumbnails from the resized image if possible [#211].
@@ -15,6 +15,7 @@ Released on 2016-xx-xx.
 - Use leaflet-providers.js to allow chosing the tile provider for the map in
   the Galleria theme [#218].
 - Fix theme.url path in the media page plugin for the Colorbox theme. [#224]
+- Add 3gp to the list of supported video formats. [#226]
 
 Version 1.2.0
 ~~~~~~~~~~~~~
