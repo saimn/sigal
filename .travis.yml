@@ -2,18 +2,15 @@ language: python
 cache: pip
 env:
   global:
-    - PILLOW_VERSION=3.2.0
+    - PILLOW="Pillow"
 
 matrix:
   include:
     - python: 2.7
-      env: PILLOW_VERSION=2.9.0
-    - python: 2.7
-      env: PILLOW_VERSION=3.0.0
-    - python: 2.7
-    - python: 3.3
     - python: 3.4
+      env: PILLOW="Pillow==2.9.0"
     - python: 3.5
+      env: PILLOW="Pillow==3.0.0"
     - python: 3.6
 
 
@@ -25,7 +22,7 @@ before_install:
     - sudo locale-gen fr_FR.UTF-8
     - ffmpeg -version
 install:
-    - pip install -q Pillow==$PILLOW_VERSION
+    - pip install -q $PILLOW
     - pip install pytest pytest-cov coveralls
     - pip install .
 script: py.test -sv --cov sigal --cov-report term-missing tests/
