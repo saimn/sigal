@@ -1,0 +1,23 @@
+environment:
+  matrix:
+    # For Python versions available on Appveyor, see
+    # http://www.appveyor.com/docs/installed-software#python
+    - PYTHON: "C:\\Python27"
+    - PYTHON: "C:\\Python34"
+    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python36"
+
+matrix:
+    fast_finish: true
+
+platform:
+    -x64
+
+install:
+  - "%PYTHON%\\python.exe -m pip install pytest pytest-cov coveralls"
+  - "%PYTHON%\\python.exe -m pip install ."
+
+build: off
+
+test_script:
+  - "%PYTHON%\\python.exe -m pytest -sv --cov sigal --cov-report term-missing tests/"
