@@ -14,6 +14,7 @@ platform:
     -x64
 
 install:
+  - cinst ffmpeg
   - "%PYTHON%\\python.exe -m pip install pytest pytest-cov coveralls"
   - "%PYTHON%\\python.exe -m pip install ."
 
