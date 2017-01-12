@@ -107,7 +107,7 @@ def get_thumb(settings, filename):
     name, ext = os.path.splitext(filen)
 
     # FIXME: replace this list with Video.extensions
-    if ext.lower() in ('.mov', '.avi', '.mp4', '.webm', '.ogv'):
+    if ext.lower() in ('.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp'):
         ext = '.jpg'
     return join(path, settings['thumb_dir'], settings['thumb_prefix'] +
                 name + settings['thumb_suffix'] + ext)

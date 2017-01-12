@@ -181,7 +181,7 @@ class Video(Media):
     """Gather all informations on a video file."""
 
     type = 'video'
-    extensions = ('.mov', '.avi', '.mp4', '.webm', '.ogv')
+    extensions = ('.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp')
 
     def __init__(self, filename, path, settings):
         super(Video, self).__init__(filename, path, settings)
