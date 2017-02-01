@@ -48,10 +48,10 @@ def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
     root_album = gallery.albums['.']
     cls = Rss201rev2Feed if feed_type == 'rss' else Atom1Feed
     feed = cls(
-        title=Markup(root_album.title),
+        title=Markup.escape(root_album.title),
         link='/',
         feed_url=feed_url,
-        description=Markup(root_album.description).striptags()
+        description=Markup.escape(root_album.description).striptags()
     )
 
     nb_medias = len(medias)
@@ -59,7 +59,7 @@ def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
 
     for item in medias[:nb_items]:
         feed.add_item(
-            title=Markup(item.title or item.url),
+            title=Markup.escape(item.title or item.url),
             link='%s/#%s' % (item.path, item.url),
             # unique_id='tag:%s,%s:%s' % (urlparse(link).netloc,
             #                             item.date.date(),
