@@ -2,8 +2,8 @@
 
 """Plugin which add RSS/ATOM feeds.
 
-This plugin requires feedgenerator_. It uses all the images of the gallery,
-sorted by date, to show the most recent ones.
+This plugin requires feedgenerator_. It uses all the images and videos of the
+gallery, sorted by date, to show the most recent ones.
 
 .. _feedgenerator: https://pypi.python.org/pypi/feedgenerator
 
@@ -31,20 +31,20 @@ logger = logging.getLogger(__name__)
 
 
 def generate_feeds(gallery):
-    # Get all images and sort by date
-    images = [img for album in gallery.albums.values()
-              for img in album.images if img.date is not None]
-    images.sort(key=lambda im: im.date, reverse=True)
+    # Get all images and videos and sort by date
+    medias = [med for album in gallery.albums.values()
+              for med in album.medias if med.date is not None]
+    medias.sort(key=lambda m: m.date, reverse=True)
 
     settings = gallery.settings
     if settings.get('rss_feed'):
-        generate_feed(gallery, images, feed_type='rss', **settings['rss_feed'])
+        generate_feed(gallery, medias, feed_type='rss', **settings['rss_feed'])
     if settings.get('atom_feed'):
-        generate_feed(gallery, images, feed_type='atom',
+        generate_feed(gallery, medias, feed_type='atom',
                       **settings['atom_feed'])
 
 
-def generate_feed(gallery, images, feed_type=None, feed_url='', nb_items=0):
+def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
     root_album = gallery.albums['.']
     cls = Rss201rev2Feed if feed_type == 'rss' else Atom1Feed
     feed = cls(
@@ -54,10 +54,10 @@ def generate_feed(gallery, images, feed_type=None, feed_url='', nb_items=0):
         description=Markup(root_album.description).striptags()
     )
 
-    nb_images = len(images)
-    nb_items = min(nb_items, nb_images) if nb_items > 0 else nb_images
+    nb_medias = len(medias)
+    nb_items = min(nb_items, nb_medias) if nb_items > 0 else nb_medias
 
-    for item in images[:nb_items]:
+    for item in medias[:nb_items]:
         feed.add_item(
             title=Markup(item.title or item.url),
             link='%s/#%s' % (item.path, item.url),
