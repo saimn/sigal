@@ -10,7 +10,8 @@ links = [('Example link', 'http://example.org'),
          ('Another link', 'http://example.org')]
 
 plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
-           'sigal.plugins.watermark', 'sigal.plugins.feeds', ]
+           'sigal.plugins.watermark', 'sigal.plugins.feeds',
+           'sigal.plugins.nomedia']
 copyright = u"© An example copyright message"
 adjust_options = {'color': 0.0, 'brightness': 1.0,
                   'contrast': 1.0, 'sharpness': 0.0}
