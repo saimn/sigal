@@ -212,7 +212,8 @@ ignore_files = []
 # this will break with the multiprocessing feature (the settings dict obtained
 # from this file must be serializable).
 # plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
-#            'sigal.plugins.upload_s3', 'sigal.plugins.media_page']
+#            'sigal.plugins.upload_s3', 'sigal.plugins.media_page',
+#            'sigal.plugins.nomedia', 'sigal.plugins.extended_caching']
 
 # Add a copyright text on the image (default: '')
 # copyright = "© An example copyright message"
