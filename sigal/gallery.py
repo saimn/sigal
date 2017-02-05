@@ -140,6 +140,10 @@ class Media(UnicodeMixin):
             for key, val in meta.items():
                 setattr(self, key, val)
 
+    def _get_file_date(self):
+        stat = os.stat(self.src_path)
+        return datetime.fromtimestamp(stat.st_mtime)
+
 
 class Image(Media):
     """Gather all informations on an image file."""
@@ -149,7 +153,7 @@ class Image(Media):
 
     @cached_property
     def date(self):
-        return self.exif and self.exif.get('dateobj', None) or None
+        return self.exif and self.exif.get('dateobj', None) or self._get_file_date()
 
     @cached_property
     def exif(self):
@@ -186,8 +190,8 @@ class Video(Media):
     def __init__(self, filename, path, settings):
         super(Video, self).__init__(filename, path, settings)
         base, ext = splitext(filename)
-        self.date = None
         self.src_filename = filename
+        self.date = self._get_file_date()
         if not settings['use_orig'] or not is_valid_html5_video(ext):
             video_format = settings['video_format']
             ext = '.' + video_format
