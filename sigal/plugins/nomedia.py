@@ -55,6 +55,7 @@ from sigal import signals
 
 logger = logging.getLogger(__name__)
 
+
 def _remove_albums_with_subdirs(albums, keysToRemove, prefix=""):
     for keyToRemove in keysToRemove:
         for key in list(albums.keys()):
@@ -103,11 +104,11 @@ def filter_nomedia(album, settings=None):
                 ignoredEntries = nomediaFile.read().split("\n")
 
                 album.medias = list(filter(lambda media: media.filename not in ignoredEntries,
-                                            album.medias))
+                                           album.medias))
                 album.subdirs = list(filter(lambda dirName: dirName not in ignoredEntries,
                                             album.subdirs))
 
-                #subdirs have been added to the gallery already, remove them there, too
+                # subdirs have been added to the gallery already, remove them there, too
                 _remove_albums_with_subdirs(album.gallery.albums, ignoredEntries, album.path + os.path.sep)
 
 

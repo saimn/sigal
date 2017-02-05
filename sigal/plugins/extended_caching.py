@@ -20,21 +20,24 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-""" Decreases the time needed to build large galleries (e.g.: 25k images in 2.5s instead of 30s)
+""" Decreases the time needed to build large galleries (e.g.: 25k images in
+2.5s instead of 30s)
 
-    This plugin allows extended caching, which is useful for large galleries. Once a gallery has
-    been built it caches the exif-data of the contained images in the gallery target folder.
-    Before the next run it restores them so that the image does not have to be parsed again. For
-    large galleries this can speed up the creation of index files dramatically.
+This plugin allows extended caching, which is useful for large galleries. Once
+a gallery has been built it caches the exif-data of the contained images in the
+gallery target folder.  Before the next run it restores them so that the image
+does not have to be parsed again. For large galleries this can speed up the
+creation of index files dramatically.
+
 """
 
 import pickle
-import io
 import logging
 import os
 from sigal import signals
 
 logger = logging.getLogger(__name__)
+
 
 def load_exif(album):
     """Loads the exif data of all images in an album from cache"""
@@ -47,6 +50,7 @@ def load_exif(album):
             key = os.path.join(media.path, media.filename)
             if key in cache:
                 media.exif = cache[key]
+
 
 def _restore_cache(gallery):
     """Restores the exif data cache from the cache file"""
@@ -61,6 +65,7 @@ def _restore_cache(gallery):
     except Exception as e:
         logger.warn("Could not load cache: %s", e)
         gallery.exifCache = {}
+
 
 def save_cache(gallery):
     """Stores the exif data of all images in the gallery"""

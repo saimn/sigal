@@ -1,14 +1,13 @@
 # -*- coding:utf-8 -*-
 
-import datetime
 import os
 import pickle
-import pytest
 
 from sigal.gallery import Gallery
 from sigal.plugins import extended_caching
 
 CURRENT_DIR = os.path.dirname(__file__)
+
 
 def test_save_cache(settings):
     gal = Gallery(settings, ncpu=1)
@@ -25,21 +24,20 @@ def test_save_cache(settings):
     assert cache["exifTest/22.jpg"] == gal.albums["exifTest"].medias[1].exif
     assert cache["exifTest/noexif.png"] == gal.albums["exifTest"].medias[2].exif
 
-def test__restore_cache(settings):
+
+def test_restore_cache(settings):
     gal1 = Gallery(settings, ncpu=1)
     gal2 = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal1)
-
-    cachePath = os.path.join(settings['destination'], ".exif_cache")
     extended_caching._restore_cache(gal2)
-
     assert gal1.exifCache == gal2.exifCache
+
 
 def test_load_exif(settings):
     gal1 = Gallery(settings, ncpu=1)
     gal1.albums["exifTest"].medias[2].exif = "blafoo"
     gal1.exifCache = {"exifTest/21.jpg": "Foo",
-                     "exifTest/22.jpg": "Bar"}
+                      "exifTest/22.jpg": "Bar"}
 
     extended_caching.load_exif(gal1.albums["exifTest"])
 
@@ -47,7 +45,7 @@ def test_load_exif(settings):
     assert gal1.albums["exifTest"].medias[1].exif == "Bar"
     assert gal1.albums["exifTest"].medias[2].exif == "blafoo"
 
-    #check if setting gallery.exifCache works
+    # check if setting gallery.exifCache works
     gal2 = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal1)
     extended_caching.load_exif(gal2.albums["exifTest"])
