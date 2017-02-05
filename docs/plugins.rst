@@ -94,10 +94,20 @@ Copyright plugin
 
 .. automodule:: sigal.plugins.copyright
 
+Extended caching plugin
+=============
+
+.. automodule:: sigal.plugins.extended_caching
+
 Media page plugin
 =================
 
 .. automodule:: sigal.plugins.media_page
+
+Nomedia plugin
+=============
+
+.. automodule:: sigal.plugins.nomedia
 
 Upload to S3 plugin
 ===================
