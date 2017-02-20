@@ -183,7 +183,8 @@ ignore_files = []
 # Example : {'tracker_url': 'http://stats.domain.com', 'site_id' : 2}
 # piwik = {'tracker_url': '', 'site_id' : 0}
 
-# Set zip_gallery to either False or a file name. The final archive will
+# Set zip_gallery to either False or a file name. The file name can be formated
+# python style with an 'album' variable, for example '{album.name}.zip'. The final archive will
 # contain all resized or original files (depending on `zip_media_format`).
 # zip_gallery = False   # False or 'archive.zip'
 # zip_media_format = 'resized'  # 'resized' or 'orig'

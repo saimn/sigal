@@ -36,6 +36,8 @@ from jinja2.exceptions import TemplateNotFound
 from .pkgmeta import __url__ as sigal_link
 from .utils import url_from_path
 
+from .filters import filters
+
 THEMES_PATH = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
@@ -80,6 +82,9 @@ class Writer(object):
             ]),
             **env_options
         )
+
+        for filter in filters:
+            env.filters[filter.__name__] = filter
 
         try:
             self.template = env.get_template(self.template_file)

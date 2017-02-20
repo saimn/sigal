@@ -29,6 +29,7 @@ import fnmatch
 import logging
 import multiprocessing
 import os
+import random
 import sys
 import zipfile
 
@@ -101,8 +102,10 @@ class Media(UnicodeMixin):
                 return self.filename
             orig_path = join(s['destination'], self.path, s['orig_dir'])
             check_or_create_dir(orig_path)
-            copy(self.src_path, join(orig_path, self.src_filename),
-                 symlink=s['orig_link'])
+            big_path = join(orig_path, self.src_filename)
+            if not os.path.isfile(big_path):
+                copy(self.src_path, big_path,
+                     symlink=s['orig_link'])
             return url_from_path(join(s['orig_dir'], self.src_filename))
 
     @property
@@ -440,6 +443,13 @@ class Album(UnicodeMixin):
         return None
 
     @property
+    def rand_thumbnail(self):
+        try :
+            return join(self.name, random.choice(self.medias).thumbnail)
+        except IndexError:
+            return self.thumbnail
+
+    @property
     def breadcrumb(self):
         """List of ``(url, title)`` tuples defining the current breadcrumb
         path.
@@ -479,7 +489,11 @@ class Album(UnicodeMixin):
         zip_gallery = self.settings['zip_gallery']
 
         if zip_gallery and len(self) > 0:
+            zip_gallery = zip_gallery.format(album=self)
             archive_path = join(self.dst_path, zip_gallery)
+            if isfile(archive_path):
+                self.logger.debug("Archive %s already created, passing", archive_path)
+                return zip_gallery
             archive = zipfile.ZipFile(archive_path, 'w', allowZip64=True)
             attr = ('src_path' if self.settings['zip_media_format'] == 'orig'
                     else 'dst_path')
