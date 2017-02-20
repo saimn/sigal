@@ -479,6 +479,7 @@ class Album(UnicodeMixin):
         zip_gallery = self.settings['zip_gallery']
 
         if zip_gallery and len(self) > 0:
+            zip_gallery = zip_gallery.format(album=self)
             archive_path = join(self.dst_path, zip_gallery)
             archive = zipfile.ZipFile(archive_path, 'w', allowZip64=True)
             attr = ('src_path' if self.settings['zip_media_format'] == 'orig'
