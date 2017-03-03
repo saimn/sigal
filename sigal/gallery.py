@@ -102,15 +102,17 @@ class Media(UnicodeMixin):
                 return self.filename
             orig_path = join(s['destination'], self.path, s['orig_dir'])
             check_or_create_dir(orig_path)
-            copy(self.src_path, join(orig_path, self.src_filename),
-                 symlink=s['orig_link'])
+            big_path = join(orig_path, self.src_filename)
+            if not isfile(big_path):
+                copy(self.src_path, big_path,
+                     symlink=s['orig_link'])
             return url_from_path(join(s['orig_dir'], self.src_filename))
 
     @property
     def thumbnail(self):
         """Path to the thumbnail image (relative to the album directory)."""
 
-        if not os.path.isfile(self.thumb_path):
+        if not isfile(self.thumb_path):
             # if thumbnail is missing (if settings['make_thumbs'] is False)
             if self.type == 'image':
                 generator = image.generate_thumbnail
@@ -476,7 +478,7 @@ class Album(UnicodeMixin):
         """
         return any(image.has_location() for image in self.images)
 
-    @property
+    @cached_property
     def zip(self):
         """Make a ZIP archive with all media files and return its path.
 
@@ -489,6 +491,10 @@ class Album(UnicodeMixin):
         if zip_gallery and len(self) > 0:
             zip_gallery = zip_gallery.format(album=self)
             archive_path = join(self.dst_path, zip_gallery)
+            if self.settings.get('zip_skip_if_exists', False) and isfile(archive_path):
+                self.logger.debug("Archive %s already created, passing", archive_path)
+                return zip_gallery
+
             archive = zipfile.ZipFile(archive_path, 'w', allowZip64=True)
             attr = ('src_path' if self.settings['zip_media_format'] == 'orig'
                     else 'dst_path')
