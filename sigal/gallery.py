@@ -470,7 +470,7 @@ class Album(UnicodeMixin):
         """
         return any(image.has_location() for image in self.images)
 
-    @property
+    @cached_property
     def zip(self):
         """Make a ZIP archive with all media files and return its path.
 
