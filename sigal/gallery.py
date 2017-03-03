@@ -102,7 +102,7 @@ class Media(UnicodeMixin):
             orig_path = join(s['destination'], self.path, s['orig_dir'])
             check_or_create_dir(orig_path)
             big_path = join(orig_path, self.src_filename)
-            if not os.path.isfile(big_path):
+            if not isfile(big_path):
                 copy(self.src_path, big_path,
                      symlink=s['orig_link'])
             return url_from_path(join(s['orig_dir'], self.src_filename))
@@ -111,7 +111,7 @@ class Media(UnicodeMixin):
     def thumbnail(self):
         """Path to the thumbnail image (relative to the album directory)."""
 
-        if not os.path.isfile(self.thumb_path):
+        if not isfile(self.thumb_path):
             # if thumbnail is missing (if settings['make_thumbs'] is False)
             if self.type == 'image':
                 generator = image.generate_thumbnail
