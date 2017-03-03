@@ -482,6 +482,10 @@ class Album(UnicodeMixin):
 
         if zip_gallery and len(self) > 0:
             archive_path = join(self.dst_path, zip_gallery)
+            if self.settings.get('zip_skip_if_exists', False) and isfile(archive_path):
+                self.logger.debug("Archive %s already created, passing", archive_path)
+                return zip_gallery
+
             archive = zipfile.ZipFile(archive_path, 'w', allowZip64=True)
             attr = ('src_path' if self.settings['zip_media_format'] == 'orig'
                     else 'dst_path')

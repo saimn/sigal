@@ -187,6 +187,7 @@ ignore_files = []
 # contain all resized or original files (depending on `zip_media_format`).
 # zip_gallery = False   # False or 'archive.zip'
 # zip_media_format = 'resized'  # 'resized' or 'orig'
+# zip_skip_if_exists = false # Skip archive generation if archive is already present. Warning: new photos in an album won't be added to archive
 
 # Specify a different locale. If set to '', the default locale is used.
 # locale = ''
