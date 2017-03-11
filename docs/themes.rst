@@ -59,6 +59,15 @@ You can use the following variables in your template:
 ``theme.name``, ``theme.url``
     Name and url of the currently used theme.
 
+Filters
+~~~~~~~
+
+You can define custom jinja filters for your template by creating a ``filters.py`` script
+at the root of your template directory.
+
+This script will then be imported and all defined functions will be available as jinja filters
+with the same names in your templates.
+
 Documentation of sigal's main classes
 -------------------------------------
 

@@ -87,8 +87,9 @@ class Writer(object):
         filters_py = os.path.join(self.theme, 'filters.py')
         if os.path.exists(filters_py):
             mod = imp.load_source('filters', filters_py)
-            for name in [name for name in dir(mod) if isinstance(getattr(mod, name), types.FunctionType)]:
-                env.filters[name] = getattr(mod, name)
+            for name in dir(mod):
+                if isinstance(getattr(mod, name), types.FunctionType):
+                    env.filters[name] = getattr(mod, name)
 
         try:
             self.template = env.get_template(self.template_file)
