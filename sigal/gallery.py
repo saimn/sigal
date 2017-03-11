@@ -528,14 +528,13 @@ class Gallery(object):
         ignore_files = settings['ignore_files']
 
         progressChars = cycle(["/", "-", "\\", "|"])
-        if self.logger.getEffectiveLevel() >= logging.WARNING:
-            self.progressbar_target = None
-        else:
-            self.progressbar_target = Devnull()
+        show_progress = (self.logger.getEffectiveLevel() >= logging.WARNING and
+                         os.isatty(sys.stdout.fileno()))
+        self.progressbar_target = None if show_progress else Devnull()
 
         for path, dirs, files in os.walk(src_path, followlinks=True,
                                          topdown=False):
-            if self.logger.getEffectiveLevel() >= logging.WARNING:
+            if show_progress:
                 print("\rCollecting albums " + next(progressChars), end="")
             relpath = os.path.relpath(path, src_path)
 
