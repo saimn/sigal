@@ -23,6 +23,7 @@
 from __future__ import absolute_import, print_function
 
 import click
+import fnmatch
 import importlib
 import io
 import locale
@@ -122,12 +123,20 @@ def build(source, destination, debug, verbose, force, config, theme, title,
     # paths are anyway not relative
     relative_check = True
     try:
-        relative_check = os.path.relpath(settings['destination'],
-                                         settings['source']).startswith('..')
+        relative_path = os.path.relpath(settings['destination'],
+                                        settings['source'])
+        relative_check = relative_path.startswith('..')
     except ValueError:
         pass
 
-    if not relative_check:
+    # allow destination to be in source if it is an ignored directory
+    ignore_check = False
+    ignore_dirs = settings['ignore_directories']
+    if ignore_dirs and any(fnmatch.fnmatch(relative_path, ignore_dir)
+                           for ignore_dir in ignore_dirs):
+        ignore_check = True
+
+    if not relative_check and not ignore_check:
         logger.error("Output directory should be outside of the input "
                      "directory.")
         sys.exit(1)
