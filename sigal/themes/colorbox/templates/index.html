@@ -64,6 +64,7 @@
         {% endif %}
           <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
               title="{{ media_title }}" /></a>
+        <span class="media_title">{{ media.title if media.title else media.filename }}</span>
       </div>
       {% endif %}
       {% if media.type == "video" %}
@@ -74,11 +75,12 @@
           {% if 'sigal.plugins.media_page' in settings.plugins %}
           <a href="{{ media.filename }}.html" data-href="#{{ mhash }}"
           {% else %}
-          <a href="#{{ mhash }}" class="gallery" inline='yes' title="{{ media.filename }}"
+          <a href="#{{ mhash }}" class="gallery" inline='yes' title="{{ media.title if media.title else media.filename }}"
           {% endif %}
             {% if media.big %} data-big="{{ media.big }}"{% endif %}>
             <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
                 title="{{ media_title }}" /></a>
+        <span class="media_title">{{ media.title if media.title else media.filename }}</span>
         </div>
         <!-- This contains the hidden content for the video -->
         <div style='display:none'>
