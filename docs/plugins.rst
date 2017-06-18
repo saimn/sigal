@@ -94,10 +94,25 @@ Copyright plugin
 
 .. automodule:: sigal.plugins.copyright
 
+Extended caching plugin
+=======================
+
+.. automodule:: sigal.plugins.extended_caching
+
+Feeds plugin
+============
+
+.. automodule:: sigal.plugins.feeds
+
 Media page plugin
 =================
 
 .. automodule:: sigal.plugins.media_page
+
+Nomedia plugin
+==============
+
+.. automodule:: sigal.plugins.nomedia
 
 Upload to S3 plugin
 ===================
@@ -105,11 +120,6 @@ Upload to S3 plugin
 .. automodule:: sigal.plugins.upload_s3
 
 Watermark plugin
-===================
+================
 
 .. automodule:: sigal.plugins.watermark
-
-Feeds plugin
-============
-
-.. automodule:: sigal.plugins.feeds

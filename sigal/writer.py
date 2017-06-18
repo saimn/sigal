@@ -26,8 +26,10 @@ from __future__ import absolute_import
 import codecs
 import jinja2
 import logging
+import imp
 import os
 import sys
+import types
 
 from distutils.dir_util import copy_tree
 from jinja2 import Environment, FileSystemLoader, ChoiceLoader, PrefixLoader
@@ -80,6 +82,14 @@ class Writer(object):
             ]),
             **env_options
         )
+
+        # handle optional filters.py
+        filters_py = os.path.join(self.theme, 'filters.py')
+        if os.path.exists(filters_py):
+            mod = imp.load_source('filters', filters_py)
+            for name in dir(mod):
+                if isinstance(getattr(mod, name), types.FunctionType):
+                    env.filters[name] = getattr(mod, name)
 
         try:
             self.template = env.get_template(self.template_file)

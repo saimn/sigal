@@ -183,10 +183,12 @@ ignore_files = []
 # Example : {'tracker_url': 'http://stats.domain.com', 'site_id' : 2}
 # piwik = {'tracker_url': '', 'site_id' : 0}
 
-# Set zip_gallery to either False or a file name. The final archive will
+# Set zip_gallery to either False or a file name. The file name can be formated
+# python style with an 'album' variable, for example '{album.name}.zip'. The final archive will
 # contain all resized or original files (depending on `zip_media_format`).
 # zip_gallery = False   # False or 'archive.zip'
 # zip_media_format = 'resized'  # 'resized' or 'orig'
+# zip_skip_if_exists = False # Skip archive generation if archive is already present. Warning: new photos in an album won't be added to archive
 
 # Specify a different locale. If set to '', the default locale is used.
 # locale = ''
@@ -212,7 +214,8 @@ ignore_files = []
 # this will break with the multiprocessing feature (the settings dict obtained
 # from this file must be serializable).
 # plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
-#            'sigal.plugins.upload_s3', 'sigal.plugins.media_page']
+#            'sigal.plugins.upload_s3', 'sigal.plugins.media_page',
+#            'sigal.plugins.nomedia', 'sigal.plugins.extended_caching']
 
 # Add a copyright text on the image (default: '')
 # copyright = "© An example copyright message"

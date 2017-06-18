@@ -54,6 +54,21 @@ def _has_exif_tags(img):
     return hasattr(img, 'info') and 'exif' in img.info
 
 
+def _read_image(file_path):
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        im = PILImage.open(file_path)
+
+    for warning in caught_warnings:
+        if warning.category == PILImage.DecompressionBombWarning:
+            logger = logging.getLogger(__name__)
+            logger.info('PILImage reported a possible DecompressionBomb'
+                        ' for file {}'.format(file_path))
+        else:
+            warnings.showwarning(warning.message, warning.category,
+                                 warning.filename, warning.lineno)
+    return im
+
+
 def generate_image(source, outname, settings, options=None):
     """Image processor, rotate and resize the image.
 
@@ -70,11 +85,8 @@ def generate_image(source, outname, settings, options=None):
         utils.copy(source, outname, symlink=settings['orig_link'])
         return
 
-    with warnings.catch_warnings(record = True) as caught_warnings:
-        img = PILImage.open(source)
-        original_format = img.format
-
-    _handle_caught_warnings(caught_warnings, source)
+    img = _read_image(source)
+    original_format = img.format
 
     if settings['copy_exif_data'] and settings['autorotate_images']:
         logger.warning("The 'autorotate_images' and 'copy_exif_data' settings "
@@ -123,11 +135,8 @@ def generate_thumbnail(source, outname, box, delay, fit=True, options=None):
     """Create a thumbnail image."""
 
     logger = logging.getLogger(__name__)
-    with warnings.catch_warnings(record = True) as caught_warnings:
-        img = PILImage.open(source)
-        original_format = img.format
-
-    _handle_caught_warnings(caught_warnings, source)
+    img = _read_image(source)
+    original_format = img.format
 
     if fit:
         img = ImageOps.fit(img, box, PILImage.ANTIALIAS)
@@ -176,11 +185,7 @@ def process_image(filepath, outpath, settings):
 def get_size(file_path):
     """Return image size (width and height)."""
     try:
-        with warnings.catch_warnings(record = True) as caught_warnings:
-            im = PILImage.open(file_path)
-
-        _handle_caught_warnings(caught_warnings, file_path)
-
+        im = _read_image(file_path)
     except (IOError, IndexError, TypeError, AttributeError) as e:
         logger = logging.getLogger(__name__)
         logger.error("Could not read size of %s due to %r", file_path, e)
@@ -201,10 +206,7 @@ def get_exif_data(filename):
         warnings.warn('Pillow 3.0.0 is broken with EXIF data, consider using '
                       'another version if you want to use EXIF data.')
 
-    with warnings.catch_warnings(record = True) as caught_warnings:
-        img = PILImage.open(filename)
-
-    _handle_caught_warnings(caught_warnings, filename)
+    img = _read_image(filename)
 
     try:
         exif = img._getexif() or {}
@@ -326,14 +328,3 @@ def get_exif_tags(data):
                 }
 
     return simple
-
-
-def _handle_caught_warnings(caught_warnings, filename):
-    logger = logging.getLogger(__name__)
-    for warning in caught_warnings:
-        if warning.category == PILImage.DecompressionBombWarning:
-            logger.info('PILImage reported a possible DecompressionBomb'
-                         ' for file {}'.format(filename))
-        else:
-            warnings.showwarning(warning.message, warning.category,
-                                 warning.filename, warning.lineno)
