@@ -319,7 +319,7 @@ def get_exif_tags(data):
             try:
                 lat = dms_to_degrees(lat_info)
                 lon = dms_to_degrees(lon_info)
-            except (ZeroDivisionError, ValueError):
+            except (ZeroDivisionError, ValueError, TypeError):
                 logger.info('Failed to read GPS info')
             else:
                 simple['gps'] = {
