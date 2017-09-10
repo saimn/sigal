@@ -47,6 +47,7 @@ _DEFAULT_CONFIG = {
     'index_in_url': False,
     'jpg_options': {'quality': 85, 'optimize': True, 'progressive': True},
     'keep_orig': False,
+    'html_language': 'en',
     'leaflet_provider': 'OpenStreetMap.Mapnik',
     'links': '',
     'locale': '',
