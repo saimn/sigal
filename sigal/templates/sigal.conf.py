@@ -193,6 +193,9 @@ ignore_files = []
 # Specify a different locale. If set to '', the default locale is used.
 # locale = ''
 
+# Define language used on main <html> tag in templates
+# html_language = 'en'
+
 # List of files to copy from the source directory to the destination.
 # A symbolic link is used if ``orig_link`` is set to True (see above).
 # files_to_copy = (('extra/robots.txt', 'robots.txt'),
