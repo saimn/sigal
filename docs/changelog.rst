@@ -7,40 +7,40 @@ Version 1.4.0.dev
 
 Released on 2017-xx-xx.
 
-- Hint to how to suppress decompressionbomb warnings :issue:`235`.
-- New plugin for finer control over ignored files :issue:`233`.
-- New plugin to cache the exif data of images :issue:`236`.
-- Feeds plugin: include videos in feeds :issue:`238`.
-- Allow formatting in ``zip_gallery`` :issue:`244`.
-- Added random thumbnail property for album :issue:`241`.
-- Improve CSP compatibility with colorbox theme :issue:`245`.
-- Set html lang attribute based upon locale :issue:`257`.
+- Hint to how to suppress decompressionbomb warnings [:issue:`235`].
+- New plugin for finer control over ignored files [:issue:`233`].
+- New plugin to cache the exif data of images [:issue:`236`].
+- Feeds plugin: include videos in feeds [:issue:`238`].
+- Allow formatting in ``zip_gallery`` [:issue:`244`].
+- Added random thumbnail property for album [:issue:`241`].
+- Improve CSP compatibility with colorbox theme [:issue:`245`].
+- Set html lang attribute based upon locale [:issue:`257`].
 
 Version 1.3.0
 ~~~~~~~~~~~~~
 
 Released on 2017-01-03.
 
-- Support videos with rotation :issue:`210`.
-- Generate missing thumbnails from the resized image if possible :issue:`211`.
-- Fix background-image url in the PhotoSwipe theme :issue:`213`.
-- Implement a first version of video support for the PhotoSwipe theme :issue:`216`.
-- Update Google Analytics UA Code :issue:`221`.
+- Support videos with rotation [:issue:`210`].
+- Generate missing thumbnails from the resized image if possible [:issue:`211`].
+- Fix background-image url in the PhotoSwipe theme [:issue:`213`].
+- Implement a first version of video support for the PhotoSwipe theme [:issue:`216`].
+- Update Google Analytics UA Code [:issue:`221`].
 - Use leaflet-providers.js to allow chosing the tile provider for the map in
-  the Galleria theme :issue:`218`.
-- Fix theme.url path in the media page plugin for the Colorbox theme. :issue:`224`
-- Add 3gp to the list of supported video formats. :issue:`226`
+  the Galleria theme [:issue:`218`].
+- Fix theme.url path in the media page plugin for the Colorbox theme. [:issue:`224`]
+- Add 3gp to the list of supported video formats. [:issue:`226`]
 
 Version 1.2.0
 ~~~~~~~~~~~~~
 
 Released on 2016-06-05.
 
-- Fix videos not opening correctly with colorbox :issue:`201`.
-- Allow to create large zip files :issue:`205`.
+- Fix videos not opening correctly with colorbox [:issue:`201`].
+- Allow to create large zip files [:issue:`205`].
 - Allow sorting on metadata keys (for ``albums_sort_attr`` and
-  ``medias_sort_attr``) :issue:`202`.
-- Add a ``set_meta`` command to write metadata keys to ``.md`` files :issue:`203`. For
+  ``medias_sort_attr``) [:issue:`202`].
+- Add a ``set_meta`` command to write metadata keys to ``.md`` files [:issue:`203`]. For
   example, to set the title of ``test.jpg`` to *"My test image"*::
 
     sigal set_meta test.jpg title "My test image"
@@ -50,16 +50,16 @@ Version 1.1.0
 
 Released on 2016-04-24.
 
-- Add GIF support :issue:`185`.
-- Add a feeds plugin :issue:`98`.
-- Implement album sorting :issue:`192`.
-- Enable autoescape in Jinja templates :issue:`195`.
+- Add GIF support [:issue:`185`].
+- Add a feeds plugin [:issue:`98`].
+- Implement album sorting [:issue:`192`].
+- Enable autoescape in Jinja templates [:issue:`195`].
 - Raise exceptions in debug mode (``--debug``).
 - Fix unicode bug with special characters in path names.
-- Better representation for exposure time fraction  :issue:`187`.
-- Catch ``cPickle.PicklingError`` on python 2 :issue:`191`.
-- Fix ``ZeroDivisionError`` when ExposureTime contains null values :issue:`193`.
-- Fix hard-coded video mime-type in the galleria theme :issue:`196`.
+- Better representation for exposure time fraction  [:issue:`187`].
+- Catch ``cPickle.PicklingError`` on python 2 [:issue:`191`].
+- Fix ``ZeroDivisionError`` when ExposureTime contains null values [:issue:`193`].
+- Fix hard-coded video mime-type in the galleria theme [:issue:`196`].
 - Update theme libraries: colorbox 1.6.3, jQuery 2.2.1, touchSwipe 1.6.15,
   photoswipe 4.1.1
 - Galleria: always show fullscreen icon, replace fullscreen and map icons.
@@ -70,9 +70,9 @@ Version 1.0.1
 
 Released on 2015-11-19.
 
-- Simplify a bit photoswipe's style :issue:`181`.
-- Improves CSP compatibility (Remove an inline javascript line) :issue:`179`.
-- Warn that Pillow 3.0 is broken :issue:`184`.
+- Simplify a bit photoswipe's style [:issue:`181`].
+- Improves CSP compatibility (Remove an inline javascript line) [:issue:`179`].
+- Warn that Pillow 3.0 is broken [:issue:`184`].
 
 Version 1.0.0
 ~~~~~~~~~~~~~
@@ -81,22 +81,22 @@ Released on 2015-09-07.
 
 - Colorbox: Use the media title if available (fix #145).
 - Adds a thumb_video_delay parameter for the creation of thumbnails with fade-in
-  videos :issue:`143`.
-- Add fullscreen display support to Galleria theme :issue:`149`.
-- Add watermark plugin :issue:`148`.
-- Allow more settings for font, color, position in the copyright plugin :issue:`150`.
-- Tables support in markdown :issue:`155`.
-- Honor 'use_orig' for videos :issue:`153`.
-- Fix for the relative path checks for Windows :issue:`160`.
-- Add support for mp4 :issue:`159`.
-- Add size property into Image object :issue:`164`.
+  videos [:issue:`143`].
+- Add fullscreen display support to Galleria theme [:issue:`149`].
+- Add watermark plugin [:issue:`148`].
+- Allow more settings for font, color, position in the copyright plugin [:issue:`150`].
+- Tables support in markdown [:issue:`155`].
+- Honor 'use_orig' for videos [:issue:`153`].
+- Fix for the relative path checks for Windows [:issue:`160`].
+- Add support for mp4 [:issue:`159`].
+- Add size property into Image object [:issue:`164`].
 - Make sure that bad exif data does not crash sigal.
 - Strip spaces for some exif tags (fix #154).
-- Add support for piwik :issue:`165`.
-- Add a theme using photoswipe :issue:`163`.
-- Add a setting to disable google fonts and jquery :issue:`168`.
-- Add swipe to colorbox theme :issue:`116`.
-- Map view for albums in galleria theme :issue:`45`.
+- Add support for piwik [:issue:`165`].
+- Add a theme using photoswipe [:issue:`163`].
+- Add a setting to disable google fonts and jquery [:issue:`168`].
+- Add swipe to colorbox theme [:issue:`116`].
+- Map view for albums in galleria theme [:issue:`45`].
 
 Version 0.9.2
 ~~~~~~~~~~~~~
@@ -119,24 +119,24 @@ Version 0.9.0
 
 Released on 2014-12-07.
 
-- New plugin which adds the ability to generate media pages :issue:`126`.
-- Decrease logs level for the parsing of exif tags :issue:`127`.
-- Enhance documentation for album information :issue:`123`.
-- Fix the title which was not unicode when using the settings file :issue:`104`.
-- Add more info on how the report a bug or contribute :issue:`128`.
+- New plugin which adds the ability to generate media pages [:issue:`126`].
+- Decrease logs level for the parsing of exif tags [:issue:`127`].
+- Enhance documentation for album information [:issue:`123`].
+- Fix the title which was not unicode when using the settings file [:issue:`104`].
+- Add more info on how the report a bug or contribute [:issue:`128`].
 - Add more commands to the Makefile.
 - Add `coveralls.io <https://coveralls.io/r/saimn/sigal?branch=master>`_
-- New plugin to upload generated gallery to Amazon S3 :issue:`114`.
-- Handling of empty markdown or missing meta-data :issue:`120`.
-- Include plugins in the distributed package :issue:`117`.
-- Allow to use directly original files :issue:`118`.
-- Add settings to give a different output filename than index.html :issue:`115`.
-- Remove files that can't be processed for some reason :issue:`112`.
-- Skip files that don't exist in the ZIP archiving :issue:`110`.
-- Show progress (spinners & bars), read exif only on access :issue:`109`.
-- Use the correct filename for original videos :issue:`111`.
-- Check that the file exists before removing. :issue:`110`.
-- Enhance the ``serve`` command :issue:`107`.
+- New plugin to upload generated gallery to Amazon S3 [:issue:`114`].
+- Handling of empty markdown or missing meta-data [:issue:`120`].
+- Include plugins in the distributed package [:issue:`117`].
+- Allow to use directly original files [:issue:`118`].
+- Add settings to give a different output filename than index.html [:issue:`115`].
+- Remove files that can't be processed for some reason [:issue:`112`].
+- Skip files that don't exist in the ZIP archiving [:issue:`110`].
+- Show progress (spinners & bars), read exif only on access [:issue:`109`].
+- Use the correct filename for original videos [:issue:`111`].
+- Check that the file exists before removing. [:issue:`110`].
+- Enhance the ``serve`` command [:issue:`107`].
 - Catch cPickle error and add a message about serialization error with the
   settings file.
 
@@ -192,17 +192,17 @@ Released on 2014-05-10.
   - ``zip_gallery`` => ``album.zip``
 
 - New settings to define the sort order for albums and medias:
-  ``albums_sort_reverse``, ``medias_sort_attr``, ``medias_sort_reverse`` :issue:`2`.
+  ``albums_sort_reverse``, ``medias_sort_attr``, ``medias_sort_reverse`` [:issue:`2`].
 - New setting (``autorotate_images``) to disable autorotation of images, and
-  warn about the incompatibility between autorotation and EXIF copy :issue:`72`.
+  warn about the incompatibility between autorotation and EXIF copy [:issue:`72`].
 - New settings to filter directories and files with pattern matching
-  (``ignore_directories`` and ``ignore_files``) :issue:`63`.
+  (``ignore_directories`` and ``ignore_files``) [:issue:`63`].
 - New setting to customize the column width of the colorbox theme
   (``colorbox_column_size``).
 - New setting to choose the media format used for ZIP archives
   (``zip_media_format``).
-- Update galleria to 1.3.5 and add the history plugin :issue:`93`.
-- Skip image instead of failing when the image is corrupted :issue:`69`.
+- Update galleria to 1.3.5 and add the history plugin [:issue:`93`].
+- Skip image instead of failing when the image is corrupted [:issue:`69`].
 - Better handling of album urls (quoting special caracters).
 
 Version 0.6.0
@@ -215,8 +215,8 @@ Released on 2014-01-25.
   default).
 - Adding keyboard shortcuts for the galleria theme [#32, #39].
 - Include symlinked directories in the source directory.
-- New setting to use symbolic links for original files (``orig_link``) :issue:`36`.
-- New setting for the video size (``video_size``) :issue:`35`.
+- New setting to use symbolic links for original files (``orig_link``) [:issue:`36`].
+- New setting for the video size (``video_size``) [:issue:`35`].
 - Add a colored formatter for verbose and debug modes.
 - ``webm_options`` is now a list with ffmpeg options, to allow better
   flexibility and compatibility with avconv.
@@ -226,8 +226,8 @@ Released on 2014-01-25.
 Bugfixes:
 
 - Avoid issues with corrupted exif data.
-- Fix exif data not read from .JPEG files :issue:`58`.
-- Fix whitespace issues with video filenames :issue:`54`.
+- Fix exif data not read from .JPEG files [:issue:`58`].
+- Fix whitespace issues with video filenames [:issue:`54`].
 
 Version 0.5.1
 ~~~~~~~~~~~~~
