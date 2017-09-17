@@ -2,6 +2,20 @@
  Changelog
 ===========
 
+Version 1.4.0.dev
+~~~~~~~~~~~~~~~~~
+
+Released on 2017-xx-xx.
+
+- Hint to how to suppress decompressionbomb warnings :issue:`235`.
+- New plugin for finer control over ignored files :issue:`233`.
+- New plugin to cache the exif data of images :issue:`236`.
+- Feeds plugin: include videos in feeds :issue:`238`.
+- Allow formatting in ``zip_gallery`` :issue:`244`.
+- Added random thumbnail property for album :issue:`241`.
+- Improve CSP compatibility with colorbox theme :issue:`245`.
+- Set html lang attribute based upon locale :issue:`257`.
+
 Version 1.3.0
 ~~~~~~~~~~~~~
 
