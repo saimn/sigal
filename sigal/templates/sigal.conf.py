@@ -93,6 +93,11 @@ thumb_size = (280, 210)
 # Crop the image to fill the box
 # thumb_fit = True
 
+# When using thumb_fit, specifies what we should crop
+# for usage see
+# http://pillow.readthedocs.io/en/3.1.x/reference/ImageOps.html#PIL.ImageOps.fit
+# thumb_fit_centering = (0.5, 0.5)
+
 # Delay in seconds to avoid black thumbnails in videos with fade-in
 # thumb_video_delay = '0'
 
