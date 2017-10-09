@@ -45,6 +45,32 @@ def test_generate_image(tmpdir):
         assert im.size == size
 
 
+def test_resize_image_portrait(tmpdir):
+    """Test that the area is the same regardless of aspect ratio."""
+    size = (300, 200)
+    settings = create_settings(img_size=size)
+
+    portrait_image = 'm57_the_ring_nebula-587px.jpg'
+    portrait_src = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir2', portrait_image)
+    portrait_dst = str(tmpdir.join(portrait_image))
+
+    generate_image(portrait_src, portrait_dst, settings)
+    im = Image.open(portrait_dst)
+
+    # In the default mode, PILKit resizes in a way to never make an image
+    # smaller than either of the lengths, the other is scaled accordingly.
+    # Hence we test that the shorter side has the smallest length.
+    assert im.size[0] == 200
+
+    landscape_image = 'exo20101028-b-full.jpg'
+    landscape_src = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir2', landscape_image)
+    landscape_dst = str(tmpdir.join(landscape_image))
+
+    generate_image(landscape_src, landscape_dst, settings)
+    im = Image.open(landscape_dst)
+    assert im.size[1] == 200
+
+
 @pytest.mark.parametrize(("image", "path"), [(TEST_IMAGE, SRCFILE),
                                              (TEST_GIF_IMAGE, SRC_GIF_FILE)])
 def test_generate_image_passthrough(tmpdir, image, path):

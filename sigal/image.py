@@ -118,7 +118,13 @@ def generate_image(source, outname, settings, options=None):
             logger.error('Wrong processor name: %s', settings['img_processor'])
             sys.exit()
 
-        processor = processor_cls(*settings['img_size'], upscale=False)
+        width, height = settings['img_size']
+
+        if img.size[0] < img.size[1]:
+            # swap target size if image is in portrait mode
+            height, width = width, height
+
+        processor = processor_cls(width, height, upscale=False)
         img = processor.process(img)
 
     # signal.send() does not work here as plugins can modify the image, so we
