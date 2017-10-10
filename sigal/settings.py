@@ -66,6 +66,7 @@ _DEFAULT_CONFIG = {
     'theme': 'colorbox',
     'thumb_dir': 'thumbnails',
     'thumb_fit': True,
+    'thumb_fit_centering': (0.5, 0.5),
     'thumb_prefix': '',
     'thumb_size': (200, 150),
     'thumb_suffix': '',

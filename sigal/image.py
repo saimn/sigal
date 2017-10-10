@@ -137,7 +137,7 @@ def generate_image(source, outname, settings, options=None):
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
-def generate_thumbnail(source, outname, box, delay, fit=True, options=None):
+def generate_thumbnail(source, outname, box, delay, fit=True, options=None, thumb_fit_centering=(0.5, 0.5)):
     """Create a thumbnail image."""
 
     logger = logging.getLogger(__name__)
@@ -145,7 +145,7 @@ def generate_thumbnail(source, outname, box, delay, fit=True, options=None):
     original_format = img.format
 
     if fit:
-        img = ImageOps.fit(img, box, PILImage.ANTIALIAS)
+        img = ImageOps.fit(img, box, PILImage.ANTIALIAS, centering=thumb_fit_centering)
     else:
         img.thumbnail(box, PILImage.ANTIALIAS)
 
@@ -177,7 +177,8 @@ def process_image(filepath, outpath, settings):
             thumb_name = os.path.join(outpath, get_thumb(settings, filename))
             generate_thumbnail(outname, thumb_name, settings['thumb_size'],
                                settings['thumb_video_delay'],
-                               fit=settings['thumb_fit'], options=options)
+                               fit=settings['thumb_fit'], options=options,
+                               thumb_fit_centering=settings["thumb_fit_centering"])
     except Exception as e:
         logger.info('Failed to process: %r', e)
         if logger.getEffectiveLevel() == logging.DEBUG:
