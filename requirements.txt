@@ -4,6 +4,7 @@ boto
 click
 coverage
 cssmin
+feedgenerator
 Jinja2
 Markdown
 Pillow
@@ -11,5 +12,5 @@ pilkit
 pytest
 pytest-cov
 Sphinx
-sphinxcontrib-issuetracker
+sphinx-issues
 twine

@@ -13,13 +13,13 @@ Bundled themes
 Sigal comes with three themes, located in the ``sigal/themes`` folder:
 
 **colorbox**:
-    `source <http://www.jacklmoore.com/colorbox>`_, `demo
-    <http://saimon.org/sigal-demo/colorbox/>`_. This theme uses a Swipe plugin
+    `source <http://www.jacklmoore.com/colorbox>`__, `demo
+    <http://saimon.org/sigal-demo/colorbox/>`__. This theme uses a Swipe plugin
     to browse pictures on touch devices.
 
 **galleria**:
-    `source <http://galleria.io/>`_, `demo
-    <http://saimon.org/sigal-demo/galleria/>`_. This theme is based on the
+    `source <http://galleria.io/>`__, `demo
+    <http://saimon.org/sigal-demo/galleria/>`__. This theme is based on the
     classic theme, pictures can be browsed with left/right keys, fullscreen
     support is available with the `f` key, and a map can be shown with the `m`
     key if the ``show_map`` setting is True. The ``leaflet_provider`` setting
@@ -27,8 +27,8 @@ Sigal comes with three themes, located in the ``sigal/themes`` folder:
     <https://github.com/leaflet-extras/leaflet-providers#providers>`_).
 
 **photoswipe**:
-    `source <http://photoswipe.com/>`_, `demo
-    <http://saimon.org/sigal-demo/photoswipe/>`_.
+    `source <http://photoswipe.com/>`__, `demo
+    <http://saimon.org/sigal-demo/photoswipe/>`__.
 
 For developers, a Makefile is available to concatenate and minify the css
 files, using `cssmin <https://pypi.python.org/pypi/cssmin>`_ (``pip install

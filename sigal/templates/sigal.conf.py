@@ -93,6 +93,11 @@ thumb_size = (280, 210)
 # Crop the image to fill the box
 # thumb_fit = True
 
+# When using thumb_fit, specifies what we should crop
+# for usage see
+# http://pillow.readthedocs.io/en/3.1.x/reference/ImageOps.html#PIL.ImageOps.fit
+# thumb_fit_centering = (0.5, 0.5)
+
 # Delay in seconds to avoid black thumbnails in videos with fade-in
 # thumb_video_delay = '0'
 
@@ -192,6 +197,9 @@ ignore_files = []
 
 # Specify a different locale. If set to '', the default locale is used.
 # locale = ''
+
+# Define language used on main <html> tag in templates
+# html_language = 'en'
 
 # List of files to copy from the source directory to the destination.
 # A symbolic link is used if ``orig_link`` is set to True (see above).

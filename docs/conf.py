@@ -25,10 +25,13 @@ with open(pkgmeta_file) as f:
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.issuetracker', 'alabaster']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx_issues',
+    'alabaster'
+]
 
-issuetracker = 'github'
-issuetracker_project = 'saimn/sigal'
+issues_github_path = 'saimn/sigal'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
