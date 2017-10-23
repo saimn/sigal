@@ -184,7 +184,7 @@ def test_null_exposure_time():
 
 
 def test_exif_copy(tmpdir):
-    "Test if EXIF data can transfered copied to the resized image."
+    "Test if EXIF data can transferred copied to the resized image."
 
     test_image = '11.jpg'
     src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir1', 'test1',
