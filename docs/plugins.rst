@@ -76,7 +76,7 @@ Signals
    :noindex:
 
    Called after the image is resized. This signal work differently, the
-   modified image object must be returned by the registered funtion.
+   modified image object must be returned by the registered function.
 
    :param img: the PIL image object.
    :param settings: the settings dict.
