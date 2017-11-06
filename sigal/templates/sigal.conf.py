@@ -49,6 +49,9 @@ img_size = (800, 600)
 # show_map = False
 # leaflet_provider = 'OpenStreetMap.Mapnik'
 
+# File extensions that should be treated as images
+# img_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+
 # Pilkit processor used to resize the image
 # (see http://pilkit.readthedocs.org/en/latest/#processors)
 # - ResizeToFit: fit the image within the specified dimensions (default)
@@ -135,6 +138,9 @@ ignore_files = []
 # -------------
 # Video options
 # -------------
+
+# File extensions that should be treated as video files
+# video_extensions = ['.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp']
 
 # Video format
 # specify an alternative format, valid are 'webm' (default) and 'mp4'
