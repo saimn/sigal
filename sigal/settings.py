@@ -2,6 +2,7 @@
 
 # Copyright (c) 2009-2016 - Simon Conseil
 # Copyright (c) 2013      - Christophe-Marie Duquesne
+# Copyright (c) 2017      - Mate Lakat
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -42,6 +43,7 @@ _DEFAULT_CONFIG = {
     'google_tag_manager': '',
     'ignore_directories': [],
     'ignore_files': [],
+    'img_extensions': ['.jpg', '.jpeg', '.png', '.gif'],
     'img_processor': 'ResizeToFit',
     'img_size': (640, 480),
     'index_in_url': False,
@@ -74,6 +76,7 @@ _DEFAULT_CONFIG = {
     'title': '',
     'use_assets_cdn': True,
     'use_orig': False,
+    'video_extensions': ['.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp'],
     'video_format': 'webm',
     'video_size': (480, 360),
     'watermark': '',
@@ -108,8 +111,7 @@ def get_thumb(settings, filename):
     path, filen = os.path.split(filename)
     name, ext = os.path.splitext(filen)
 
-    # FIXME: replace this list with Video.extensions
-    if ext.lower() in ('.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp'):
+    if ext.lower() in settings['video_extensions']:
         ext = '.jpg'
     return join(path, settings['thumb_dir'], settings['thumb_prefix'] +
                 name + settings['thumb_suffix'] + ext)

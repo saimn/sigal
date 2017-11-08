@@ -4,6 +4,7 @@
 # Copyright (c) 2013      - Christophe-Marie Duquesne
 # Copyright (c) 2014      - Jonas Kaufmann
 # Copyright (c) 2015      - François D.
+# Copyright (c) 2017      - Mate Lakat
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -66,7 +67,6 @@ class Media(UnicodeMixin):
     """
 
     type = ''
-    extensions = ()
 
     def __init__(self, filename, path, settings):
         self.src_filename = self.filename = self.url = filename
@@ -152,7 +152,6 @@ class Image(Media):
     """Gather all informations on an image file."""
 
     type = 'image'
-    extensions = ('.jpg', '.jpeg', '.png', '.gif')
 
     @cached_property
     def date(self):
@@ -188,7 +187,6 @@ class Video(Media):
     """Gather all informations on a video file."""
 
     type = 'video'
-    extensions = ('.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp')
 
     def __init__(self, filename, path, settings):
         super(Video, self).__init__(filename, path, settings)
@@ -256,9 +254,9 @@ class Album(UnicodeMixin):
 
         for f in filenames:
             ext = splitext(f)[1]
-            if ext.lower() in Image.extensions:
+            if ext.lower() in settings['img_extensions']:
                 media = Image(f, self.path, settings)
-            elif ext.lower() in Video.extensions:
+            elif ext.lower() in settings['video_extensions']:
                 media = Video(f, self.path, settings)
             else:
                 continue
@@ -401,7 +399,7 @@ class Album(UnicodeMixin):
             # find and return the first landscape image
             for f in self.medias:
                 ext = splitext(f.filename)[1]
-                if ext.lower() in Image.extensions:
+                if ext.lower() in self.settings['img_extensions']:
                     # Use f.size if available as it is quicker (in cache), but
                     # fallback to the size of src_path if dst_path is missing
                     size = f.size
