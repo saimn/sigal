@@ -85,3 +85,16 @@ def test_generate_video_dont_enlarge(tmpdir, fmt):
     size_dst = video_size(dstfile)
 
     assert size_src == size_dst
+
+
+def test_generate_video_works_with_spaces(tmpdir):
+    """video file should be able to live in folders with spaces in their name"""
+
+    test_folder = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'space video')
+    srcfile = os.path.join(test_folder, 'Apollo13 Houston Weve Got A Problem.webm')
+    dstfile = str(tmpdir.join('space video', 'Apollo13 Houston Weve Got A Problem.ogv'))
+    os.mkdir(os.path.dirname(dstfile))
+    settings = create_settings(video_format='ogv')
+    generate_video(srcfile, dstfile, settings)
+
+    assert os.path.exists(dstfile)
