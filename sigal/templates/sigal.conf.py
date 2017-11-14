@@ -143,6 +143,9 @@ ignore_files = []
 # Video options
 # -------------
 
+# Video converter binary (can be 'avconv' on certain GNU/Linux distributions)
+# video_converter = 'ffmpeg'
+
 # File extensions that should be treated as video files
 # video_extensions = ['.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp']
 

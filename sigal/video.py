@@ -61,10 +61,14 @@ def check_subprocess(cmd, source, outname):
         raise SubprocessException('Failed to process ' + source)
 
 
-def video_size(source):
-    """Returns the dimensions of the video."""
+def video_size(source, settings={}):
+    """Returns the dimensions of the video.
+    :param source: path to a video
+    :param settings: settings dict
+    """
 
-    ret, stdout, stderr = call_subprocess(['ffmpeg', '-i', source])
+    converter = settings.get('video_converter', 'ffmpeg')
+    ret, stdout, stderr = call_subprocess([converter, '-i', source])
     pattern = re.compile(r'Stream.*Video.* ([0-9]+)x([0-9]+)')
     match = pattern.search(stderr)
     rot_pattern = re.compile(r'rotate\s*:\s*-?(90|270)')
@@ -92,7 +96,7 @@ def generate_video(source, outname, settings, options=None):
 
     # Don't transcode if source is in the required format and
     # has fitting datedimensions, copy instead.
-    w_src, h_src = video_size(source)
+    w_src, h_src = video_size(source, settings)
     w_dst, h_dst = settings['video_size']
     logger.debug('Video size: %i, %i -> %i, %i', w_src, h_src, w_dst, h_dst)
 
@@ -118,7 +122,8 @@ def generate_video(source, outname, settings, options=None):
 
     # Encoding options improved, thanks to
     # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
-    cmd = ['ffmpeg', '-i', source, '-y']  # -y to overwrite output files
+    converter = settings.get('video_converter', 'ffmpeg')
+    cmd = [converter, '-i', source, '-y']  # -y to overwrite output files
     if options is not None:
         cmd += options
     cmd += resize_opt + [outname]
@@ -134,7 +139,8 @@ def generate_thumbnail(source, outname, box, delay, fit=True, options=None):
     tmpfile = outname + ".tmp.jpg"
 
     # dump an image of the video
-    cmd = ['ffmpeg', '-i', source, '-an', '-r', '1',
+    converter = settings.get('video_converter', 'ffmpeg')
+    cmd = [converter, '-i', source, '-an', '-r', '1',
            '-ss', delay, '-vframes', '1', '-y', tmpfile]
     logger.debug('Create thumbnail for video: %s', ' '.join(cmd))
     check_subprocess(cmd, source, outname)
