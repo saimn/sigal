@@ -676,12 +676,15 @@ class Gallery(object):
 
         if failed_files:
             self.remove_files(failed_files)
-        print('')
 
         if self.settings['write_html']:
             writer = Writer(self.settings, index_title=self.title)
-            for album in self.albums.values():
-                writer.write(album)
+            with progressbar(self.albums.values(), label="Writing indices",
+                             item_show_func=log_func, show_eta=False,
+                             file=self.progressbar_target) as albums:
+                for album in albums:
+                    writer.write(album)
+        print('')
 
         signals.gallery_build.send(self)
 
