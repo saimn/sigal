@@ -49,6 +49,9 @@ img_size = (800, 600)
 # show_map = False
 # leaflet_provider = 'OpenStreetMap.Mapnik'
 
+# File extensions that should be treated as images
+# img_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+
 # Pilkit processor used to resize the image
 # (see http://pilkit.readthedocs.org/en/latest/#processors)
 # - ResizeToFit: fit the image within the specified dimensions (default)
@@ -136,6 +139,9 @@ ignore_files = []
 # Video options
 # -------------
 
+# File extensions that should be treated as video files
+# video_extensions = ['.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp']
+
 # Video format
 # specify an alternative format, valid are 'webm' (default) and 'mp4'
 # video_format = 'webm'
@@ -188,7 +194,7 @@ ignore_files = []
 # Example : {'tracker_url': 'http://stats.domain.com', 'site_id' : 2}
 # piwik = {'tracker_url': '', 'site_id' : 0}
 
-# Set zip_gallery to either False or a file name. The file name can be formated
+# Set zip_gallery to either False or a file name. The file name can be formatted
 # python style with an 'album' variable, for example '{album.name}.zip'. The final archive will
 # contain all resized or original files (depending on `zip_media_format`).
 # zip_gallery = False   # False or 'archive.zip'
