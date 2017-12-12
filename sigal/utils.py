@@ -82,7 +82,7 @@ def read_markdown(filename):
                               'markdown.extensions.tables'],
                   output_format='html5')
     # Mark HTML with Markup to prevent jinja2 autoescaping
-    output = {'description': Markup(md.convert(text))}
+    output = {'description': Markup.escape(md.convert(text))}
 
     try:
         meta = md.Meta.copy()
