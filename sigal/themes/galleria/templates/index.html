@@ -79,18 +79,21 @@
 
             {%- if media.exif %}
               <br>
-              {% if media.exif.iso %}ISO: {{ media.exif.iso }}, {% endif %}
-              {% if media.exif.focal %}Focal: {{ media.exif.focal }}, {% endif %}
-              {% if media.exif.exposure %}Exposure: {{ media.exif.exposure }}, {% endif %}
-              {% if media.exif.fstop %}Fstop: {{ media.exif.fstop }}{% endif %}
+              {% if media.exif.iso %}ISO {{ media.exif.iso }}, {% endif %}
+              {% if media.exif.exposure %}{{ media.exif.exposure }}s, {% endif %}
+              {% if media.exif.fstop %}f/{{ media.exif.fstop }}, {% endif %}
+              {% if media.exif.focal %}{{ media.exif.focal }}mm {% endif %}
               {% if media.exif.gps %}
                 <br/>Location: <a href='https://www.openstreetmap.org/?mlat={{
                 media.exif.gps.lat }}&amp;mlon={{ media.exif.gps.lon}}&amp;zoom=12&amp;layers=M' target='_blank' class='map'
                 >{{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}
                  {{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}</a>
               {% endif %}
+              {% if media.exif.Make or media.exif.Model %}
+                <br>{{ media.exif.Make }} {{ media.exif.Model }}
+              {% endif %}
               {% if media.exif.datetime %}
-                <br>Date: {{ media.exif.datetime }}
+                <br>{{ media.exif.datetime }}
               {% endif %}
             {% endif %}
           {%- endmacro %}
