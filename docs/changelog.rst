@@ -15,8 +15,14 @@ Released on 2017-xx-xx.
 - Added random thumbnail property for album [:issue:`241`].
 - Improve CSP compatibility with colorbox theme [:issue:`245`].
 - Set html lang attribute based upon locale [:issue:`257`].
+- Resize portrait images to same size as landscape [:issue:`258`].
+- New setting ``thumb_fit_centering`` for tweaking how thumbnails should be
+  cropped [:issue:`263`].
+- New settings to configure what file extensions should be recognised as
+  images and videos [:issue:`270`].
 - New setting ``datetime_format`` to customize the EXIF datetime format
   [:issue:`271`].
+- Add a progress bar for writing index files [:issue:`234`].
 
 Version 1.3.0
 ~~~~~~~~~~~~~
