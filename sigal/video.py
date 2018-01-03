@@ -140,7 +140,8 @@ def generate_thumbnail(source, outname, box, delay, fit=True, options=None):
     check_subprocess(cmd, source, outname)
 
     # use the generate_thumbnail function from sigal.image
-    image.generate_thumbnail(tmpfile, outname, box, fit, options)
+    image.generate_thumbnail(tmpfile, outname, box, delay, fit=fit,
+                             options=options)
     # remove the image
     os.unlink(tmpfile)
 
