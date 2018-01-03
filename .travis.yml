@@ -23,7 +23,6 @@ addons:
     packages:
       - ubuntu-restricted-extras
       - ffmpeg
-      - language-pack-fr
       - libavcodec-extra-54
       # Dependencies to build PIL
       - libfreetype6-dev
