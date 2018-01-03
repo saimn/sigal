@@ -32,7 +32,7 @@ addons:
 install:
     - pip install -U pip setuptools wheel
     - pip install -q $PILLOW
-    - pip install pytest pytest-cov coveralls
+    - pip install pytest pytest-cov codecov
     - pip install .
 
 before_script:
@@ -41,7 +41,7 @@ before_script:
 script: py.test -sv --cov sigal --cov-report term-missing tests/
 
 after_success:
-    coveralls
+    codecov
 
 notifications:
     irc: "chat.freenode.net#sigal"
