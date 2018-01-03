@@ -52,7 +52,7 @@ def main():
     resize images, create thumbnails with some options, generate html pages.
 
     """
-    pass
+    pass  # pragma: no cover
 
 
 @main.command()

@@ -65,11 +65,16 @@ def init_logging(name, level=logging.INFO):
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
-    if os.isatty(sys.stdout.fileno()) and not sys.platform.startswith('win'):
-        formatter = ColoredFormatter()
-    elif level == logging.DEBUG:
-        formatter = Formatter('%(levelname)s - %(message)s')
-    else:
+    try:
+        if os.isatty(sys.stdout.fileno()) and \
+                not sys.platform.startswith('win'):
+            formatter = ColoredFormatter()
+        elif level == logging.DEBUG:
+            formatter = Formatter('%(levelname)s - %(message)s')
+        else:
+            formatter = Formatter('%(message)s')
+    except Exception:
+        # This fails when running tests with click (test_build)
         formatter = Formatter('%(message)s')
 
     handler = logging.StreamHandler()
