@@ -109,17 +109,60 @@ templates. If available, you can use:
 ``media.exif.fstop``
     The aperture value given as an F-number and formatted as a decimal.
 
-``media.exif.datetime``
+	``media.exif.dateobj``
     The time the image was *taken*. It is a datetime object, that can be
     formatted with ``strftime``:
 
     .. code-block:: jinja
 
-        {% if media.exif.datetime %}
-            {{ media.exif.datetime.strftime('%A, %d. %B %Y') }}
+        {% if media.exif.dateobj %}
+            {{ media.exif.dateobj.strftime('%A, %d. %B %Y') }}
         {% endif %}
 
     This will output something like "Monday, 25. June 2013", depending on your
+    locale.
+
+``media.exif.datetime``
+    The time the image was *taken*. It is formatted as:
+
+    .. code-block:: python
+
+            media.exif.dateobj.strftime('%A, %d. %B %Y')
+
+    This will output something like "Monday, 25. June 2013", depending on your
+    locale.
+
+``media.exif.datetimelocal``
+    The date and time the image was *taken*. It is formatted in the system's
+    configured LOCALE using:
+
+    .. code-block:: python
+
+            media.exif.dateobj.strftime('%c')
+
+    This will output something like "Sat 25 Nov 2017 03:08:17 PM PST",
+    depending on your locale.
+
+``media.exif.datelocal``
+    The date the image was *taken*. It is formatted in the system's
+    configured LOCALE using:
+
+    .. code-block:: python
+
+            media.exif.dateobj.strftime('%x')
+
+    This will output something like "11/25/2017", depending on your
+    locale.
+
+``media.exif.timelocal``
+    The time the image was *taken*. It is formatted in the system's
+    configured LOCALE using:
+
+    .. code-block:: python
+
+            media.exif.dateobj.strftime('%X')
+
+    This will output something like "03:09:39 PM", depending on your
     locale.
 
 ``media.exif.gps``
@@ -135,4 +178,3 @@ templates. If available, you can use:
             <a href="http://openstreetmap.org/index.html?lat={{
             media.exif.gps.lat }}&lon={{ media.exif.long}}">Go to location</a>
         {% endif %}
-
