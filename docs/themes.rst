@@ -110,13 +110,18 @@ templates. If available, you can use:
     The aperture value given as an F-number and formatted as a decimal.
 
 ``media.exif.datetime``
+    The time the image was *taken*. It is formatted with the
+    ``datetime_format`` setting, which is ``%c`` by default.
+    See Python's `datetime documentation`_ for a list of all possible values.
+
+``media.exif.dateobj``
     The time the image was *taken*. It is a datetime object, that can be
     formatted with ``strftime``:
 
     .. code-block:: jinja
 
-        {% if media.exif.datetime %}
-            {{ media.exif.datetime.strftime('%A, %d. %B %Y') }}
+        {% if media.exif.dateobj %}
+            {{ media.exif.dateobj.strftime('%A, %d. %B %Y') }}
         {% endif %}
 
     This will output something like "Monday, 25. June 2013", depending on your
@@ -136,3 +141,5 @@ templates. If available, you can use:
             media.exif.gps.lat }}&lon={{ media.exif.long}}">Go to location</a>
         {% endif %}
 
+
+.. _datetime documentation: https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior

@@ -113,9 +113,10 @@ def test_media_orig(settings, tmpdir):
 
 def test_image(settings, tmpdir):
     settings['destination'] = str(tmpdir)
+    settings['datetime_format'] = '%d/%m/%Y'
     m = Image('11.jpg', 'dir1/test1', settings)
     assert m.date == datetime.datetime(2006, 1, 22, 10, 32, 42)
-    assert m.exif['datetime'] == u'Sunday, 22. January 2006'
+    assert m.exif['datetime'] == u'22/01/2006'
 
     os.makedirs(join(settings['destination'], 'dir1', 'test1', 'thumbnails'))
     assert m.thumbnail == join('thumbnails', '11.tn.jpg')

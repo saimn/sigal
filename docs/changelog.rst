@@ -15,6 +15,8 @@ Released on 2017-xx-xx.
 - Added random thumbnail property for album [:issue:`241`].
 - Improve CSP compatibility with colorbox theme [:issue:`245`].
 - Set html lang attribute based upon locale [:issue:`257`].
+- New setting ``datetime_format`` to customize the EXIF datetime format
+  [:issue:`271`].
 
 Version 1.3.0
 ~~~~~~~~~~~~~

@@ -69,6 +69,10 @@ img_size = (800, 600)
 # If True, EXIF data from the original image is copied to the resized image
 # copy_exif_data = False
 
+# Python's datetime format string used for the EXIF date formatting
+# https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
+# datetime_format = '%c'
+
 # Jpeg options
 # jpg_options = {'quality': 85,
 #                'optimize': True,

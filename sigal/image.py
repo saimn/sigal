@@ -243,7 +243,7 @@ def dms_to_degrees(v):
     return d + (m / 60.0) + (s / 3600.0)
 
 
-def get_exif_tags(data):
+def get_exif_tags(data, datetime_format='%c'):
     """Make a simplified version with common tags from raw EXIF data."""
 
     logger = logging.getLogger(__name__)
@@ -310,7 +310,7 @@ def get_exif_tags(data):
 
         try:
             simple['dateobj'] = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
-            dt = simple['dateobj'].strftime('%A, %d. %B %Y')
+            dt = simple['dateobj'].strftime(datetime_format)
             simple['datetime'] = dt.decode('utf8') if compat.PY2 else dt
         except (ValueError, TypeError) as e:
             logger.info(u'Could not parse DateTimeOriginal: %s', e)

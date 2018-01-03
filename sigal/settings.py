@@ -37,6 +37,7 @@ _DEFAULT_CONFIG = {
     'autorotate_images': True,
     'colorbox_column_size': 4,
     'copy_exif_data': False,
+    'datetime_format': '%c',
     'destination': '_build',
     'files_to_copy': (),
     'google_analytics': '',

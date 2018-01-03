@@ -159,7 +159,8 @@ class Image(Media):
 
     @cached_property
     def exif(self):
-        return (get_exif_tags(self.raw_exif)
+        datetime_format = self.settings['datetime_format']
+        return (get_exif_tags(self.raw_exif, datetime_format=datetime_format)
                 if self.raw_exif and self.ext in ('.jpg', '.jpeg') else None)
 
     @cached_property
