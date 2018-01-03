@@ -60,18 +60,22 @@ def _remove_albums_with_subdirs(albums, keysToRemove, prefix=""):
     for keyToRemove in keysToRemove:
         for key in list(albums.keys()):
             if key.startswith(prefix + keyToRemove):
-                # subdirs' target directories have already been created, remove them first
+                # subdirs' target directories have already been created,
+                # remove them first
                 try:
                     album = albums[key]
                     if album.medias:
-                        os.rmdir(os.path.join(album.dst_path, album.settings['thumb_dir']))
+                        os.rmdir(os.path.join(album.dst_path,
+                                              album.settings['thumb_dir']))
 
                     if album.medias and album.settings['keep_orig']:
-                        os.rmdir(os.path.join(album.dst_path, album.settings['orig_dir']))
+                        os.rmdir(os.path.join(album.dst_path,
+                                              album.settings['orig_dir']))
 
                     os.rmdir(album.dst_path)
                 except OSError:
-                    # directory was created and populated with images in a previous run => keep it
+                    # directory was created and populated with images in a
+                    # previous run => keep it
                     pass
 
                 # now remove the album from the surrounding album/gallery

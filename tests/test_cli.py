@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import blinker
+import io
 import logging
 import os
 from click.testing import CliRunner
 from os.path import join
 
-from sigal import init, build, serve, set_meta
+from sigal import init, build, serve, set_meta, signals
 
 TESTGAL = join(os.path.abspath(os.path.dirname(__file__)), 'sample')
 
@@ -34,6 +36,8 @@ def test_build(tmpdir):
     try:
         result = runner.invoke(init, [config_file])
         assert result.exit_code == 0
+        os.symlink(join(TESTGAL, 'watermark.png'),
+                   join(tmpdir, 'watermark.png'))
         os.symlink(join(TESTGAL, 'pictures', 'dir2', 'exo20101028-b-full.jpg'),
                    join(tmpdir, 'pictures', 'exo20101028-b-full.jpg'))
 
@@ -49,6 +53,25 @@ def test_build(tmpdir):
                                        '-n', 1, '--debug'])
         assert result.exit_code == 1
 
+        with io.open(config_file) as f:
+            text = f.read()
+
+        text += """
+theme = 'colorbox'
+plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
+           'sigal.plugins.watermark', 'sigal.plugins.feeds',
+           'sigal.plugins.media_page' 'sigal.plugins.nomedia',
+           'sigal.plugins.extended_caching']
+copyright = u"© An example copyright message"
+copyright_text_font = "foobar"
+watermark = "watermark.png"
+watermark_position = "scale"
+watermark_opacity = 0.3
+"""
+
+        with io.open(config_file, 'w') as f:
+            f.write(text)
+
         result = runner.invoke(build, ['pictures', 'build',
                                        '-n', 1, '--debug'])
         assert result.exit_code == 0
@@ -60,6 +83,15 @@ def test_build(tmpdir):
         logger = logging.getLogger('sigal')
         logger.handlers[:] = []
         logger.setLevel(logging.INFO)
+        # Reset plugins
+        for name in dir(signals):
+            if not name.startswith('_'):
+                try:
+                    sig = getattr(signals, name)
+                    if isinstance(sig, blinker.Signal):
+                        sig.receivers.clear()
+                except Exception:
+                    pass
 
 
 def test_serve(tmpdir):
