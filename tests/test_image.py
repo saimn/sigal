@@ -117,15 +117,14 @@ def test_generate_thumbnail(tmpdir, image, path, wide_size, high_size):
     "Test the generate_thumbnail function."
 
     dstfile = str(tmpdir.join(image))
-    delay = 0
     for size in [(200, 150), (150, 200)]:
-        generate_thumbnail(path, dstfile, size, delay)
+        generate_thumbnail(path, dstfile, size)
         im = Image.open(dstfile)
         assert im.size == size
 
     for size, thumb_size in [((200, 150), wide_size),
                              ((150, 200), high_size)]:
-        generate_thumbnail(path, dstfile, size, delay, fit=False)
+        generate_thumbnail(path, dstfile, size, fit=False)
         im = Image.open(dstfile)
         assert im.size == thumb_size
 

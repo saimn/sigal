@@ -77,6 +77,7 @@ _DEFAULT_CONFIG = {
     'title': '',
     'use_assets_cdn': True,
     'use_orig': False,
+    'video_converter': 'ffmpeg',
     'video_extensions': ['.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp'],
     'video_format': 'webm',
     'video_size': (480, 360),
