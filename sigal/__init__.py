@@ -199,15 +199,13 @@ def serve(destination, port, config):
         settings = read_settings(config)
         destination = settings.get('destination')
         if not os.path.exists(destination):
-            sys.stderr.write("The '{}' directory doesn't exist, "
-                             "maybe try building first?"
-                             "\n".format(destination))
+            sys.stderr.write("The '{}' directory doesn't exist, maybe try "
+                             "building first?\n".format(destination))
             sys.exit(1)
     else:
         sys.stderr.write("The {destination} directory doesn't exist "
-                         "and the config file ({config}) could not be "
-                         "read."
-                         "\n".format(destination=destination, config=config))
+                         "and the config file ({config}) could not be read.\n"
+                         .format(destination=destination, config=config))
         sys.exit(2)
 
     print('DESTINATION : {}'.format(destination))
@@ -223,6 +221,7 @@ def serve(destination, port, config):
         httpd.serve_forever()
     except KeyboardInterrupt:
         print('\nAll done!')
+
 
 @main.command()
 @argument('target')
@@ -257,6 +256,6 @@ def set_meta(target, keys, overwrite=False):
 
     with open(descfile, "w") as fp:
         for i in range(len(keys)//2):
-            k,v = keys[i*2:(i+1)*2]
+            k, v = keys[i*2:(i+1)*2]
             fp.write("{}: {}\n".format(k.capitalize(), v))
     print("{} metadata key(s) written to {}".format(len(keys)//2, descfile))
