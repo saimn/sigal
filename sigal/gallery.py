@@ -702,8 +702,8 @@ class Gallery(object):
                     self.stats[f.type + '_failed'] += 1
                     album.medias.remove(f)
                     break
-        self.logger.error('You can run sigal in verbose (--verbose) or debug '
-                          '(--debug) mode to get more details.')
+        self.logger.error('You can run "sigal build" in verbose (--verbose) or'
+                          ' debug (--debug) mode to get more details.')
 
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
