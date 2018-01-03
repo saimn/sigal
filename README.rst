@@ -6,7 +6,7 @@ Sigal - Simple Static Gallery Generator
    :alt: Travis-ci: continuous integration status.
 
 .. image:: https://codecov.io/gh/saimn/sigal/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/saimn/sigal
+   :target: https://codecov.io/gh/saimn/sigal
    :alt: codecov.io
 
 Sigal is yet another simple static gallery generator. It's written in Python
