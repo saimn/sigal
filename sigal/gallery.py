@@ -568,12 +568,12 @@ class Gallery(object):
                 album.create_output_directories()
                 albums[relpath] = album
 
-        with progressbar(albums.values(), label="Sorting albums",
+        with progressbar(albums.values(), label="%16s" % "Sorting albums",
                          file=self.progressbar_target) as progress_albums:
             for album in progress_albums:
                 album.sort_subdirs(settings['albums_sort_attr'])
 
-        with progressbar(albums.values(), label="Sorting media",
+        with progressbar(albums.values(), label="%16s" % "Sorting media",
                          file=self.progressbar_target) as progress_albums:
             for album in progress_albums:
                 album.sort_medias(settings['medias_sort_attr'])
@@ -679,7 +679,8 @@ class Gallery(object):
 
         if self.settings['write_html']:
             writer = Writer(self.settings, index_title=self.title)
-            with progressbar(self.albums.values(), label="Writing indices",
+            with progressbar(self.albums.values(),
+                             label="%16s" % "Writing files",
                              item_show_func=log_func, show_eta=False,
                              file=self.progressbar_target) as albums:
                 for album in albums:
