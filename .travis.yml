@@ -31,6 +31,7 @@ addons:
       - zlib1g-dev
 
 install:
+    - pip install -U pip setuptools wheel
     - pip install -q $PILLOW
     - pip install pytest pytest-cov coveralls
     - pip install .
