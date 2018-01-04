@@ -62,7 +62,7 @@ plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
            'sigal.plugins.watermark', 'sigal.plugins.feeds',
            'sigal.plugins.media_page' 'sigal.plugins.nomedia',
            'sigal.plugins.extended_caching']
-copyright = u"© An example copyright message"
+copyright = "An example copyright message"
 copyright_text_font = "foobar"
 watermark = "watermark.png"
 watermark_position = "scale"
