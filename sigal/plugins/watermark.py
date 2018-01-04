@@ -27,20 +27,18 @@ Settings:
 
 - ``watermark``: path to the watermark image.
 - ``watermark_position``: the watermark position either 'scale' or 'tile' or
-                          a 2-tuple giving the upper left corner, or
-                          a 4-tuple defining the left, upper, right, and lower pixel coordinate, or
-                          `None` (same as (0, 0)).
-                          If a 4-tuple is given, the size of the pasted image must match the size of the region.
+  a 2-tuple giving the upper left corner, or
+  a 4-tuple defining the left, upper, right, and lower pixel coordinate, or
+  `None` (same as (0, 0)).
+  If a 4-tuple is given, the size of the pasted image must match the size of
+  the region.
 - ``watermark_opacity``: the watermark opacity (0.0 to 1.0).
 
 """
 
-
 import logging
-from PIL import ImageDraw, Image, ImageEnhance
+from PIL import Image, ImageEnhance
 from sigal import signals
-
-logger = logging.getLogger(__name__)
 
 
 def reduce_opacity(im, opacity):
@@ -76,7 +74,8 @@ def watermark(im, mark, position, opacity=1):
         w = int(mark.size[0] * ratio)
         h = int(mark.size[1] * ratio)
         mark = mark.resize((w, h))
-        layer.paste(mark, ((im.size[0] - w) / 2, (im.size[1] - h) / 2))
+        layer.paste(mark, (int((im.size[0] - w) / 2),
+                           int((im.size[1] - h) / 2)))
     else:
         layer.paste(mark, position)
     # composite the watermark with the layer
@@ -84,6 +83,7 @@ def watermark(im, mark, position, opacity=1):
 
 
 def add_watermark(img, settings=None):
+    logger = logging.getLogger(__name__)
     logger.debug('Adding watermark to %r', img)
     mark = Image.open(settings['watermark'])
     position = settings.get('watermark_position', 'scale')
@@ -92,6 +92,7 @@ def add_watermark(img, settings=None):
 
 
 def register(settings):
+    logger = logging.getLogger(__name__)
     if settings.get('watermark'):
         signals.img_resized.connect(add_watermark)
     else:

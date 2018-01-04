@@ -225,7 +225,8 @@ def test_medias_sort(settings):
     settings['medias_sort_reverse'] = False
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
-    assert [im.filename for im in a.images] == ['archlinux-kiss-1024x640.png', '21.jpg', '22.jpg']
+    assert [im.filename for im in a.images] == [
+        'archlinux-kiss-1024x640.png', '21.jpg', '22.jpg']
 
 
 def test_gallery(settings, tmpdir):
