@@ -58,6 +58,7 @@ def test_build(tmpdir):
 
         text += """
 theme = 'colorbox'
+files_to_copy = (('../watermark.png', 'watermark.png'),)
 plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
            'sigal.plugins.watermark', 'sigal.plugins.feeds',
            'sigal.plugins.media_page' 'sigal.plugins.nomedia',
@@ -75,12 +76,14 @@ atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
             f.write(text)
 
         result = runner.invoke(build, ['pictures', 'build',
+                                       '--title', 'Testing build',
                                        '-n', 1, '--debug'])
         assert result.exit_code == 0
         assert os.path.isfile(join(tmpdir, 'build', 'thumbnails',
                                    'exo20101028-b-full.jpg'))
         assert os.path.isfile(join(tmpdir, 'build', 'feed.atom'))
         assert os.path.isfile(join(tmpdir, 'build', 'feed.rss'))
+        assert os.path.isfile(join(tmpdir, 'build', 'watermark.png'))
     finally:
         os.chdir(cwd)
         # Reset logger
@@ -140,3 +143,8 @@ def test_set_meta(tmpdir):
     assert result.output.startswith("1 metadata key(s) written to")
     assert os.path.isfile(str(tmpdir.join("test.md")))
     assert tmpdir.join("test.md").read() == "Title: testing\n"
+
+    result = runner.invoke(set_meta, [str(testfile), "title"])
+
+    assert result.exit_code == 1
+    assert result.output.startswith("Need an even number of arguments")

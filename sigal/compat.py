@@ -35,7 +35,7 @@ if not PY2:
     from urllib.parse import quote as url_quote
     import socketserver
     import pickle
-else:
+else:  # pragma: no cover
     text_type = unicode  # NOQA
     string_types = (str, unicode)  # NOQA
     unichr = unichr
@@ -56,5 +56,5 @@ else:
 class UnicodeMixin(object):
     if not PY2:
         __str__ = lambda x: x.__unicode__()
-    else:
+    else:  # pragma: no cover
         __str__ = lambda x: unicode(x).encode('utf-8')
