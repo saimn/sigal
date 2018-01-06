@@ -67,6 +67,8 @@ copyright_text_font = "foobar"
 watermark = "watermark.png"
 watermark_position = "scale"
 watermark_opacity = 0.3
+rss_feed = {'feed_url': 'http://example.org/feed.rss', 'nb_items': 10}
+atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
 """
 
         with io.open(config_file, 'w') as f:
@@ -77,6 +79,8 @@ watermark_opacity = 0.3
         assert result.exit_code == 0
         assert os.path.isfile(join(tmpdir, 'build', 'thumbnails',
                                    'exo20101028-b-full.jpg'))
+        assert os.path.isfile(join(tmpdir, 'build', 'feed.atom'))
+        assert os.path.isfile(join(tmpdir, 'build', 'feed.rss'))
     finally:
         os.chdir(cwd)
         # Reset logger
