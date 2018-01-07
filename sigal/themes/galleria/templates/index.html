@@ -78,22 +78,23 @@
             {% if media.description %}<br>{{ media.description }}{% endif %}
 
             {%- if media.exif %}
-              <br>
-              {% if media.exif.iso %}<abbr title='film speed' class='iso'>ISO {{ media.exif.iso }}</abbr> {% endif %}
-              {% if media.exif.exposure %}<abbr title='exposure' class='exposure'>{{ media.exif.exposure }}s</abbr> {% endif %}
-              {% if media.exif.fstop %}<abbr title='aperture' class='aperture'>f/{{ media.exif.fstop }}</abbr> {% endif %}
-              {% if media.exif.focal %}<abbr title='focal length' class='focal'>{{ media.exif.focal }}mm</abbr> {% endif %}
+              <div class='film-meta'>
+              {% if media.exif.iso %}<abbr title='film speed'>{{ media.exif.iso }}</abbr> {% endif %}
+              {% if media.exif.exposure %}<abbr title='exposure'>{{ media.exif.exposure }}</abbr> {% endif %}
+              {% if media.exif.fstop %}<abbr title='aperture'>{{ media.exif.fstop }}</abbr> {% endif %}
+              {% if media.exif.focal %}<abbr title='focal length'>{{ media.exif.focal }}</abbr> {% endif %}
+              </div>
               {% if media.exif.gps %}
-                <br/><a title='location' class='location' href='https://www.openstreetmap.org/?mlat={{
+                <a title='location' href='https://www.openstreetmap.org/?mlat={{
                 media.exif.gps.lat }}&amp;mlon={{ media.exif.gps.lon}}&amp;zoom=12&amp;layers=M' target='_blank' class='map'
                 >{{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}
                  {{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}</a>
               {% endif %}
               {% if media.exif.Make or media.exif.Model %}
-                <br><abbr title='camera make and model' class='camera'>{{ media.exif.Make }} {{ media.exif.Model }}</abbr>
+                <abbr title='camera make and model'>{{ media.exif.Make }} {{ media.exif.Model }}</abbr>
               {% endif %}
               {% if media.exif.datetime %}
-                <br><abbr title='date' class='date'>{{ media.exif.datetime }}</abbr>
+                <abbr title='date'>{{ media.exif.datetime }}</abbr>
               {% endif %}
             {% endif %}
           {%- endmacro %}
