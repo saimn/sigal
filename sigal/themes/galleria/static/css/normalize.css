@@ -105,8 +105,7 @@ a:hover {
  */
 
 abbr[title] {
-  text-decoration: dotted underline;
-  font-variant: none;
+  border-bottom: 1px dotted;
 }
 
 /**

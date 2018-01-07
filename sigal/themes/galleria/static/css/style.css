@@ -19,6 +19,13 @@ a:hover {
   color: #dadada;
 }
 
+/* remove SMALLCAPS style and dotted underline from some browsers */
+abbr[title] {
+  text-decoration: dotted underline;
+  font-variant: none;
+  border-bottom: none;
+}
+
 /* header */
 header {
   padding: 1em 0;
