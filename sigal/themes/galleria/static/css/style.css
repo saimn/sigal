@@ -21,7 +21,7 @@ a:hover {
 
 /* remove SMALLCAPS style and dotted underline from some browsers */
 abbr[title] {
-  text-decoration: dotted underline;
+  text-decoration: none;
   font-variant: none;
   border-bottom: none;
 }
