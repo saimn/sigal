@@ -170,9 +170,9 @@ class Image(Media):
         try:
             return (get_exif_data(self.src_path)
                     if self.ext in ('.jpg', '.jpeg') else None)
-        except Exception:
-            self.logger.warning(u'Could not read EXIF data from %s',
-                                self.src_path)
+        except Exception as e:
+            self.logger.warning(u'Could not read EXIF data from %s: %s',
+                                self.src_path, e)
 
     @cached_property
     def size(self):
