@@ -19,6 +19,21 @@ a:hover {
   color: #dadada;
 }
 
+/* remove SMALLCAPS style and dotted underline from some browsers */
+abbr[title] {
+  text-decoration: none;
+  font-variant: none;
+  border-bottom: none;
+}
+
+abbr[title="exposure"]::after { content: "s" }
+abbr[title="film speed"]::before { content: "ISO " }
+abbr[title="aperture"]::before { content: "f/" }
+abbr[title="focal length"]::after { content: "mm" }
+abbr[title="camera make and model"], abbr[title="date"] {
+    display: block;
+}
+
 /* header */
 header {
   padding: 1em 0;
