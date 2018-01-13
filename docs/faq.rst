@@ -83,10 +83,12 @@ How to regenerate the gallery when something changes ?
 It can be convenient to build continuously the gallery when adding or removing
 pictures in the albums, however Sigal does not provide currently a buitin
 "autoreload" feature. This can be achieved with external tool like `peat
-<https://github.com/sjl/peat>`_, `entr <http://entrproject.org/>`_, and probably
-many others. For instance, with peat::
+<https://github.com/sjl/peat>`_::
 
     peat --dynamic 'find pictures/' 'sigal build'
 
 will watch changes inside the ``pictures/`` directory and rebuild the gallery in
-this case.
+this case. Many other tools do similar things, here is the equivalent
+command with `entr <http://entrproject.org/>`_::
+
+    while true; do  find pictures/ | entr -d sigal build; done
