@@ -12,7 +12,6 @@ import logging
 import gzip
 import shutil
 import os
-import os.path
 
 from pathlib import Path
 
