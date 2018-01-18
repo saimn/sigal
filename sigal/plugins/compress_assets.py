@@ -33,7 +33,7 @@ class BaseCompressor:
 
     def compressed_filename(self, filename):
         suffix = self.suffix()
-        return filename.with_name(f'{filename.name}.{suffix}')
+        return filename.with_name('{}.{}'.format(filename.name, suffix))
 
     def suffix(self):
         raise NotImplementedError
@@ -121,7 +121,7 @@ def get_compressor(settings):
             logger.error('Unable to import brotli module')
 
     else:
-        logger.error(f'No such compressor {name}')
+        logger.error('No such compressor {}'.format(name))
 
 
 def compress_assets(assets_directory, compressor):
@@ -136,7 +136,7 @@ def compress_assets(assets_directory, compressor):
 
 
 def compress_gallery(gallery):
-    logging.info(f'Compressing assets for {gallery.title}')
+    logging.info('Compressing assets for {}'.format(gallery.title))
     settings = SETTINGS.copy()
     settings.update(gallery.settings.get('compress_assets_options', {}))
     compressor = get_compressor(settings)
