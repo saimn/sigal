@@ -34,7 +34,7 @@ class BaseCompressor:
         self.suffix = self.__class__.SUFFIX
 
     def compressed_filename(self, filename):
-        return '{}.{}'.format(os.path.splitext(filename)[0], self.suffix)
+        return '{}.{}'.format(filename, self.suffix)
 
     def do_compress(self, filename, compressed_filename):
         raise NotImplementedError
