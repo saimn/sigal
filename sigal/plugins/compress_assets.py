@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Plugin to compress static files for faster HTTP transfer.
+"""Plugin to compress static files for faster HTTP transfer.
 
 Currently, 3 methods are supported:
     - gzip. No dependency required. This is the fastest, but also largest output.
