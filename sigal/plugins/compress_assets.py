@@ -64,7 +64,7 @@ class BaseCompressor:
         try:
             file_stats = os.stat(filename)
             compressed_stats = os.stat(compressed_filename_result)
-        except FileNotFoundError:
+        except OSError: # FileNotFoundError is for Python3 only
             pass
 
         if file_stats and compressed_stats:
