@@ -8,6 +8,9 @@ Currently, 3 methods are supported:
     - brotli. Need brotli module from https://pypi.python.org/pypi/Brotli. Brotli is the best compressor for web usage.
 
 """
+
+from __future__ import unicode_literals
+
 import logging
 import gzip
 import shutil
