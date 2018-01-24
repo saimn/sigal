@@ -16,8 +16,6 @@ import gzip
 import shutil
 import os
 
-from pathlib import Path
-
 from sigal import signals
 from click import progressbar
 
@@ -36,11 +34,7 @@ class BaseCompressor:
         self.suffix = self.__class__.SUFFIX
 
     def compressed_filename(self, filename):
-        suffix = self.suffix()
-        return filename.with_name('{}.{}'.format(filename.name, suffix))
-
-    def suffix(self):
-        raise NotImplementedError
+        return '{}.{}'.format(os.path.splitext(filename)[0], self.suffix)
 
     def do_compress(self, filename, compressed_filename):
         raise NotImplementedError
@@ -53,9 +47,7 @@ class BaseCompressor:
         self.do_compress(filename, compressed_filename)
 
     def can_compress(self, filename):
-        # Be sure it's a path
-        filename = Path(filename)
-        if not filename.suffix[1:] in self.settings['suffixes']:
+        if not os.path.splitext(filename)[1][1:] in self.settings['suffixes']:
             return False
 
         file_stats = None
