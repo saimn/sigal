@@ -77,6 +77,7 @@ class ZopfliCompressor(BaseCompressor):
     SUFFIX = 'gz'
 
     def do_compress(self, filename, compressed_filename):
+        import zopfli.gzip
         with open(filename, 'rb') as f_in, open(compressed_filename, 'wb') as f_out:
             f_out.write(zopfli.gzip.compress(f_in.read()))
 
@@ -85,6 +86,7 @@ class BrotliCompressor(BaseCompressor):
     SUFFIX = 'br'
 
     def do_compress(self, filename, compressed_filename):
+        import brotli
         with open(filename, 'rb') as f_in, open(compressed_filename, 'wb') as f_out:
             f_out.write(brotli.compress(f_in.read(), mode=brotli.MODE_TEXT))
 
@@ -95,7 +97,6 @@ def get_compressor(settings):
         return GZipCompressor(settings)
     elif name == 'zopfli':
         try:
-            global zopfli
             import zopfli.gzip
             return ZopfliCompressor(settings)
         except ImportError:
@@ -104,7 +105,6 @@ def get_compressor(settings):
 
     elif name == 'brotli':
         try:
-            global brotli
             import brotli
             return BrotliCompressor(settings)
         except ImportError:
