@@ -222,6 +222,13 @@ ignore_files = []
 # The default is 3 columns (176px).
 # colorbox_column_size = 3
 
+
+# Site Logo
+# Use a logo file in the side bar
+# You must place the logo file into the theme's static images folder, which can be done using files_to_copy
+# files_to_copy = (('logo.png', 'static/images/logo.png'))
+# site_logo = 'logo.png'
+
 # --------
 # Plugins
 # --------
