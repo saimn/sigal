@@ -117,15 +117,14 @@ def test_generate_thumbnail(tmpdir, image, path, wide_size, high_size):
     "Test the generate_thumbnail function."
 
     dstfile = str(tmpdir.join(image))
-    delay = 0
     for size in [(200, 150), (150, 200)]:
-        generate_thumbnail(path, dstfile, size, delay)
+        generate_thumbnail(path, dstfile, size)
         im = Image.open(dstfile)
         assert im.size == size
 
     for size, thumb_size in [((200, 150), wide_size),
                              ((150, 200), high_size)]:
-        generate_thumbnail(path, dstfile, size, delay, fit=False)
+        generate_thumbnail(path, dstfile, size, fit=False)
         im = Image.open(dstfile)
         assert im.size == thumb_size
 
@@ -135,12 +134,12 @@ def test_get_exif_tags():
     src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir1', 'test1',
                             test_image)
     data = get_exif_data(src_file)
-    simple = get_exif_tags(data)
+    simple = get_exif_tags(data, datetime_format='%d/%m/%Y')
     assert simple['fstop'] == 3.9
     assert simple['focal'] == 12.0
     assert simple['iso'] == 50
     assert simple['Make'] == 'NIKON'
-    assert simple['datetime'] == 'Sunday, 22. January 2006'
+    assert simple['datetime'] == '22/01/2006'
     if PIL.PILLOW_VERSION == '3.0.0':
         assert simple['exposure'] == 0.00100603
     else:

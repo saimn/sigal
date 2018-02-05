@@ -9,6 +9,8 @@ keep_orig = True
 links = [('Example link', 'http://example.org'),
          ('Another link', 'http://example.org')]
 
+files_to_copy = (('../watermark.png', 'watermark.png'),)
+
 plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
            'sigal.plugins.watermark', 'sigal.plugins.feeds',
            'sigal.plugins.nomedia', 'sigal.plugins.extended_caching']
