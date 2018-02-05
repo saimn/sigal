@@ -224,9 +224,9 @@ ignore_files = []
 
 
 # Site Logo
-# Use a logo file in the side bar
+# Use a logo file in the sidebar
 # You must place the logo file into the theme's static images folder, which can be done using files_to_copy
-# files_to_copy = (('logo.png', 'static/images/logo.png'))
+# files_to_copy = (('extra/logo.png', 'static/images/logo.png'))
 # site_logo = 'logo.png'
 
 # --------
