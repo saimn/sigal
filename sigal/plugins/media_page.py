@@ -32,15 +32,12 @@ previous/next :class:`~sigal.gallery.Media` objects.
 """
 
 import codecs
-import logging
 import os
 
 from sigal import signals
 from sigal.writer import Writer
 from sigal.utils import url_from_path
 from sigal.pkgmeta import __url__ as sigal_link
-
-logger = logging.getLogger(__name__)
 
 
 class PageWriter(Writer):

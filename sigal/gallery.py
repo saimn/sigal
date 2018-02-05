@@ -113,19 +113,21 @@ class Media(UnicodeMixin):
         """Path to the thumbnail image (relative to the album directory)."""
 
         if not isfile(self.thumb_path):
-            # if thumbnail is missing (if settings['make_thumbs'] is False)
-            if self.type == 'image':
-                generator = image.generate_thumbnail
-            elif self.type == 'video':
-                generator = video.generate_thumbnail
-
             self.logger.debug('Generating thumbnail for %r', self)
             path = (self.dst_path if os.path.exists(self.dst_path)
                     else self.src_path)
             try:
-                generator(path, self.thumb_path, self.settings['thumb_size'],
-                          self.settings['thumb_video_delay'],
-                          fit=self.settings['thumb_fit'])
+                # if thumbnail is missing (if settings['make_thumbs'] is False)
+                s = self.settings
+                if self.type == 'image':
+                    image.generate_thumbnail(
+                        path, self.thumb_path, s['thumb_size'],
+                        fit=s['thumb_fit'])
+                elif self.type == 'video':
+                    video.generate_thumbnail(
+                        path, self.thumb_path, s['thumb_size'],
+                        s['thumb_video_delay'], fit=s['thumb_fit'],
+                        converter=s['video_converter'])
             except Exception as e:
                 self.logger.error('Failed to generate thumbnail: %s', e)
                 return
@@ -159,7 +161,8 @@ class Image(Media):
 
     @cached_property
     def exif(self):
-        return (get_exif_tags(self.raw_exif)
+        datetime_format = self.settings['datetime_format']
+        return (get_exif_tags(self.raw_exif, datetime_format=datetime_format)
                 if self.raw_exif and self.ext in ('.jpg', '.jpeg') else None)
 
     @cached_property
@@ -167,9 +170,9 @@ class Image(Media):
         try:
             return (get_exif_data(self.src_path)
                     if self.ext in ('.jpg', '.jpeg') else None)
-        except Exception:
-            self.logger.warning(u'Could not read EXIF data from %s',
-                                self.src_path)
+        except Exception as e:
+            self.logger.warning(u'Could not read EXIF data from %s: %s',
+                                self.src_path, e)
 
     @cached_property
     def size(self):
@@ -568,12 +571,12 @@ class Gallery(object):
                 album.create_output_directories()
                 albums[relpath] = album
 
-        with progressbar(albums.values(), label="Sorting albums",
+        with progressbar(albums.values(), label="%16s" % "Sorting albums",
                          file=self.progressbar_target) as progress_albums:
             for album in progress_albums:
                 album.sort_subdirs(settings['albums_sort_attr'])
 
-        with progressbar(albums.values(), label="Sorting media",
+        with progressbar(albums.values(), label="%16s" % "Sorting media",
                          file=self.progressbar_target) as progress_albums:
             for album in progress_albums:
                 album.sort_medias(settings['medias_sort_attr'])
@@ -676,12 +679,16 @@ class Gallery(object):
 
         if failed_files:
             self.remove_files(failed_files)
-        print('')
 
         if self.settings['write_html']:
             writer = Writer(self.settings, index_title=self.title)
-            for album in self.albums.values():
-                writer.write(album)
+            with progressbar(self.albums.values(),
+                             label="%16s" % "Writing files",
+                             item_show_func=log_func, show_eta=False,
+                             file=self.progressbar_target) as albums:
+                for album in albums:
+                    writer.write(album)
+        print('')
 
         signals.gallery_build.send(self)
 
@@ -695,8 +702,8 @@ class Gallery(object):
                     self.stats[f.type + '_failed'] += 1
                     album.medias.remove(f)
                     break
-        self.logger.error('You can run sigal in verbose (--verbose) or debug '
-                          '(--debug) mode to get more details.')
+        self.logger.error('You can run "sigal build" in verbose (--verbose) or'
+                          ' debug (--debug) mode to get more details.')
 
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
