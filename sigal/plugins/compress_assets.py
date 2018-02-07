@@ -26,10 +26,10 @@ SETTINGS = {
 
 
 class BaseCompressor:
+    suffix = None
 
     def __init__(self, settings):
         self.settings = settings
-        self.suffix = self.__class__.SUFFIX
 
     def do_compress(self, filename, compressed_filename):
         '''
@@ -76,7 +76,7 @@ class BaseCompressor:
 
 
 class GZipCompressor(BaseCompressor):
-    SUFFIX = 'gz'
+    suffix = 'gz'
 
     def do_compress(self, filename, compressed_filename):
         with open(filename, 'rb') as f_in, gzip.open(compressed_filename, 'wb') as f_out:
@@ -84,7 +84,7 @@ class GZipCompressor(BaseCompressor):
 
 
 class ZopfliCompressor(BaseCompressor):
-    SUFFIX = 'gz'
+    suffix = 'gz'
 
     def do_compress(self, filename, compressed_filename):
         import zopfli.gzip
@@ -93,7 +93,7 @@ class ZopfliCompressor(BaseCompressor):
 
 
 class BrotliCompressor(BaseCompressor):
-    SUFFIX = 'br'
+    suffix = 'br'
 
     def do_compress(self, filename, compressed_filename):
         import brotli
