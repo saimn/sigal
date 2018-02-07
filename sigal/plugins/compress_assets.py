@@ -38,7 +38,7 @@ class BaseCompressor:
         '''
         raise NotImplementedError
 
-    def compress_file(self, filename):
+    def compress(self, filename):
         '''
         Compress a file, only if needed.
         '''
@@ -132,7 +132,7 @@ def compress_assets(assets_directory, compressor):
 
     with progressbar(assets, label='Compressing theme assets') as progress_compress:
         for filename in progress_compress:
-            compressor.compress_file(filename)
+            compressor.compress(filename)
 
 
 def compress_gallery(gallery):
@@ -146,7 +146,7 @@ def compress_gallery(gallery):
 
     with progressbar(gallery.albums.values(), label='Compressing albums static files') as progress_compress:
         for album in progress_compress:
-            compressor.compress_file(os.path.join(album.dst_path, album.output_file))
+            compressor.compress(os.path.join(album.dst_path, album.output_file))
 
     compress_assets(os.path.join(gallery.settings['destination'], 'static'), compressor)
 
