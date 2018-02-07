@@ -17,7 +17,7 @@ from click import progressbar
 
 logger = logging.getLogger(__name__)
 
-SETTINGS = {
+DEFAULT_SETTINGS = {
         'suffixes': ['htm', 'html', 'css', 'js', 'svg'],
         'method': 'gzip',
         }
@@ -27,7 +27,7 @@ class BaseCompressor:
     suffix = None
 
     def __init__(self, settings):
-        self.settings = settings
+        self.suffixes_to_compress = settings.get('suffixes', DEFAULT_SETTINGS['suffixes'])
 
     def do_compress(self, filename, compressed_filename):
         '''
@@ -55,7 +55,7 @@ class BaseCompressor:
             - The compressed file exists by is older than the file itself
         Otherwise, it returns False.
         '''
-        if not os.path.splitext(filename)[1][1:] in self.settings['suffixes']:
+        if not os.path.splitext(filename)[1][1:] in self.suffixes_to_compress:
             return False
 
         file_stats = None
@@ -100,7 +100,7 @@ class BrotliCompressor(BaseCompressor):
 
 
 def get_compressor(settings):
-    name = settings.get('method', '')
+    name = settings.get('method', DEFAULT_SETTINGS['method'])
     if name == 'gzip':
         return GZipCompressor(settings)
     elif name == 'zopfli':
@@ -135,9 +135,8 @@ def compress_assets(assets_directory, compressor):
 
 def compress_gallery(gallery):
     logging.info('Compressing assets for %s', gallery.title)
-    settings = SETTINGS.copy()
-    settings.update(gallery.settings.get('compress_assets_options', {}))
-    compressor = get_compressor(settings)
+    compress_settings = gallery.settings.get('compress_assets_options', DEFAULT_SETTINGS)
+    compressor = get_compressor(compress_settings)
 
     if compressor is None:
         return
