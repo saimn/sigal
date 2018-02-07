@@ -31,36 +31,48 @@ class BaseCompressor:
         self.settings = settings
         self.suffix = self.__class__.SUFFIX
 
-    def compressed_filename(self, filename):
-        return '{}.{}'.format(filename, self.suffix)
-
     def do_compress(self, filename, compressed_filename):
+        '''
+        Perform actual compression.
+        This should be implemented by subclasses.
+        '''
         raise NotImplementedError
 
     def compress_file(self, filename):
-        compressed_filename = self.can_compress(filename)
+        '''
+        Compress a file, only if needed.
+        '''
+        compressed_filename = self.get_compressed_filename(filename)
         if not compressed_filename:
             return
 
         self.do_compress(filename, compressed_filename)
 
-    def can_compress(self, filename):
+    def get_compressed_filename(self, filename):
+        '''
+        If the given filename should be compressed, returns the compressed filename.
+        A file can be compressed if:
+            - It is not a compressed file (using extension)
+            - The compressed file does not exist
+            - The compressed file exists by is older than the file itself
+        Otherwise, it returns False.
+        '''
         if not os.path.splitext(filename)[1][1:] in self.settings['suffixes']:
             return False
 
         file_stats = None
         compressed_stats = None
-        compressed_filename_result = self.compressed_filename(filename)
+        compressed_filename = '{}.{}'.format(filename, self.suffix)
         try:
             file_stats = os.stat(filename)
-            compressed_stats = os.stat(compressed_filename_result)
+            compressed_stats = os.stat(compressed_filename)
         except OSError:  # FileNotFoundError is for Python3 only
             pass
 
         if file_stats and compressed_stats:
-            return compressed_filename_result if file_stats.st_mtime > compressed_stats.st_mtime else False
+            return compressed_filename if file_stats.st_mtime > compressed_stats.st_mtime else False
         else:
-            return compressed_filename_result
+            return compressed_filename
 
 
 class GZipCompressor(BaseCompressor):
