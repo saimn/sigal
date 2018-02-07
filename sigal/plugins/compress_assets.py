@@ -136,7 +136,7 @@ def compress_assets(assets_directory, compressor):
 
 
 def compress_gallery(gallery):
-    logging.info('Compressing assets for {}'.format(gallery.title))
+    logging.info('Compressing assets for %s', gallery.title)
     settings = SETTINGS.copy()
     settings.update(gallery.settings.get('compress_assets_options', {}))
     compressor = get_compressor(settings)
