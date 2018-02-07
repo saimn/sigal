@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Plugin to compress static files for faster HTTP transfer.
 
 Currently, 3 methods are supported:
