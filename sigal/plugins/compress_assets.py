@@ -50,7 +50,7 @@ class BaseCompressor:
         '''
         If the given filename should be compressed, returns the compressed filename.
         A file can be compressed if:
-            - It is not a compressed file (using extension)
+            - It is a whitelisted extension
             - The compressed file does not exist
             - The compressed file exists by is older than the file itself
         Otherwise, it returns False.
