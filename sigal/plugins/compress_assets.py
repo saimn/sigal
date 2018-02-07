@@ -7,8 +7,6 @@ Currently, 3 methods are supported:
 
 """
 
-from __future__ import unicode_literals
-
 import logging
 import gzip
 import shutil
@@ -62,7 +60,7 @@ class BaseCompressor:
 
         file_stats = None
         compressed_stats = None
-        compressed_filename = '{}.{}'.format(filename, self.suffix)
+        compressed_filename = u'{}.{}'.format(filename, self.suffix)
         try:
             file_stats = os.stat(filename)
             compressed_stats = os.stat(compressed_filename)
