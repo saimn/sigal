@@ -2,13 +2,26 @@
 
 import os
 
+import blinker
 import pytest
 
+from sigal import init_plugins, signals
 from sigal.gallery import Gallery
-from sigal import init_plugins
 from sigal.plugins import compress_assets
 
 CURRENT_DIR = os.path.dirname(__file__)
+
+
+@pytest.fixture(autouse=True)
+def disconnect_signals():
+    for name in dir(signals):
+        if not name.startswith('_'):
+            try:
+                sig = getattr(signals, name)
+                if isinstance(sig, blinker.Signal):
+                    sig.receivers.clear()
+            except Exception:
+                pass
 
 
 def make_gallery(settings, tmpdir, method):
