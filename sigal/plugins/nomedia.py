@@ -107,7 +107,7 @@ def filter_nomedia(album, settings=None):
                 logger.info("Found a .nomedia file in %s, ignoring its entries", album.name)
                 ignoredEntries = nomediaFile.read().split("\n")
 
-                album.medias = list(filter(lambda media: media.filename not in ignoredEntries,
+                album.medias = list(filter(lambda media: media.src_filename not in ignoredEntries,
                                            album.medias))
                 album.subdirs = list(filter(lambda dirName: dirName not in ignoredEntries,
                                             album.subdirs))
