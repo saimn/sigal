@@ -5,13 +5,15 @@
 Settings:
 
 - ``copyright``: the copyright text.
-- ``copyright_text_font``: the copyright text font - either system/user font-name or absolute path to font.tff file.
-                           If no font is specified, or specified font is not found, default font is used.
-- ``copyright_text_font_size``: the copyright text font-size. If no font is specified, this setting is ignored.
-- ``copyright_text_color``: the copyright text color in 3 tuple (R, G, B) Decimal RGB code.
-                            e.g. (255, 255, 255) is White.
-- ``copyright_text_position``: the copyright text position in 2 tuple (left, top).
-                               By default text would be positioned at bottom-left corner.
+- ``copyright_text_font``: the copyright text font - either system/user
+  font-name or absolute path to font.ttf file.  If no font is specified, or
+  specified font is not found, the default font is used.
+- ``copyright_text_font_size``: the copyright text font-size. If no font is
+  specified, this setting is ignored.
+- ``copyright_text_color``: the copyright text color in a tuple (R, G, B)
+  with decimal RGB code, e.g. ``(255, 255, 255)`` is white.
+- ``copyright_text_position``: the copyright text position in 2 tuple (left,
+  top).  By default text would be positioned at bottom-left corner.
 
 """
 

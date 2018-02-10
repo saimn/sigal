@@ -23,8 +23,8 @@
 """ This plugin offers more fine-grained control over exluded images and
 folders, similarly to how it's handled on Android.
 
-To ignore a folder or image put a .nomedia file next to it in its parent folder
-and put its name into the file.  E.g.::
+To ignore a folder or image put a ``.nomedia`` file next to it in its parent
+folder and put its name into the file.  E.g.::
 
     content of folder:
         IMG_3425.JPG, IMG_2426.JPG, IMG_2427.JPG, subfolder, .nomedia
@@ -35,16 +35,16 @@ and put its name into the file.  E.g.::
 
 will ignore all images but IMG_3425.JPG and the subfolder.
 
-Alternatively, if you put a .nomedia file into a folder and leave it blank
-(i.e. an empty file called .nomedia in a folder containing images), this
+Alternatively, if you put a ``.nomedia`` file into a folder and leave it blank
+(i.e. an empty file called ``.nomedia`` in a folder containing images), this
 ignores the whole folder it's located in (like on Android).
 
 WARNING: When you have a pre-existing gallery from a previous run of sigal
-adding a new .nomedia file will not remove the newly ignored images/albums from
-the existing gallery (only the entries in the parent gallery pointing to it).
-They might still be reachable thereafter. Either remove the whole gallery to be
-sure or remove the ignored files/folders inside the gallery to remove them for
-good.
+adding a new ``.nomedia`` file will not remove the newly ignored images/albums
+from the existing gallery (only the entries in the parent gallery pointing to
+it).  They might still be reachable thereafter. Either remove the whole gallery
+to be sure or remove the ignored files/folders inside the gallery to remove
+them for good.
 
 """
 
