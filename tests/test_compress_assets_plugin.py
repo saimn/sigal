@@ -14,6 +14,7 @@ CURRENT_DIR = os.path.dirname(__file__)
 
 @pytest.fixture(autouse=True)
 def disconnect_signals():
+    yield None
     for name in dir(signals):
         if not name.startswith('_'):
             try:
