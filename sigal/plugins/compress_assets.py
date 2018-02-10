@@ -1,9 +1,12 @@
 """Plugin to compress static files for faster HTTP transfer.
 
 Currently, 3 methods are supported:
-    - gzip. No dependency required. This is the fastest, but also largest output.
-    - zopfli. Need zopfli module from https://pypi.python.org/pypi/zopfli. gzip compatible output with optimized size.
-    - brotli. Need brotli module from https://pypi.python.org/pypi/Brotli. Brotli is the best compressor for web usage.
+    - gzip: No dependency required.
+            This is the fastest, but also largest output.
+    - zopfli: Need zopfli module from https://pypi.python.org/pypi/zopfli.
+              gzip compatible output with optimized size.
+    - brotli: Need brotli module from https://pypi.python.org/pypi/Brotli.
+              Brotli is the best compressor for web usage.
 
 """
 
