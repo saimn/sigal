@@ -30,7 +30,11 @@ def make_gallery(settings, tmpdir, method):
     return compress_options
 
 
-def _test_compress_generic(settings, tmpdir, method, compress_suffix, test_import=None):
+@pytest.mark.parametrize("method,compress_suffix,test_import",
+                         [('gzip', 'gz', None),
+                          ('zopfli', 'gz', 'zopfli.gzip'),
+                          ('brotli', 'br', 'brotli')])
+def test_compress(settings, tmpdir, method, compress_suffix, test_import):
     if test_import:
         pytest.importorskip(test_import)
     compress_options = make_gallery(settings, tmpdir, 'gzip')
@@ -42,15 +46,3 @@ def _test_compress_generic(settings, tmpdir, method, compress_suffix, test_impor
             path_exists = os.path.exists('{}.{}'.format(os.path.join(path, file), 'gz'))
             file_ext = os.path.splitext(file)[1][1:]
             assert path_exists if file_ext in suffixes else not path_exists
-
-
-def test_compress_gzip(settings, tmpdir):
-    _test_compress_generic(settings, tmpdir, 'gzip', 'gz')
-
-
-def test_compress_zopfli(settings, tmpdir):
-    _test_compress_generic(settings, tmpdir, 'zopfli', 'gz', 'zopfli.gzip')
-
-
-def test_compress_brotli(settings, tmpdir):
-    _test_compress_generic(settings, tmpdir, 'brotli', 'br', 'brotli')
