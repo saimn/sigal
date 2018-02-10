@@ -8,6 +8,8 @@ from sigal.gallery import Gallery
 from sigal import init_plugins
 from sigal.plugins import compress_assets
 
+CURRENT_DIR = os.path.dirname(__file__)
+
 
 def make_gallery(settings, tmpdir, method):
     settings['destination'] = str(tmpdir)
