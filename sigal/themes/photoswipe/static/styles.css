@@ -127,6 +127,9 @@ figcaption {
 
 .album_title {
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .video {
@@ -181,6 +184,7 @@ figcaption {
 .gallery__img--secondary {
   width: 25%;
   float:left;
+  margin-bottom: 1em;
 }
 
 .gallery__title {
