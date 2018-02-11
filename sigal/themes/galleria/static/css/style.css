@@ -2,6 +2,7 @@ body {
   background-color: #242424;
   color: #aaaaaa;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  font: 16px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .container {
