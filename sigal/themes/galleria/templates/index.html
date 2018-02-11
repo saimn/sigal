@@ -8,8 +8,9 @@
     <meta name="description" content="">
     <meta name="author" content="{{ album.author }}">
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="{{ theme.url }}/classic/galleria.classic.css">
-    <link rel="stylesheet" href="{{ theme.url }}/css/style.min.css">
+    <link rel="stylesheet" href="{{ theme.url }}/css/normalize.css">
+    <link rel="stylesheet" href="{{ theme.url }}/themes/classic/galleria.classic.min.css">
+    <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
     {% if settings.use_assets_cdn %}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Molengo">
     <style>
@@ -161,9 +162,9 @@
     {% else %}
     <script src="{{ theme.url }}/js/jquery-1.11.1.min.js"></script>
     {% endif %}
-    <script src="{{ theme.url }}/js/galleria-1.4.2.min.js"></script>
-    <script src="{{ theme.url }}/js/galleria.classic.min.js"></script>
-    <script src="{{ theme.url }}/js/galleria.history.min.js"></script>
+    <script src="{{ theme.url }}//galleria.min.js"></script>
+    <script src="{{ theme.url }}/themes/classic/galleria.classic.min.js"></script>
+    <script src="{{ theme.url }}/plugins/history/galleria.history.min.js"></script>
     <script>
     {% if settings.show_map and album.show_map %}
     var selected =-1;
