@@ -8,26 +8,17 @@
     <meta name="description" content="">
     <meta name="author" content="{{ album.author }}">
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="{{ theme.url }}/classic/galleria.classic.css">
-    <link rel="stylesheet" href="{{ theme.url }}/css/style.min.css">
-    {% if settings.use_assets_cdn %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Molengo">
-    <style>
-      body { font: 16px/1.5 Molengo, sans-serif; }
-      h1, h2, h3, h4, h5, h6 { font-family: "PT Sans", sans-serif; }
-    </style>
-    {% else %}
-    <style>
-      body { font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; }
-    </style>
-    {% endif %}
+
+    <link rel="stylesheet" href="{{ theme.url }}/css/normalize.css">
+    <link rel="stylesheet" href="{{ theme.url }}/themes/classic/galleria.classic.min.css">
+    <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
+
     {% if settings.show_map and album.show_map %}
     <link rel="stylesheet" href="{{ theme.url }}/leaflet/leaflet.css" />
     <script src="{{ theme.url }}/leaflet/leaflet.js"></script>
     <script src="{{ theme.url }}/leaflet/leaflet-providers.js"></script>
-    <style type="text/css">
-    </style>
     {% endif %}
+
     {% include 'analytics.html' %}
   </head>
   <body>
@@ -157,13 +148,13 @@
 
     {% if album.medias %}
     {% if settings.use_assets_cdn %}
-    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     {% else %}
-    <script src="{{ theme.url }}/js/jquery-1.11.1.min.js"></script>
+    <script src="{{ theme.url }}/jquery-3.3.1.min.js"></script>
     {% endif %}
-    <script src="{{ theme.url }}/js/galleria-1.4.2.min.js"></script>
-    <script src="{{ theme.url }}/js/galleria.classic.min.js"></script>
-    <script src="{{ theme.url }}/js/galleria.history.min.js"></script>
+    <script src="{{ theme.url }}//galleria.min.js"></script>
+    <script src="{{ theme.url }}/themes/classic/galleria.classic.min.js"></script>
+    <script src="{{ theme.url }}/plugins/history/galleria.history.min.js"></script>
     <script>
     {% if settings.show_map and album.show_map %}
     var selected =-1;
