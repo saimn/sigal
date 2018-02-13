@@ -111,6 +111,22 @@ def test_media_orig(settings, tmpdir):
     assert m.big == '21.jpg'
 
 
+def test_media_iptc_override(settings):
+    img_with_md = Image('2.jpg', 'iptcTest', settings)
+    assert img_with_md.title == "Markdown title beats iptc"
+    # Markdown parsing adds formatting. Let's just focus on content
+    assert "Markdown description beats iptc" in img_with_md.description
+    img_no_md = Image('1.jpg', 'iptcTest', settings)
+    assert img_no_md.title == 'Haemostratulus clouds over Canberra - ' + \
+            '2005-12-28 at 03-25-07'
+    assert img_no_md.description == \
+            '"Haemo" because they look like haemoglobin ' + \
+            'cells and "stratulus" because I can\'t work out whether ' + \
+            'they\'re Stratus or Cumulus clouds.\nWe\'re driving down ' + \
+            'the main drag in Canberra so it\'s Parliament House that ' + \
+            'you can see at the end of the road.'
+
+
 def test_image(settings, tmpdir):
     settings['destination'] = str(tmpdir)
     settings['datetime_format'] = '%d/%m/%Y'

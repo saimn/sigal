@@ -5,6 +5,7 @@
 # Copyright (c) 2014      - Jonas Kaufmann
 # Copyright (c) 2015      - François D.
 # Copyright (c) 2017      - Mate Lakat
+# Copyright (c) 2018      - Edwin Steele
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -42,7 +43,8 @@ from os.path import isfile, join, splitext
 
 from . import image, video, signals
 from .compat import PY2, UnicodeMixin, strxfrm, url_quote, text_type, pickle
-from .image import process_image, get_exif_tags, get_exif_data, get_size
+from .image import (process_image, get_exif_tags, get_exif_data, get_size,
+                    get_iptc_data)
 from .settings import get_thumb
 from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
                     read_markdown, cached_property, is_valid_html5_video,
@@ -164,6 +166,23 @@ class Image(Media):
         datetime_format = self.settings['datetime_format']
         return (get_exif_tags(self.raw_exif, datetime_format=datetime_format)
                 if self.raw_exif and self.ext in ('.jpg', '.jpeg') else None)
+
+    def _get_metadata(self):
+        super(Image, self)._get_metadata()
+        # If a title or description hasn't been obtained by other means, look
+        #  for the information in IPTC fields as catalogued in:
+        # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
+        if not self.title or not self.description:
+            iptc_data = get_iptc_data(self.src_path)
+            if iptc_data and not self.title:
+                # 2:05 is the IPTC title property
+                if (2, 5) in iptc_data:
+                    self.title = iptc_data[(2, 5)].decode('utf-8')
+
+            if iptc_data and not self.description:
+                # 2:120 is the IPTC description property
+                if (2, 120) in iptc_data:
+                    self.description = iptc_data[(2, 120)].decode('utf-8')
 
     @cached_property
     def raw_exif(self):
