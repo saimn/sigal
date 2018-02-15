@@ -5,6 +5,7 @@
 # Copyright (c) 2014      - Jonas Kaufmann
 # Copyright (c) 2015      - François D.
 # Copyright (c) 2017      - Mate Lakat
+# Copyright (c) 2018      - Edwin Steele
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -42,7 +43,8 @@ from os.path import isfile, join, splitext
 
 from . import image, video, signals
 from .compat import PY2, UnicodeMixin, strxfrm, url_quote, text_type, pickle
-from .image import process_image, get_exif_tags, get_exif_data, get_size
+from .image import (process_image, get_exif_tags, get_exif_data, get_size,
+                    get_iptc_data)
 from .settings import get_thumb
 from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
                     read_markdown, cached_property, is_valid_html5_video,
@@ -164,6 +166,20 @@ class Image(Media):
         datetime_format = self.settings['datetime_format']
         return (get_exif_tags(self.raw_exif, datetime_format=datetime_format)
                 if self.raw_exif and self.ext in ('.jpg', '.jpeg') else None)
+
+    def _get_metadata(self):
+        super(Image, self)._get_metadata()
+        # If a title or description hasn't been obtained by other means, look
+        #  for the information in IPTC fields
+        if self.title and self.description:
+            # Nothing to do - we already have title and description
+            return
+
+        iptc_data = get_iptc_data(self.src_path)
+        if not self.title and iptc_data.get('title'):
+            self.title = iptc_data['title']
+        if not self.description and iptc_data.get('description'):
+            self.description = iptc_data['description']
 
     @cached_property
     def raw_exif(self):

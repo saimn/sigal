@@ -7,7 +7,7 @@ from PIL import Image
 
 from sigal import init_logging
 from sigal.image import (generate_image, generate_thumbnail, get_exif_tags,
-                         get_exif_data, get_size, process_image)
+                         get_exif_data, get_size, process_image, get_iptc_data)
 from sigal.settings import create_settings, Status
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -160,6 +160,27 @@ def test_get_exif_tags():
     assert 'exposure' not in simple
     assert 'datetime' not in simple
     assert 'gps' not in simple
+
+
+def test_get_iptc_data():
+    test_image = '1.jpg'
+    src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'iptcTest',
+                            test_image)
+    data = get_iptc_data(src_file)
+    # Title
+    assert data["title"] == 'Haemostratulus clouds over Canberra - ' + \
+            '2005-12-28 at 03-25-07'
+    # Description
+    assert data["description"] == '"Haemo" because they look like haemoglobin ' + \
+            'cells and "stratulus" because I can\'t work out whether ' + \
+            'they\'re Stratus or Cumulus clouds.\nWe\'re driving down ' + \
+            'the main drag in Canberra so it\'s Parliament House that ' + \
+            'you can see at the end of the road.'
+    # This file has no IPTC data
+    test_image = '21.jpg'
+    src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'exifTest',
+                            test_image)
+    assert get_iptc_data(src_file) == {}
 
 
 def test_iso_speed_ratings():

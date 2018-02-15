@@ -2,6 +2,7 @@
 
 # Copyright (c) 2009-2016 - Simon Conseil
 # Copyright (c) 2015 - François D.
+# Copyright (c) 2018 - Edwin Steele
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -43,6 +44,7 @@ from datetime import datetime
 from PIL.ExifTags import TAGS, GPSTAGS
 from PIL import Image as PILImage
 from PIL import ImageOps
+from PIL import IptcImagePlugin
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
@@ -233,6 +235,25 @@ def get_exif_data(filename):
             logger.info('Failed to get GPS Info')
             del data['GPSInfo']
     return data
+
+
+def get_iptc_data(filename):
+    """Return a dict with the raw IPTC data."""
+
+    img = _read_image(filename)
+    raw_iptc = IptcImagePlugin.getiptcinfo(img)
+    # IPTC fields are catalogued in:
+    # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
+    iptc_data = {}
+    # 2:05 is the IPTC title property
+    if raw_iptc and (2, 5) in raw_iptc:
+        iptc_data["title"] = raw_iptc[(2, 5)].decode('utf-8')
+
+    # 2:120 is the IPTC description property
+    if raw_iptc and (2, 120) in raw_iptc:
+        iptc_data["description"] = raw_iptc[(2, 120)].decode('utf-8')
+
+    return iptc_data
 
 
 def dms_to_degrees(v):
