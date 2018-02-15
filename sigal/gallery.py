@@ -170,19 +170,16 @@ class Image(Media):
     def _get_metadata(self):
         super(Image, self)._get_metadata()
         # If a title or description hasn't been obtained by other means, look
-        #  for the information in IPTC fields as catalogued in:
-        # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
-        if not self.title or not self.description:
-            iptc_data = get_iptc_data(self.src_path)
-            if iptc_data and not self.title:
-                # 2:05 is the IPTC title property
-                if (2, 5) in iptc_data:
-                    self.title = iptc_data[(2, 5)].decode('utf-8')
+        #  for the information in IPTC fields
+        if self.title and self.description:
+            # Nothing to do - we already have title and description
+            return
 
-            if iptc_data and not self.description:
-                # 2:120 is the IPTC description property
-                if (2, 120) in iptc_data:
-                    self.description = iptc_data[(2, 120)].decode('utf-8')
+        iptc_data = get_iptc_data(self.src_path)
+        if not self.title and iptc_data.get('title'):
+            self.title = iptc_data['title']
+        if not self.description and iptc_data.get('description'):
+            self.description = iptc_data['description']
 
     @cached_property
     def raw_exif(self):

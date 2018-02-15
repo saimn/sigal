@@ -168,19 +168,19 @@ def test_get_iptc_data():
                             test_image)
     data = get_iptc_data(src_file)
     # Title
-    assert data[(2, 5)] == b'Haemostratulus clouds over Canberra - ' + \
-            b'2005-12-28 at 03-25-07'
+    assert data["title"] == 'Haemostratulus clouds over Canberra - ' + \
+            '2005-12-28 at 03-25-07'
     # Description
-    assert data[(2, 120)] == b'"Haemo" because they look like haemoglobin ' + \
-            b'cells and "stratulus" because I can\'t work out whether ' + \
-            b'they\'re Stratus or Cumulus clouds.\nWe\'re driving down ' + \
-            b'the main drag in Canberra so it\'s Parliament House that ' + \
-            b'you can see at the end of the road.'
+    assert data["description"] == '"Haemo" because they look like haemoglobin ' + \
+            'cells and "stratulus" because I can\'t work out whether ' + \
+            'they\'re Stratus or Cumulus clouds.\nWe\'re driving down ' + \
+            'the main drag in Canberra so it\'s Parliament House that ' + \
+            'you can see at the end of the road.'
     # This file has no IPTC data
     test_image = '21.jpg'
     src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'exifTest',
                             test_image)
-    assert get_iptc_data(src_file) is None
+    assert get_iptc_data(src_file) == {}
 
 
 def test_iso_speed_ratings():
