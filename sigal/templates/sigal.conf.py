@@ -254,3 +254,8 @@ ignore_files = []
 # 	'policy': 'public-read',
 # 	'overwrite': False
 # }
+
+# Settings for compressing static assets
+# compress_assets_options = {
+#    'method': 'gzip' # Or 'zopfli' or 'brotli'
+# }
