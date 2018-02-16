@@ -143,17 +143,6 @@ def get_compressor(settings):
         logger.error('No such compressor {}'.format(name))
 
 
-def compress_assets(assets_directory, compressor):
-    assets = []
-    for current_directory, _, filenames in os.walk(assets_directory):
-        for filename in filenames:
-            assets.append(os.path.join(current_directory, filename))
-
-    with progressbar(assets, label='Compressing theme assets') as progress_compress:
-        for filename in progress_compress:
-            compressor.compress(filename)
-
-
 def compress_gallery(gallery):
     logging.info('Compressing assets for %s', gallery.title)
     compress_settings = gallery.settings.get('compress_assets_options', DEFAULT_SETTINGS)
@@ -162,11 +151,20 @@ def compress_gallery(gallery):
     if compressor is None:
         return
 
-    with progressbar(gallery.albums.values(), label='Compressing albums static files') as progress_compress:
-        for album in progress_compress:
-            compressor.compress(os.path.join(album.dst_path, album.output_file))
+    # Collecting theme assets
+    theme_assets = []
+    for current_directory, _, filenames in os.walk(os.path.join(gallery.settings['destination'], 'static')):
+        for filename in filenames:
+            theme_assets.append(os.path.join(current_directory, filename))
 
-    compress_assets(os.path.join(gallery.settings['destination'], 'static'), compressor)
+    with progressbar(length=len(gallery.albums) + len(theme_assets), label='Compressing static files') as bar:
+        for album in gallery.albums.values():
+            compressor.compress(os.path.join(album.dst_path, album.output_file))
+            bar.update(1)
+
+        for theme_asset in theme_assets:
+            compressor.compress(theme_asset)
+            bar.update(1)
 
 
 def register(settings):
