@@ -51,12 +51,12 @@ def make_gallery(settings, tmpdir, method):
 def test_compress(settings, tmpdir, method, compress_suffix, test_import):
     if test_import:
         pytest.importorskip(test_import)
-    compress_options = make_gallery(settings, tmpdir, 'gzip')
+    compress_options = make_gallery(settings, tmpdir, method)
 
     suffixes = compress_options['suffixes']
 
     for path, dirs, files in os.walk(settings['destination']):
         for file in files:
-            path_exists = os.path.exists('{}.{}'.format(os.path.join(path, file), 'gz'))
+            path_exists = os.path.exists('{}.{}'.format(os.path.join(path, file), compress_suffix))
             file_ext = os.path.splitext(file)[1][1:]
             assert path_exists if file_ext in suffixes else not path_exists
