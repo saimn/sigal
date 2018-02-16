@@ -32,7 +32,7 @@ addons:
 install:
     - pip install -U pip setuptools wheel
     - pip install -q $PILLOW
-    - pip install pytest pytest-cov codecov feedgenerator
+    - pip install pytest pytest-cov codecov feedgenerator zopfli brotli
     - pip install .
 
 before_script:
