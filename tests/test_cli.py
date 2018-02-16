@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import blinker
 import io
 import logging
 import os
 from click.testing import CliRunner
 from os.path import join
 
-from sigal import init, build, serve, set_meta, signals
+from sigal import init, build, serve, set_meta
 
 TESTGAL = join(os.path.abspath(os.path.dirname(__file__)), 'sample')
 
@@ -26,7 +25,7 @@ def test_init(tmpdir):
                              "keep it safe.\n")
 
 
-def test_build(tmpdir):
+def test_build(tmpdir, disconnect_signals):
     runner = CliRunner()
     config_file = str(tmpdir.join('sigal.conf.py'))
     tmpdir.mkdir('pictures')
@@ -90,15 +89,6 @@ atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
         logger = logging.getLogger('sigal')
         logger.handlers[:] = []
         logger.setLevel(logging.INFO)
-        # Reset plugins
-        for name in dir(signals):
-            if not name.startswith('_'):
-                try:
-                    sig = getattr(signals, name)
-                    if isinstance(sig, blinker.Signal):
-                        sig.receivers.clear()
-                except Exception:
-                    pass
 
 
 def test_serve(tmpdir):

@@ -1,28 +1,13 @@
 # -*- coding:utf-8 -*-
 
 import os
-
-import blinker
 import pytest
 
-from sigal import init_plugins, signals
+from sigal import init_plugins
 from sigal.gallery import Gallery
 from sigal.plugins import compress_assets
 
 CURRENT_DIR = os.path.dirname(__file__)
-
-
-@pytest.fixture(autouse=True)
-def disconnect_signals():
-    yield None
-    for name in dir(signals):
-        if not name.startswith('_'):
-            try:
-                sig = getattr(signals, name)
-                if isinstance(sig, blinker.Signal):
-                    sig.receivers.clear()
-            except Exception:
-                pass
 
 
 def make_gallery(settings, tmpdir, method):
@@ -48,7 +33,8 @@ def make_gallery(settings, tmpdir, method):
                          [('gzip', 'gz', None),
                           ('zopfli', 'gz', 'zopfli.gzip'),
                           ('brotli', 'br', 'brotli')])
-def test_compress(settings, tmpdir, method, compress_suffix, test_import):
+def test_compress(disconnect_signals, settings, tmpdir, method,
+                  compress_suffix, test_import):
     if test_import:
         pytest.importorskip(test_import)
     compress_options = make_gallery(settings, tmpdir, method)

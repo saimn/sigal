@@ -1,15 +1,14 @@
 # -*- coding:utf-8 -*-
 
-import blinker
 import os
 
 from sigal.gallery import Gallery
-from sigal import init_plugins, signals
+from sigal import init_plugins
 
 CURRENT_DIR = os.path.dirname(__file__)
 
 
-def test_plugins(settings, tmpdir):
+def test_plugins(settings, tmpdir, disconnect_signals):
 
     settings['destination'] = str(tmpdir)
     if "sigal.plugins.nomedia" not in settings["plugins"]:
@@ -17,20 +16,9 @@ def test_plugins(settings, tmpdir):
     if "sigal.plugins.media_page" not in settings["plugins"]:
         settings['plugins'] += ["sigal.plugins.media_page"]
 
-    try:
-        init_plugins(settings)
-        gal = Gallery(settings)
-        gal.build()
-    finally:
-        # Reset plugins
-        for name in dir(signals):
-            if not name.startswith('_'):
-                try:
-                    sig = getattr(signals, name)
-                    if isinstance(sig, blinker.Signal):
-                        sig.receivers.clear()
-                except Exception:
-                    pass
+    init_plugins(settings)
+    gal = Gallery(settings)
+    gal.build()
 
     out_html = os.path.join(settings['destination'],
                             'dir2', 'exo20101028-b-full.jpg.html')
