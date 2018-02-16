@@ -90,7 +90,7 @@ Adjust plugin
 .. automodule:: sigal.plugins.adjust
 
 Compress assets plugin
-================
+======================
 
 .. automodule:: sigal.plugins.compress_assets
 

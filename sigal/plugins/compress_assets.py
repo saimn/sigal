@@ -1,18 +1,16 @@
 """Plugin to compress static files for faster HTTP transfer.
 
 Your web server must be configured in order to select pre-compressed
-files instead of the required one, to save CPU. For example, in nginx:
+files instead of the required one, to save CPU. For example, in nginx::
 
-::
-
- server {
- 	gzip_static;
- }
+    server {
+        gzip_static;
+    }
 
 Currently, 3 methods are supported:
 
 - ``gzip``: No dependency required.
-	This is the fastest, but also largest output.
+  This is the fastest, but also largest output.
 - ``zopfli``: Requires zopfli_.
   gzip compatible output with optimized size.
 - ``brotli``: Requires brotli_.
@@ -25,7 +23,7 @@ Settings available as dictionary in ``compress_assets_options``:
 
 - ``method``: One of ``gzip``, ``zopfli`` or ``brotli``.
 - ``suffixes``: List of file suffixes eligible to compression.
-	Default to ``['htm', 'html', 'css', 'js', 'svg']``
+  Default to ``['htm', 'html', 'css', 'js', 'svg']``
 
 """
 
