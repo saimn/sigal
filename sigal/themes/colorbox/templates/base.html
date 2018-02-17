@@ -20,7 +20,13 @@
     <div class="container">
       <div class="three columns">
         <div class="sidebar">
-          <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
+          <h1><a href="{{ album.index_url }}">
+		  {% if settings.site_logo %}
+          <img src="{{ theme.url }}/images/{{ settings.site_logo }}" alt="{{ index_title }}">
+          {% else %}
+          {{ index_title }}
+          {% endif %}
+          </a></h1>
           {% if settings.links %}
           <nav id="menu">
             <ul>
