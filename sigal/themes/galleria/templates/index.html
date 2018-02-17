@@ -145,11 +145,7 @@
     </div>
 
     {% if album.medias %}
-    {% if settings.use_assets_cdn %}
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    {% else %}
     <script src="{{ theme.url }}/jquery-3.3.1.min.js"></script>
-    {% endif %}
     {% if settings.show_map and album.show_map %}
     <script src="{{ theme.url }}/leaflet/leaflet.js"></script>
     <script src="{{ theme.url }}/leaflet/leaflet-providers.js"></script>

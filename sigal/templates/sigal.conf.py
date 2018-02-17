@@ -182,10 +182,6 @@ ignore_files = []
 # Add output filename (see above) to the URLs
 # index_in_url = False
 
-# Use CDN for assets (Google fonts, JQuery).
-# If False some fonts may not be available.
-# use_assets_cdn = True
-
 # A list of links (tuples (title, URL))
 # links = [('Example link', 'http://example.org'),
 #          ('Another link', 'http://example.org')]

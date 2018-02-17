@@ -108,11 +108,7 @@
 
 {% block footer %}
   {% if album.medias %}
-  {% if settings.use_assets_cdn %}
-  <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
-  {% else %}
   <script src="{{ theme.url }}/js/jquery-2.2.1.min.js"></script>
-  {% endif %}
   <script src="{{ theme.url }}/js/jquery.colorbox-min.js"></script>
   <script src="{{ theme.url }}/js/jquery.touchSwipe.min.js"></script>
 

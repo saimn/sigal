@@ -75,7 +75,6 @@ _DEFAULT_CONFIG = {
     'thumb_suffix': '',
     'thumb_video_delay': '0',
     'title': '',
-    'use_assets_cdn': True,
     'use_orig': False,
     'video_converter': 'ffmpeg',
     'video_extensions': ['.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp'],
