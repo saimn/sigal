@@ -5,8 +5,11 @@
 Version 1.4.0.dev
 ~~~~~~~~~~~~~~~~~
 
-Released on 2017-xx-xx.
+Released on 2018-xx-xx.
 
+- Update libraries used in themes (Galleria, Colorbox, PhotoSwipe) and their
+  dependencies.
+- Remove use of CDNs (JQuery, Google fonts).
 - Hint to how to suppress decompressionbomb warnings [:issue:`235`].
 - New plugin for finer control over ignored files [:issue:`233`].
 - New plugin to cache the exif data of images [:issue:`236`].
@@ -23,6 +26,13 @@ Released on 2017-xx-xx.
 - New setting ``datetime_format`` to customize the EXIF datetime format
   [:issue:`271`].
 - Add a progress bar for writing index files [:issue:`234`].
+- Add setting to customize the EXIF datetime format [:issue:`271`].
+- Allow to configure the ffmpeg binary [:issue:`273`].
+- Filter .nomedia files with the source filename [:issue:`295`].
+- Populate title & description from IPTC image data [:issue:`297`].
+- Defer loading of leaflet js til late in the page [:issue:`298`].
+- Add compress_assets plugin [:issue:`300`].
+- Sidebar site logo image in Colorbox [:issue:`292`].
 
 Version 1.3.0
 ~~~~~~~~~~~~~
