@@ -21,8 +21,8 @@
       <div class="three columns">
         <div class="sidebar">
           <h1><a href="{{ album.index_url }}">
-		  {% if settings.site_logo %}
-          <img src="{{ theme.url }}/images/{{ settings.site_logo }}" alt="{{ index_title }}">
+          {% if settings.site_logo %}
+          <img src="{{ theme.url }}/{{ settings.site_logo }}" alt="{{ index_title }}">
           {% else %}
           {{ index_title }}
           {% endif %}
