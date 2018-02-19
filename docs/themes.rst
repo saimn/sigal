@@ -30,10 +30,6 @@ Sigal comes with three themes, located in the ``sigal/themes`` folder:
     `source <http://photoswipe.com/>`__, `demo
     <http://saimon.org/sigal-demo/photoswipe/>`__.
 
-For developers, a Makefile is available to concatenate and minify the css
-files, using `cssmin <https://pypi.python.org/pypi/cssmin>`_ (``pip install
-cssmin``).
-
 Variables
 ~~~~~~~~~
 
