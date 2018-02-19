@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import os
+import sys
 import pytest
 
 from sigal import init_plugins
@@ -8,6 +9,34 @@ from sigal.gallery import Gallery
 from sigal.plugins import compress_assets
 
 CURRENT_DIR = os.path.dirname(__file__)
+
+
+class ModuleMasker:
+
+    def __init__(self):
+        self._modules = []
+
+    def mask(self, *modules):
+        self._modules = modules
+        # If the module have been previously imported,
+        # We should force a reload on next import call.
+        for m in modules:
+            try:
+                del sys.modules[m]
+            except KeyError:
+                pass
+
+    def find_module(self, fullname, path=None):
+        if fullname in self._modules:
+            raise ImportError
+
+
+@pytest.fixture(scope='function')
+def mask_modules():
+    masker = ModuleMasker()
+    sys.meta_path.append(masker)
+    yield masker
+    sys.meta_path.remove(masker)
 
 
 def make_gallery(settings, tmpdir, method):
