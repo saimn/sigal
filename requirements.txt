@@ -3,7 +3,6 @@ blinker
 boto
 click
 coverage
-cssmin
 feedgenerator
 Jinja2
 Markdown

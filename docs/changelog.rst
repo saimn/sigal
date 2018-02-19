@@ -2,10 +2,12 @@
  Changelog
 ===========
 
-Version 1.4.0.dev
-~~~~~~~~~~~~~~~~~
+Version 1.4.0
+~~~~~~~~~~~~~
 
-Released on 2018-xx-xx.
+Released on 2018-02-20.
+
+This is the last version supporting Python 2.
 
 - Update libraries used in themes (Galleria, Colorbox, PhotoSwipe) and their
   dependencies.

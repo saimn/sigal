@@ -34,7 +34,6 @@ setup(
                       'pilkit'],
     test_requires=['pytest'],
     extras_require={
-        'CSS':  ['cssmin'],
         'S3': ['boto']
     },
     entry_points={
