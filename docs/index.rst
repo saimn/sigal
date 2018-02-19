@@ -15,4 +15,5 @@ Documentation
    plugins
    faq
    contribute
+   license
    changelog

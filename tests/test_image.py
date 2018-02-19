@@ -9,10 +9,10 @@ from sigal.image import (generate_image, generate_thumbnail, get_exif_tags,
 from sigal.settings import create_settings, Status
 
 CURRENT_DIR = os.path.dirname(__file__)
-TEST_IMAGE = 'exo20101028-b-full.jpg'
+TEST_IMAGE = 'KeckObservatory20071020.jpg'
 SRCFILE = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir2', TEST_IMAGE)
 
-TEST_GIF_IMAGE = '50a1d0bc-763d-457e-b634-c87f16a64270.gif'
+TEST_GIF_IMAGE = 'example.gif'
 SRC_GIF_FILE = os.path.join(CURRENT_DIR, 'sample', 'pictures',
                             'dir1', 'test1', TEST_GIF_IMAGE)
 
@@ -60,7 +60,7 @@ def test_resize_image_portrait(tmpdir):
     # Hence we test that the shorter side has the smallest length.
     assert im.size[0] == 200
 
-    landscape_image = 'exo20101028-b-full.jpg'
+    landscape_image = 'KeckObservatory20071020.jpg'
     landscape_src = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir2', landscape_image)
     landscape_dst = str(tmpdir.join(landscape_image))
 
@@ -109,8 +109,8 @@ def test_generate_image_processor(tmpdir):
 
 @pytest.mark.parametrize(
     ("image", "path", "wide_size", "high_size"),
-    [(TEST_IMAGE, SRCFILE, (185, 150), (150, 122)),
-     (TEST_GIF_IMAGE, SRC_GIF_FILE, (127, 150), (150, 177))])
+    [(TEST_IMAGE, SRCFILE, (200, 133), (150, 100)),
+     (TEST_GIF_IMAGE, SRC_GIF_FILE, (134, 150), (150, 167))])
 def test_generate_thumbnail(tmpdir, image, path, wide_size, high_size):
     "Test the generate_thumbnail function."
 

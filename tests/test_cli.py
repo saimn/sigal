@@ -34,8 +34,8 @@ def test_build(tmpdir, disconnect_signals):
         assert result.exit_code == 0
         os.symlink(join(TESTGAL, 'watermark.png'),
                    join(tmpdir, 'watermark.png'))
-        os.symlink(join(TESTGAL, 'pictures', 'dir2', 'exo20101028-b-full.jpg'),
-                   join(tmpdir, 'pictures', 'exo20101028-b-full.jpg'))
+        os.symlink(join(TESTGAL, 'pictures', 'dir2', 'KeckObservatory20071020.jpg'),
+                   join(tmpdir, 'pictures', 'KeckObservatory20071020.jpg'))
 
         result = runner.invoke(build, ['-n', 1, '--debug'])
         assert result.exit_code == 1
@@ -76,7 +76,7 @@ atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
                                        '-n', 1, '--debug'])
         assert result.exit_code == 0
         assert os.path.isfile(join(tmpdir, 'build', 'thumbnails',
-                                   'exo20101028-b-full.jpg'))
+                                   'KeckObservatory20071020.jpg'))
         assert os.path.isfile(join(tmpdir, 'build', 'feed.atom'))
         assert os.path.isfile(join(tmpdir, 'build', 'feed.rss'))
         assert os.path.isfile(join(tmpdir, 'build', 'watermark.png'))

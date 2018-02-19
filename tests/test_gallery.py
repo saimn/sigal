@@ -22,16 +22,16 @@ REF = {
         'name': 'test1',
         'thumbnail': 'test1/thumbnails/11.tn.jpg',
         'subdirs': [],
-        'medias': ['11.jpg', 'archlinux-kiss-1024x640.png',
+        'medias': ['11.jpg', 'CMB_Timeline300_no_WMAP.jpg',
                    'flickr_jerquiaga_2394751088_cc-by-nc.jpg',
-                   '50a1d0bc-763d-457e-b634-c87f16a64270.gif'],
+                   'example.gif'],
     },
     'dir1/test2': {
         'title': 'test2',
         'name': 'test2',
         'thumbnail': 'test2/thumbnails/21.tn.jpg',
         'subdirs': [],
-        'medias': ['21.jpg', '22.jpg', 'archlinux-kiss-1024x640.png'],
+        'medias': ['21.jpg', '22.jpg', 'CMB_Timeline300_no_WMAP.jpg'],
     },
     'dir1/test3': {
         'title': '01 First title alphabetically',
@@ -45,7 +45,7 @@ REF = {
         'name': 'dir2',
         'thumbnail': 'dir2/thumbnails/m57_the_ring_nebula-587px.tn.jpg',
         'subdirs': [],
-        'medias': ['exo20101028-b-full.jpg',
+        'medias': ['KeckObservatory20071020.jpg',
                    'Hubble Interacting Galaxy NGC 5257.jpg',
                    'Hubble ultra deep field.jpg',
                    'm57_the_ring_nebula-587px.jpg'],
@@ -55,15 +55,15 @@ REF = {
         'name': 'accentué',
         'thumbnail': 'accentué/thumbnails/hélicoïde.tn.jpg',
         'subdirs': [],
-        'medias': ['hélicoïde.jpg', 'superdupont_source_wikipedia_en.jpg'],
+        'medias': ['hélicoïde.jpg', '11.jpg'],
     },
     'video': {
         'title': 'video',
         'name': 'video',
         'thumbnail': ('video/thumbnails/'
-                      'stallman software-freedom-day-low.tn.jpg'),
+                      'example video.tn.jpg'),
         'subdirs': [],
-        'medias': ['stallman software-freedom-day-low.ogv']
+        'medias': ['example video.ogv']
     }
 }
 
@@ -97,9 +97,9 @@ def test_media_orig(settings, tmpdir):
     m = Image('11.jpg', 'dir1/test1', settings)
     assert m.big == 'original/11.jpg'
 
-    m = Video('stallman software-freedom-day-low.ogv', 'video', settings)
-    assert m.filename == 'stallman software-freedom-day-low.webm'
-    assert m.big == 'original/stallman software-freedom-day-low.ogv'
+    m = Video('example video.ogv', 'video', settings)
+    assert m.filename == 'example video.webm'
+    assert m.big == 'original/example video.ogv'
     assert os.path.isfile(join(settings['destination'], m.path, m.big))
 
     settings['use_orig'] = True
@@ -138,14 +138,13 @@ def test_image(settings, tmpdir):
 
 def test_video(settings, tmpdir):
     settings['destination'] = str(tmpdir)
-    m = Video('stallman software-freedom-day-low.ogv', 'video', settings)
-    file_path = join('video', 'stallman software-freedom-day-low.webm')
+    m = Video('example video.ogv', 'video', settings)
+    file_path = join('video', 'example video.webm')
     assert str(m) == file_path
     assert m.dst_path == join(settings['destination'], file_path)
 
     os.makedirs(join(settings['destination'], 'video', 'thumbnails'))
-    assert m.thumbnail == join('thumbnails',
-                               'stallman software-freedom-day-low.tn.jpg')
+    assert m.thumbnail == join('thumbnails', 'example video.tn.jpg')
     assert os.path.isfile(m.thumb_path)
 
 
@@ -222,14 +221,14 @@ def test_medias_sort(settings):
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
     assert [im.filename for im in a.images] == ['22.jpg', '21.jpg',
-                                                'archlinux-kiss-1024x640.png']
+                                                'CMB_Timeline300_no_WMAP.jpg']
 
     settings['medias_sort_attr'] = 'meta.order'
     settings['medias_sort_reverse'] = False
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
     assert [im.filename for im in a.images] == [
-        'archlinux-kiss-1024x640.png', '21.jpg', '22.jpg']
+        'CMB_Timeline300_no_WMAP.jpg', '21.jpg', '22.jpg']
 
 
 def test_gallery(settings, tmpdir):
@@ -275,7 +274,7 @@ def test_ignores(settings, tmpdir):
 
     assert 'test2' not in os.listdir(join(tmp, 'dir1'))
     assert 'accentué' not in os.listdir(tmp)
-    assert 'archlinux-kiss-1024x640.png' not in os.listdir(
+    assert 'CMB_Timeline300_no_WMAP.jpg' not in os.listdir(
         join(tmp, 'dir1', 'test1'))
     assert 'Hubble Interacting Galaxy NGC 5257.jpg' not in os.listdir(
         join(tmp, 'dir2'))

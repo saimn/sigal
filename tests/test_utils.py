@@ -6,7 +6,7 @@ SAMPLE_DIR = os.path.join(CURRENT_DIR, 'sample')
 
 
 def test_copy(tmpdir):
-    filename = 'exo20101028-b-full.jpg'
+    filename = 'KeckObservatory20071020.jpg'
     src = os.path.join(SAMPLE_DIR, 'pictures', 'dir2', filename)
     dst = str(tmpdir.join(filename))
     utils.copy(src, dst)
@@ -19,7 +19,7 @@ def test_copy(tmpdir):
     assert os.path.islink(dst)
     assert os.readlink(dst) == src
 
-    filename = 'exo20101028-b-full.jpg'
+    filename = 'KeckObservatory20071020.jpg'
     src = os.path.join(SAMPLE_DIR, 'pictures', 'dir2', filename)
     utils.copy(src, dst, symlink=True)
     assert os.path.islink(dst)

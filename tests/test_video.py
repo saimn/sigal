@@ -5,7 +5,7 @@ from sigal.video import video_size, generate_video, process_video
 from sigal.settings import create_settings, Status
 
 CURRENT_DIR = os.path.dirname(__file__)
-TEST_VIDEO = 'stallman software-freedom-day-low.ogv'
+TEST_VIDEO = 'example video.ogv'
 SRCFILE = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'video', TEST_VIDEO)
 
 
