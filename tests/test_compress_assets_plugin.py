@@ -88,3 +88,17 @@ def test_compress(disconnect_signals, settings, tmpdir, method,
                     assert not path_exists
                 assert path_exists if file_ext in suffixes else not path_exists
 
+
+@pytest.mark.parametrize("method,compress_suffix,mask",
+                         [('zopfli', 'gz', 'zopfli.gzip'),
+                          ('brotli', 'br', 'brotli'),
+                          ('__does_not_exist__', 'br', None)])
+def test_failed_compress(mask_modules, disconnect_signals, settings, tmpdir,
+                         method, compress_suffix, mask):
+    mask_modules.mask(mask)
+    make_gallery(settings, tmpdir, method)
+
+    for path, dirs, files in os.walk(settings['destination']):
+        for file in files:
+            path_exists = os.path.exists('{}.{}'.format(os.path.join(path, file), compress_suffix))
+            assert not path_exists
