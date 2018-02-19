@@ -2,6 +2,11 @@
  Changelog
 ===========
 
+Version 2.0.dev
+~~~~~~~~~~~~~~~
+
+Released on 2018-xx-xx.
+
 Version 1.4.0
 ~~~~~~~~~~~~~
 
