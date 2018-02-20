@@ -11,6 +11,11 @@ from sigal.plugins import compress_assets
 CURRENT_DIR = os.path.dirname(__file__)
 
 
+class ErrorLoader:
+    def load_module(self, fullname):
+        raise ImportError
+
+
 class ModuleMasker:
 
     def __init__(self):
@@ -32,7 +37,7 @@ class ModuleMasker:
 
     def find_module(self, fullname, path=None):
         if fullname in self._modules:
-            raise ImportError
+            return ErrorLoader()
 
 
 @pytest.fixture(scope='function')
