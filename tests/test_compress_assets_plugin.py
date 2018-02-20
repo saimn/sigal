@@ -43,7 +43,7 @@ class ModuleMasker:
 @pytest.fixture(scope='function')
 def mask_modules():
     masker = ModuleMasker()
-    sys.meta_path.append(masker)
+    sys.meta_path.insert(0, masker)
     yield masker
     sys.meta_path.remove(masker)
 
