@@ -22,6 +22,10 @@ class ModuleMasker:
         # We should force a reload on next import call.
         for m in modules:
             try:
+                del globals()[m]
+            except KeyError:
+                pass
+            try:
                 del sys.modules[m]
             except KeyError:
                 pass
