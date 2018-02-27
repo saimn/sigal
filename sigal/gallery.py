@@ -27,6 +27,7 @@
 
 from __future__ import absolute_import, print_function
 
+from copy import copy as shallowcopy
 import fnmatch
 import logging
 import multiprocessing
@@ -526,6 +527,34 @@ class Album(UnicodeMixin):
             archive.close()
             self.logger.debug('Created ZIP archive %s', archive_path)
             return zip_gallery
+
+    def flatten(self):
+        '''flatten album hierarchy in a single album
+
+        this modifies the album: make sure to call `.copy()` if you need
+        the original album untouched.
+        '''
+        ret = shallowcopy(self)
+        for album in ret.albums:
+            ret.merge(album)
+            album.flatten()
+        return ret
+
+    def merge(self, album):
+        '''merge in another album into this album
+
+        ..todo:: could be reimplemented as __add__()? but then you'd have
+                 consumers expecting `all operators`_ to be supported?
+
+        .. _all operators: https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types
+        '''
+        for media in album.medias:
+            media = shallowcopy(media)
+            media.thumb_name = os.path.join(album.path, media.thumb_name)
+            media.filename = os.path.join(album.path, media.filename)
+            self.medias.append(media)
+            # XXX; should be factored out? copied from Album.__init__()
+            self.medias_count[media.type] += 1
 
 
 class Gallery(object):
