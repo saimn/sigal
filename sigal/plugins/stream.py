@@ -27,7 +27,6 @@ import logging
 import os.path
 
 from sigal import signals
-from sigal.gallery import Album
 from sigal.writer import Writer
 
 logger = logging.getLogger(__name__)
@@ -39,12 +38,9 @@ def generate_stream(gallery):
     if len(albums) < 1:
         logging.debug('no albums, empty stream')
         return
-    # fake meta-album to regroup them all
-    feed_album = Album('.', gallery.settings, [], [], gallery)
+    # fake meta-album to regroup the top-level ones
+    feed_album = gallery.flatten()
     feed_album.output_file = settings.get('filename', 'stream.html')
-    for album in albums:
-        feed_album.merge(album)
-    feed_album = feed_album.flatten()
     nb_medias = len(feed_album.medias)
     nb_items = settings.get('nb_items', 0)
     nb_items = min(nb_items, nb_medias) if nb_items > 0 else nb_medias

@@ -761,6 +761,13 @@ class Gallery(object):
                 yield (f.type, f.path, f.filename, f.src_path, album.dst_path,
                        self.settings)
 
+    def flatten(self, path='.'):
+        '''flatten all albums into a single one'''
+        flat_album = Album(path, self.settings, [], [], self)
+        for album in self.albums.values():
+            flat_album.merge(album)
+        return flat_album.flatten()
+
 
 def process_file(args):
     # args => ftype, path, filename, src_path, dst_path, settings
