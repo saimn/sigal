@@ -12,6 +12,15 @@
     <link rel="stylesheet" href="{{ theme.url }}/css/normalize.css">
     <link rel="stylesheet" href="{{ theme.url }}/themes/classic/galleria.classic.css">
     <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
+    {# We will always want to show the first image when we're on an album page #}
+    {# Start loading now for faster document complete instead of waiting for js to load it #}
+    {% if album.medias %}
+    <style>
+    body::after{
+        position:absolute; width:0; height:0; overflow:hidden; z-index:-1;
+	content:url({{ album.medias[0].filename }});
+    }</style>
+    {% endif %}
 
     {% if settings.show_map and album.show_map %}
     <link rel="stylesheet" href="{{ theme.url }}/leaflet/leaflet.css" />
