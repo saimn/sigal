@@ -20,20 +20,18 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from __future__ import absolute_import, print_function
-
 import click
 import importlib
-import io
 import locale
 import logging
 import os
+import socketserver
 import sys
 import time
 
 from click import argument, option
+from http import server
 
-from .compat import server, socketserver, string_types
 from .gallery import Gallery
 from .log import init_logging
 from .pkgmeta import __version__
@@ -68,7 +66,7 @@ def init(path):
     from pkg_resources import resource_string
     conf = resource_string(__name__, 'templates/sigal.conf.py')
 
-    with io.open(path, 'w', encoding='utf-8') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         f.write(conf.decode('utf8'))
     print("Sample config file created: {}".format(path))
 
@@ -173,7 +171,7 @@ def init_plugins(settings):
 
     for plugin in settings['plugins']:
         try:
-            if isinstance(plugin, string_types):
+            if isinstance(plugin, str):
                 mod = importlib.import_module(plugin)
                 mod.register(settings)
             else:

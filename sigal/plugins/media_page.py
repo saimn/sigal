@@ -31,7 +31,6 @@ previous/next :class:`~sigal.gallery.Media` objects.
 
 """
 
-import codecs
 import os
 
 from sigal import signals
@@ -65,7 +64,7 @@ class PageWriter(Writer):
 
         output_file = "%s.html" % file_path
 
-        with codecs.open(output_file, 'w', 'utf-8') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(page)
 
 

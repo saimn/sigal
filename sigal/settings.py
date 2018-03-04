@@ -22,13 +22,10 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import locale
 import logging
 import os
 from os.path import abspath, isabs, join, normpath
 from pprint import pformat
-
-from .compat import PY2, text_type
 
 
 _DEFAULT_CONFIG = {
@@ -146,19 +143,13 @@ def read_settings(filename=None):
                                    'templates')):
             paths.append('theme')
 
-        enc = locale.getpreferredencoding() if PY2 else None
-
         for p in paths:
-            # paths must to be unicode strings so that os.walk will return
-            # unicode dirnames and filenames
-            if PY2 and isinstance(settings[p], str):
-                settings[p] = settings[p].decode(enc)
             path = settings[p]
             if path and not isabs(path):
                 settings[p] = abspath(normpath(join(settings_path, path)))
                 logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
 
-        if settings['title'] and not isinstance(settings['title'], text_type):
+        if settings['title'] and not isinstance(settings['title'], str):
             settings['title'] = settings['title'].decode('utf8')
 
     for key in ('img_size', 'thumb_size', 'video_size'):

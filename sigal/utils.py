@@ -20,14 +20,11 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import codecs
 import os
 import shutil
 from markdown import Markdown
 from markupsafe import Markup
 from subprocess import Popen, PIPE
-
-from . import compat
 
 VIDEO_MIMES = {'.mp4': 'video/mp4',
                '.webm': 'video/webm',
@@ -75,7 +72,7 @@ def read_markdown(filename):
     # Use utf-8-sig codec to remove BOM if it is present. This is only possible
     # this way prior to feeding the text to the markdown parser (which would
     # also default to pure utf-8)
-    with codecs.open(filename, 'r', 'utf-8-sig') as f:
+    with open(filename, 'r', encoding='utf-8-sig') as f:
         text = f.read()
 
     md = Markdown(extensions=['markdown.extensions.meta',
@@ -102,10 +99,8 @@ def call_subprocess(cmd):
     """Wrapper to call ``subprocess.Popen`` and return stdout & stderr."""
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = p.communicate()
-
-    if not compat.PY2:
-        stderr = stderr.decode('utf8')
-        stdout = stdout.decode('utf8')
+    stderr = stderr.decode('utf8')
+    stdout = stdout.decode('utf8')
     return p.returncode, stdout, stderr
 
 

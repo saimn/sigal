@@ -35,26 +35,3 @@ if not PY2:
     from urllib.parse import quote as url_quote
     import socketserver
     import pickle
-else:  # pragma: no cover
-    text_type = unicode  # NOQA
-    string_types = (str, unicode)  # NOQA
-    unichr = unichr
-
-    def strxfrm(s):
-        return locale.strxfrm(s.encode('utf-8'))
-
-    from urllib import quote as url_quote  # NOQA
-    import SimpleHTTPServer as server  # NOQA
-    import SocketServer as socketserver  # NOQA
-
-    try:
-        import cPickle as pickle
-    except:
-        import pickle
-
-
-class UnicodeMixin(object):
-    if not PY2:
-        __str__ = lambda x: x.__unicode__()
-    else:  # pragma: no cover
-        __str__ = lambda x: unicode(x).encode('utf-8')

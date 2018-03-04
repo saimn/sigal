@@ -18,14 +18,13 @@ Example::
 
 """
 
-import codecs
 import logging
 import os
 
 from datetime import datetime
 from feedgenerator import Atom1Feed, Rss201rev2Feed
 from jinja2 import Markup
-from sigal import signals, compat
+from sigal import signals
 
 logger = logging.getLogger(__name__)
 
@@ -72,8 +71,7 @@ def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
 
     output_file = os.path.join(root_album.dst_path, feed_url.split('/')[-1])
     logger.info('Generate %s feeds: %s', feed_type.upper(), output_file)
-    encoding = 'utf-8' if not compat.PY2 else None
-    with codecs.open(output_file, 'w', encoding) as f:
+    with open(output_file, 'w', encoding='utf8') as f:
         feed.write(f, 'utf-8')
 
 
