@@ -1,5 +1,6 @@
 # Copyright (c) 2009-2018 - Simon Conseil
 # Copyright (c)      2013 - Christophe-Marie Duquesne
+# Copyright (c) 2018      - Edwin Steele
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -19,6 +20,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import abc
 import jinja2
 import logging
 import imp
@@ -37,10 +39,8 @@ THEMES_PATH = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
 
-class Writer(object):
-    """Generate html pages for each directory of images."""
-
-    template_file = 'index.html'
+class AbstractWriter(object):
+    __metaclass__ = abc.ABCMeta
 
     def __init__(self, settings, index_title=''):
         self.settings = settings
@@ -110,6 +110,10 @@ class Writer(object):
                                                            album.dst_path))},
         }
 
+    @abc.abstractproperty
+    def template_file(self):
+        return None
+
     def write(self, album):
         """Generate the HTML page and save it."""
 
@@ -118,3 +122,19 @@ class Writer(object):
 
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(page)
+
+
+class LandingPageWriter(AbstractWriter):
+    """Generate an html page for the top level directory"""
+
+    @property
+    def template_file(self):
+        return "landing.html"
+
+
+class AlbumPageWriter(AbstractWriter):
+    """Generate html pages for each directory of images."""
+
+    @property
+    def template_file(self):
+        return "album.html"
