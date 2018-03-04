@@ -33,7 +33,6 @@
 
 import logging
 import os
-import PIL
 import pilkit.processors
 import sys
 import warnings
@@ -42,9 +41,7 @@ import fractions
 from copy import deepcopy
 from datetime import datetime
 from PIL.ExifTags import TAGS, GPSTAGS
-from PIL import Image as PILImage
-from PIL import ImageOps
-from PIL import IptcImagePlugin
+from PIL import Image as PILImage, ImageOps, IptcImagePlugin
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
@@ -179,9 +176,10 @@ def process_image(filepath, outpath, settings):
 
         if settings['make_thumbs']:
             thumb_name = os.path.join(outpath, get_thumb(settings, filename))
-            generate_thumbnail(outname, thumb_name, settings['thumb_size'],
-                               fit=settings['thumb_fit'], options=options,
-                               thumb_fit_centering=settings["thumb_fit_centering"])
+            generate_thumbnail(
+                outname, thumb_name, settings['thumb_size'],
+                fit=settings['thumb_fit'], options=options,
+                thumb_fit_centering=settings["thumb_fit_centering"])
     except Exception as e:
         logger.info('Failed to process: %r', e)
         if logger.getEffectiveLevel() == logging.DEBUG:
@@ -211,10 +209,6 @@ def get_exif_data(filename):
     """Return a dict with the raw EXIF data."""
 
     logger = logging.getLogger(__name__)
-
-    if PIL.PILLOW_VERSION == '3.0.0':
-        warnings.warn('Pillow 3.0.0 is broken with EXIF data, consider using '
-                      'another version if you want to use EXIF data.')
 
     img = _read_image(filename)
 
@@ -282,9 +276,6 @@ def get_exif_tags(data, datetime_format='%c'):
         fnumber = data['FNumber']
         try:
             simple['fstop'] = float(fnumber[0]) / fnumber[1]
-        except IndexError:
-            # Pillow == 3.0
-            simple['fstop'] = float(fnumber[0])
         except Exception:
             logger.debug('Skipped invalid FNumber: %r', fnumber, exc_info=True)
 
@@ -292,9 +283,6 @@ def get_exif_tags(data, datetime_format='%c'):
         focal = data['FocalLength']
         try:
             simple['focal'] = round(float(focal[0]) / focal[1])
-        except IndexError:
-            # Pillow == 3.0
-            simple['focal'] = round(focal[0])
         except Exception:
             logger.debug('Skipped invalid FocalLength: %r', focal,
                          exc_info=True)
@@ -305,9 +293,6 @@ def get_exif_tags(data, datetime_format='%c'):
             try:
                 simple['exposure'] = str(fractions.Fraction(exptime[0],
                                                             exptime[1]))
-            except IndexError:
-                # Pillow == 3.0
-                simple['exposure'] = exptime[0]
             except ZeroDivisionError:
                 logger.info('Invalid ExposureTime: %r', exptime)
         elif isinstance(exptime, int):
@@ -316,19 +301,11 @@ def get_exif_tags(data, datetime_format='%c'):
             logger.info('Unknown format for ExposureTime: %r', exptime)
 
     if data.get('ISOSpeedRatings'):
-        if isinstance(data['ISOSpeedRatings'], tuple):
-            # Pillow == 3.0
-            simple['iso'] = data['ISOSpeedRatings'][0]
-        else:
-            simple['iso'] = data['ISOSpeedRatings']
+        simple['iso'] = data['ISOSpeedRatings']
 
     if 'DateTimeOriginal' in data:
-        try:
-            # Remove null bytes at the end if necessary
-            date = data['DateTimeOriginal'].rsplit('\x00')[0]
-        except AttributeError:
-            # Pillow == 3.0
-            date = data['DateTimeOriginal'][0]
+        # Remove null bytes at the end if necessary
+        date = data['DateTimeOriginal'].rsplit('\x00')[0]
 
         try:
             simple['dateobj'] = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')

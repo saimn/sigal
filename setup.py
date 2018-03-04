@@ -30,8 +30,8 @@ setup(
     include_package_data=True,
     platforms='any',
     keywords=['gallery', 'static', 'generator', 'image', 'video', 'galleria'],
-    install_requires=['blinker', 'click', 'Jinja2', 'Markdown', 'Pillow',
-                      'pilkit'],
+    install_requires=['blinker', 'click', 'Jinja2', 'Markdown',
+                      'Pillow>=4.0.0', 'pilkit'],
     test_requires=['pytest'],
     extras_require={
         'S3': ['boto']
