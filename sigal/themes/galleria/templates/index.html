@@ -63,28 +63,25 @@
 
         {% if album.medias %}
           {% macro img_description(media) -%}
-            {%- if media.big %}<a href='{{ media.big }}'>Full size</a>{% endif %}
-            {% if media.description %}<br>{{ media.description }}{% endif %}
-
-            {%- if media.exif %}
+            {%- if media.big -%}<a href='{{ media.big }}'>Full size</a>{%- endif -%}
+	    {# clean up tags and whitespace, including newlines, in the description #}
+            {%- if media.description -%}<br>{{ media.description | striptags }}{%- endif -%}
+            {%- if media.exif -%}
               <div class='film-meta'>
-              {% if media.exif.iso %}<abbr title='film speed'>{{ media.exif.iso }}</abbr> {% endif %}
-              {% if media.exif.exposure %}<abbr title='exposure'>{{ media.exif.exposure }}</abbr> {% endif %}
-              {% if media.exif.fstop %}<abbr title='aperture'>{{ media.exif.fstop }}</abbr> {% endif %}
-              {% if media.exif.focal %}<abbr title='focal length'>{{ media.exif.focal }}</abbr> {% endif %}
+              {%- if media.exif.iso -%}<abbr title='film speed'>{{ media.exif.iso }}</abbr> {%- endif -%}
+              {%- if media.exif.exposure -%}<abbr title='exposure'>{{ media.exif.exposure }}</abbr> {%- endif -%}
+              {%- if media.exif.fstop -%}<abbr title='aperture'>{{ media.exif.fstop }}</abbr> {%- endif -%}
+              {%- if media.exif.focal -%}<abbr title='focal length'>{{ media.exif.focal }}</abbr> {%- endif -%}
               </div>
-              {% if media.exif.gps %}
-                <a title='location' href='https://www.openstreetmap.org/?mlat={{
-                media.exif.gps.lat }}&amp;mlon={{ media.exif.gps.lon}}&amp;zoom=12&amp;layers=M' target='_blank' class='map'
-                >{{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}
-                 {{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}</a>
-              {% endif %}
-              {% if media.exif.Make or media.exif.Model %}
+              {%- if media.exif.gps -%}
+                <a title='location' href='https://www.openstreetmap.org/?mlat={{ media.exif.gps.lat }}&amp;mlon={{ media.exif.gps.lon}}&amp;zoom=12&amp;layers=M' target='_blank' class='map' >{{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}{{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}</a>
+              {%- endif -%}
+              {%- if media.exif.Make or media.exif.Model -%}
                 <abbr title='camera make and model'>{{ media.exif.Make }} {{ media.exif.Model }}</abbr>
-              {% endif %}
-              {% if media.exif.datetime %}
+              {%- endif -%}
+              {%- if media.exif.datetime -%}
                 <abbr title='date'>{{ media.exif.datetime }}</abbr>
-              {% endif %}
+              {%- endif -%}
             {% endif %}
           {%- endmacro %}
         <div class="icons">
@@ -95,28 +92,7 @@
           <a id="fullscreen"><img src="{{ theme.url }}/img/fullscreen.png"
             title="Fullscreen" alt="Fullscreen" /></a>
         </div>
-        <div id="gallery">
-          {% for media in album.medias %}
-            {% if media.type == "image" %}
-              <a href="{{ media.filename }}">
-                <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
-                    data-title="{{ media.title if media.title else media.filename }}"
-                    data-description="{{ img_description(media) }}"
-                    {% if media.big %} data-big="{{ media.big }}"{% endif %} />
-              </a>
-            {% endif %}
-            {% if media.type == "video" %}
-              <a href="{{ theme.url }}/img/empty.png">
-                <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
-                    data-title="{{ media.title if media.title else media.filename }}"
-                    data-description="{{ img_description(media) }}"
-                    data-layer="<video controls>
-                                  <source src='{{ media.filename }}' type='{{ media.mime }}' />
-                                </video>" />
-              </a>
-            {% endif %}
-          {% endfor %}
-        </div>
+	<div id="gallery"></div>
         {% endif %}
 
         {% if album.zip %}
@@ -154,6 +130,24 @@
     <script src="{{ theme.url }}/themes/classic/galleria.classic.min.js"></script>
     <script src="{{ theme.url }}/plugins/history/galleria.history.min.js"></script>
     <script>
+var data = [
+  {% for media in album.medias -%}
+  {
+    title: "{{ media.title if media.title else media.filename }}",
+    description: "{{ img_description(media) | e }}",
+    {% if media.type == "image" %}
+      image: "{{ media.filename }}",
+      thumb: "{{ media.thumbnail }}"
+      {%- if media.big %},
+      big: "{{ media.big }}"{% endif %}
+    {% endif %}
+    {% if media.type == "video" %}
+      video: "{{ media.filename }}"
+    {% endif %}
+  },
+  {% endfor %}
+]
+
     {% if settings.show_map and album.show_map %}
     var selected =-1;
     /* Init markers */
@@ -231,9 +225,10 @@
 
     Galleria.configure({
         imageCrop: false,
-        transition: "fade"
+        transition: "fade",
+	    thumbnails: 'lazy'
     });
-    Galleria.run("#gallery");
+Galleria.run("#gallery", {dataSource: data});
 
     {% if settings.show_map and album.show_map %}
     function galleryMapToggle() {
@@ -267,6 +262,20 @@
     {% endif %}
 
     Galleria.ready(function() {
+	/*
+	load thumbnails after gallery setup, and download has started
+	for the main images, but before the loading of map tiles starts
+	in the background. This ensures visible elements are prioritised
+	over non-visible elements
+	
+	The choice to lazy load thumbnails in batches of 10 was not made
+	scientifically. Other numbers may yield better performance.
+	*/
+	this.lazyLoadChunks( 10 );
+    {% if settings.show_map and album.show_map %}
+    $(".gallery-map-toggle").click(galleryMapToggle);
+    {% endif %}
+
         this.attachKeyboard({
             right: this.next,
             left: this.prev,
