@@ -40,6 +40,9 @@ from .utils import copy
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
 
+if sys.version_info[:2] < (3, 5):
+    raise Exception('Sigal supports Python 3.5+ only')
+
 
 @click.group()
 @click.version_option(version=__version__)
