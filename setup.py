@@ -29,6 +29,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms='any',
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     keywords=['gallery', 'static', 'generator', 'image', 'video', 'galleria'],
     install_requires=['blinker', 'click', 'Jinja2', 'Markdown', 'Pillow',
                       'pilkit'],
