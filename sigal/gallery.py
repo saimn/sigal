@@ -25,12 +25,12 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from __future__ import absolute_import, print_function
-
 import fnmatch
+import locale
 import logging
 import multiprocessing
 import os
+import pickle
 import random
 import sys
 import zipfile
@@ -40,9 +40,9 @@ from collections import defaultdict
 from datetime import datetime
 from itertools import cycle
 from os.path import isfile, join, splitext
+from urllib.parse import quote as url_quote
 
 from . import image, video, signals
-from .compat import PY2, UnicodeMixin, strxfrm, url_quote, text_type, pickle
 from .image import (process_image, get_exif_tags, get_exif_data, get_size,
                     get_iptc_data)
 from .settings import get_thumb
@@ -53,7 +53,7 @@ from .video import process_video
 from .writer import Writer
 
 
-class Media(UnicodeMixin):
+class Media:
     """Base Class for media files.
 
     Attributes:
@@ -89,7 +89,7 @@ class Media(UnicodeMixin):
     def __repr__(self):
         return "<%s>(%r)" % (self.__class__.__name__, str(self))
 
-    def __unicode__(self):
+    def __str__(self):
         return join(self.path, self.filename)
 
     @property
@@ -222,7 +222,7 @@ class Video(Media):
             self.mime = get_mime(ext)
 
 
-class Album(UnicodeMixin):
+class Album:
     """Gather all informations on an album.
 
     Attributes:
@@ -289,7 +289,7 @@ class Album(UnicodeMixin):
         return "<%s>(path=%r, title=%r)" % (self.__class__.__name__, self.path,
                                             self.title)
 
-    def __unicode__(self):
+    def __str__(self):
         return (u"{} : ".format(self.path) +
                 ', '.join("{} {}s".format(count, _type)
                           for _type, count in self.medias_count.items()))
@@ -341,13 +341,13 @@ class Album(UnicodeMixin):
                 root_path = self.path if self.path != '.' else ''
                 if albums_sort_attr.startswith("meta."):
                     meta_key = albums_sort_attr.split(".", 1)[1]
-                    key = lambda s: strxfrm(
+                    key = lambda s: locale.strxfrm(
                         self.gallery.albums[join(root_path, s)].meta.get(meta_key, [''])[0])
                 else:
-                    key = lambda s: strxfrm(getattr(
+                    key = lambda s: locale.strxfrm(getattr(
                     self.gallery.albums[join(root_path, s)], albums_sort_attr))
             else:
-                key = strxfrm
+                key = locale.strxfrm
 
             self.subdirs.sort(key=key,
                               reverse=self.settings['albums_sort_reverse'])
@@ -360,9 +360,9 @@ class Album(UnicodeMixin):
                 key = lambda s: s.date or datetime.now()
             elif medias_sort_attr.startswith('meta.'):
                 meta_key = medias_sort_attr.split(".", 1)[1]
-                key = lambda s: strxfrm(s.meta.get(meta_key, [''])[0])
+                key = lambda s: locale.strxfrm(s.meta.get(meta_key, [''])[0])
             else:
-                key = lambda s: strxfrm(getattr(s, medias_sort_attr))
+                key = lambda s: locale.strxfrm(getattr(s, medias_sort_attr))
 
             self.medias.sort(key=key,
                              reverse=self.settings['medias_sort_reverse'])
@@ -646,10 +646,7 @@ class Gallery(object):
             # 63 is the total length of progressbar, label, percentage, etc
             available_length = get_terminal_size()[0] - 64
             if x and available_length > 10:
-                text = text_type(x.name)[:available_length]
-                if PY2:
-                    text = text.encode('utf-8')
-                return text
+                return x.name[:available_length]
             else:
                 return ""
 

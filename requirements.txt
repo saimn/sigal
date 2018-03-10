@@ -1,6 +1,7 @@
 alabaster
 blinker
 boto
+brotli
 click
 coverage
 feedgenerator
@@ -13,3 +14,4 @@ pytest-cov
 Sphinx
 sphinx-issues
 twine
+zopfli

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import io
 import logging
 import os
 from click.testing import CliRunner
@@ -52,7 +51,7 @@ def test_build(tmpdir, disconnect_signals):
                                        '-n', 1, '--debug'])
         assert result.exit_code == 1
 
-        with io.open(config_file) as f:
+        with open(config_file) as f:
             text = f.read()
 
         text += """
@@ -71,7 +70,7 @@ rss_feed = {'feed_url': 'http://example.org/feed.rss', 'nb_items': 10}
 atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
 """
 
-        with io.open(config_file, 'w') as f:
+        with open(config_file, 'w') as f:
             f.write(text)
 
         result = runner.invoke(build, ['pictures', 'build',
