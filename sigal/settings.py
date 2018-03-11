@@ -149,9 +149,6 @@ def read_settings(filename=None):
                 settings[p] = abspath(normpath(join(settings_path, path)))
                 logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
 
-        if settings['title'] and not isinstance(settings['title'], str):
-            settings['title'] = settings['title'].decode('utf8')
-
     for key in ('img_size', 'thumb_size', 'video_size'):
         w, h = settings[key]
         if h > w:
