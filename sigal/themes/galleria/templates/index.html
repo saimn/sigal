@@ -228,7 +228,7 @@ var data = [
         transition: "fade",
 	    thumbnails: 'lazy'
     });
-Galleria.run("#gallery", {dataSource: data});
+    Galleria.run("#gallery", {dataSource: data});
 
     {% if settings.show_map and album.show_map %}
     function galleryMapToggle() {
@@ -258,7 +258,6 @@ Galleria.run("#gallery", {dataSource: data});
             $(".gallery-map-toggle img")[0].src = "{{ theme.url }}/img/photo.png";
         }
     }
-    $(".gallery-map-toggle").click(galleryMapToggle);
     {% endif %}
 
     Galleria.ready(function() {
@@ -268,13 +267,10 @@ Galleria.run("#gallery", {dataSource: data});
 	in the background. This ensures visible elements are prioritised
 	over non-visible elements
 	
-	The choice to lazy load thumbnails in batches of 10 was not made
+	The choice to lazy load thumbnails in batches of 50 was not made
 	scientifically. Other numbers may yield better performance.
 	*/
-	this.lazyLoadChunks( 10 );
-    {% if settings.show_map and album.show_map %}
-    $(".gallery-map-toggle").click(galleryMapToggle);
-    {% endif %}
+	this.lazyLoadChunks( 50 );
 
         this.attachKeyboard({
             right: this.next,
@@ -295,6 +291,7 @@ Galleria.run("#gallery", {dataSource: data});
         $('.icons').appendTo(this.$('container'));
 
         {% if settings.show_map and album.show_map %}
+        $(".gallery-map-toggle").click(galleryMapToggle);
         this.bind('loadfinish', function(e) {
             init_map();
             if (selected != e.index) {
