@@ -24,7 +24,6 @@ import os
 import shutil
 from markdown import Markdown
 from markupsafe import Markup
-from subprocess import Popen, PIPE
 
 VIDEO_MIMES = {'.mp4': 'video/mp4',
                '.webm': 'video/webm',
@@ -93,15 +92,6 @@ def read_markdown(filename):
             pass
 
     return output
-
-
-def call_subprocess(cmd):
-    """Wrapper to call ``subprocess.Popen`` and return stdout & stderr."""
-    p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-    stdout, stderr = p.communicate()
-    stderr = stderr.decode('utf8')
-    stdout = stdout.decode('utf8')
-    return p.returncode, stdout, stderr
 
 
 def is_valid_html5_video(ext):
