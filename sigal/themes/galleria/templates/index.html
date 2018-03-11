@@ -135,14 +135,15 @@ var data = [
   {
     title: "{{ media.title if media.title else media.filename }}",
     description: "{{ img_description(media) | e }}",
+    thumb: "{{ media.thumbnail }}",
+    {% if media.big %}
+    big: "{{ media.big }}",
+    {% endif %}
     {% if media.type == "image" %}
-      image: "{{ media.filename }}",
-      thumb: "{{ media.thumbnail }}"
-      {%- if media.big %},
-      big: "{{ media.big }}"{% endif %}
+    image: "{{ media.filename }}"
     {% endif %}
     {% if media.type == "video" %}
-      video: "{{ media.filename }}"
+    video: "{{ media.filename }}"
     {% endif %}
   },
   {% endfor %}
