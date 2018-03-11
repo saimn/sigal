@@ -2,6 +2,9 @@
 
 import os
 import sys
+
+from unittest import mock
+
 import pytest
 
 from sigal import init_plugins
@@ -9,43 +12,6 @@ from sigal.gallery import Gallery
 from sigal.plugins import compress_assets
 
 CURRENT_DIR = os.path.dirname(__file__)
-
-
-class ErrorLoader:
-    def load_module(self, fullname):
-        raise ImportError
-
-
-class ModuleMasker:
-
-    def __init__(self):
-        self._modules = []
-
-    def mask(self, *modules):
-        self._modules = modules
-        # If the module have been previously imported,
-        # We should force a reload on next import call.
-        for m in modules:
-            try:
-                del globals()[m]
-            except KeyError:
-                pass
-            try:
-                del sys.modules[m]
-            except KeyError:
-                pass
-
-    def find_module(self, fullname, path=None):
-        if fullname in self._modules:
-            return ErrorLoader()
-
-
-@pytest.fixture(scope='function')
-def mask_modules():
-    masker = ModuleMasker()
-    sys.meta_path.insert(0, masker)
-    yield masker
-    sys.meta_path.remove(masker)
 
 
 def make_gallery(settings, tmpdir, method):
@@ -105,10 +71,11 @@ def test_compress(disconnect_signals, settings, tmpdir, method,
                          [('zopfli', 'gz', 'zopfli.gzip'),
                           ('brotli', 'br', 'brotli'),
                           ('__does_not_exist__', 'br', None)])
-def test_failed_compress(mask_modules, disconnect_signals, settings, tmpdir,
+def test_failed_compress(disconnect_signals, settings, tmpdir,
                          method, compress_suffix, mask):
-    mask_modules.mask(mask)
-    make_gallery(settings, tmpdir, method)
-    walk_destination(settings['destination'],
-                     [],  # No file should be compressed
-                     compress_suffix)
+    # See https://medium.com/python-pandemonium/how-to-test-your-imports-1461c1113be1
+    with mock.patch.dict(sys.modules, {mask: None}):
+        make_gallery(settings, tmpdir, method)
+        walk_destination(settings['destination'],
+                         [],  # No file should be compressed
+                         compress_suffix)
