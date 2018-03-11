@@ -45,7 +45,7 @@ def check_subprocess(cmd, source, outname):
     logger = logging.getLogger(__name__)
     try:
         res = subprocess.run(cmd, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE, encoding='utf8')
+                             stderr=subprocess.PIPE)
     except KeyboardInterrupt:
         logger.debug('Process terminated, removing file %s', outname)
         if os.path.isfile(outname):
@@ -53,8 +53,8 @@ def check_subprocess(cmd, source, outname):
         raise
 
     if res.returncode:
-        logger.debug('STDOUT:\n %s', res.stdout)
-        logger.debug('STDERR:\n %s', res.stderr)
+        logger.debug('STDOUT:\n %s', res.stdout.decode('utf8'))
+        logger.debug('STDERR:\n %s', res.stderr.decode('utf8'))
         if os.path.isfile(outname):
             logger.debug('Removing file %s', outname)
             os.remove(outname)
@@ -64,12 +64,12 @@ def check_subprocess(cmd, source, outname):
 def video_size(source, converter='ffmpeg'):
     """Returns the dimensions of the video."""
 
-    res = subprocess.run([converter, '-i', source], stderr=subprocess.PIPE,
-                         encoding='utf8')
+    res = subprocess.run([converter, '-i', source], stderr=subprocess.PIPE)
+    stderr = res.stderr.decode('utf8')
     pattern = re.compile(r'Stream.*Video.* ([0-9]+)x([0-9]+)')
-    match = pattern.search(res.stderr)
+    match = pattern.search(stderr)
     rot_pattern = re.compile(r'rotate\s*:\s*-?(90|270)')
-    rot_match = rot_pattern.search(res.stderr)
+    rot_match = rot_pattern.search(stderr)
 
     if match:
         x, y = int(match.groups()[0]), int(match.groups()[1])
