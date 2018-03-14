@@ -8,11 +8,8 @@ env:
 
 matrix:
   include:
-    - python: 2.7
-    - python: 3.4
-      env: PILLOW="Pillow==2.9.0"
     - python: 3.5
-      env: PILLOW="Pillow==3.0.0"
+      env: PILLOW="Pillow==4.0.0"
     - python: 3.6
 
 

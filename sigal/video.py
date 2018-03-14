@@ -21,17 +21,16 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from __future__ import with_statement
-
 import logging
 import os
 import re
 import shutil
+import subprocess
 from os.path import splitext
 
 from . import image, utils
 from .settings import get_thumb, Status
-from .utils import call_subprocess, is_valid_html5_video
+from .utils import is_valid_html5_video
 
 
 class SubprocessException(Exception):
@@ -45,16 +44,17 @@ def check_subprocess(cmd, source, outname):
     """
     logger = logging.getLogger(__name__)
     try:
-        returncode, stdout, stderr = call_subprocess(cmd)
+        res = subprocess.run(cmd, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
     except KeyboardInterrupt:
         logger.debug('Process terminated, removing file %s', outname)
         if os.path.isfile(outname):
             os.remove(outname)
         raise
 
-    if returncode:
-        logger.debug('STDOUT:\n %s', stdout)
-        logger.debug('STDERR:\n %s', stderr)
+    if res.returncode:
+        logger.debug('STDOUT:\n %s', res.stdout.decode('utf8'))
+        logger.debug('STDERR:\n %s', res.stderr.decode('utf8'))
         if os.path.isfile(outname):
             logger.debug('Removing file %s', outname)
             os.remove(outname)
@@ -64,7 +64,8 @@ def check_subprocess(cmd, source, outname):
 def video_size(source, converter='ffmpeg'):
     """Returns the dimensions of the video."""
 
-    ret, stdout, stderr = call_subprocess([converter, '-i', source])
+    res = subprocess.run([converter, '-i', source], stderr=subprocess.PIPE)
+    stderr = res.stderr.decode('utf8')
     pattern = re.compile(r'Stream.*Video.* ([0-9]+)x([0-9]+)')
     match = pattern.search(stderr)
     rot_pattern = re.compile(r'rotate\s*:\s*-?(90|270)')

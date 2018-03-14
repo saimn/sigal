@@ -21,9 +21,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from __future__ import absolute_import
-
-import codecs
 import jinja2
 import logging
 import imp
@@ -121,5 +118,5 @@ class Writer(object):
         page = self.template.render(**self.generate_context(album))
         output_file = os.path.join(album.dst_path, album.output_file)
 
-        with codecs.open(output_file, 'w', 'utf-8') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(page)

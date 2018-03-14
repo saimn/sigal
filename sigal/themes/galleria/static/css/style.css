@@ -126,6 +126,9 @@ header h1 a:hover, header h2 a:hover {
   width: 100%;
   margin: 0 auto;
 }
+.galleria-theme-classic .galleria-info-text {
+  background-color: rgba(0, 0, 0, 0.7);
+}
 
 .icons {
   top: 10px;

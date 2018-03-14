@@ -48,7 +48,6 @@ them for good.
 
 """
 
-import io
 import logging
 import os
 from sigal import signals
@@ -107,7 +106,7 @@ def filter_nomedia(album, settings=None):
             album.medias = []
 
         else:
-            with io.open(nomediapath, "r") as nomediaFile:
+            with open(nomediapath, "r") as nomediaFile:
                 logger.info("Found a .nomedia file in %s, ignoring its "
                             "entries", album.name)
                 ignored = nomediaFile.read().split("\n")
