@@ -175,11 +175,15 @@ class Image(Media):
             # Nothing to do - we already have title and description
             return
 
-        iptc_data = get_iptc_data(self.src_path)
-        if not self.title and iptc_data.get('title'):
-            self.title = iptc_data['title']
-        if not self.description and iptc_data.get('description'):
-            self.description = iptc_data['description']
+        try:
+            iptc_data = get_iptc_data(self.src_path)
+        except Exception as e:
+            self.logger.warning(u'Could not read IPTC data from %s: %s',
+                    self.src_path, e)
+        if not self.title and 'iptc_data' in locals() and iptc_data.get('title'):
+             self.title = iptc_data['title']
+        if not self.description and 'iptc_data' in locals() and iptc_data.get('description'):
+             self.description = iptc_data['description']
 
     @cached_property
     def raw_exif(self):
