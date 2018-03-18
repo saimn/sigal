@@ -102,7 +102,7 @@ thumb_size = (280, 210)
 
 # When using thumb_fit, specifies what we should crop
 # for usage see
-# http://pillow.readthedocs.io/en/3.1.x/reference/ImageOps.html#PIL.ImageOps.fit
+# http://pillow.readthedocs.io/en/stable/reference/ImageOps.html#PIL.ImageOps.fit
 # thumb_fit_centering = (0.5, 0.5)
 
 # Delay in seconds to avoid black thumbnails in videos with fade-in
