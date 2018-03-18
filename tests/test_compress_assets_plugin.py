@@ -39,15 +39,16 @@ def walk_destination(destination, suffixes, compress_suffix):
     for path, dirs, files in os.walk(destination):
         for file in files:
             original_filename = os.path.join(path, file)
-            compressed_filename = '{}.{}'.format(os.path.join(path, file), compress_suffix)
+            compressed_filename = '{}.{}'.format(os.path.join(path, file),
+                                                 compress_suffix)
             path_exists = os.path.exists(compressed_filename)
             file_ext = os.path.splitext(file)[1][1:]
             if file_ext in suffixes:
                 assert path_exists
-                assert os.stat(original_filename).st_mtime <= os.stat(compressed_filename).st_mtime
+                assert (os.stat(original_filename).st_mtime <=
+                        os.stat(compressed_filename).st_mtime)
             else:
                 assert not path_exists
-            assert path_exists if file_ext in suffixes else not path_exists
 
 
 @pytest.mark.parametrize("method,compress_suffix,test_import",
