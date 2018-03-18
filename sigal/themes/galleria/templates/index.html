@@ -96,10 +96,10 @@
         <div class="icons">
           {% if settings.show_map and album.show_map %}
           <a class="gallery-map-toggle"><img src="{{ theme.url }}/img/map.png"
-            title="Show/Hide map" alt="Show/Hide Map" /></a>
+            title="Show/Hide map" alt="Show/Hide Map (m)" /></a>
           {% endif %}
           <a id="fullscreen"><img src="{{ theme.url }}/img/fullscreen.png"
-            title="Fullscreen" alt="Fullscreen" /></a>
+            title="Fullscreen" alt="Fullscreen (f)" /></a>
         </div>
 	<div id="gallery"></div>
         {% endif %}
@@ -139,24 +139,24 @@
     <script src="{{ theme.url }}/themes/classic/galleria.classic.min.js"></script>
     <script src="{{ theme.url }}/plugins/history/galleria.history.min.js"></script>
     <script>
-var data = [
-  {% for media in album.medias -%}
-  {
-    title: "{{ media.title if media.title else media.filename }}",
-    description: "{{ img_description(media) | e }}",
-    thumb: "{{ media.thumbnail }}",
-    {% if media.big %}
-    big: "{{ media.big }}",
-    {% endif %}
-    {% if media.type == "image" %}
-    image: "{{ media.filename }}"
-    {% endif %}
-    {% if media.type == "video" %}
-    video: "{{ media.filename }}"
-    {% endif %}
-  },
-  {% endfor %}
-]
+    var data = [
+      {% for media in album.medias -%}
+      {
+        title: "{{ media.title if media.title else media.filename }}",
+        description: "{{ img_description(media) | e }}",
+        thumb: "{{ media.thumbnail }}",
+        {% if media.big %}
+        big: "{{ media.big }}",
+        {% endif %}
+        {% if media.type == "image" %}
+        image: "{{ media.filename }}"
+        {% endif %}
+        {% if media.type == "video" %}
+        video: "{{ media.filename }}"
+        {% endif %}
+      },
+      {% endfor %}
+    ]
 
     {% if settings.show_map and album.show_map %}
     var selected =-1;
@@ -228,19 +228,10 @@ var data = [
               {% endif %}
             {% endfor %}
 
-            $("#galleria-map").hide();
+            selectMarker(features[selected]);
         }
     }
-    {% endif %}
 
-    Galleria.configure({
-        imageCrop: false,
-        transition: "fade",
-	    thumbnails: 'lazy'
-    });
-    Galleria.run("#gallery", {dataSource: data});
-
-    {% if settings.show_map and album.show_map %}
     function galleryMapToggle() {
         /* Make sure the map is loaded */
         init_map();
@@ -271,16 +262,16 @@ var data = [
     {% endif %}
 
     Galleria.ready(function() {
-	/*
-	load thumbnails after gallery setup, and download has started
-	for the main images, but before the loading of map tiles starts
-	in the background. This ensures visible elements are prioritised
-	over non-visible elements
-	
-	The choice to lazy load thumbnails in batches of 50 was not made
-	scientifically. Other numbers may yield better performance.
-	*/
-	this.lazyLoadChunks( 50 );
+        /*
+        load thumbnails after gallery setup, and download has started
+        for the main images, but before the loading of map tiles starts
+        in the background. This ensures visible elements are prioritised
+        over non-visible elements
+
+        The choice to lazy load thumbnails in batches of 50 was not made
+        scientifically. Other numbers may yield better performance.
+        */
+        this.lazyLoadChunks( 50 );
 
         this.attachKeyboard({
             right: this.next,
@@ -303,14 +294,21 @@ var data = [
         {% if settings.show_map and album.show_map %}
         $(".gallery-map-toggle").click(galleryMapToggle);
         this.bind('loadfinish', function(e) {
-            init_map();
+            /*  Triggers every time Galleria has finished loading an image.*/
             if (selected != e.index) {
                 selectMarker(features[e.index]);
                 selected = e.index;
             }
         });
         {% endif %}
-     });
+    });
+
+    Galleria.configure({
+        imageCrop: false,
+        transition: "fade",
+        thumbnails: 'lazy'
+    });
+    Galleria.run("#gallery", {dataSource: data});
 
     </script>
     {% endif %}
