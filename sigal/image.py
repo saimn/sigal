@@ -55,7 +55,11 @@ def _has_exif_tags(img):
 
 def _read_image(file_path):
     with warnings.catch_warnings(record=True) as caught_warnings:
-        im = PILImage.open(file_path)
+        im = None
+        try:
+            im = PILImage.open(file_path)
+        except IOError:
+            print('error reading %s' % file_path)
 
     for warning in caught_warnings:
         if warning.category == PILImage.DecompressionBombWarning:
