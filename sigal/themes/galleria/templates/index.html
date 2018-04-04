@@ -152,7 +152,8 @@
         image: "{{ media.filename }}"
         {% endif %}
         {% if media.type == "video" %}
-        video: "{{ media.filename }}"
+        image: "{{ theme.url }}/img/empty.png",
+        layer: "<video controls><source src='{{ media.filename }}' type='{{ media.mime }}' /></video>"
         {% endif %}
       },
       {% endfor %}
