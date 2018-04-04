@@ -41,12 +41,15 @@ import fractions
 from copy import deepcopy
 from datetime import datetime
 from PIL.ExifTags import TAGS, GPSTAGS
-from PIL import Image as PILImage, ImageOps, IptcImagePlugin
+from PIL import Image as PILImage, ImageOps, ImageFile, IptcImagePlugin
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
 from . import signals, utils
 from .settings import get_thumb, Status
+
+# Force loading of truncated files
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 def _has_exif_tags(img):
