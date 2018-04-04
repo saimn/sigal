@@ -159,7 +159,8 @@ class Image(Media):
 
     @cached_property
     def date(self):
-        return self.exif and self.exif.get('dateobj', None) or self._get_file_date()
+        return (self.exif and self.exif.get('dateobj', None) or
+                self._get_file_date())
 
     @cached_property
     def exif(self):
@@ -178,8 +179,8 @@ class Image(Media):
         try:
             iptc_data = get_iptc_data(self.src_path)
         except Exception as e:
-            self.logger.warning(u'Could not read IPTC data from %s: %s',
-                    self.src_path, e)
+            self.logger.warning('Could not read IPTC data from %s: %s',
+                                self.src_path, e)
         else:
             if not self.title and iptc_data.get('title'):
                 self.title = iptc_data['title']
@@ -349,8 +350,9 @@ class Album:
                     key = lambda s: locale.strxfrm(
                         self.gallery.albums[join(root_path, s)].meta.get(meta_key, [''])[0])
                 else:
-                    key = lambda s: locale.strxfrm(getattr(
-                    self.gallery.albums[join(root_path, s)], albums_sort_attr))
+                    key = lambda s: locale.strxfrm(
+                        getattr(self.gallery.albums[join(root_path, s)],
+                                albums_sort_attr))
             else:
                 key = locale.strxfrm
 
@@ -466,8 +468,9 @@ class Album:
 
     @property
     def random_thumbnail(self):
-        try :
-            return url_from_path(join(self.name, random.choice(self.medias).thumbnail))
+        try:
+            return url_from_path(join(self.name,
+                                      random.choice(self.medias).thumbnail))
         except IndexError:
             return self.thumbnail
 
@@ -513,8 +516,10 @@ class Album:
         if zip_gallery and len(self) > 0:
             zip_gallery = zip_gallery.format(album=self)
             archive_path = join(self.dst_path, zip_gallery)
-            if self.settings.get('zip_skip_if_exists', False) and isfile(archive_path):
-                self.logger.debug("Archive %s already created, passing", archive_path)
+            if (self.settings.get('zip_skip_if_exists', False) and
+                    isfile(archive_path)):
+                self.logger.debug("Archive %s already created, passing",
+                                  archive_path)
                 return zip_gallery
 
             archive = zipfile.ZipFile(archive_path, 'w', allowZip64=True)
