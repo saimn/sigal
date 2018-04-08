@@ -11,4 +11,4 @@ recursive-exclude docs *.pyo
 prune docs/_build
 recursive-include sigal/themes *
 include sigal/templates/sigal.conf.py
-recursive-exclude tests *
+recursive-include tests *
