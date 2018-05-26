@@ -279,11 +279,15 @@ class Album:
 
         for f in filenames:
             ext = splitext(f)[1]
-            if ext.lower() in settings['img_extensions']:
-                media = Image(f, self.path, settings)
-            elif ext.lower() in settings['video_extensions']:
-                media = Video(f, self.path, settings)
-            else:
+            try:
+                if ext.lower() in settings['img_extensions']:
+                    media = Image(f, self.path, settings)
+                elif ext.lower() in settings['video_extensions']:
+                    media = Video(f, self.path, settings)
+                else:
+                    continue
+            except Exception as e:
+                self.logger.error("While getting media file %s: %s", f, str(e))
                 continue
 
             self.medias_count[media.type] += 1
@@ -492,7 +496,11 @@ class Album:
 
             url = (url_from_path(os.path.relpath(path, self.path)) + '/' +
                    self.url_ext)
-            breadcrumb.append((url, self.gallery.albums[path].title))
+            try:
+                breadcrumb.append((url, self.gallery.albums[path].title))
+            except KeyError:
+                self.logger.exception("Failed to lookup title of album for path '%s'; Using 'Unknown' instead.", path)
+                breadcrumb.append((url, "Unknown"))
 
         breadcrumb.reverse()
         return breadcrumb
