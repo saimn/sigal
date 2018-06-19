@@ -81,6 +81,12 @@ def read_markdown(filename):
         MD = Markdown(extensions=['markdown.extensions.meta',
                                   'markdown.extensions.tables'],
                       output_format='html5')
+    else:
+        MD.reset()
+        # When https://github.com/Python-Markdown/markdown/pull/672
+        # will be available, this can be removed.
+        MD.Meta = {}
+
     # Mark HTML with Markup to prevent jinja2 autoescaping
     output = {'description': Markup(MD.convert(text))}
 
