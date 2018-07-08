@@ -29,6 +29,8 @@ VIDEO_MIMES = {'.mp4': 'video/mp4',
                '.webm': 'video/webm',
                '.ogv': 'video/ogg'}
 
+MD = None
+
 
 class Devnull(object):
     """'Black hole' for output that should not be printed"""
@@ -68,26 +70,34 @@ def read_markdown(filename):
     """Reads markdown file, converts output and fetches title and meta-data for
     further processing.
     """
+    global MD
     # Use utf-8-sig codec to remove BOM if it is present. This is only possible
     # this way prior to feeding the text to the markdown parser (which would
     # also default to pure utf-8)
     with open(filename, 'r', encoding='utf-8-sig') as f:
         text = f.read()
 
-    md = Markdown(extensions=['markdown.extensions.meta',
-                              'markdown.extensions.tables'],
-                  output_format='html5')
+    if MD is None:
+        MD = Markdown(extensions=['markdown.extensions.meta',
+                                  'markdown.extensions.tables'],
+                      output_format='html5')
+    else:
+        MD.reset()
+        # When https://github.com/Python-Markdown/markdown/pull/672
+        # will be available, this can be removed.
+        MD.Meta = {}
+
     # Mark HTML with Markup to prevent jinja2 autoescaping
-    output = {'description': Markup(md.convert(text))}
+    output = {'description': Markup(MD.convert(text))}
 
     try:
-        meta = md.Meta.copy()
+        meta = MD.Meta.copy()
     except AttributeError:
         pass
     else:
         output['meta'] = meta
         try:
-            output['title'] = md.Meta['title'][0]
+            output['title'] = MD.Meta['title'][0]
         except KeyError:
             pass
 

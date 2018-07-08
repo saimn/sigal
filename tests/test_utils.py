@@ -66,7 +66,9 @@ def test_read_markdown_empty_file(tmpdir):
     src.write("")
     m = utils.read_markdown(str(src))
     assert 'title' not in m
-    assert 'meta' not in m
+    # See https://github.com/Python-Markdown/markdown/pull/672
+    # Meta attributes should always be there
+    assert m['meta'] == {}
     assert m['description'] == ''
 
 
