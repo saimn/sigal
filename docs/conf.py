@@ -25,11 +25,11 @@ with open(pkgmeta_file) as f:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx_issues',
+    'sphinx.ext.extlinks',
     'alabaster'
 ]
 
-issues_github_path = 'saimn/sigal'
+extlinks = {'issue': ('https://github.com/saimn/sigal/issues/%s', '#')}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

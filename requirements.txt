@@ -12,6 +12,5 @@ pilkit
 pytest
 pytest-cov
 Sphinx
-sphinx-issues
 twine
 zopfli
