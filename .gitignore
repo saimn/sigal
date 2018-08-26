@@ -3,9 +3,9 @@
 *.pyc
 *_flymake
 .coverage
+.pytest_cache/
 .ropeproject/
 .tox/
-nose.cfg
 MANIFEST
 _build/
 build/
