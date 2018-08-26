@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Plugin which add RSS/ATOM feeds.
 
 This plugin requires feedgenerator_. It uses all the images and videos of the

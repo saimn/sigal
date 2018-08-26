@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright 2017 - Tilman 't.animal' Adler
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy

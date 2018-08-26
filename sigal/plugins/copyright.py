@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Plugin which add a copyright to the image.
 
 Settings:

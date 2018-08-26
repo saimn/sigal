@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # All configuration values have a default; values that are commented out serve
 # to show the default. Default values are specified when modified in this
 # example config file

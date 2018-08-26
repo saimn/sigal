@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 author = 'John Doe'
 title = 'Sigal test gallery ☺'
 source = 'pictures'

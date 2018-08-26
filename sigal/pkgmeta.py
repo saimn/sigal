@@ -1,5 +1,3 @@
-# -*- coding:utf-8 -*-
-
 # Copyright (c) 2013-2018 - Simon Conseil
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy

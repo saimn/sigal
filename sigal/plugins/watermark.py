@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (c) 2005 - Shane Hathaway (http://code.activestate.com/recipes/362879-watermark-with-pil/)
 # Copyright (c) 2015 - Abdul Qabiz
 

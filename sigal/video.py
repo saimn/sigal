@@ -1,5 +1,3 @@
-# -*- coding:utf-8 -*-
-
 # Copyright (c)      2013 - Christophe-Marie Duquesne
 # Copyright (c) 2013-2018 - Simon Conseil
 

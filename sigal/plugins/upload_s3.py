@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Plugin to upload generated files to Amazon S3.
 
 This plugin requires boto_. All generated files are uploaded to a specified S3

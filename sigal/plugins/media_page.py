@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (c) 2009-2018 - Simon Conseil
 # Copyright (c)      2014 - Jamie Starke
 

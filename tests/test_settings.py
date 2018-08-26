@@ -1,5 +1,3 @@
-# -*- coding:utf-8 -*-
-
 import os
 
 from sigal.settings import read_settings, get_thumb
@@ -35,10 +33,7 @@ def test_img_sizes(tmpdir):
     """Test that image size is swaped if needed."""
 
     conf = tmpdir.join('sigal.conf.py')
-    conf.write("""# -*- coding: utf-8 -*-
-
-thumb_size = (150, 200)
-""")
+    conf.write("thumb_size = (150, 200)")
 
     settings = read_settings(str(conf))
     assert settings['thumb_size'] == (200, 150)
@@ -50,10 +45,7 @@ def test_theme_path(tmpdir):
     tmpdir.join('theme').mkdir()
     tmpdir.join('theme').join('templates').mkdir()
     conf = tmpdir.join('sigal.conf.py')
-    conf.write("""# -*- coding: utf-8 -*-
-
-theme = 'theme'
-""")
+    conf.write("theme = 'theme'")
 
     settings = read_settings(str(conf))
     assert settings['theme'] == tmpdir.join('theme')

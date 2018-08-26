@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Plugin which adjust the image after resizing.
 
 Based on pilkit's Adjust_ processor.
