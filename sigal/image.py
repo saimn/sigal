@@ -135,7 +135,7 @@ def generate_image(source, outname, settings, options=None):
         img = receiver(img, settings=settings)
 
     outformat = img.format or original_format or 'JPEG'
-    logger.debug(u'Save resized image to {0} ({1})'.format(outname, outformat))
+    logger.debug('Save resized image to %s (%s)', outname, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
@@ -154,7 +154,7 @@ def generate_thumbnail(source, outname, box, fit=True, options=None,
         img.thumbnail(box, PILImage.ANTIALIAS)
 
     outformat = img.format or original_format or 'JPEG'
-    logger.debug(u'Save thumnail image: {0} ({1})'.format(outname, outformat))
+    logger.debug('Save thumnail image: %s (%s)', outname, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
@@ -314,7 +314,7 @@ def get_exif_tags(data, datetime_format='%c'):
             simple['dateobj'] = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
             simple['datetime'] = simple['dateobj'].strftime(datetime_format)
         except (ValueError, TypeError) as e:
-            logger.info(u'Could not parse DateTimeOriginal: %s', e)
+            logger.info('Could not parse DateTimeOriginal: %s', e)
 
     if 'GPSInfo' in data:
         info = data['GPSInfo']

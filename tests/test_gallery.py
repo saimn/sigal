@@ -53,12 +53,12 @@ REF = {
                    'Hubble ultra deep field.jpg',
                    'm57_the_ring_nebula-587px.jpg'],
     },
-    u'accentué': {
-        'title': u'accentué',
-        'name': u'accentué',
-        'thumbnail': u'accentué/thumbnails/hélicoïde.tn.jpg',
+    'accentué': {
+        'title': 'accentué',
+        'name': 'accentué',
+        'thumbnail': 'accentué/thumbnails/hélicoïde.tn.jpg',
         'subdirs': [],
-        'medias': [u'hélicoïde.jpg', 'superdupont_source_wikipedia_en.jpg'],
+        'medias': ['hélicoïde.jpg', 'superdupont_source_wikipedia_en.jpg'],
     },
     'video': {
         'title': 'video',
@@ -132,7 +132,7 @@ def test_image(settings, tmpdir):
     settings['datetime_format'] = '%d/%m/%Y'
     m = Image('11.jpg', 'dir1/test1', settings)
     assert m.date == datetime.datetime(2006, 1, 22, 10, 32, 42)
-    assert m.exif['datetime'] == u'22/01/2006'
+    assert m.exif['datetime'] == '22/01/2006'
 
     os.makedirs(join(settings['destination'], 'dir1', 'test1', 'thumbnails'))
     assert m.thumbnail == join('thumbnails', '11.tn.jpg')
@@ -281,7 +281,7 @@ def test_empty_dirs(settings):
 def test_ignores(settings, tmpdir):
     tmp = str(tmpdir)
     settings['destination'] = tmp
-    settings['ignore_directories'] = ['*test2', u'accentué']
+    settings['ignore_directories'] = ['*test2', 'accentué']
     settings['ignore_files'] = ['dir2/Hubble*', '*.png']
     gal = Gallery(settings, ncpu=1)
     gal.build()

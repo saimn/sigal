@@ -46,8 +46,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Sigal'
-copyright = u'2012-2013, ' + pkgmeta['__author__']
+project = 'Sigal'
+copyright = '2012-2013, ' + pkgmeta['__author__']
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -193,7 +193,7 @@ class Image(Media):
             return (get_exif_data(self.src_path)
                     if self.ext in ('.jpg', '.jpeg') else None)
         except Exception as e:
-            self.logger.warning(u'Could not read EXIF data from %s: %s',
+            self.logger.warning('Could not read EXIF data from %s: %s',
                                 self.src_path, e)
 
     @cached_property
@@ -296,8 +296,8 @@ class Album:
                                             self.title)
 
     def __str__(self):
-        return (u"{} : ".format(self.path) +
-                ', '.join("{} {}s".format(count, _type)
+        return ('{} : '.format(self.path) +
+                ', '.join('{} {}s'.format(count, _type)
                           for _type, count in self.medias_count.items()))
 
     def __len__(self):

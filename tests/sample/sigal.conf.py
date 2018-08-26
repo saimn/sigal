@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 author = 'John Doe'
-title = u"Sigal test gallery ☺"
+title = 'Sigal test gallery ☺'
 source = 'pictures'
 thumb_suffix = '.tn'
 keep_orig = True
@@ -14,11 +14,11 @@ files_to_copy = (('../watermark.png', 'watermark.png'),)
 plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
            'sigal.plugins.watermark', 'sigal.plugins.feeds',
            'sigal.plugins.nomedia', 'sigal.plugins.extended_caching']
-copyright = u"© An example copyright message"
+copyright = '© An example copyright message'
 adjust_options = {'color': 0.0, 'brightness': 1.0,
                   'contrast': 1.0, 'sharpness': 0.0}
-watermark = "watermark.png"
-watermark_position = "tile"
+watermark = 'watermark.png'
+watermark_position = 'tile'
 watermark_opacity = 0.3
 
 theme = 'colorbox'
