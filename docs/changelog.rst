@@ -9,6 +9,14 @@ Released on 2018-xx-xx.
 
 Sigal now requires Python 3.5+.
 
+- Add some transparency for galleria's info box [:issue:`308`].
+- Galleria theme now reads image data from json [:issue:`312`].
+- Galleria: Load first image earlier [:issue:`307`].
+- Galleria: Do not load tiles by default.
+- Fixed crash when IPTC reading fails [:issue:`316`].
+- Force loading of truncated files [:issue:`320`].
+- Optimize a bit markdown initialization [:issue:`329`].
+
 Version 1.4.0
 ~~~~~~~~~~~~~
 
