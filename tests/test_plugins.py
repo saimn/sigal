@@ -19,7 +19,7 @@ def test_plugins(settings, tmpdir, disconnect_signals):
     gal.build()
 
     out_html = os.path.join(settings['destination'],
-                            'dir2', 'exo20101028-b-full.jpg.html')
+                            'dir2', 'KeckObservatory20071020.jpg.html')
     assert os.path.isfile(out_html)
 
     for path, dirs, files in os.walk(os.path.join(str(tmpdir), "nomedia")):
