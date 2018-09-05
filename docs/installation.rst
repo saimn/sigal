@@ -32,7 +32,7 @@ Packages
 
 Some packages are available for Linux distributions:
 
-- `Archlinux <https://aur.archlinux.org/packages/sigal/>`_
+- `Archlinux <https://www.archlinux.org/packages/community/any/sigal/>`_
 - `Gentoo <https://packages.gentoo.org/packages/media-gfx/sigal>`_
 - `OpenSuse
   <https://build.opensuse.org/package/show/openSUSE:Factory/python-sigal>`_
