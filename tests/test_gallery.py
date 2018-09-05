@@ -268,7 +268,7 @@ def test_ignores(settings, tmpdir):
     tmp = str(tmpdir)
     settings['destination'] = tmp
     settings['ignore_directories'] = ['*test2', 'accentué']
-    settings['ignore_files'] = ['dir2/Hubble*', '*.png']
+    settings['ignore_files'] = ['dir2/Hubble*', '*.png', '*CMB_*']
     gal = Gallery(settings, ncpu=1)
     gal.build()
 
