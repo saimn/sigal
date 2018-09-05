@@ -3,7 +3,7 @@
 This plugin requires feedgenerator_. It uses all the images and videos of the
 gallery, sorted by date, to show the most recent ones.
 
-.. _feedgenerator: https://pypi.python.org/pypi/feedgenerator
+.. _feedgenerator: https://pypi.org/project/feedgenerator/
 
 Settings:
 

@@ -6,7 +6,7 @@ exists and the you have access to the S3 bucket. The access credentials are
 managed by boto_ and can be given as environment variables, configuration files
 etc. More information can be found on the boto_ documentation.
 
-.. _boto: https://pypi.python.org/pypi/boto
+.. _boto: https://pypi.org/project/boto/
 
 Settings (all settings are wrapped in ``upload_s3_options`` dict):
 

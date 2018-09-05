@@ -13,7 +13,7 @@ Sigal is yet another simple static gallery generator. It's written in Python
 and it allows to build a static gallery of images with the following features:
 
 * Process directories recursively.
-* Generate HTML pages using jinja2 templates.
+* Generate HTML pages using Jinja2_ templates.
 * Relative links for a portable output.
 * Support themes, videos, EXIF tags, zip download.
 * Parallel processing.
@@ -45,7 +45,7 @@ Javascript libraries:
 
 .. _website: http://sigal.saimon.org/
 .. _GitHub: https://github.com/saimn/sigal/
-.. _PyPI: http://pypi.python.org/pypi/sigal
+.. _PyPI: https://pypi.org/project/sigal/
 .. _galleria: http://galleria.io/
 .. _colorbox: http://www.jacklmoore.com/colorbox
 .. _photoswipe: http://photoswipe.com
@@ -55,3 +55,4 @@ Javascript libraries:
 .. _webchat: http://webchat.freenode.net/?channels=sigal
 .. _Archives: http://librelist.com/browser/sigal/
 .. _Mailing list: mailto:sigal@librelist.com
+.. _Jinja2: http://jinja.pocoo.org/

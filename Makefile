@@ -1,15 +1,16 @@
 
 init:
+	pip install -e .
 	pip install -r requirements.txt
 
 docs:
 	make -C docs html
 
 test:
-	py.test
+	pytest
 
 coverage:
-	py.test --cov sigal --cov-report term --cov-report=html
+	pytest --cov sigal --cov-report term --cov-report=html
 
 demo:
 	sigal build -c tests/sample/sigal.conf.py && sigal serve tests/sample/_build

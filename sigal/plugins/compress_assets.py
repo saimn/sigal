@@ -16,8 +16,8 @@ Currently, 3 methods are supported:
 - ``brotli``: Requires brotli_.
   Brotli is the best compressor for web usage.
 
-.. _zopfli: https://pypi.python.org/pypi/zopfli
-.. _brotli: https://pypi.python.org/pypi/Brotli
+.. _zopfli: https://pypi.org/project/zopfli/
+.. _brotli: https://pypi.org/project/Brotli/
 
 Settings available as dictionary in ``compress_assets_options``:
 

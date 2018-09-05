@@ -323,7 +323,7 @@ Version 0.3.2
 Released on 2013-03-14.
 
 - Bugfix for PNG files which don't have exif metadata.
-- Move unit tests to py.test.
+- Move unit tests to pytest.
 - Fix images path in colorbox theme.
 - Group package meta in a module.
 
