@@ -2,13 +2,13 @@
  Installation
 ==============
 
-Install the extension with one of the following commands::
-
-    $ easy_install sigal
-
-or preferably if you have pip installed::
+With pip::
 
     $ pip install sigal
+
+Or to install with optional dependencies (listed below)::
+
+    $ pip install sigal\[all\]
 
 To install the development version, see the :doc:`contribute`.
 
@@ -20,12 +20,21 @@ building from sources. See their `Installation documentation
 Dependencies
 ~~~~~~~~~~~~
 
+The mandatory dependencies are:
+
 - Blinker
 - Click
 - Jinja2
 - Pilkit
 - Pillow
 - Python Markdown
+
+There are also a number of optional dependencies for the :doc:`plugins`, listed
+in the ``requirements.txt`` file:
+
+- Brotli, zopfli (compress assets plugin)
+- Boto (upload to S3 plugin)
+- feedgenerator (feeds plugin)
 
 Packages
 ~~~~~~~~

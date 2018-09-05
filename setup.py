@@ -34,7 +34,7 @@ setup(
                       'Pillow>=4.0.0', 'pilkit'],
     test_requires=['pytest'],
     extras_require={
-        'S3': ['boto']
+        'all': ['boto', 'brotli', 'feedgenerator', 'zopfli']
     },
     entry_points={
         'console_scripts': ['sigal = sigal:main']
