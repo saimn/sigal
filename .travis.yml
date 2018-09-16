@@ -36,6 +36,8 @@ matrix:
       before_script:
         ffmpeg --help
     - python: 3.6
+      env: TOXENV=doc
+    - python: 3.6
       env: TOXENV=check
   allow_failures:
     - env: TOXENV=check
