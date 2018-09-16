@@ -6,9 +6,10 @@ include README.rst
 include requirements.txt
 include tox.ini
 recursive-include docs *
-recursive-exclude docs *.pyc
-recursive-exclude docs *.pyo
 prune docs/_build
 recursive-include sigal/themes *
 include sigal/templates/sigal.conf.py
 recursive-include tests *
+prune tests/sample/_build
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo

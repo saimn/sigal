@@ -2,43 +2,51 @@ language: python
 cache: pip
 sudo: false
 
-env:
-  global:
-    - PILLOW="Pillow"
-
 matrix:
   include:
     - python: 3.5
-      env: PILLOW="Pillow==4.0.0"
+      addons:
+        apt:
+          sources:
+            - trusty-media
+          packages:
+            - ubuntu-restricted-extras
+            - ffmpeg
+            - libavcodec-extra-54
+      before_script:
+        ffmpeg --help
     - python: 3.6
+      addons:
+        apt:
+          sources:
+            - trusty-media
+          packages:
+            - ubuntu-restricted-extras
+            - ffmpeg
+            - libavcodec-extra-54
+      before_script:
+        ffmpeg --help
+    - python: 3.7
+      dist: xenial
+      sudo: true
+      before_install:
+        - sudo add-apt-repository ppa:mc3man/xerus-media -y
+        - sudo apt-get update -qq
+        - sudo apt-get install -qq ubuntu-restricted-extras ffmpeg
+      before_script:
+        ffmpeg --help
+    - python: 3.6
+      env: TOXENV=check
+  allow_failures:
+    - env: TOXENV=check
 
+install: pip install -U tox-travis
 
-addons:
-  apt:
-    sources:
-      - trusty-media
-    packages:
-      - ubuntu-restricted-extras
-      - ffmpeg
-      - libavcodec-extra-54
-      # Dependencies to build PIL
-      - libfreetype6-dev
-      - libjpeg8-dev
-      - zlib1g-dev
-
-install:
-    - pip install -U pip setuptools wheel
-    - pip install -q $PILLOW
-    - pip install pytest pytest-cov codecov feedgenerator zopfli brotli
-    - pip install .
-
-before_script:
-  ffmpeg --help
-
-script: py.test -sv --cov sigal --cov-report term-missing tests/
+script: tox
 
 after_success:
-    codecov
+  - pip install codecov
+  - codecov
 
 notifications:
     irc: "chat.freenode.net#sigal"
