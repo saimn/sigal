@@ -32,7 +32,7 @@ setup(
     keywords=['gallery', 'static', 'generator', 'image', 'video', 'galleria'],
     install_requires=['blinker', 'click', 'Jinja2', 'Markdown',
                       'Pillow>=4.0.0', 'pilkit'],
-    test_requires=['pytest'],
+    tests_require=['pytest'],
     extras_require={
         'all': ['boto', 'brotli', 'feedgenerator', 'zopfli']
     },
