@@ -13,6 +13,8 @@ matrix:
             - ubuntu-restricted-extras
             - ffmpeg
             - libavcodec-extra-54
+      before_script:
+        ffmpeg --help
     - python: 3.6
       addons:
         apt:
@@ -22,6 +24,8 @@ matrix:
             - ubuntu-restricted-extras
             - ffmpeg
             - libavcodec-extra-54
+      before_script:
+        ffmpeg --help
     - python: 3.7
       dist: xenial
       sudo: true
@@ -29,15 +33,14 @@ matrix:
         - sudo add-apt-repository ppa:mc3man/xerus-media -y
         - sudo apt-get update -qq
         - sudo apt-get install -qq ubuntu-restricted-extras ffmpeg
+      before_script:
+        ffmpeg --help
     - python: 3.6
       env: TOXENV=check
   allow_failures:
     - env: TOXENV=check
 
 install: pip install -U tox-travis
-
-before_script:
-  ffmpeg --help
 
 script: tox
 
