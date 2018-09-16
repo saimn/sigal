@@ -2,16 +2,19 @@ language: python
 cache: pip
 sudo: false
 
-env:
-  global:
-    - PILLOW="Pillow"
+python:
+  - 3.6
+  - 3.5
 
 matrix:
   include:
-    - python: 3.5
-      env: PILLOW="Pillow==4.0.0"
+    - python: 3.7
+      dist: xenial
+      sudo: true
     - python: 3.6
-
+      env: TOXENV=check
+  allow_failures:
+    - env: TOXENV=check
 
 addons:
   apt:
@@ -26,19 +29,16 @@ addons:
       - libjpeg8-dev
       - zlib1g-dev
 
-install:
-    - pip install -U pip setuptools wheel
-    - pip install -q $PILLOW
-    - pip install pytest pytest-cov codecov feedgenerator zopfli brotli
-    - pip install .
+install: pip install -U tox-travis
 
 before_script:
   ffmpeg --help
 
-script: py.test -sv --cov sigal --cov-report term-missing tests/
+script: tox
 
 after_success:
-    codecov
+  - pip install codecov
+  - codecov
 
 notifications:
     irc: "chat.freenode.net#sigal"
