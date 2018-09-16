@@ -2,32 +2,40 @@ language: python
 cache: pip
 sudo: false
 
-python:
-  - 3.6
-  - 3.5
-
 matrix:
   include:
+    - python: 3.5
+      addons:
+        apt:
+          sources:
+            - trusty-media
+          packages:
+            - ubuntu-restricted-extras
+            - ffmpeg
+            - libavcodec-extra-54
+    - python: 3.6
+      addons:
+        apt:
+          sources:
+            - trusty-media
+          packages:
+            - ubuntu-restricted-extras
+            - ffmpeg
+            - libavcodec-extra-54
     - python: 3.7
       dist: xenial
       sudo: true
+      addons:
+        apt:
+          sources:
+            - xerus-media
+          packages:
+            - ubuntu-restricted-extras
+            - ffmpeg
     - python: 3.6
       env: TOXENV=check
   allow_failures:
     - env: TOXENV=check
-
-addons:
-  apt:
-    sources:
-      - trusty-media
-    packages:
-      - ubuntu-restricted-extras
-      - ffmpeg
-      - libavcodec-extra-54
-      # Dependencies to build PIL
-      - libfreetype6-dev
-      - libjpeg8-dev
-      - zlib1g-dev
 
 install: pip install -U tox-travis
 
