@@ -17,6 +17,13 @@ Sigal now requires Python 3.5+.
 - Force loading of truncated files [:issue:`320`].
 - Optimize a bit markdown initialization [:issue:`329`].
 
+Version 1.4.1
+~~~~~~~~~~~~~
+
+Released on 2018-10-01.
+
+- compatibility with Click 7.0
+
 Version 1.4.0
 ~~~~~~~~~~~~~
 
