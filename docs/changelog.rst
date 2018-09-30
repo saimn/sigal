@@ -2,6 +2,13 @@
  Changelog
 ===========
 
+Version 1.4.1
+~~~~~~~~~~~~~
+
+Released on 2018-10-01.
+
+- compatibility with Click 7.0
+
 Version 1.4.0
 ~~~~~~~~~~~~~
 
