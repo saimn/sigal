@@ -1,1 +1,318 @@
-{% extends "landing.html" %}
+<!doctype html>
+<html lang="{{ settings.html_language }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>{{ album.title|striptags }}</title>
+    <meta name="description" content="">
+    <meta name="author" content="{{ album.author }}">
+    <meta name="viewport" content="width=device-width">
+
+    <link rel="stylesheet" href="{{ theme.url }}/css/normalize.css">
+    <link rel="stylesheet" href="{{ theme.url }}/themes/classic/galleria.classic.css">
+    <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
+    {# We will always want to show the first image when we're on an album page #}
+    {# Start loading now for faster document complete instead of waiting for js to load it #}
+    {% if album.medias %}
+    <style>
+    body::after{
+        position:absolute; width:0; height:0; overflow:hidden; z-index:-1;
+	content:url({{ album.medias[0].filename }});
+    }</style>
+    {% endif %}
+
+    {% if settings.show_map and album.show_map %}
+    <link rel="stylesheet" href="{{ theme.url }}/leaflet/leaflet.css" />
+    {% endif %}
+
+    {% include 'analytics.html' %}
+  </head>
+  <body>
+    {% include 'gtm.html' %}
+    <div class="container">
+      <header>
+        <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
+
+        {% if settings.links %}
+        <nav id="menu">
+          <ul>
+            {% for title, link in settings.links %}
+            <li><a href="{{ link }}">{{ title }}</a></li>
+            {% endfor %}
+          </ul>
+        </nav>
+        {% endif %}
+
+        {% if album.breadcrumb %}
+        <h2>
+          {%- for url, title in album.breadcrumb -%}
+          <a href="{{ url }}">{{ title }}</a>
+          {%- if not loop.last %} » {% endif -%}
+          {% endfor -%}
+        </h2>
+        <hr>
+        {% endif %}
+      </header>
+
+      <div id="main" role="main">
+        {% if album.albums %}
+        <div id="albums">
+          <!-- <h1>Albums</h1> -->
+          <ul>
+            {% for alb in album.albums %}
+            <li><a href="{{ alb.url }}">
+              <img src="{{ alb.thumbnail }}" class="album_thumb" alt="{{ alb.name }}" title="{{ alb.name }}" /></a>
+              <span class="album_title">{{ alb.title }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if album.medias %}
+          {% macro img_description(media) -%}
+            {%- if media.big -%}<a href='{{ media.big }}'>Full size</a>{%- endif -%}
+	    {# clean up tags and whitespace, including newlines, in the description #}
+            {%- if media.description -%}<br>{{ media.description | striptags }}{%- endif -%}
+            {%- if media.exif -%}
+              <div class='film-meta'>
+              {%- if media.exif.iso -%}<abbr title='film speed'>{{ media.exif.iso }}</abbr> {%- endif -%}
+              {%- if media.exif.exposure -%}<abbr title='exposure'>{{ media.exif.exposure }}</abbr> {%- endif -%}
+              {%- if media.exif.fstop -%}<abbr title='aperture'>{{ media.exif.fstop }}</abbr> {%- endif -%}
+              {%- if media.exif.focal -%}<abbr title='focal length'>{{ media.exif.focal }}</abbr> {%- endif -%}
+              </div>
+              {%- if media.exif.gps -%}
+                <a title='location' href='https://www.openstreetmap.org/?mlat={{ media.exif.gps.lat }}&amp;mlon={{ media.exif.gps.lon}}&amp;zoom=12&amp;layers=M' target='_blank' class='map' >{{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}{{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}</a>
+              {%- endif -%}
+              {%- if media.exif.Make or media.exif.Model -%}
+                <abbr title='camera make and model'>{{ media.exif.Make }} {{ media.exif.Model }}</abbr>
+              {%- endif -%}
+              {%- if media.exif.datetime -%}
+                <abbr title='date'>{{ media.exif.datetime }}</abbr>
+              {%- endif -%}
+            {% endif %}
+          {%- endmacro %}
+        <div class="icons">
+          {% if settings.show_map and album.show_map %}
+          <a class="gallery-map-toggle"><img src="{{ theme.url }}/img/map.png"
+            title="Show/Hide map" alt="Show/Hide Map (m)" /></a>
+          {% endif %}
+          <a id="fullscreen"><img src="{{ theme.url }}/img/fullscreen.png"
+            title="Fullscreen" alt="Fullscreen (f)" /></a>
+        </div>
+	<div id="gallery"></div>
+        {% endif %}
+
+        {% if album.zip %}
+        <div id="additionnal-infos" class="row">
+          <p>
+            <a href="{{ album.zip }}"
+               title="Download a zip archive with all images">Download ZIP</a>
+          </p>
+        </div>
+        {% endif %}
+
+        {% if album.description %}
+        <div id="description">
+          {{ album.description }}
+        </div>
+        {% endif %}
+      </div>
+
+      <footer>
+        <p>{% if album.author %}&copy; {{ album.author }} - {% endif %}
+          Generated by <a href="{{ sigal_link }}">sigal</a>
+          {% if 'sigal.plugins.feeds' in settings.plugins %}
+          {% if settings.rss_feed %}<br><a href={{ settings.rss_feed.feed_url }}>RSS Feed</a>{% endif %}
+          {% if settings.atom_feed %}<br><a href={{ settings.atom_feed.feed_url }}>Atom Feed</a>{% endif %}{% endif %}</p>
+      </footer>
+    </div>
+
+    {% if album.medias %}
+    <script src="{{ theme.url }}/jquery-3.3.1.min.js"></script>
+    {% if settings.show_map and album.show_map %}
+    <script src="{{ theme.url }}/leaflet/leaflet.js"></script>
+    <script src="{{ theme.url }}/leaflet/leaflet-providers.js"></script>
+    {% endif %}
+    <script src="{{ theme.url }}/galleria.min.js"></script>
+    <script src="{{ theme.url }}/themes/classic/galleria.classic.min.js"></script>
+    <script src="{{ theme.url }}/plugins/history/galleria.history.min.js"></script>
+    <script>
+    var data = [
+      {% for media in album.medias -%}
+      {
+        title: "{{ media.title if media.title else media.filename }}",
+        description: "{{ img_description(media) | e }}",
+        thumb: "{{ media.thumbnail }}",
+        {% if media.big %}
+        big: "{{ media.big }}",
+        {% endif %}
+        {% if media.type == "image" %}
+        image: "{{ media.filename }}"
+        {% endif %}
+        {% if media.type == "video" %}
+        image: "{{ theme.url }}/img/empty.png",
+        layer: "<video controls><source src='{{ media.filename }}' type='{{ media.mime }}' /></video>"
+        {% endif %}
+      },
+      {% endfor %}
+    ]
+
+    {% if settings.show_map and album.show_map %}
+    var selected =-1;
+    /* Init markers */
+    var features = new Array();
+
+    function selectMarker(marker) {
+        if (selected >= 0 && features[selected] != null) {
+            features[selected].setStyle({
+                radius: 7,
+                fillColor: "#888a85",
+                color: "#2e3436",
+                weight: 1,
+                fillOpacity: 1,
+                clickable: true
+            });
+            features[selected].redraw();
+        }
+
+        if (marker != null) {
+          marker.setStyle({
+              radius: 7,
+              fillColor: "#cc0000",
+              color: "#ef2929",
+              weight: 1,
+              fillOpacity: 1,
+              clickable: true
+          });
+          marker.bringToFront();
+          map.panTo(marker.getLatLng());
+        }
+    }
+
+    function onFeatureClick(e) {
+      selectMarker(e.target);
+      var id = features.indexOf(e.target);
+      var galleria = $("#gallery").data("galleria");
+      if (selected != id) {
+          selected = id;
+          galleria.show(id);
+      }
+    }
+
+    function init_map() {
+        /* Make sure we have the map div */
+        if ($("#galleria-map").length == 0) {
+            $(".galleria-stage").after("<div id='galleria-map'></div>");
+            map = L.map('galleria-map');
+            L.tileLayer.provider('{{ settings.leaflet_provider }}').addTo(map);
+            map.setView([51.505, -0.09], 12);
+
+            {% for media in album.medias %}
+              {% if media.exif and media.exif.gps %}
+            var lat = {{ media.exif.gps.lat }};
+            var lon = {{ media.exif.gps.lon }};
+            var marker = L.circleMarker([lat, lon], {
+                radius: 7,
+                fillColor: "#888a85",
+                color: "#2e3436",
+                weight: 1,
+                fillOpacity: 1,
+                clickable: true
+            });
+            marker.on('click', onFeatureClick);
+            features.push(marker);
+            marker.addTo(map);
+              {% else %}
+            features.push(null);
+              {% endif %}
+            {% endfor %}
+
+            selectMarker(features[selected]);
+        }
+    }
+
+    function galleryMapToggle() {
+        /* Make sure the map is loaded */
+        init_map();
+
+        var stage = $(".galleria-stage");
+        var mapdiv = $("#galleria-map");
+        var icons = $(".icons");
+
+        if (stage.attr.hidden == true) {
+            stage.attr.hidden = false;
+            $(".galleria-info-link").show();
+            mapdiv.hide();
+            stage.css("opacity", "1");
+            icons.css("background-color", "inherit");
+            /* Change display of the Map link */
+            $(".gallery-map-toggle img")[0].src = "{{ theme.url }}/img/map.png";
+        } else {
+            stage.attr.hidden = true;
+            $(".galleria-info-link").hide();
+            mapdiv.show();
+            /* Play with the stage opacity otherwise galleria will go mad */
+            stage.css("opacity", "0");
+            icons.css("background-color", "#333");
+            /* Change display of the Map link */
+            $(".gallery-map-toggle img")[0].src = "{{ theme.url }}/img/photo.png";
+        }
+    }
+    {% endif %}
+
+    Galleria.ready(function() {
+        /*
+        load thumbnails after gallery setup, and download has started
+        for the main images, but before the loading of map tiles starts
+        in the background. This ensures visible elements are prioritised
+        over non-visible elements
+
+        The choice to lazy load thumbnails in batches of 50 was not made
+        scientifically. Other numbers may yield better performance.
+        */
+        this.lazyLoadChunks( 50 );
+
+        this.attachKeyboard({
+            right: this.next,
+            left: this.prev,
+            /* Toggle fullscreen display on press of 'f' key */
+            0x46: this.toggleFullscreen,
+            {% if settings.show_map and album.show_map %}
+            /* Toggle map display on press of 'm' key */
+            0x4D: galleryMapToggle,
+            {% endif %}
+        });
+
+        var gallery = this;
+        $('#fullscreen').click(function() {
+          gallery.toggleFullscreen();
+        });
+
+        $('.icons').appendTo(this.$('container'));
+
+        {% if settings.show_map and album.show_map %}
+        $(".gallery-map-toggle").click(galleryMapToggle);
+        this.bind('loadfinish', function(e) {
+            /*  Triggers every time Galleria has finished loading an image.*/
+            if (selected != e.index) {
+                selectMarker(features[e.index]);
+                selected = e.index;
+            }
+        });
+        {% endif %}
+    });
+
+    Galleria.configure({
+        imageCrop: false,
+        transition: "fade",
+        thumbnails: 'lazy'
+    });
+    Galleria.run("#gallery", {dataSource: data});
+
+    </script>
+    {% endif %}
+    {% include 'piwik.html' %}
+  </body>
+</html>
