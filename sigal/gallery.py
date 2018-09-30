@@ -678,7 +678,7 @@ class Gallery(object):
                     for res in self.pool.imap_unordered(worker, media_list):
                         if res:
                             failed_files.append(res)
-                        next(bar)
+                        bar.update(1)
                 self.pool.close()
                 self.pool.join()
             except KeyboardInterrupt:
