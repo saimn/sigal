@@ -56,20 +56,6 @@
       </header>
 
       <div id="main" role="main">
-        {% if album.albums %}
-        <div id="albums">
-          <!-- <h1>Albums</h1> -->
-          <ul>
-            {% for alb in album.albums %}
-            <li><a href="{{ alb.url }}">
-              <img src="{{ alb.thumbnail }}" class="album_thumb" alt="{{ alb.name }}" title="{{ alb.name }}" /></a>
-              <span class="album_title">{{ alb.title }}</span>
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
-        {% endif %}
-
         {% if album.medias %}
           {% macro img_description(media) -%}
             {%- if media.big -%}<a href='{{ media.big }}'>Full size</a>{%- endif -%}
