@@ -418,7 +418,7 @@ class Album:
             self._thumbnail = join(self.name, get_thumb(self.settings,
                                                         thumbnail))
             self.logger.debug("Thumbnail for %r : %s", self, self._thumbnail)
-            return url_from_path(self._thumbnail)
+            return url_quote(url_from_path(self._thumbnail))
         else:
             # find and return the first landscape image
             for f in self.medias:
@@ -435,7 +435,7 @@ class Album:
                         self.logger.debug(
                             "Use 1st landscape image as thumbnail for %r :"
                             " %s", self, self._thumbnail)
-                        return url_from_path(self._thumbnail)
+                        return url_quote(url_from_path(self._thumbnail))
 
             # else simply return the 1st media file
             if not self._thumbnail and self.medias:
@@ -449,7 +449,7 @@ class Album:
 
                 self.logger.debug("Use the 1st image as thumbnail for %r : %s",
                                   self, self._thumbnail)
-                return url_from_path(self._thumbnail)
+                return url_quote(url_from_path(self._thumbnail))
 
             # use the thumbnail of their sub-directories
             if not self._thumbnail:
@@ -459,7 +459,7 @@ class Album:
                         self.logger.debug(
                             "Using thumbnail from sub-directory for %r : %s",
                             self, self._thumbnail)
-                        return url_from_path(self._thumbnail)
+                        return url_quote(url_from_path(self._thumbnail))
 
         self.logger.error('Thumbnail not found for %r', self)
         return None
