@@ -409,7 +409,7 @@ class Album:
 
         if self._thumbnail:
             # stop if it is already set
-            return url_quote(url_from_path(self._thumbnail))
+            return url_from_path(self._thumbnail)
 
         # Test the thumbnail from the Markdown file.
         thumbnail = self.meta.get('thumbnail', [''])[0]
