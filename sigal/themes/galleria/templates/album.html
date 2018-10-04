@@ -47,7 +47,7 @@
 
 {% block late_js %}
     {% macro img_description(media) -%}
-      {%- if media.big -%}<a href='{{ media.big }}'>Full size</a>{%- endif -%}
+      {%- if media.big -%}<a href='{{ media.big_url }}'>Full size</a>{%- endif -%}
 	    {# clean up tags and whitespace, including newlines, in the description #}
       {%- if media.description -%}<br>{{ media.description | striptags }}{%- endif -%}
       {%- if media.exif -%}
@@ -85,7 +85,7 @@
         description: "{{ img_description(media) | e }}",
         thumb: "{{ media.thumbnail }}",
         {% if media.big %}
-        big: "{{ media.big }}",
+        big: "{{ media.big_url }}",
         {% endif %}
         {% if media.type == "image" %}
         image: "{{ media.filename }}"

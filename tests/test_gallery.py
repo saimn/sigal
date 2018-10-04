@@ -62,7 +62,7 @@ REF = {
         'title': 'video',
         'name': 'video',
         'thumbnail': ('video/thumbnails/'
-                      'example video.tn.jpg'),
+                      'example%20video.tn.jpg'),
         'subdirs': [],
         'medias': ['example video.ogv']
     }
@@ -100,7 +100,7 @@ def test_media_orig(settings, tmpdir):
 
     m = Video('example video.ogv', 'video', settings)
     assert m.filename == 'example video.webm'
-    assert m.big == 'original/example video.ogv'
+    assert m.big_url == 'original/example%20video.ogv'
     assert os.path.isfile(join(settings['destination'], m.path, m.big))
 
     settings['use_orig'] = True
@@ -145,7 +145,7 @@ def test_video(settings, tmpdir):
     assert m.dst_path == join(settings['destination'], file_path)
 
     os.makedirs(join(settings['destination'], 'video', 'thumbnails'))
-    assert m.thumbnail == join('thumbnails', 'example video.tn.jpg')
+    assert m.thumbnail == join('thumbnails', 'example%20video.tn.jpg')
     assert os.path.isfile(m.thumb_path)
 
 

@@ -35,7 +35,7 @@
 
   {% if album.medias %}
   {% macro img_description(media) -%}
-    {% if media.big %} data-big="{{ media.big }}"{% endif %}
+    {% if media.big %} data-big="{{ media.big_url }}"{% endif %}
     {% if media.exif %}
       {% if media.exif.datetime %}
         data-date=", {{ media.exif.datetime }}"
@@ -70,7 +70,7 @@
           {% else %}
           <a href="#{{ mhash }}" class="gallery" inline='yes' title="{{ media.filename }}"
           {% endif %}
-            {% if media.big %} data-big="{{ media.big }}"{% endif %}>
+            {% if media.big %} data-big="{{ media.big_url }}"{% endif %}>
             <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
                 title="{{ media.title }}" /></a>
         </div>

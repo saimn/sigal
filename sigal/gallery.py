@@ -82,6 +82,9 @@ class Media:
 
         self.logger = logging.getLogger(__name__)
         self._get_metadata()
+        # default: title is the filename
+        if not self.title:
+            self.title = self.filename
         signals.media_initialized.send(self)
 
     def __repr__(self):
@@ -111,7 +114,12 @@ class Media:
             if not isfile(big_path):
                 copy(self.src_path, big_path,
                      symlink=s['orig_link'])
-            return url_from_path(join(s['orig_dir'], self.src_filename))
+            return join(s['orig_dir'], self.src_filename)
+
+    @property
+    def big_url(self):
+        """URL of the original media."""
+        return url_from_path(self.big)
 
     @property
     def thumbnail(self):
@@ -142,8 +150,7 @@ class Media:
         """ Get image metadata from filename.md: title, description, meta."""
         self.description = ''
         self.meta = {}
-        # default: title is the filename
-        self.title = self.filename
+        self.title = ''
 
         descfile = splitext(self.src_path)[0] + '.md'
         if isfile(descfile):
