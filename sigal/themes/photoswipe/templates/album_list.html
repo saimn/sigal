@@ -71,14 +71,14 @@
 						  	{% if loop.first %}
 						  		<figure class="gallery__img--main thumbnail" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
 									<a href="{{ media.url }}" itemprop="contentUrl" data-size="{{media.size.width}}x{{media.size.height}}">
-									<img src="{{ theme.url }}/echo/blank.gif" data-echo="{{ media.filename }}" alt="{{ media.filename }}" itemprop="thumbnail" title="{{ media.exif.datetime }}" />
+									<img src="{{ theme.url }}/echo/blank.gif" data-echo="{{ media.url }}" alt="{{ media.url }}" itemprop="thumbnail" title="{{ media.exif.datetime }}" />
 									</a>
 									<figcaption itemprop="caption description">{{ media.title }} - {{ media.exif.datetime }}</figcaption>
 							    </figure>
 						  	{% else %}
 							    <figure class="gallery__img--secondary thumbnail" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
 									<a href="{{ media.url }}" itemprop="contentUrl" data-size="{{media.size.width}}x{{media.size.height}}">
-									<img src="{{ theme.url }}/echo/blank.gif" data-echo="{{ media.thumbnail }}" alt="{{ media.filename }}" itemprop="thumbnail" title="{{ media.exif.datetime }}" />
+									<img src="{{ theme.url }}/echo/blank.gif" data-echo="{{ media.thumbnail }}" alt="{{ media.url }}" itemprop="thumbnail" title="{{ media.exif.datetime }}" />
 									</a>
 									<figcaption itemprop="caption description">{{ media.title }} - {{ media.exif.datetime }}</figcaption>
 							    </figure>
@@ -86,7 +86,7 @@
 					    {% endif %}
                         {% if media.type == "video" %}
                             <figure class="gallery__img--secondary thumbnail" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
-                                <a href="{{ media.filename }}" itemprop="contentUrl" data-type="video" data-video='<div class="video"><div class="video__container"><video controls><source src="{{ media.filename }}" type="{{ media.mime }}" /></video></div></div>'>
+                                <a href="{{ media.url }}" itemprop="contentUrl" data-type="video" data-video='<div class="video"><div class="video__container"><video controls><source src="{{ media.url }}" type="{{ media.mime }}" /></video></div></div>'>
                                 <img src="{{ theme.url }}/echo/blank.gif" data-echo="{{ media.thumbnail }}" alt="{{ media.thumbnail }}" itemprop="thumbnail" title="" />
                                 </a>
                                 <figcaption itemprop="caption description">{{ media_title }}</figcaption>

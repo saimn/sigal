@@ -60,6 +60,7 @@ class Media:
     - ``filename``: Filename of the resized image.
     - ``thumbnail``: Location of the corresponding thumbnail image.
     - ``big``: If not None, location of the unmodified image.
+    - ``big_url``: If not None, url of the unmodified image.
     - ``exif``: If not None contains a dict with the most common tags. For more
         information, see :ref:`simple-exif-data`.
     - ``raw_exif``: If not ``None``, it contains the raw EXIF tags.
@@ -112,14 +113,14 @@ class Media:
             check_or_create_dir(orig_path)
             big_path = join(orig_path, self.src_filename)
             if not isfile(big_path):
-                copy(self.src_path, big_path,
-                     symlink=s['orig_link'])
+                copy(self.src_path, big_path, symlink=s['orig_link'])
             return join(s['orig_dir'], self.src_filename)
 
     @property
     def big_url(self):
         """URL of the original media."""
-        return url_from_path(self.big)
+        if self.big is not None:
+            return url_from_path(self.big)
 
     @property
     def thumbnail(self):

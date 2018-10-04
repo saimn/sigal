@@ -7,7 +7,7 @@
     <style>
     body::after{
         position:absolute; width:0; height:0; overflow:hidden; z-index:-1;
-	content:url({{ album.medias[0].filename }});
+        content:url({{ album.medias[0].url }});
     }</style>
     {% endif %}
 
@@ -81,18 +81,18 @@
     var data = [
       {% for media in album.medias -%}
       {
-        title: "{{ media.title if media.title else media.filename }}",
+        title: "{{ media.title }}",
         description: "{{ img_description(media) | e }}",
         thumb: "{{ media.thumbnail }}",
         {% if media.big %}
         big: "{{ media.big_url }}",
         {% endif %}
         {% if media.type == "image" %}
-        image: "{{ media.filename }}"
+        image: "{{ media.url }}"
         {% endif %}
         {% if media.type == "video" %}
         image: "{{ theme.url }}/img/empty.png",
-        layer: "<video controls><source src='{{ media.filename }}' type='{{ media.mime }}' /></video>"
+        layer: "<video controls><source src='{{ media.url }}' type='{{ media.mime }}' /></video>"
         {% endif %}
       },
       {% endfor %}

@@ -51,27 +51,27 @@
       {% if media.type == "image" %}
       <div class="{{ column_size_t }} columns thumbnail">
         {% if 'sigal.plugins.media_page' in settings.plugins %}
-        <a href="{{ media.filename}}.html" class="gallery"
+        <a href="{{ media.url}}.html" class="gallery"
           title="{{ media.title }}"
-          data-href="{{ media.filename }}" {{ img_description(media) }}>
+          data-href="{{ media.url }}" {{ img_description(media) }}>
         {% else %}
         <a href="{{ media.url }}" class="gallery" title="{{ media.title }}"
           {{ img_description(media) }}>
         {% endif %}
-          <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
+          <img src="{{ media.thumbnail }}" alt="{{ media.url }}"
               title="{{ media.title }}" /></a>
       </div>
       {% endif %}
       {% if media.type == "video" %}
-        {% set mhash = media.filename|replace('.', '')|replace(' ', '') %}
+        {% set mhash = media.url|replace('.', '')|replace(' ', '') %}
         <div class="{{ column_size_t }} columns thumbnail">
           {% if 'sigal.plugins.media_page' in settings.plugins %}
-          <a href="{{ media.filename }}.html" data-href="#{{ mhash }}"
+          <a href="{{ media.url }}.html" data-href="#{{ mhash }}"
           {% else %}
-          <a href="#{{ mhash }}" class="gallery" inline='yes' title="{{ media.filename }}"
+          <a href="#{{ mhash }}" class="gallery" inline='yes' title="{{ media.url }}"
           {% endif %}
             {% if media.big %} data-big="{{ media.big_url }}"{% endif %}>
-            <img src="{{ media.thumbnail }}" alt="{{ media.filename }}"
+            <img src="{{ media.thumbnail }}" alt="{{ media.url }}"
                 title="{{ media.title }}" /></a>
         </div>
         <!-- This contains the hidden content for the video -->
