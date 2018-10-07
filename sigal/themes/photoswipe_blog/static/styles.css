@@ -1,0 +1,287 @@
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+/*  src: url(https://example.com/MaterialIcons-Regular.eot); /* For IE6-8 */
+  src: local('Material Icons'),
+    local('MaterialIcons-Regular'),
+    url(./MaterialIcons-Regular.woff2) format('woff2'),
+    url(./MaterialIcons-Regular.woff) format('woff'),
+    url(./MaterialIcons-Regular.ttf) format('truetype');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;  /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+
+  /* Custom settings */
+  vertical-align: bottom;
+}
+
+/* Rules for sizing the icon. */
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
+
+/* Rules for using icons as black on a light background. */
+.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+
+/* Rules for using icons as white on a dark background. */
+.material-icons.md-light { color: rgba(255, 255, 255, 1); }
+.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+
+html, body, div, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, ol, ul, li, form, fieldset, legend, label, table, header, footer, nav, section, figure {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #EEE;
+  font-family: "myriad-pro","Myriad Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 18px;
+  line-height: 26px;
+  color: #282B30;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -moz-font-feature-settings: "liga", "kern";
+}
+
+figure {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: #3169B3;
+}
+a:hover {
+  color: #C00;
+}
+
+a.material-icons {
+  text-decoration: none;
+  vertical-align: middle;
+}
+
+img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  border: 0;
+}
+
+p {
+  margin: 0 0 12px;
+}
+ul {
+  list-style: disc;
+}
+ul, ol {
+  padding: 0;
+  margin: 0 0 12px 25px;
+}
+li {
+  margin: 0 0 12px 0;
+}
+h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: normal;
+}
+
+h1 {
+  line-height: 1;
+  margin-top: 1ex;
+  font-weight: 600;
+  text-align: center;
+}
+
+h1 a {
+  text-decoration: none;
+  color: #282B30;
+}
+
+strong {
+  font-weight: 600;
+}
+
+figcaption.media-description {
+  display:none;
+}
+
+figcaption.media-title {
+  font-size: 80%;
+  line-height: initial;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.breadcrumb {
+  margin-top: 1ex;
+  line-height: 1;
+}
+
+.breadcrumb > h2 {
+  font-size: 28px;
+}
+
+#description {
+  margin-top: 1ex;
+}
+
+#description > p:last-child {
+  margin-bottom: 0;
+}
+
+.container {
+  width: 100%;
+}
+
+.content {
+  max-width: 1034px;
+  margin: 0px auto;
+  padding: 0 5px;
+}
+
+.menu {
+  width: 100%;
+  background: #F7F7F7 none repeat scroll 0 0;
+  padding: 30px 0;
+}
+
+.menu ul {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+.menu li {
+    display: inline;
+    list-style: none; /* pour enlever les puces sur IE7 */
+}
+
+.album-list {
+  padding: 1em 0;
+  margin: auto;
+  background: #EEE none repeat scroll 0 0;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 248px);
+  grid-gap: 12px;
+  justify-content: center;
+}
+
+.thumbnail {
+  background-color: #fff;
+  height: auto;
+  border: 6px solid #fff;
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 0 3px #B1B1B1;
+  text-align: center;
+}
+.thumbnail:hover {
+  box-shadow: 0 0 5px #818181;
+}
+
+.album_title {
+  display: block;
+  font-size: 80%;
+  line-height: initial;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  position: relative;
+}
+
+.album_title > i {
+  position: absolute;
+  left: 0;
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.video {
+  width: 100%;
+  margin: 0 0 24px 0;
+}
+.video__container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  padding-top: 35px;
+  height: 0;
+  overflow: hidden;
+}
+.video__container iframe,
+.video__container video {
+  position: absolute;
+  top:0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 2% 0 15% 0;
+}
+.video-desc {
+  width: 100%;
+  max-width: 740px;
+  margin: 12px auto;
+}
+
+.additionnal-infos {
+  width: 100%;
+  height: auto;
+  float: left;
+}
+
+.gallery {
+  padding-top: 1em;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 248px);
+  grid-gap: 12px;
+  justify-content: center;
+}
+
+
+.gallery a {
+  line-height: 0;
+}
+
+footer {
+    padding-top: 1em;
+}
+
+footer p {
+  text-align: center;
+}
+
+/*****************************
+* Photoswipe custom settings *
+******************************/
+.pswp__caption__title {
+	font-size: 120%;
+	font-weight: bold;
+	margin-bottom: 0.5em;
+	font-variant-caps: small-caps;
+}
