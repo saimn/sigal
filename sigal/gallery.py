@@ -445,7 +445,8 @@ class Album:
                         size = get_size(f.src_path)
 
                     if size['width'] > size['height']:
-                        self._thumbnail = self.name + '/' + f.thumbnail
+                        self._thumbnail = (url_quote(self.name) + '/' +
+                                           f.thumbnail)
                         self.logger.debug(
                             "Use 1st landscape image as thumbnail for %r : %s",
                             self, self._thumbnail)
@@ -455,7 +456,8 @@ class Album:
             if not self._thumbnail and self.medias:
                 for media in self.medias:
                     if media.thumbnail is not None:
-                        self._thumbnail = self.name + '/' + media.thumbnail
+                        self._thumbnail = (url_quote(self.name) + '/' +
+                                           media.thumbnail)
                         break
                 else:
                     self.logger.warning("No thumbnail found for %r", self)
@@ -469,7 +471,8 @@ class Album:
             if not self._thumbnail:
                 for path, album in self.gallery.get_albums(self.path):
                     if album.thumbnail:
-                        self._thumbnail = self.name + '/' + album.thumbnail
+                        self._thumbnail = (url_quote(self.name) + '/' +
+                                           album.thumbnail)
                         self.logger.debug(
                             "Using thumbnail from sub-directory for %r : %s",
                             self, self._thumbnail)

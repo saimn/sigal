@@ -54,7 +54,7 @@ REF = {
     'accentué': {
         'title': 'accentué',
         'name': 'accentué',
-        'thumbnail': 'accentué/thumbnails/h%C3%A9lico%C3%AFde.tn.jpg',
+        'thumbnail': 'accentu%C3%A9/thumbnails/h%C3%A9lico%C3%AFde.tn.jpg',
         'subdirs': [],
         'medias': ['hélicoïde.jpg', '11.jpg'],
     },
