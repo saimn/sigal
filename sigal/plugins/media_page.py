@@ -40,9 +40,7 @@ from sigal.pkgmeta import __url__ as sigal_link
 class PageWriter(AbstractWriter):
     '''A writer for writing media pages, based on writer'''
 
-    @property
-    def template_file(self):
-        return "media.html"
+    template_file = "media.html"
 
     def write(self, album, media_group):
         ''' Generate the media page and save it '''
