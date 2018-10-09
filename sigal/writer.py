@@ -1,5 +1,6 @@
 # Copyright (c) 2009-2018 - Simon Conseil
 # Copyright (c)      2013 - Christophe-Marie Duquesne
+# Copyright (c)      2018 - Edwin Steele
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -37,10 +38,8 @@ THEMES_PATH = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
 
-class Writer(object):
-    """Generate html pages for each directory of images."""
-
-    template_file = 'index.html'
+class AbstractWriter(object):
+    template_file = None
 
     def __init__(self, settings, index_title=''):
         self.settings = settings
@@ -89,7 +88,8 @@ class Writer(object):
         try:
             self.template = env.get_template(self.template_file)
         except TemplateNotFound:
-            self.logger.error('The index.html template was not found.')
+            self.logger.error('The template %s was not found.',
+                              self.template_file)
             sys.exit(1)
 
         # Copy the theme files in the output dir
@@ -118,3 +118,13 @@ class Writer(object):
 
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(page)
+
+
+class AlbumListPageWriter(AbstractWriter):
+    """Generate an html page for a directory of albums"""
+    template_file = "album_list.html"
+
+
+class AlbumPageWriter(AbstractWriter):
+    """Generate html pages for a directory of images."""
+    template_file = "album.html"

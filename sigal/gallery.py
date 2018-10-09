@@ -48,7 +48,7 @@ from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
                     read_markdown, cached_property, is_valid_html5_video,
                     get_mime)
 from .video import process_video
-from .writer import Writer
+from .writer import AlbumPageWriter, AlbumListPageWriter
 
 
 class Media:
@@ -702,13 +702,24 @@ class Gallery(object):
             self.remove_files(failed_files)
 
         if self.settings['write_html']:
-            writer = Writer(self.settings, index_title=self.title)
+            album_writer = AlbumPageWriter(self.settings, index_title=self.title)
+            album_list_writer = AlbumListPageWriter(self.settings, index_title=self.title)
             with progressbar(self.albums.values(),
                              label="%16s" % "Writing files",
                              item_show_func=log_func, show_eta=False,
                              file=self.progressbar_target) as albums:
                 for album in albums:
-                    writer.write(album)
+                    if album.albums:
+                        if album.medias:
+                            self.logger.warning(
+                                "Album %s contains sub-albums and images. "
+                                "Please move images to their own sub-album. "
+                                "Images in album %s will not be visible.",
+                                album.title, album.title
+                            )
+                        album_list_writer.write(album)
+                    else:
+                        album_writer.write(album)
         print('')
 
         signals.gallery_build.send(self)

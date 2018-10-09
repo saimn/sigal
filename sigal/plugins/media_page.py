@@ -32,12 +32,12 @@ previous/next :class:`~sigal.gallery.Media` objects.
 import os
 
 from sigal import signals
-from sigal.writer import Writer
+from sigal.writer import AbstractWriter
 from sigal.utils import url_from_path
 from sigal.pkgmeta import __url__ as sigal_link
 
 
-class PageWriter(Writer):
+class PageWriter(AbstractWriter):
     '''A writer for writing media pages, based on writer'''
 
     template_file = "media.html"
