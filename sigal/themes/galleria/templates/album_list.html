@@ -1,36 +1,19 @@
-<!doctype html>
-<html lang="{{ settings.html_language }}">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
+{% extends "base.html" %}
 
-    <title>{{ album.title|striptags }}</title>
-    <meta name="description" content="">
-    <meta name="author" content="{{ album.author }}">
-    <meta name="viewport" content="width=device-width">
+{% block extra_head %}
+    {# These are used on album pages - prefetch now #}
+    <link rel="prefetch" href="static/jquery-3.3.1.min.js" />
+    <link rel="prefetch" href="static/galleria.min.js" />
+    <link rel="prefetch" href="static/themes/classic/galleria.classic.min.js" />
+    <link rel="prefetch" href="static/plugins/history/galleria.history.min.js" />
+    {% if settings.show_map %}
+    <link rel="prefetch" href="static/leaflet/leaflet.css" />
+    <link rel="prefetch" href="static/leaflet/leaflet.js" />
+    <link rel="prefetch" href="static/leaflet/leaflet-providers.js" />
+    {% endif %}
+{% endblock %}
 
-    <link rel="stylesheet" href="{{ theme.url }}/css/normalize.css">
-    <link rel="stylesheet" href="{{ theme.url }}/themes/classic/galleria.classic.css">
-    <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
-  </head>
-  <body>
-    {% include 'gtm.html' %}
-    <div class="container">
-      <header>
-        <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
-
-        {% if settings.links %}
-        <nav id="menu">
-          <ul>
-            {% for title, link in settings.links %}
-            <li><a href="{{ link }}">{{ title }}</a></li>
-            {% endfor %}
-          </ul>
-        </nav>
-        {% endif %}
-      </header>
-
-      <div id="main" role="main">
+{% block content %}
         <div id="albums">
           <!-- <h1>Albums</h1> -->
           <ul>
@@ -42,10 +25,4 @@
             {% endfor %}
           </ul>
         </div>
-      </div>
-
-      {% include 'footer.html' %}
-    </div>
-    {% include 'piwik.html' %}
-  </body>
-</html>
+{% endblock %}

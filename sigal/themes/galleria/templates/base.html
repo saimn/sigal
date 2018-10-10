@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="{{ settings.html_language }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>{{ album.title|striptags }}</title>
+    <meta name="description" content="">
+    <meta name="author" content="{{ album.author }}">
+    <meta name="viewport" content="width=device-width">
+
+    <link rel="stylesheet" href="{{ theme.url }}/css/normalize.css">
+    <link rel="stylesheet" href="{{ theme.url }}/themes/classic/galleria.classic.css">
+    <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
+    {% block extra_head %}{% endblock extra_head %}
+    {% include 'analytics.html' %}
+  </head>
+  <body>
+    {% include 'gtm.html' %}
+    <div class="container">
+      <header>
+        <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
+
+        {% if settings.links %}
+        <nav id="menu">
+          <ul>
+            {% for title, link in settings.links %}
+            <li><a href="{{ link }}">{{ title }}</a></li>
+            {% endfor %}
+          </ul>
+        </nav>
+        {% endif %}
+        {% if album.breadcrumb %}
+        <h2>
+          {%- for url, title in album.breadcrumb -%}
+          <a href="{{ url }}">{{ title }}</a>
+          {%- if not loop.last %} » {% endif -%}
+          {% endfor -%}
+        </h2>
+        <hr>
+        {% endif %}
+      </header>
+
+      <div id="main" role="main">
+	      {% block content %}{% endblock content %}
+      </div>
+      {% include 'footer.html' %}
+    </div>
+    {% block late_js %}{% endblock late_js %}
+    {% include 'piwik.html' %}
+  </body>
+</html>
