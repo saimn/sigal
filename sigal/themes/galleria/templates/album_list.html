@@ -1,5 +1,18 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+    {# These are used on album pages - prefetch now #}
+    <link rel="prefetch" href="static/jquery-3.3.1.min.js" />
+    <link rel="prefetch" href="static/galleria.min.js" />
+    <link rel="prefetch" href="static/themes/classic/galleria.classic.min.js" />
+    <link rel="prefetch" href="static/plugins/history/galleria.history.min.js" />
+    {% if settings.show_map %}
+    <link rel="prefetch" href="static/leaflet/leaflet.css" />
+    <link rel="prefetch" href="static/leaflet/leaflet.js" />
+    <link rel="prefetch" href="static/leaflet/leaflet-providers.js" />
+    {% endif %}
+{% endblock %}
+
 {% block content %}
         <div id="albums">
           <!-- <h1>Albums</h1> -->
