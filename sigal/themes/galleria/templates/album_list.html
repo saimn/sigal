@@ -1,36 +1,6 @@
-<!doctype html>
-<html lang="{{ settings.html_language }}">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
+{% extends "base.html" %}
 
-    <title>{{ album.title|striptags }}</title>
-    <meta name="description" content="">
-    <meta name="author" content="{{ album.author }}">
-    <meta name="viewport" content="width=device-width">
-
-    <link rel="stylesheet" href="{{ theme.url }}/css/normalize.css">
-    <link rel="stylesheet" href="{{ theme.url }}/themes/classic/galleria.classic.css">
-    <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
-  </head>
-  <body>
-    {% include 'gtm.html' %}
-    <div class="container">
-      <header>
-        <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
-
-        {% if settings.links %}
-        <nav id="menu">
-          <ul>
-            {% for title, link in settings.links %}
-            <li><a href="{{ link }}">{{ title }}</a></li>
-            {% endfor %}
-          </ul>
-        </nav>
-        {% endif %}
-      </header>
-
-      <div id="main" role="main">
+{% block content %}
         <div id="albums">
           <!-- <h1>Albums</h1> -->
           <ul>
@@ -42,10 +12,4 @@
             {% endfor %}
           </ul>
         </div>
-      </div>
-
-      {% include 'footer.html' %}
-    </div>
-    {% include 'piwik.html' %}
-  </body>
-</html>
+{% endblock %}

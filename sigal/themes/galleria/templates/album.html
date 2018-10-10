@@ -1,17 +1,6 @@
-<!doctype html>
-<html lang="{{ settings.html_language }}">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
+{% extends "base.html" %}
 
-    <title>{{ album.title|striptags }}</title>
-    <meta name="description" content="">
-    <meta name="author" content="{{ album.author }}">
-    <meta name="viewport" content="width=device-width">
-
-    <link rel="stylesheet" href="{{ theme.url }}/css/normalize.css">
-    <link rel="stylesheet" href="{{ theme.url }}/themes/classic/galleria.classic.css">
-    <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
+{% block extra_head %}
     {# We will always want to show the first image when we're on an album page #}
     {# Start loading now for faster document complete instead of waiting for js to load it #}
     {% if album.medias %}
@@ -25,60 +14,10 @@
     {% if settings.show_map and album.show_map %}
     <link rel="stylesheet" href="{{ theme.url }}/leaflet/leaflet.css" />
     {% endif %}
+{% endblock %}
 
-    {% include 'analytics.html' %}
-  </head>
-  <body>
-    {% include 'gtm.html' %}
-    <div class="container">
-      <header>
-        <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
-
-        {% if settings.links %}
-        <nav id="menu">
-          <ul>
-            {% for title, link in settings.links %}
-            <li><a href="{{ link }}">{{ title }}</a></li>
-            {% endfor %}
-          </ul>
-        </nav>
-        {% endif %}
-
-        {% if album.breadcrumb %}
-        <h2>
-          {%- for url, title in album.breadcrumb -%}
-          <a href="{{ url }}">{{ title }}</a>
-          {%- if not loop.last %} » {% endif -%}
-          {% endfor -%}
-        </h2>
-        <hr>
-        {% endif %}
-      </header>
-
-      <div id="main" role="main">
+{% block content %}
         {% if album.medias %}
-          {% macro img_description(media) -%}
-            {%- if media.big -%}<a href='{{ media.big }}'>Full size</a>{%- endif -%}
-	    {# clean up tags and whitespace, including newlines, in the description #}
-            {%- if media.description -%}<br>{{ media.description | striptags }}{%- endif -%}
-            {%- if media.exif -%}
-              <div class='film-meta'>
-              {%- if media.exif.iso -%}<abbr title='film speed'>{{ media.exif.iso }}</abbr> {%- endif -%}
-              {%- if media.exif.exposure -%}<abbr title='exposure'>{{ media.exif.exposure }}</abbr> {%- endif -%}
-              {%- if media.exif.fstop -%}<abbr title='aperture'>{{ media.exif.fstop }}</abbr> {%- endif -%}
-              {%- if media.exif.focal -%}<abbr title='focal length'>{{ media.exif.focal }}</abbr> {%- endif -%}
-              </div>
-              {%- if media.exif.gps -%}
-                <a title='location' href='https://www.openstreetmap.org/?mlat={{ media.exif.gps.lat }}&amp;mlon={{ media.exif.gps.lon}}&amp;zoom=12&amp;layers=M' target='_blank' class='map' >{{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}{{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}</a>
-              {%- endif -%}
-              {%- if media.exif.Make or media.exif.Model -%}
-                <abbr title='camera make and model'>{{ media.exif.Make }} {{ media.exif.Model }}</abbr>
-              {%- endif -%}
-              {%- if media.exif.datetime -%}
-                <abbr title='date'>{{ media.exif.datetime }}</abbr>
-              {%- endif -%}
-            {% endif %}
-          {%- endmacro %}
         <div class="icons">
           {% if settings.show_map and album.show_map %}
           <a class="gallery-map-toggle"><img src="{{ theme.url }}/img/map.png"
@@ -104,11 +43,31 @@
           {{ album.description }}
         </div>
         {% endif %}
-      </div>
+{% endblock %}
 
-      {% include 'footer.html' %}
-    </div>
-
+{% block late_js %}
+    {% macro img_description(media) -%}
+      {%- if media.big -%}<a href='{{ media.big }}'>Full size</a>{%- endif -%}
+	    {# clean up tags and whitespace, including newlines, in the description #}
+      {%- if media.description -%}<br>{{ media.description | striptags }}{%- endif -%}
+      {%- if media.exif -%}
+        <div class='film-meta'>
+        {%- if media.exif.iso -%}<abbr title='film speed'>{{ media.exif.iso }}</abbr> {%- endif -%}
+        {%- if media.exif.exposure -%}<abbr title='exposure'>{{ media.exif.exposure }}</abbr> {%- endif -%}
+        {%- if media.exif.fstop -%}<abbr title='aperture'>{{ media.exif.fstop }}</abbr> {%- endif -%}
+        {%- if media.exif.focal -%}<abbr title='focal length'>{{ media.exif.focal }}</abbr> {%- endif -%}
+        </div>
+        {%- if media.exif.gps -%}
+          <a title='location' href='https://www.openstreetmap.org/?mlat={{ media.exif.gps.lat }}&amp;mlon={{ media.exif.gps.lon}}&amp;zoom=12&amp;layers=M' target='_blank' class='map' >{{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}{{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}</a>
+        {%- endif -%}
+        {%- if media.exif.Make or media.exif.Model -%}
+          <abbr title='camera make and model'>{{ media.exif.Make }} {{ media.exif.Model }}</abbr>
+        {%- endif -%}
+        {%- if media.exif.datetime -%}
+          <abbr title='date'>{{ media.exif.datetime }}</abbr>
+        {%- endif -%}
+      {% endif %}
+    {%- endmacro %}
     {% if album.medias %}
     <script src="{{ theme.url }}/jquery-3.3.1.min.js"></script>
     {% if settings.show_map and album.show_map %}
@@ -293,6 +252,4 @@
 
     </script>
     {% endif %}
-    {% include 'piwik.html' %}
-  </body>
-</html>
+{% endblock %}
