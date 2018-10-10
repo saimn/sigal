@@ -3,6 +3,7 @@
 *.pyc
 *_flymake
 .coverage
+.DS_Store
 .pytest_cache/
 .ropeproject/
 .tox/
@@ -13,4 +14,4 @@ dist/
 docs/_build
 htmlcov/
 output/
-.DS_Store
+tags

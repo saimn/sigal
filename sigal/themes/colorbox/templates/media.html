@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-  {% set media_title = media.title if media.title else media.filename %}
   <header>
     {% if album.breadcrumb %}
     <h2>
       {% for url, title in album.breadcrumb %}
       <a href="{{ url }}">{{ title }}</a> »
       {% endfor -%}
-      <a href="#">{{ media_title }}</a>
+      <a href="#">{{ media.title }}</a>
     </h2>
     <hr>
     {% endif %}
@@ -16,20 +15,20 @@
   {% if media %}
   <div class="thumbnail">
     {% if media.type == "image" %}
-      <img src="{{ media.filename }}" alt="{{ media_title }}" title="{{ media_title }}" />
+      <img src="{{ media.url }}" alt="{{ media.title }}" title="{{ media.title }}" />
     {% endif %}
     {% if media.type == "video" %}
       <video controls>
-        <source src='{{ media.filename }}' type='video/webm' />
+        <source src='{{ media.url }}' type='video/webm' />
       </video>
     {% endif %}
 
     <p>
       {% if previous_media %}
-      <a href="{{ previous_media.filename }}.html">« previous</a>
+      <a href="{{ previous_media.url }}.html">« previous</a>
       {% endif %}
       {% if next_media %}
-      <a href="{{ next_media.filename }}.html">next »</a>
+      <a href="{{ next_media.url }}.html">next »</a>
       {% endif %}
     </p>
   </div>
