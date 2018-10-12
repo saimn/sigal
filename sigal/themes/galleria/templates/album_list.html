@@ -24,4 +24,10 @@
             {% endfor %}
           </ul>
         </div>
+
+        {% if album.description %}
+        <div id="description">
+          {{ album.description }}
+        </div>
+        {% endif %}
 {% endblock %}

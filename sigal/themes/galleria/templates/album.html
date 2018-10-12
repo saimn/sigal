@@ -3,21 +3,17 @@
 {% block extra_head %}
     {# We will always want to show the first image when we're on an album page #}
     {# Start loading now for faster document complete instead of waiting for js to load it #}
-    {% if album.medias %}
     <style>
     body::after{
         position:absolute; width:0; height:0; overflow:hidden; z-index:-1;
         content:url({{ album.medias[0].url }});
     }</style>
-    {% endif %}
-
     {% if settings.show_map and album.show_map %}
     <link rel="stylesheet" href="{{ theme.url }}/leaflet/leaflet.css" />
     {% endif %}
 {% endblock %}
 
 {% block content %}
-        {% if album.medias %}
         <div class="icons">
           {% if settings.show_map and album.show_map %}
           <a class="gallery-map-toggle"><img src="{{ theme.url }}/img/map.png"
@@ -26,8 +22,7 @@
           <a id="fullscreen"><img src="{{ theme.url }}/img/fullscreen.png"
             title="Fullscreen" alt="Fullscreen (f)" /></a>
         </div>
-	<div id="gallery"></div>
-        {% endif %}
+        <div id="gallery"></div>
 
         {% if album.zip %}
         <div id="additionnal-infos" class="row">
@@ -68,7 +63,7 @@
         {%- endif -%}
       {% endif %}
     {%- endmacro %}
-    {% if album.medias %}
+
     <script src="{{ theme.url }}/jquery-3.3.1.min.js"></script>
     {% if settings.show_map and album.show_map %}
     <script src="{{ theme.url }}/leaflet/leaflet.js"></script>
@@ -246,10 +241,9 @@
     Galleria.configure({
         imageCrop: false,
         transition: "fade",
-        thumbnails: 'lazy'
+        thumbnails: "lazy"
     });
     Galleria.run("#gallery", {dataSource: data});
 
     </script>
-    {% endif %}
 {% endblock %}
