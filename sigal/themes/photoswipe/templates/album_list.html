@@ -23,15 +23,7 @@
   <div class="container">
 	<h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
 
-	{% if settings.links %}
-    <div class="menu">
-      <ul>
-        {% for title, link in settings.links %}
-        	<li><a href="{{ link }}">{{ title }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
+  {% include 'links.html' %}
 
 	{% block content %}
 

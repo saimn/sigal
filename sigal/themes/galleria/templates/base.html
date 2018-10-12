@@ -21,15 +21,7 @@
       <header>
         <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
 
-        {% if settings.links %}
-        <nav id="menu">
-          <ul>
-            {% for title, link in settings.links %}
-            <li><a href="{{ link }}">{{ title }}</a></li>
-            {% endfor %}
-          </ul>
-        </nav>
-        {% endif %}
+        {% include 'links.html' %}
         {% if album.breadcrumb %}
         <h2>
           {%- for url, title in album.breadcrumb -%}

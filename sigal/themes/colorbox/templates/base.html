@@ -27,15 +27,7 @@
           {{ index_title }}
           {% endif %}
           </a></h1>
-          {% if settings.links %}
-          <nav id="menu">
-            <ul>
-              {% for title, link in settings.links %}
-              <li><a href="{{ link }}">{{ title }}</a></li>
-              {% endfor %}
-            </ul>
-          </nav>
-          {% endif %}
+          {% include 'links.html' %}
           {% include 'footer.html' %}
         </div>
       </div>

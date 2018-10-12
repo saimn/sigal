@@ -84,18 +84,18 @@ figcaption {
   padding:2em 0;
 }
 
-.menu {
+#menu {
   width: 100%;
   background: #F7F7F7 none repeat scroll 0 0;
   padding: 30px 0;
 }
 
-.menu ul {
+#menu ul {
   max-width: 1024px;
   margin: 0 auto;
 }
 
-.menu li {
+#menu li {
     display: inline;
     list-style: none; /* pour enlever les puces sur IE7 */
 }
