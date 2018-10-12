@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="{{ settings.html_language }}">
   <head>
-    {% block head %}
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
@@ -12,7 +11,7 @@
     <link rel="stylesheet" href="{{ theme.url }}/css/skeleton.css">
     <link rel="stylesheet" href="{{ theme.url }}/css/colorbox.css">
     <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
-    {% endblock %}
+    {% block extra_head %}{% endblock extra_head %}
     {% include 'analytics.html' %}
   </head>
   <body>
