@@ -204,6 +204,9 @@ footer {
 footer p {
   text-align: center;
 }
+footer span:not(:last-child):after {
+  content: ' - ';
+}
 
 @media screen and (max-width: 700px) {
   h1 {

@@ -32,6 +32,9 @@ header h1 a {
   position: absolute;
   bottom: 40px;
 }
+.sidebar footer span {
+  display: block;
+}
 
 .thumbnail {
   text-align: center;

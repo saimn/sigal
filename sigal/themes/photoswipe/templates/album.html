@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+  <script src="{{ theme.url }}/photoswipe.min.js"></script>
+  <script src="{{ theme.url }}/photoswipe-ui-default.min.js"></script>
+  <script src="{{ theme.url }}/echo/echo.min.js"></script>
+  <link rel="stylesheet" href="{{ theme.url }}/photoswipe.css">
+  <link rel="stylesheet" href="{{ theme.url }}/default-skin/default-skin.css">
+{% endblock extra_head %}
+
 {% block content %}
   {% if album.zip %}
   <div class="additionnal-infos">
