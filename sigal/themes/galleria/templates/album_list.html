@@ -15,7 +15,6 @@
 
 {% block content %}
         <div id="albums">
-          <!-- <h1>Albums</h1> -->
           <ul>
             {% for alb in album.albums %}
             <li><a href="{{ alb.url }}">
@@ -25,4 +24,10 @@
             {% endfor %}
           </ul>
         </div>
+
+        {% if album.description %}
+        <div id="description">
+          {{ album.description }}
+        </div>
+        {% endif %}
 {% endblock %}

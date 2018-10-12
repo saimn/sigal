@@ -172,6 +172,9 @@ footer a:hover {
   border-bottom: 1px solid;
   text-decoration: none;
 }
+footer span:not(:last-child):after {
+  content: ' - ';
+}
 
 @media only screen and (min-width: 980px) {
   .container {

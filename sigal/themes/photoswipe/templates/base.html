@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="{{ settings.html_language }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>{{ album.title }}</title>
+    <meta name="description" content="">
+    <meta name="author" content="{{ album.author }}">
+    <meta name="viewport" content="width=device-width">
+    {% block extra_head %}{% endblock extra_head %}
+    <link rel="stylesheet" href="{{ theme.url }}/styles.css">
+    {% include 'analytics.html' %}
+  </head>
+  <body>
+    {% include 'gtm.html' %}
+    <div class="container">
+      <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
+
+      {% include 'links.html' %}
+
+      <div class="content">
+        {% include 'breadcrumb.html' %}
+        {% block content %}{% endblock %}
+
+        {% if album.description %}
+        <div id="description" class="row">
+        {{ album.description }}
+        </div>
+        {% endif %}
+      </div>
+
+      {% include 'footer.html' %}
+      {% block extra_footer %}{% endblock %}
+  </div>
+  {% include 'piwik.html' %}
+  </body>
+</html>

@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="{{ settings.html_language }}">
   <head>
-    {% block head %}
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
@@ -12,7 +11,7 @@
     <link rel="stylesheet" href="{{ theme.url }}/css/skeleton.css">
     <link rel="stylesheet" href="{{ theme.url }}/css/colorbox.css">
     <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
-    {% endblock %}
+    {% block extra_head %}{% endblock extra_head %}
     {% include 'analytics.html' %}
   </head>
   <body>
@@ -27,23 +26,27 @@
           {{ index_title }}
           {% endif %}
           </a></h1>
-          {% if settings.links %}
-          <nav id="menu">
-            <ul>
-              {% for title, link in settings.links %}
-              <li><a href="{{ link }}">{{ title }}</a></li>
-              {% endfor %}
-            </ul>
-          </nav>
-          {% endif %}
+          {% include 'links.html' %}
           {% include 'footer.html' %}
         </div>
       </div>
       <div id="main" role="main" class="nine columns offset-by-three">
+        <header>
+          {% include 'breadcrumb.html' %}
+          {% if album.breadcrumb %}
+            <hr>
+          {% endif %}
+        </header>
+
         {% block content %}{% endblock %}
+
+        {% if album.description %}
+          <div id="description" class="row">
+            {{ album.description }}
+          </div>
+        {% endif %}
       </div>
     </div>
-
     {% block footer %}{% endblock %}
     {% include 'piwik.html' %}
   </body>

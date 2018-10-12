@@ -1,22 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-  <header>
-    {% if album.breadcrumb %}
-    <h2>
-      {% for url, title in album.breadcrumb %}
-      <a href="{{ url }}">{{ title }}</a>{% if not loop.last %} » {% endif %}
-      {% endfor -%}
-    </h2>
-    <hr>
-    {% endif %}
-  </header>
-
   {% set numbers = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"] %}
   {% set column_size = settings.colorbox_column_size %}
   {% set nb_columns = (9 / column_size)|int %}
   {% set column_size_t = numbers[column_size] %}
 
-  {% if album.albums %}
   {% for alb in album.albums %}
     {% if loop.index % nb_columns == 1 %}
     <div id="albums" class="row">
@@ -31,89 +19,4 @@
     </div>
     {% endif%}
   {% endfor %}
-  {% endif %}
-
-  {% if album.medias %}
-  {% macro img_description(media) -%}
-    {% if media.big %} data-big="{{ media.big_url }}"{% endif %}
-    {% if media.exif %}
-      {% if media.exif.datetime %}
-        data-date=", {{ media.exif.datetime }}"
-      {% endif %}
-    {% endif %}
-  {%- endmacro %}
-
-  <div id="gallery">
-    {% for media in album.medias %}
-      {% if loop.index % nb_columns == 1 %}
-      <div id="albums" class="row">
-      {% endif%}
-      {% if media.type == "image" %}
-      <div class="{{ column_size_t }} columns thumbnail">
-        {% if 'sigal.plugins.media_page' in settings.plugins %}
-        <a href="{{ media.url}}.html" class="gallery"
-          title="{{ media.title }}"
-          data-href="{{ media.url }}" {{ img_description(media) }}>
-        {% else %}
-        <a href="{{ media.url }}" class="gallery" title="{{ media.title }}"
-          {{ img_description(media) }}>
-        {% endif %}
-          <img src="{{ media.thumbnail }}" alt="{{ media.url }}"
-              title="{{ media.title }}" /></a>
-      </div>
-      {% endif %}
-      {% if media.type == "video" %}
-        {% set mhash = media.url|replace('.', '')|replace(' ', '') %}
-        <div class="{{ column_size_t }} columns thumbnail">
-          {% if 'sigal.plugins.media_page' in settings.plugins %}
-          <a href="{{ media.url }}.html" data-href="#{{ mhash }}"
-          {% else %}
-          <a href="#{{ mhash }}" class="gallery" inline='yes' title="{{ media.url }}"
-          {% endif %}
-            {% if media.big %} data-big="{{ media.big_url }}"{% endif %}>
-            <img src="{{ media.thumbnail }}" alt="{{ media.url }}"
-                title="{{ media.title }}" /></a>
-        </div>
-        <!-- This contains the hidden content for the video -->
-        <div style='display:none'>
-          <div id="{{ mhash }}">
-            <video controls>
-            <source src='{{ media.url }}' type='{{ media.mime }}' />
-            </video>
-          </div>
-        </div>
-      {% endif %}
-      {% if loop.last or loop.index % nb_columns == 0 %}
-      </div>
-      {% endif%}
-    {% endfor %}
-  </div>
-  {% endif %}
-
-  {% if album.zip %}
-  <div id="additionnal-infos" class="row">
-    <p><a href="{{ album.zip }}"
-        title="Download a zip archive with all images">Download ZIP</a></p>
-  </div>
-  {% endif %}
-
-  {% if album.description %}
-  <div id="description" class="row">
-    {{ album.description }}
-  </div>
-  {% endif %}
-{% endblock %}
-
-{% block footer %}
-  {% if album.medias %}
-  <script src="{{ theme.url }}/js/jquery-2.2.1.min.js"></script>
-  <script src="{{ theme.url }}/js/jquery.colorbox-min.js"></script>
-  <script src="{{ theme.url }}/js/jquery.touchSwipe.min.js"></script>
-
-  {% if 'sigal.plugins.media_page' in settings.plugins %}
-  <script src="{{ theme.url }}/js/app-with-media-page.js"></script>
-  {% else %}
-  <script src="{{ theme.url }}/js/app.js"></script>
-  {% endif %}
-  {% endif %}
 {% endblock %}
