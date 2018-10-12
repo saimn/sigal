@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-  {% include 'breadcrumb.html' %}
   {% set numbers = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"] %}
   {% set column_size = settings.colorbox_column_size %}
   {% set nb_columns = (9 / column_size)|int %}
@@ -68,11 +67,6 @@
   </div>
   {% endif %}
 
-  {% if album.description %}
-  <div id="description" class="row">
-    {{ album.description }}
-  </div>
-  {% endif %}
 {% endblock %}
 
 {% block footer %}
