@@ -133,8 +133,11 @@ templates. If available, you can use:
     .. code-block:: jinja
 
         {% if media.exif.gps %}
-            <a href="http://openstreetmap.org/index.html?lat={{
-            media.exif.gps.lat }}&lon={{ media.exif.long}}">Go to location</a>
+            <a href="https://www.openstreetmap.org/?mlat={{
+                media.exif.gps.lat }}&mlon={{
+                media.exif.gps.lon }}#map=18/{{
+                media.exif.gps.lat }}/{{
+                media.exif.gps.lon }}">Go to location (OpenStreetMap)</a>
         {% endif %}
 
 
