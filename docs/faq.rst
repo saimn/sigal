@@ -92,3 +92,38 @@ this case. Many other tools do similar things, here is the equivalent
 command with `entr <http://entrproject.org/>`_::
 
     while true; do  find pictures/ | entr -d sigal build; done
+
+How to automatically build the gallery on a remote git server?
+--------------------------------------------------------------
+
+Another way to handle this is by storing your files on a remote `git
+<https://git-scm.com/>`_ repository, optionally with `git-annex
+<https://git-annex.branchable.com/>`_ or `git-lfs
+<https://git-lfs.github.com/>`_ to avoid managing large image files
+directly with git.
+
+Then Sigal can be triggered using `git hook
+<https://git-scm.com/docs/githooks>`_ to update the repository on
+push. The hook can be as simple as this::
+
+  #!/bin/sh
+  sigal build
+
+But a `more robust implementation
+<https://gitlab.com/anarcat/git-hooks/blob/master/sigal-git-hook>`_ is
+also available. The hook should be installed in
+``.git/hooks/post-receive``. If you are using git-annex, this hook
+will already be present, so you'll need to add the sigal hook at the
+end of the file, like so::
+
+  #!/bin/sh
+  # automatically configured by git-annex
+  git annex post-receive
+  
+  /home/foo/src/git-hooks/sigal-git-hook
+
+This assumes, of course, that you are running your own Git server;
+this will not work with commercial providers like GitHub or GitLab
+unless you setup a periodic job to automatically *pull* from those
+server, in which case the above hook would be installed as an
+``update`` hook.
