@@ -612,6 +612,8 @@ class Gallery(object):
                 album.create_output_directories()
                 albums[relpath] = album
 
+        print("\rCollecting albums, done.")
+
         with progressbar(albums.values(), label="%16s" % "Sorting albums",
                          file=self.progressbar_target) as progress_albums:
             for album in progress_albums:
