@@ -41,7 +41,7 @@ from click import get_terminal_size, progressbar
 
 from . import image, signals, video
 from .image import (get_exif_data, get_exif_tags, get_iptc_data, get_size,
-                    process_image)
+                    process_image, get_image_metadata)
 from .settings import get_thumb
 from .utils import (Devnull, cached_property, check_or_create_dir, copy,
                     get_mime, is_valid_html5_video, read_markdown,
@@ -156,6 +156,8 @@ class Media:
         self.description = ''
         """Description extracted from the Markdown <imagename>.md file."""
 
+        self.file_metadata = {}
+
         self.title = ''
         """Title extracted from the Markdown <imagename>.md file."""
 
@@ -196,6 +198,8 @@ class Image(Media):
 
     def _get_metadata(self):
         super()._get_metadata()
+        src_metadata = get_image_metadata(self.src_path)
+        self.file_metadata[self.src_path] = src_metadata
         # If a title or description hasn't been obtained by other means, look
         #  for the information in IPTC fields
         if self.title and self.description:
@@ -203,7 +207,7 @@ class Image(Media):
             return
 
         try:
-            iptc_data = get_iptc_data(self.src_path)
+            iptc_data = src_metadata.get('iptc', {})
         except Exception as e:
             self.logger.warning('Could not read IPTC data from %s: %s',
                                 self.src_path, e)
@@ -217,7 +221,7 @@ class Image(Media):
     def raw_exif(self):
         """If not `None`, contains the raw EXIF tags."""
         try:
-            return (get_exif_data(self.src_path)
+            return (self.file_metadata[self.src_path]['exif']
                     if self.ext in ('.jpg', '.jpeg') else None)
         except Exception as e:
             self.logger.warning('Could not read EXIF data from %s: %s',
