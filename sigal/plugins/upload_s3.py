@@ -40,7 +40,8 @@ def upload_s3(gallery, settings=None):
     # Get local files
     for root, dirs, files in os.walk(gallery.settings['destination']):
         for f in files:
-            path = os.path.join(root[len(gallery.settings['destination']) + 1:], f)
+            path = os.path.join(
+                root[len(gallery.settings['destination']) + 1:], f)
             size = os.path.getsize(os.path.join(root, f))
             upload_files += [(path, size)]
 
@@ -49,9 +50,9 @@ def upload_s3(gallery, settings=None):
     bucket = conn.get_bucket(gallery.settings['upload_s3_options']['bucket'])
 
     # Upload the files
-    with progressbar(upload_files, label="Uploading files to S3") as progress_upload:
-        for (f, size) in progress_upload:
-            if gallery.settings['upload_s3_options']['overwrite'] == False:
+    with progressbar(upload_files, label="Uploading files to S3") as bar:
+        for (f, size) in bar:
+            if gallery.settings['upload_s3_options']['overwrite'] is False:
                 # Check if file was uploaded before
                 key = bucket.get_key(f)
                 if key is not None and key.size == size:

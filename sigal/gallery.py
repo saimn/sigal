@@ -719,8 +719,10 @@ class Gallery(object):
             self.remove_files(failed_files)
 
         if self.settings['write_html']:
-            album_writer = AlbumPageWriter(self.settings, index_title=self.title)
-            album_list_writer = AlbumListPageWriter(self.settings, index_title=self.title)
+            album_writer = AlbumPageWriter(self.settings,
+                                           index_title=self.title)
+            album_list_writer = AlbumListPageWriter(self.settings,
+                                                    index_title=self.title)
             with progressbar(self.albums.values(),
                              label="%16s" % "Writing files",
                              item_show_func=log_func, show_eta=False,

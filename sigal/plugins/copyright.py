@@ -32,17 +32,19 @@ def add_copyright(img, settings=None):
     assert font_size >= 0
     color = settings.get('copyright_text_color', (0, 0, 0))
     bottom_margin = 3   # bottom margin for text
-    text_height = bottom_margin + 12    # default text height (of 15) for default font
+    text_height = bottom_margin + 12  # default text height (of 15)
     if font:
         try:
             font = ImageFont.truetype(font, font_size)
             text_height = font.getsize(text)[1] + bottom_margin
-        except:     # load default font in case of any exception
-            logger.debug("Exception: Couldn't locate font %s, using default font", font)
+        except Exception:  # load default font in case of any exception
+            logger.debug("Exception: Couldn't locate font %s, using "
+                         "default font", font)
             font = ImageFont.load_default()
     else:
         font = ImageFont.load_default()
-    left, top = settings.get('copyright_text_position', (5, img.size[1] - text_height))
+    left, top = settings.get('copyright_text_position',
+                             (5, img.size[1] - text_height))
     draw.text((left, top), text, fill=color, font=font)
     return img
 

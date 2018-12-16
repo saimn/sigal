@@ -38,28 +38,27 @@ from click import progressbar
 logger = logging.getLogger(__name__)
 
 DEFAULT_SETTINGS = {
-        'suffixes': ['htm', 'html', 'css', 'js', 'svg'],
-        'method': 'gzip',
-        }
+    'suffixes': ['htm', 'html', 'css', 'js', 'svg'],
+    'method': 'gzip',
+}
 
 
 class BaseCompressor:
     suffix = None
 
     def __init__(self, settings):
-        self.suffixes_to_compress = settings.get('suffixes', DEFAULT_SETTINGS['suffixes'])
+        self.suffixes_to_compress = settings.get('suffixes',
+                                                 DEFAULT_SETTINGS['suffixes'])
 
     def do_compress(self, filename, compressed_filename):
-        '''
+        """
         Perform actual compression.
         This should be implemented by subclasses.
-        '''
+        """
         raise NotImplementedError
 
     def compress(self, filename):
-        '''
-        Compress a file, only if needed.
-        '''
+        """Compress a file, only if needed."""
         compressed_filename = self.get_compressed_filename(filename)
         if not compressed_filename:
             return
@@ -67,14 +66,18 @@ class BaseCompressor:
         self.do_compress(filename, compressed_filename)
 
     def get_compressed_filename(self, filename):
-        '''
-        If the given filename should be compressed, returns the compressed filename.
+        """If the given filename should be compressed, returns the
+        compressed filename.
+
         A file can be compressed if:
-            - It is a whitelisted extension
-            - The compressed file does not exist
-            - The compressed file exists by is older than the file itself
+
+        - It is a whitelisted extension
+        - The compressed file does not exist
+        - The compressed file exists by is older than the file itself
+
         Otherwise, it returns False.
-        '''
+
+        """
         if not os.path.splitext(filename)[1][1:] in self.suffixes_to_compress:
             return False
 
@@ -88,7 +91,9 @@ class BaseCompressor:
             pass
 
         if file_stats and compressed_stats:
-            return compressed_filename if file_stats.st_mtime > compressed_stats.st_mtime else False
+            return (compressed_filename
+                    if file_stats.st_mtime > compressed_stats.st_mtime
+                    else False)
         else:
             return compressed_filename
 
@@ -97,7 +102,8 @@ class GZipCompressor(BaseCompressor):
     suffix = 'gz'
 
     def do_compress(self, filename, compressed_filename):
-        with open(filename, 'rb') as f_in, gzip.open(compressed_filename, 'wb') as f_out:
+        with open(filename, 'rb') as f_in, \
+                gzip.open(compressed_filename, 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
 
 
@@ -106,7 +112,8 @@ class ZopfliCompressor(BaseCompressor):
 
     def do_compress(self, filename, compressed_filename):
         import zopfli.gzip
-        with open(filename, 'rb') as f_in, open(compressed_filename, 'wb') as f_out:
+        with open(filename, 'rb') as f_in, \
+                open(compressed_filename, 'wb') as f_out:
             f_out.write(zopfli.gzip.compress(f_in.read()))
 
 
@@ -115,7 +122,8 @@ class BrotliCompressor(BaseCompressor):
 
     def do_compress(self, filename, compressed_filename):
         import brotli
-        with open(filename, 'rb') as f_in, open(compressed_filename, 'wb') as f_out:
+        with open(filename, 'rb') as f_in, \
+                open(compressed_filename, 'wb') as f_out:
             f_out.write(brotli.compress(f_in.read(), mode=brotli.MODE_TEXT))
 
 
@@ -125,14 +133,14 @@ def get_compressor(settings):
         return GZipCompressor(settings)
     elif name == 'zopfli':
         try:
-            import zopfli.gzip
+            import zopfli.gzip  # noqa
             return ZopfliCompressor(settings)
         except ImportError:
             logging.error('Unable to import zopfli module')
 
     elif name == 'brotli':
         try:
-            import brotli
+            import brotli  # noqa
             return BrotliCompressor(settings)
         except ImportError:
             logger.error('Unable to import brotli module')
@@ -143,7 +151,8 @@ def get_compressor(settings):
 
 def compress_gallery(gallery):
     logging.info('Compressing assets for %s', gallery.title)
-    compress_settings = gallery.settings.get('compress_assets_options', DEFAULT_SETTINGS)
+    compress_settings = gallery.settings.get('compress_assets_options',
+                                             DEFAULT_SETTINGS)
     compressor = get_compressor(compress_settings)
 
     if compressor is None:
@@ -151,13 +160,16 @@ def compress_gallery(gallery):
 
     # Collecting theme assets
     theme_assets = []
-    for current_directory, _, filenames in os.walk(os.path.join(gallery.settings['destination'], 'static')):
+    for current_directory, _, filenames in os.walk(
+            os.path.join(gallery.settings['destination'], 'static')):
         for filename in filenames:
             theme_assets.append(os.path.join(current_directory, filename))
 
-    with progressbar(length=len(gallery.albums) + len(theme_assets), label='Compressing static files') as bar:
+    with progressbar(length=len(gallery.albums) + len(theme_assets),
+                     label='Compressing static files') as bar:
         for album in gallery.albums.values():
-            compressor.compress(os.path.join(album.dst_path, album.output_file))
+            compressor.compress(os.path.join(album.dst_path,
+                                             album.output_file))
             bar.update(1)
 
         for theme_asset in theme_assets:

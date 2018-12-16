@@ -254,7 +254,7 @@ def set_meta(target, keys, overwrite=False):
         sys.exit(2)
 
     with open(descfile, "w") as fp:
-        for i in range(len(keys)//2):
-            k, v = keys[i*2:(i+1)*2]
+        for i in range(len(keys) // 2):
+            k, v = keys[i * 2:(i + 1) * 2]
             fp.write("{}: {}\n".format(k.capitalize(), v))
-    print("{} metadata key(s) written to {}".format(len(keys)//2, descfile))
+    print("{} metadata key(s) written to {}".format(len(keys) // 2, descfile))
