@@ -15,7 +15,11 @@ Sigal now requires Python 3.5+.
 - Galleria: Do not load tiles by default.
 - Fixed crash when IPTC reading fails [:issue:`316`].
 - Force loading of truncated files [:issue:`320`].
+- Include tests in PyPI tarball [:issue:`323`].
 - Optimize a bit markdown initialization [:issue:`329`].
+- Quote special characters in urls [:issue:`345`].
+- Reorganization of templates, splitting landing page and album templates
+  [:issue:`343`], [:issue:`347`], [:issue:`348`].
 
 Version 1.4.1
 ~~~~~~~~~~~~~
