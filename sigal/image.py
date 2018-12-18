@@ -237,21 +237,24 @@ def get_iptc_data(filename):
 
     iptc_data = {}
 
+    # PILs IptcImagePlugin issues a SyntaxError in certain circumstances 
+    # with malformed metadata, see PIL/IptcImagePlugin.py", line 71.
+    # ( https://github.com/python-pillow/Pillow/blob/9dd0348be2751beb2c617e32ff9985aa2f92ae5f/src/PIL/IptcImagePlugin.py#L71 )
     try:
         img = _read_image(filename)
         raw_iptc = IptcImagePlugin.getiptcinfo(img)
-        # IPTC fields are catalogued in:
-        # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
-        # 2:05 is the IPTC title property
-        if raw_iptc and (2, 5) in raw_iptc:
-            iptc_data["title"] = raw_iptc[(2, 5)].decode('utf-8')
-
-        # 2:120 is the IPTC description property
-        if raw_iptc and (2, 120) in raw_iptc:
-            iptc_data["description"] = raw_iptc[(2, 120)].decode('utf-8')
     except SyntaxError:
         print("IPTC Error in %s\n"%filename)
-        iptc_data = {}
+
+    # IPTC fields are catalogued in:
+    # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
+    # 2:05 is the IPTC title property
+    if raw_iptc and (2, 5) in raw_iptc:
+        iptc_data["title"] = raw_iptc[(2, 5)].decode('utf-8')
+
+    # 2:120 is the IPTC description property
+    if raw_iptc and (2, 120) in raw_iptc:
+        iptc_data["description"] = raw_iptc[(2, 120)].decode('utf-8')
 
     return iptc_data
 
