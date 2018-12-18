@@ -238,6 +238,7 @@ def get_iptc_data(filename):
     logger = logging.getLogger(__name__)
 
     iptc_data = {}
+    raw_iptc  = {}
 
     # PILs IptcImagePlugin issues a SyntaxError in certain circumstances 
     # with malformed metadata, see PIL/IptcImagePlugin.py", line 71.
