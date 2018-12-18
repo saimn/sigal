@@ -259,6 +259,10 @@ def get_iptc_data(filename):
     if raw_iptc and (2, 120) in raw_iptc:
         iptc_data["description"] = raw_iptc[(2, 120)].decode('utf-8')
 
+    # 2:105 is the IPTC headline property
+    if raw_iptc and (2, 105) in raw_iptc:
+        iptc_data["headline"] = raw_iptc[(2, 105)].decode('utf-8')
+
     return iptc_data
 
 
