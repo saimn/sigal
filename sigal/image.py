@@ -235,6 +235,8 @@ def get_exif_data(filename):
 def get_iptc_data(filename):
     """Return a dict with the raw IPTC data."""
 
+    logger = logging.getLogger(__name__)
+
     iptc_data = {}
 
     # PILs IptcImagePlugin issues a SyntaxError in certain circumstances 
@@ -244,7 +246,7 @@ def get_iptc_data(filename):
         img = _read_image(filename)
         raw_iptc = IptcImagePlugin.getiptcinfo(img)
     except SyntaxError:
-        print("IPTC Error in %s\n"%filename)
+        logger.info('IPTC Error in %s',filename)
 
     # IPTC fields are catalogued in:
     # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
