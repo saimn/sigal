@@ -135,3 +135,14 @@ class cached_property(object):
             return self
         value = obj.__dict__[self.func.__name__] = self.func(obj)
         return value
+
+
+def monkey_patch_pil_jpeg_mpo():
+    from PIL import Image
+    from PIL.JpegImagePlugin import JpegImageFile
+
+    def jpeg_factory(fp=None, filename=None):
+        im = JpegImageFile(fp, filename)
+        return im
+
+    Image.OPEN[JpegImageFile.format] = (jpeg_factory, Image.OPEN[JpegImageFile.format][1])

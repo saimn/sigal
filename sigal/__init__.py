@@ -34,7 +34,7 @@ from pkg_resources import get_distribution, DistributionNotFound
 from .gallery import Gallery
 from .log import init_logging
 from .settings import read_settings
-from .utils import copy
+from .utils import copy, monkey_patch_pil_jpeg_mpo
 
 try:
     __version__ = get_distribution(__name__).version
@@ -138,6 +138,8 @@ def build(source, destination, debug, verbose, force, config, theme, title,
         logger.error("Output directory should be outside of the input "
                      "directory.")
         sys.exit(1)
+
+    monkey_patch_pil_jpeg_mpo()
 
     if title:
         settings['title'] = title
