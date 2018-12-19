@@ -181,6 +181,13 @@ def test_get_iptc_data(caplog):
                             test_image)
     assert get_iptc_data(src_file) == {}
 
+    # Headline
+    test_image = '3.jpg'
+    src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'iptcTest',
+                            test_image)
+    data = get_iptc_data(src_file)
+    assert data["headline"] == 'Ring Nebula, M57'
+
     # Test catching the SyntaxError -- assert output
     config = {'getiptcinfo.side_effect':SyntaxError}
     with patch('sigal.image.IptcImagePlugin.getiptcinfo', side_effect=SyntaxError) as i:
