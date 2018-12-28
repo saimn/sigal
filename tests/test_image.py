@@ -1,6 +1,7 @@
 import os
 import PIL
 import pytest
+from unittest.mock import Mock, patch
 from PIL import Image
 
 from sigal import init_logging
@@ -160,7 +161,7 @@ def test_get_exif_tags():
     assert 'gps' not in simple
 
 
-def test_get_iptc_data():
+def test_get_iptc_data(caplog):
     test_image = '1.jpg'
     src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'iptcTest',
                             test_image)
@@ -179,6 +180,18 @@ def test_get_iptc_data():
     src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'exifTest',
                             test_image)
     assert get_iptc_data(src_file) == {}
+
+    # Headline
+    test_image = '3.jpg'
+    src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'iptcTest',
+                            test_image)
+    data = get_iptc_data(src_file)
+    assert data["headline"] == 'Ring Nebula, M57'
+
+    # Test catching the SyntaxError -- assert output
+    with patch('sigal.image.IptcImagePlugin.getiptcinfo', side_effect=SyntaxError):
+            get_iptc_data(src_file)
+            assert ['IPTC Error in'] == [ log.message[:13] for log in caplog.records ]
 
 
 def test_iso_speed_ratings():
