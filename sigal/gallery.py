@@ -81,7 +81,6 @@ class Media:
         self.thumb_name = get_thumb(self.settings, self.filename)
         self.thumb_path = join(settings['destination'], path, self.thumb_name)
 
-        self.logger = logging.getLogger(__name__)
         self._get_metadata()
         # default: title is the filename
         if not self.title:
@@ -93,6 +92,10 @@ class Media:
 
     def __str__(self):
         return join(self.path, self.filename)
+
+    @cached_property
+    def logger(self):
+        return logging.getLogger(__name__)
 
     @property
     def url(self):
@@ -290,17 +293,25 @@ class Album:
         self.medias = medias = []
         self.medias_count = defaultdict(int)
 
-        for f in filenames:
-            ext = splitext(f)[1]
-            if ext.lower() in settings['img_extensions']:
-                media = Image(f, self.path, settings)
-            elif ext.lower() in settings['video_extensions']:
-                media = Video(f, self.path, settings)
-            else:
-                continue
+        if filenames:
+            if gallery.pool:
+                # Chunksize computation taken from Pool.map code
+                chunksize, extra = divmod(len(filenames), len(gallery.pool._pool) * 4)
+                if extra or chunksize < 1:
+                    chunksize += 1
+                results = gallery.pool.imap_unordered(
+                        album_worker,
+                        ((self.path, f, settings) for f in filenames),
+                        chunksize)
 
-            self.medias_count[media.type] += 1
-            medias.append(media)
+            else:
+                results = (album_worker((self.path, f, settings))
+                           for f in filenames)
+
+            for media in results:
+                if media:
+                    self.medias_count[media.type] += 1
+                    medias.append(media)
 
         signals.album_initialized.send(self)
 
@@ -785,3 +796,21 @@ def worker(args):
         return process_file(args)
     except KeyboardInterrupt:
         pass
+
+
+def album_worker(args):
+    path, f, settings = args
+    ext = splitext(f)[1]
+    media = None
+    if ext.lower() in settings['img_extensions']:
+        media = Image(f, path, settings)
+    elif ext.lower() in settings['video_extensions']:
+        media = Video(f, path, settings)
+
+    # The logger is not pickable, so it cannot be used in another process.
+    # But it is a cached property, so let's delete it
+    try:
+        del media.logger
+    except AttributeError:
+        pass
+    return media
