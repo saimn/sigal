@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 2.0.dev
-~~~~~~~~~~~~~~~
+Version 2.0
+~~~~~~~~~~~
 
-Released on 2018-xx-xx.
+Released on 2019-01-26.
 
 Sigal now requires Python 3.5+.
 
@@ -20,6 +20,8 @@ Sigal now requires Python 3.5+.
 - Quote special characters in urls [:issue:`345`].
 - Reorganization of templates, splitting landing page and album templates
   [:issue:`343`], [:issue:`347`], [:issue:`348`].
+- Add IPTC Headline (2:105) and to iptc_data [:issue:`356`].
+- Avoid IPTC errors [:issue:`355`], [:issue:`358`].
 
 Version 1.4.1
 ~~~~~~~~~~~~~
