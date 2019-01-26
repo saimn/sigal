@@ -7,7 +7,7 @@
 Setting up the development environment
 --------------------------------------
 
- Using a virtualenv_::
+Using a virtualenv_::
 
     git clone https://github.com/saimn/sigal.git
     cd sigal
@@ -18,21 +18,27 @@ Install sigal in development mode::
 
     pip install -e .
 
-Install additional dependencies for development (Sphinx, ...)::
+Install additional dependencies for development (Sphinx, pytest), and optional
+dependencies::
 
     pip install -r requirements.txt
 
 Building the docs
 -----------------
 
-- Run ``make docs`` (or ``make html`` in the ``docs/`` directory).
+- Using tox_, run ``tox -e doc``
+- Or ``make html`` in the ``docs/`` directory.
 
 Running the test suite
 ----------------------
 
-- Run ``make test`` (or ``pytest``).
-- Run ``make coverage`` to get the coverage report.
-- Using tox_ you can also run the tests on multiple versions of python.
+- Using tox_, run ``tox -e py37`` (replacing ``py37`` with your Python version
+  if needed).
 
 .. _tox: https://tox.readthedocs.io/
 .. _virtualenv: https://virtualenv.pypa.io/
+
+Building the test gallery
+-------------------------
+
+- Using tox_, run ``tox -e demo``
