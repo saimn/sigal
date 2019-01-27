@@ -34,7 +34,6 @@ import os
 from sigal import signals
 from sigal.writer import AbstractWriter
 from sigal.utils import url_from_path
-from sigal.pkgmeta import __url__ as sigal_link
 
 
 class PageWriter(AbstractWriter):
@@ -45,6 +44,7 @@ class PageWriter(AbstractWriter):
     def write(self, album, media_group):
         ''' Generate the media page and save it '''
 
+        from sigal import __url__ as sigal_link
         file_path = os.path.join(album.dst_path, media_group[0].filename)
 
         page = self.template.render({

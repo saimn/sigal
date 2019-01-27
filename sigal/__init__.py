@@ -32,9 +32,11 @@ from http import server
 
 from .gallery import Gallery
 from .log import init_logging
-from .pkgmeta import __version__
 from .settings import read_settings
 from .utils import copy
+
+__version__ = '2.1.dev'
+__url__ = 'https://github.com/saimn/sigal'
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
 

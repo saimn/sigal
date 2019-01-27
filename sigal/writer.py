@@ -31,7 +31,6 @@ from distutils.dir_util import copy_tree
 from jinja2 import Environment, FileSystemLoader, ChoiceLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
 
-from .pkgmeta import __url__ as sigal_link
 from .utils import url_from_path
 
 THEMES_PATH = os.path.normpath(os.path.join(
@@ -99,6 +98,7 @@ class AbstractWriter(object):
     def generate_context(self, album):
         """Generate the context dict for the given path."""
 
+        from . import __url__ as sigal_link
         self.logger.info("Output album : %r", album)
         return {
             'album': album,
