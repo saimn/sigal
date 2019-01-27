@@ -4,6 +4,7 @@
 *_flymake
 .coverage
 .DS_Store
+.eggs/
 .pytest_cache/
 .ropeproject/
 .tox/

@@ -29,13 +29,19 @@ import time
 
 from click import argument, option
 from http import server
+from pkg_resources import get_distribution, DistributionNotFound
 
 from .gallery import Gallery
 from .log import init_logging
 from .settings import read_settings
 from .utils import copy
 
-__version__ = '2.1.dev'
+try:
+    __version__ = get_distribution(__name__).version
+except DistributionNotFound:
+    # package is not installed
+    pass
+
 __url__ = 'https://github.com/saimn/sigal'
 
 _DEFAULT_CONFIG_FILE = 'sigal.conf.py'
