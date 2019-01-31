@@ -153,7 +153,7 @@ def build(source, destination, debug, verbose, force, config, theme, title,
         src = os.path.join(settings['source'], src)
         dst = os.path.join(settings['destination'], dst)
         logger.debug('Copy %s to %s', src, dst)
-        copy(src, dst, symlink=settings['orig_link'])
+        copy(src, dst, symlink=settings['orig_link'], rellink=settings['rel_link'])
 
     stats = gal.stats
 
