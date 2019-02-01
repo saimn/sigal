@@ -25,6 +25,12 @@ def test_copy(tmpdir):
     assert os.path.islink(dst)
     assert os.readlink(dst) == src
 
+    filename = 'KeckObservatory20071020.jpg'
+    src = os.path.join(SAMPLE_DIR, 'pictures', 'dir2', filename)
+    utils.copy(src, dst, symlink=True, rellink=True)
+    assert os.path.islink(dst)
+    assert os.readlink(dst) == src
+
 
 def test_check_or_create_dir(tmpdir):
     path = str(tmpdir.join('new_directory'))
