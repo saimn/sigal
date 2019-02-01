@@ -55,6 +55,7 @@ _DEFAULT_CONFIG = {
     'mp4_options': ['-crf', '23', '-strict', '-2'],
     'orig_dir': 'original',
     'orig_link': False,
+    'rel_link': False,
     'output_filename': 'index.html',
     'piwik': {'tracker_url': '', 'site_id': 0},
     'plugin_paths': [],
