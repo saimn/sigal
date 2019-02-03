@@ -42,6 +42,17 @@ def test_generate_image(tmpdir):
         im = Image.open(dstfile)
         assert im.size == size
 
+def test_generate_image_imgformat(tmpdir):
+    "Test the effects of the img_format setting on generate_image."
+
+    dstfile = str(tmpdir.join(TEST_IMAGE))
+    for i, outfmt in enumerate(["JPEG", "PNG", "TIFF"]):
+        settings = create_settings(img_size=(300,300), img_processor='ResizeToFill',
+                                   copy_exif_data=True, img_format=outfmt)
+        options = {'quality': 85}
+        generate_image(SRCFILE, dstfile, settings, options=options)
+        im = Image.open(dstfile)
+        assert im.format == outfmt
 
 def test_resize_image_portrait(tmpdir):
     """Test that the area is the same regardless of aspect ratio."""
