@@ -113,7 +113,8 @@ class Media:
             check_or_create_dir(orig_path)
             big_path = join(orig_path, self.src_filename)
             if not isfile(big_path):
-                copy(self.src_path, big_path, symlink=s['orig_link'], rellink=['rel_link'])
+                copy(self.src_path, big_path, symlink=s['orig_link'],
+                     rellink=self.settings['rel_link'])
             return join(s['orig_dir'], self.src_filename)
 
     @property
