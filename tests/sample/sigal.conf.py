@@ -22,8 +22,8 @@ watermark_opacity = 0.3
 theme = 'colorbox'
 thumb_size = (200, 150)
 
-rss_feed = {'feed_url': 'http://example.org/feed.rss', 'nb_items': 10}
-atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
+rss_feed = {'feed_url': 'http://127.0.0.1:8000/feed.rss', 'nb_items': 10}
+atom_feed = {'feed_url': 'http://127.0.0.1:8000/feed.atom', 'nb_items': 10}
 
 # theme = 'photoswipe'
 # theme = 'galleria'

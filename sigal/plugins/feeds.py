@@ -51,17 +51,24 @@ def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
         description=Markup.escape(root_album.description).striptags()
     )
 
+    theme = gallery.settings['theme']
     nb_medias = len(medias)
     nb_items = min(nb_items, nb_medias) if nb_items > 0 else nb_medias
 
     for item in medias[:nb_items]:
+        if theme == 'galleria':
+            link = '%s/%s/#%s' % (feed_url, item.path, item.url)
+        else:
+            link = '%s/%s/' % (feed_url, item.path)
+
         feed.add_item(
             title=Markup.escape(item.title or item.url),
-            link='%s/#%s' % (item.path, item.url),
+            link=link,
             # unique_id='tag:%s,%s:%s' % (urlparse(link).netloc,
             #                             item.date.date(),
             #                             urlparse(link).path.lstrip('/')),
-            description='<img src="%s/%s" />' % (item.path, item.thumbnail),
+            description='<img src="%s/%s/%s" />' % (feed_url, item.path,
+                                                    item.thumbnail),
             # categories=item.tags if hasattr(item, 'tags') else None,
             author_name=getattr(item, 'author', ''),
             pubdate=item.date or datetime.now(),
