@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="{{ theme.url }}/css/normalize.css">
     <link rel="stylesheet" href="{{ theme.url }}/themes/classic/galleria.classic.css">
     <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
+    <link rel="stylesheet" href="{{ theme.url }}/valiant/css/valiant360.css">
+    <link rel="stylesheet" href="{{ theme.url }}/valiant/css/modal.css">
     {% block extra_head %}{% endblock extra_head %}
     {% include 'analytics.html' %}
   </head>
@@ -19,6 +21,14 @@
     {% include 'gtm.html' %}
     <div class="container">
       <header>
+        <!-- Modal -->
+        <div id="myModal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-body" class="valiantContainer modal-360"></div>
+          </div>
+        </div>
+
         <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
 
         {% include 'links.html' %}
