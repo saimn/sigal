@@ -267,6 +267,7 @@ class Album:
         self.settings = settings
         self.subdirs = dirnames
         self.output_file = settings['output_filename']
+        self.disable_zip_gallery = False
         self._thumbnail = None
 
         if path == '.':
@@ -527,6 +528,12 @@ class Album:
         archive with all original images of the corresponding directory.
 
         """
+
+        if self.disable_zip_gallery:
+            # ZIP file generation has been explicitly disabled
+            # by a .nozip_gallery file for instance
+            return
+
         zip_gallery = self.settings['zip_gallery']
 
         if zip_gallery and len(self) > 0:

@@ -119,6 +119,11 @@ Nomedia plugin
 
 .. automodule:: sigal.plugins.nomedia
 
+No ZIP Gallery plugin
+=====================
+
+.. automodule:: sigal.plugins.nozip_gallery
+
 Upload to S3 plugin
 ===================
 
