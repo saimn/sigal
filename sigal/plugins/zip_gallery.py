@@ -18,8 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-""" This plugin offers the ability to disable ZIP gallery generation on a per album
-granularity.
+""" This plugin controls the generation of a ZIP archive for a gallery
 
 To ignore a ZIP gallery generation for a particular album, put a ``.nozip_gallery`` file next to it in its parent
 folder. Only the existence of this ``.nozip_gallery`` file is tested.
@@ -27,19 +26,65 @@ folder. Only the existence of this ``.nozip_gallery`` file is tested.
 
 import logging
 import os
+from os.path import isfile, join, splitext
 from sigal import signals
+from sigal.gallery import Album
+from sigal.utils import cached_property
+import zipfile
 
 logger = logging.getLogger(__name__)
+
+def noop_zip_method(album):
+    """A zip method that does nothing at all"""
+    return False
+
+def generate_album_zip_method(album):
+    """Make a ZIP archive with all media files and return its path.
+
+    If the ``zip_gallery`` setting is set,it contains the location of a zip
+    archive with all original images of the corresponding directory.
+
+    """
+
+    zip_gallery = album.settings['zip_gallery']
+
+    if zip_gallery and len(album) > 0:
+        zip_gallery = zip_gallery.format(album=album)
+        archive_path = join(album.dst_path, zip_gallery)
+        if (album.settings.get('zip_skip_if_exists', False) and
+                isfile(archive_path)):
+            album.logger.debug("Archive %s already created, passing",
+                              archive_path)
+            return zip_gallery
+
+        archive = zipfile.ZipFile(archive_path, 'w', allowZip64=True)
+        attr = ('src_path' if album.settings['zip_media_format'] == 'orig'
+                else 'dst_path')
+
+        for p in album:
+            path = getattr(p, attr)
+            try:
+                archive.write(path, os.path.split(path)[1])
+            except OSError as e:
+                album.logger.warn('Failed to add %s to the ZIP: %s', p, e)
+
+        archive.close()
+        album.logger.debug('Created ZIP archive %s', archive_path)
+        return zip_gallery
+
 
 def nozip_galery_file(album, settings=None):
     """Filesystem based switch to disable ZIP generation for an Album"""
     nozipgallerypath = os.path.join(album.src_path, ".nozip_gallery")
 
+    zip_method = generate_album_zip_method
+
     if os.path.isfile(nozipgallerypath):
         logger.info("Ignoring ZIP gallery generation for album '%s' because of present "
                     ".nozip_gallery file", album.name)
+        zip_method = noop_zip_method
 
-        album.disable_zip_gallery = True
+    album.__class__.zip = cached_property(zip_method)
 
 def register(settings):
     signals.album_initialized.connect(nozip_galery_file)

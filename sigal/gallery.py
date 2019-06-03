@@ -31,7 +31,6 @@ import os
 import pickle
 import random
 import sys
-import zipfile
 
 from click import progressbar, get_terminal_size
 from collections import defaultdict
@@ -267,7 +266,6 @@ class Album:
         self.settings = settings
         self.subdirs = dirnames
         self.output_file = settings['output_filename']
-        self.disable_zip_gallery = False
         self._thumbnail = None
 
         if path == '.':
@@ -522,43 +520,10 @@ class Album:
 
     @cached_property
     def zip(self):
-        """Make a ZIP archive with all media files and return its path.
-
-        If the ``zip_gallery`` setting is set,it contains the location of a zip
-        archive with all original images of the corresponding directory.
-
+        """Placeholder ZIP method.
+        The ZIP logic is controlled by the zip_gallery plugin
         """
-
-        if self.disable_zip_gallery:
-            # ZIP file generation has been explicitly disabled
-            # by a .nozip_gallery file for instance
-            return
-
-        zip_gallery = self.settings['zip_gallery']
-
-        if zip_gallery and len(self) > 0:
-            zip_gallery = zip_gallery.format(album=self)
-            archive_path = join(self.dst_path, zip_gallery)
-            if (self.settings.get('zip_skip_if_exists', False) and
-                    isfile(archive_path)):
-                self.logger.debug("Archive %s already created, passing",
-                                  archive_path)
-                return zip_gallery
-
-            archive = zipfile.ZipFile(archive_path, 'w', allowZip64=True)
-            attr = ('src_path' if self.settings['zip_media_format'] == 'orig'
-                    else 'dst_path')
-
-            for p in self:
-                path = getattr(p, attr)
-                try:
-                    archive.write(path, os.path.split(path)[1])
-                except OSError as e:
-                    self.logger.warn('Failed to add %s to the ZIP: %s', p, e)
-
-            archive.close()
-            self.logger.debug('Created ZIP archive %s', archive_path)
-            return zip_gallery
+        return None
 
 
 class Gallery(object):
