@@ -34,16 +34,16 @@ import zipfile
 
 logger = logging.getLogger(__name__)
 
-def noop_zip_method(album):
-    """A zip method that does nothing at all"""
-    return False
+def _should_generate_album_zip(album):
+    """Checks whether a `.nozip_gallery` file exists in the album folder"""
+    nozipgallerypath = os.path.join(album.src_path, ".nozip_gallery")
+    return not os.path.isfile(nozipgallerypath)
 
-def generate_album_zip_method(album):
+def _generate_album_zip(album):
     """Make a ZIP archive with all media files and return its path.
 
     If the ``zip_gallery`` setting is set,it contains the location of a zip
     archive with all original images of the corresponding directory.
-
     """
 
     zip_gallery = album.settings['zip_gallery']
@@ -72,19 +72,28 @@ def generate_album_zip_method(album):
         album.logger.debug('Created ZIP archive %s', archive_path)
         return zip_gallery
 
+    return False
+
+def generate_album_zip(album):
+    """Checks for .nozip_gallery file in album folder.
+    If this file exists, no ZIP archive is generated.
+    If the file is absent, make a ZIP archive with all media files and return its path.
+
+    If the ``zip_gallery`` setting is set,it contains the location of a zip
+    archive with all original images of the corresponding directory.
+    """
+
+    # check if ZIP file generation as been disabled by .nozip_gallery file
+    if not _should_generate_album_zip(album):
+        album.logger.info("Ignoring ZIP gallery generation for album '%s' because of present "
+                          ".nozip_gallery file", album.name)
+        return False
+
+    return _generate_album_zip(album)
 
 def nozip_galery_file(album, settings=None):
     """Filesystem based switch to disable ZIP generation for an Album"""
-    nozipgallerypath = os.path.join(album.src_path, ".nozip_gallery")
-
-    zip_method = generate_album_zip_method
-
-    if os.path.isfile(nozipgallerypath):
-        logger.info("Ignoring ZIP gallery generation for album '%s' because of present "
-                    ".nozip_gallery file", album.name)
-        zip_method = noop_zip_method
-
-    album.__class__.zip = cached_property(zip_method)
+    Album.zip = cached_property(generate_album_zip)
 
 def register(settings):
     signals.album_initialized.connect(nozip_galery_file)
