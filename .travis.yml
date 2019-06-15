@@ -7,6 +7,8 @@ matrix:
     - python: 3.5
       addons:
         apt:
+          sources:
+            - ppa:mc3man/xerus-media
           packages:
             - ubuntu-restricted-extras
             - ffmpeg
@@ -16,6 +18,8 @@ matrix:
     - python: 3.6
       addons:
         apt:
+          sources:
+            - ppa:mc3man/xerus-media
           packages:
             - ubuntu-restricted-extras
             - ffmpeg
@@ -25,6 +29,8 @@ matrix:
     - python: 3.7
       addons:
         apt:
+          sources:
+            - ppa:mc3man/xerus-media
           packages:
             - ubuntu-restricted-extras
             - ffmpeg
