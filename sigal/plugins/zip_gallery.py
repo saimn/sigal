@@ -20,9 +20,10 @@
 
 """ This plugin controls the generation of a ZIP archive for a gallery
 
-To ignore a ZIP gallery generation for a particular album, put a ``.nozip_gallery`` file next to it in its parent
-folder. Only the existence of this ``.nozip_gallery`` file is tested.
-If no .nozip_fallery file is present, then make a ZIP archive with all media files.
+To ignore a ZIP gallery generation for a particular album, put
+a ``.nozip_gallery`` file next to it in its parent folder. Only the existence
+of this ``.nozip_gallery`` file is tested.  If no .nozip_fallery file is
+present, then make a ZIP archive with all media files.
 
 If the ``zip_gallery`` setting is set,it contains the location of a zip
 archive with all original images of the corresponding directory.
@@ -57,8 +58,7 @@ def _generate_album_zip(album):
         archive_path = join(album.dst_path, zip_gallery)
         if (album.settings.get('zip_skip_if_exists', False) and
                 isfile(archive_path)):
-            album.logger.debug("Archive %s already created, passing",
-                              archive_path)
+            logger.debug("Archive %s already created, passing", archive_path)
             return zip_gallery
 
         archive = zipfile.ZipFile(archive_path, 'w', allowZip64=True)
@@ -70,10 +70,10 @@ def _generate_album_zip(album):
             try:
                 archive.write(path, os.path.split(path)[1])
             except OSError as e:
-                album.logger.warn('Failed to add %s to the ZIP: %s', p, e)
+                logger.warn('Failed to add %s to the ZIP: %s', p, e)
 
         archive.close()
-        album.logger.debug('Created ZIP archive %s', archive_path)
+        logger.debug('Created ZIP archive %s', archive_path)
         return zip_gallery
 
     return False
@@ -89,15 +89,15 @@ def generate_album_zip(album):
 
     # check if ZIP file generation as been disabled by .nozip_gallery file
     if not _should_generate_album_zip(album):
-        album.logger.info("Ignoring ZIP gallery generation for album '%s' because of present "
-                          ".nozip_gallery file", album.name)
+        logger.info("Ignoring ZIP gallery generation for album '%s' because of present "
+                    ".nozip_gallery file", album.name)
         return False
 
     return _generate_album_zip(album)
 
-def nozip_galery_file(album, settings=None):
+def nozip_gallery_file(album, settings=None):
     """Filesystem based switch to disable ZIP generation for an Album"""
     Album.zip = cached_property(generate_album_zip)
 
 def register(settings):
-    signals.album_initialized.connect(nozip_galery_file)
+    signals.album_initialized.connect(nozip_gallery_file)
