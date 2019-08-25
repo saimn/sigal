@@ -2,6 +2,7 @@ import os
 import glob
 import zipfile
 
+from sigal import init_plugins
 from sigal.gallery import Gallery
 from sigal.settings import read_settings
 
@@ -15,6 +16,7 @@ def make_gallery(**kwargs):
     settings = read_settings(default_conf)
     settings['source'] = SAMPLE_SOURCE
     settings.update(kwargs)
+    init_plugins(settings)
     return Gallery(settings, ncpu=1)
 
 
