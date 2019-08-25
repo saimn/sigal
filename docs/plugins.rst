@@ -2,6 +2,8 @@
  Plugins
 =========
 
+.. contents::
+
 How to use plugins
 ------------------
 
@@ -119,11 +121,6 @@ Nomedia plugin
 
 .. automodule:: sigal.plugins.nomedia
 
-ZIP Gallery plugin
-==================
-
-.. automodule:: sigal.plugins.zip_gallery
-
 Upload to S3 plugin
 ===================
 
@@ -133,3 +130,8 @@ Watermark plugin
 ================
 
 .. automodule:: sigal.plugins.watermark
+
+ZIP Gallery plugin
+==================
+
+.. automodule:: sigal.plugins.zip_gallery
