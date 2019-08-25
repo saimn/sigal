@@ -22,7 +22,7 @@
 
 To ignore a ZIP gallery generation for a particular album, put
 a ``.nozip_gallery`` file next to it in its parent folder. Only the existence
-of this ``.nozip_gallery`` file is tested.  If no .nozip_fallery file is
+of this ``.nozip_gallery`` file is tested.  If no .nozip_gallery file is
 present, then make a ZIP archive with all media files.
 
 If the ``zip_gallery`` setting is set,it contains the location of a zip

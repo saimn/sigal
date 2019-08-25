@@ -8,13 +8,13 @@ from sigal.settings import read_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
 SAMPLE_DIR = os.path.join(CURRENT_DIR, 'sample')
-SAMPLE_SOURCE = os.path.join(SAMPLE_DIR, 'pictures', 'dir1')
+SAMPLE_SOURCE = os.path.join(SAMPLE_DIR, 'pictures')
 
 
-def make_gallery(**kwargs):
+def make_gallery(source_dir='dir1', **kwargs):
     default_conf = os.path.join(SAMPLE_DIR, 'sigal.conf.py')
     settings = read_settings(default_conf)
-    settings['source'] = SAMPLE_SOURCE
+    settings['source'] = os.path.join(SAMPLE_SOURCE, source_dir)
     settings.update(kwargs)
     init_plugins(settings)
     return Gallery(settings, ncpu=1)
@@ -22,15 +22,13 @@ def make_gallery(**kwargs):
 
 def test_zipped_correctly(tmpdir):
     outpath = str(tmpdir)
-    gallery = make_gallery(destination=outpath,
-                           zip_gallery='archive.zip')
+    gallery = make_gallery(destination=outpath, zip_gallery='archive.zip')
     gallery.build()
 
-    zipped1 = glob.glob(os.path.join(outpath, 'test1', '*.zip'))
-    assert len(zipped1) == 1
-    assert os.path.basename(zipped1[0]) == 'archive.zip'
+    zipf = os.path.join(outpath, 'test1', 'archive.zip')
+    assert os.path.isfile(zipf)
 
-    zip_file = zipfile.ZipFile(zipped1[0], 'r')
+    zip_file = zipfile.ZipFile(zipf, 'r')
     expected = ('11.jpg', 'CMB_Timeline300_no_WMAP.jpg',
                 'flickr_jerquiaga_2394751088_cc-by-nc.jpg',
                 'example.gif')
@@ -40,16 +38,23 @@ def test_zipped_correctly(tmpdir):
 
     zip_file.close()
 
-    zipped2 = glob.glob(os.path.join(outpath, 'test2', '*.zip'))
-    assert len(zipped2) == 1
-    assert os.path.basename(zipped2[0]) == 'archive.zip'
+    assert os.path.isfile(os.path.join(outpath, 'test2', 'archive.zip'))
+
+
+def test_not_zipped(tmpdir):
+    # test that the zip file is not created when the .nozip_gallery file
+    # is present
+    outpath = str(tmpdir)
+    gallery = make_gallery(destination=outpath, zip_gallery='archive.zip',
+                           source_dir='dir2')
+    gallery.build()
+    assert not os.path.isfile(os.path.join(outpath, 'archive.zip'))
 
 
 def test_no_archive(tmpdir):
     outpath = str(tmpdir)
-    gallery = make_gallery(destination=outpath,
-                           zip_gallery=False)
+    gallery = make_gallery(destination=outpath, zip_gallery=False)
     gallery.build()
 
-    assert not glob.glob(os.path.join(outpath, 'test1', '*.zip'))
-    assert not glob.glob(os.path.join(outpath, 'test2', '*.zip'))
+    assert not os.path.isfile(os.path.join(outpath, 'test1', 'archive.zip'))
+    assert not os.path.isfile(os.path.join(outpath, 'test2', 'archive.zip'))
