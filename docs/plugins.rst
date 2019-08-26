@@ -2,6 +2,8 @@
  Plugins
 =========
 
+.. contents::
+
 How to use plugins
 ------------------
 
@@ -128,3 +130,8 @@ Watermark plugin
 ================
 
 .. automodule:: sigal.plugins.watermark
+
+ZIP Gallery plugin
+==================
+
+.. automodule:: sigal.plugins.zip_gallery

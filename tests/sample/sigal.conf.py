@@ -9,9 +9,15 @@ links = [('Example link', 'http://example.org'),
 
 files_to_copy = (('../watermark.png', 'watermark.png'),)
 
-plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
-           'sigal.plugins.watermark', 'sigal.plugins.feeds',
-           'sigal.plugins.nomedia', 'sigal.plugins.extended_caching']
+plugins = [
+    'sigal.plugins.adjust',
+    'sigal.plugins.copyright',
+    'sigal.plugins.extended_caching'
+    'sigal.plugins.feeds',
+    'sigal.plugins.nomedia',
+    'sigal.plugins.watermark',
+    'sigal.plugins.zip_gallery',
+]
 copyright = '© An example copyright message'
 adjust_options = {'color': 0.9, 'brightness': 1.0,
                   'contrast': 1.0, 'sharpness': 0.0}
