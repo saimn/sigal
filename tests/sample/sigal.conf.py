@@ -12,7 +12,7 @@ files_to_copy = (('../watermark.png', 'watermark.png'),)
 plugins = [
     'sigal.plugins.adjust',
     'sigal.plugins.copyright',
-    'sigal.plugins.extended_caching'
+    'sigal.plugins.extended_caching',
     'sigal.plugins.feeds',
     'sigal.plugins.nomedia',
     'sigal.plugins.watermark',
