@@ -44,6 +44,12 @@ from PIL.ExifTags import GPSTAGS, TAGS
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
+try:
+    # Pillow 6.0 added a class allowing to write Exif data
+    from PIL.Image import Exif
+except ImportError:
+    Exif = None
+
 from . import signals, utils
 from .settings import Status
 
@@ -98,20 +104,18 @@ def generate_image(source, outname, settings, options=None):
     img = _read_image(source)
     original_format = img.format
 
-    if settings['copy_exif_data'] and settings['autorotate_images']:
-        logger.warning(
-            "The 'autorotate_images' and 'copy_exif_data' settings "
-            "are not compatible because Sigal can't save the "
-            "modified Orientation tag."
-        )
-
     # Preserve EXIF data
-    if settings['copy_exif_data'] and _has_exif_tags(img):
+    copy_exif = settings['copy_exif_data'] and _has_exif_tags(img)
+    if copy_exif:
         if options is not None:
             options = deepcopy(options)
         else:
             options = {}
-        options['exif'] = img.info['exif']
+
+        if Exif is not None:
+            options['exif'] = img.getexif()
+        else:
+            options['exif'] = img.info['exif']
 
     # Rotate the img, and catch IOError when PIL fails to read EXIF
     if settings['autorotate_images']:
@@ -119,6 +123,17 @@ def generate_image(source, outname, settings, options=None):
             img = Transpose().process(img)
         except (OSError, IndexError):
             pass
+        else:
+            if copy_exif and 'exif' in options:
+                if Exif is not None:
+                    # reset the orientation flag
+                    options['exif'][0x0112] = 1
+                else:
+                    logger.warning(
+                        "'autorotate_images' and 'copy_exif_data' settings "
+                        "are not compatible when using Pillow < 6.0, because "
+                        "Sigal can't save the modified Orientation tag."
+                    )
 
     # Resize the image
     if settings['img_processor']:
