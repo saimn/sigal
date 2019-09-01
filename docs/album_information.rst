@@ -31,8 +31,8 @@ can be used in the template with:
 
 .. code-block:: jinja
 
-    {% if 'authors' in meta %}
-    <p>Authors: {{ meta.authors|join(', ') }}</>
+    {% if 'authors' in album.meta %}
+    <p>Authors: {{ album.meta.authors|join(', ') }}</>
     {% endif %}
 
 If this file does not exist or if some meta-data is missing:
