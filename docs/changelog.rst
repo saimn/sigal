@@ -2,6 +2,18 @@
  Changelog
 ===========
 
+Version 2.1.dev
+~~~~~~~~~~~~~~~
+
+Released on 2019-xx-xx.
+
+- Add setting to use relative symbolic links [:issue:`359`].
+- Feeds: fix links to gallery and image [:issue:`361`].
+- Add new plugin to allow one to disable ZIP generation on a per album basis
+  with a ``.nozip_gallery`` file [:issue:`368`].
+- Add a quiet flag [:issue:`376`].
+- Make sure that read-only files can be copied [:issue:`375`].
+
 Version 2.0
 ~~~~~~~~~~~
 
