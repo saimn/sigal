@@ -50,7 +50,13 @@ def copy(src, dst, symlink=False, rellink=False):
     if rellink:  # relative symlink from dst
         func(os.path.relpath(src, os.path.dirname(dst)), dst)
     else:
-        func(src, dst)
+        try:
+            func(src, dst)
+        except PermissionError:
+            # this can happen if the file is not writable, so we try to remove
+            # it first
+            os.remove(dst)
+            func(src, dst)
 
 
 def check_or_create_dir(path):

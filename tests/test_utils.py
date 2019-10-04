@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from sigal import utils
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -32,6 +33,15 @@ def test_copy(tmpdir):
     assert os.path.islink(dst)
     assert os.path.join(os.path.dirname(CURRENT_DIR)), os.readlink(dst) == src
     # get absolute path of the current dir plus the relative dir
+
+    src = str(tmpdir.join('foo.txt'))
+    dst = str(tmpdir.join('bar.txt'))
+    p = Path(src)
+    p.touch()
+    p.chmod(0o444)
+    utils.copy(src, dst)
+    utils.copy(src, dst)
+
 
 def test_check_or_create_dir(tmpdir):
     path = str(tmpdir.join('new_directory'))
