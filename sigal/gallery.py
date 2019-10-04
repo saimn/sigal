@@ -528,7 +528,7 @@ class Album:
 
 class Gallery(object):
 
-    def __init__(self, settings, ncpu=None):
+    def __init__(self, settings, ncpu=None, quiet=False):
         self.settings = settings
         self.logger = logging.getLogger(__name__)
         self.stats = defaultdict(int)
@@ -543,7 +543,8 @@ class Gallery(object):
         ignore_files = settings['ignore_files']
 
         progressChars = cycle(["/", "-", "\\", "|"])
-        show_progress = (self.logger.getEffectiveLevel() >= logging.WARNING and
+        show_progress = (not quiet and
+                         self.logger.getEffectiveLevel() >= logging.WARNING and
                          os.isatty(sys.stdout.fileno()))
         self.progressbar_target = None if show_progress else Devnull()
 
@@ -585,7 +586,8 @@ class Gallery(object):
                 album.create_output_directories()
                 albums[relpath] = album
 
-        print("\rCollecting albums, done.")
+        if show_progress:
+            print("\rCollecting albums, done.")
 
         with progressbar(albums.values(), label="%16s" % "Sorting albums",
                          file=self.progressbar_target) as progress_albums:

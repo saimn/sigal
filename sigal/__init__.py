@@ -87,23 +87,34 @@ def init(path):
         help="Force the reprocessing of existing images")
 @option('-v', '--verbose', is_flag=True, help="Show all messages")
 @option('-d', '--debug', is_flag=True,
-        help="Show all message, including debug messages")
+        help="Show all messages, including debug messages")
+@option('-q', '--quiet', is_flag=True, help="Show only error messages")
 @option('-c', '--config', default=_DEFAULT_CONFIG_FILE, show_default=True,
         help="Configuration file")
 @option('-t', '--theme', help="Specify a theme directory, or a theme name for "
         "the themes included with Sigal")
 @option('--title', help="Title of the gallery (overrides the title setting.")
 @option('-n', '--ncpu', help="Number of cpu to use (default: all)")
-def build(source, destination, debug, verbose, force, config, theme, title,
-          ncpu):
+def build(source, destination, debug, verbose, quiet, force, config, theme,
+          title, ncpu):
     """Run sigal to process a directory.
 
     If provided, 'source', 'destination' and 'theme' will override the
     corresponding values from the settings file.
 
     """
-    level = ((debug and logging.DEBUG) or (verbose and logging.INFO) or
-             logging.WARNING)
+    if sum([debug, verbose, quiet]) > 1:
+        sys.exit('Only one option of debug, verbose and quiet should be used')
+
+    if debug:
+        level = logging.DEBUG
+    elif verbose:
+        level = logging.INFO
+    elif quiet:
+        level = logging.ERROR
+    else:
+        level = logging.WARNING
+
     init_logging(__name__, level=level)
     logger = logging.getLogger(__name__)
 
@@ -145,7 +156,7 @@ def build(source, destination, debug, verbose, force, config, theme, title,
     locale.setlocale(locale.LC_ALL, settings['locale'])
     init_plugins(settings)
 
-    gal = Gallery(settings, ncpu=ncpu)
+    gal = Gallery(settings, ncpu=ncpu, quiet=quiet)
     gal.build(force=force)
 
     # copy extra files
@@ -164,7 +175,7 @@ def build(source, destination, debug, verbose, force, config, theme, title,
         opt = ' ({})'.format(', '.join(opt)) if opt else ''
         return '{} {}s{}'.format(stats[_type], _type, opt)
 
-    print('Done.\nProcessed {} and {} in {:.2f} seconds.'
+    print('Done, processed {} and {} in {:.2f} seconds.'
           .format(format_stats('image'), format_stats('video'),
                   time.time() - start_time))
 
