@@ -175,9 +175,10 @@ def build(source, destination, debug, verbose, quiet, force, config, theme,
         opt = ' ({})'.format(', '.join(opt)) if opt else ''
         return '{} {}s{}'.format(stats[_type], _type, opt)
 
-    print('Done, processed {} and {} in {:.2f} seconds.'
-          .format(format_stats('image'), format_stats('video'),
-                  time.time() - start_time))
+    if not quiet:
+        print('Done, processed {} and {} in {:.2f} seconds.'
+              .format(format_stats('image'), format_stats('video'),
+                      time.time() - start_time))
 
 
 def init_plugins(settings):
