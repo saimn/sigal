@@ -575,24 +575,21 @@ class Gallery(object):
             # do not match ignore_metadata filters
             ff = []
             for f in files:
-                xmp_tags_pos = [ 'must have' ]
-                xmp_tags_neg = [ 'should not have' ]
-                xmp_tags_field = 'Xmp.dc.subject'
                 img = exivimg(join(src_path, f))
                 try:
-                    taglist = img.read_xmp()[xmp_tags_field]
+                    taglist = img.read_xmp()[self.settings['xmp_tags_field']]
                 except KeyError:
                     # The requested metadata field does not exist
                     taglist = []
                 self.logger.debug('Taglist: %r', taglist)
-                if len(xmp_tags_pos)>0 and len(set(xmp_tags_pos).intersection(taglist))==0:
+                if len(self.settings['include_xmp_tags'])>0 and len(set(self.settings['include_xmp_tags']).intersection(taglist))==0:
                     self.logger.debug('File %s dropped: does not match positive taglist', f)
                     keep = False
                 else:
-                    # either no tags_pos filter was given, or there is a match
+                    # either no include filter was given, or there is a match
                     keep = True
-                if len(xmp_tags_neg)>0 and len(set(xmp_tags_neg).intersection(taglist))==0:
-                    self.logger.debug('File %s dropped: matches negative taglist', f)
+                if len(self.settings['exclude_xmp_tags'])>0 and len(set(self.settings['exclude_xmp_tags']).intersection(taglist))==0:
+                    self.logger.debug('File %s dropped: matches exclude taglist', f)
                     keep = False
                 if keep:
                     ff.append(f)
