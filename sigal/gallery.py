@@ -38,6 +38,7 @@ from datetime import datetime
 from itertools import cycle
 from os.path import isfile, join, splitext
 from urllib.parse import quote as url_quote
+from pyexiv2 import Image as exivimg
 
 from . import image, video, signals
 from .image import (process_image, get_exif_tags, get_exif_data, get_size,
@@ -569,6 +570,34 @@ class Gallery(object):
                 self.logger.debug('Files before filtering: %r', files)
                 files = [os.path.split(f)[1] for f in files_path]
                 self.logger.debug('Files after filtering: %r', files)
+
+            # Only keep files that match only_metadata and
+            # do not match ignore_metadata filters
+            ff = []
+            for f in files:
+                xmp_tags_pos = [ 'must have' ]
+                xmp_tags_neg = [ 'should not have' ]
+                xmp_tags_field = 'Xmp.dc.subject'
+                img = exivimg(join(src_path, f))
+                try:
+                    taglist = img.read_xmp()[xmp_tags_field]
+                except KeyError:
+                    # The requested metadata field does not exist
+                    taglist = []
+                self.logger.debug('Taglist: %r', taglist)
+                if len(xmp_tags_pos)>0 and len(set(xmp_tags_pos).intersection(taglist))==0:
+                    self.logger.debug('File %s dropped: does not match positive taglist', f)
+                    keep = False
+                else:
+                    # either no tags_pos filter was given, or there is a match
+                    keep = True
+                if len(xmp_tags_neg)>0 and len(set(xmp_tags_neg).intersection(taglist))==0:
+                    self.logger.debug('File %s dropped: matches negative taglist', f)
+                    keep = False
+                if keep:
+                    ff.append(f)
+            files = ff
+            self.logger.debug('Files after tag filtering: %r', files)
 
             # Remove sub-directories that have been ignored in a previous
             # iteration (as topdown=False, sub-directories are processed before
