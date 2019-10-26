@@ -38,7 +38,7 @@ from datetime import datetime
 from itertools import cycle
 from os.path import isfile, join, splitext
 from urllib.parse import quote as url_quote
-from pyexiv2 import Image as exivimg
+from gi.repository import GExiv2
 
 from . import image, video, signals
 from .image import (process_image, get_exif_tags, get_exif_data, get_size,
@@ -574,15 +574,16 @@ class Gallery(object):
             # Only keep files that match only_metadata and
             # do not match ignore_metadata filters
             ff = []
+            tags_field = self.settings['xmp_tags_field']
             for f in files:
-                img = exivimg(join(src_path, f))
                 try:
-                    taglist = img.read_xmp()[self.settings['xmp_tags_field']]
-                except KeyError:
-                    # The requested metadata field does not exist
-                    taglist = []
+                    tagstring = GExiv2.Metadata(join(src_path, f)).get(tags_field)
+                    if tagstring is None or tagstring is '':
+                        taglist = []
+                    else:
+                        taglist = [x.strip() for x in tagstring.split(',')]
                 except RuntimeError:
-                    # The file format is unknown to pyexiv2:
+                    # The file format is unknown to GExiv2:
                     # filters are not applicable, include file
                     taglist = None
 
