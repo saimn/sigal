@@ -79,10 +79,12 @@ Documentation of sigal's main classes
 .. autoclass:: sigal.gallery.Image
    :members:
    :undoc-members:
+   :inherited-members:
 
 .. autoclass:: sigal.gallery.Video
    :members:
    :undoc-members:
+   :inherited-members:
 
 .. _simple-exif-data:
 

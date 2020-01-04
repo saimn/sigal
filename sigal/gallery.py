@@ -55,21 +55,24 @@ class Media:
 
     Attributes:
 
-    - ``type``: ``"image"`` or ``"video"``.
-    - ``filename``: Filename of the resized image.
-    - ``thumbnail``: Location of the corresponding thumbnail image.
-    - ``big``: If not None, location of the unmodified image.
-    - ``big_url``: If not None, url of the unmodified image.
-    - ``exif``: If not None contains a dict with the most common tags. For more
-        information, see :ref:`simple-exif-data`.
-    - ``raw_exif``: If not ``None``, it contains the raw EXIF tags.
+    :var Media.type: ``"image"`` or ``"video"``.
+    :var Media.filename: Filename of the resized image.
+    :var Media.thumbnail: Location of the corresponding thumbnail image.
+    :var Media.big: If not None, location of the unmodified image.
+    :var Media.big_url: If not None, url of the unmodified image.
 
     """
 
     type = ''
+    """Type of media, e.g. ``"image"`` or ``"video"``."""
 
     def __init__(self, filename, path, settings):
-        self.src_filename = self.filename = filename
+        self.filename = filename
+        """Filename of the resized image."""
+
+        self.src_filename = filename
+        """Filename of the resized image."""
+
         self.path = path
         self.settings = settings
         self.ext = os.path.splitext(filename)[1].lower()
@@ -148,10 +151,16 @@ class Media:
         return url_from_path(self.thumb_name)
 
     def _get_metadata(self):
-        """ Get image metadata from filename.md: title, description, meta."""
+        """Get image metadata from filename.md: title, description, meta."""
+
         self.description = ''
-        self.meta = {}
+        """Description extracted from the Markdown <imagename>.md file."""
+
         self.title = ''
+        """Title extracted from the Markdown <imagename>.md file."""
+
+        self.meta = {}
+        """Other metadata extracted from the Markdown <imagename>.md file."""
 
         descfile = splitext(self.src_path)[0] + '.md'
         if isfile(descfile):
@@ -171,11 +180,16 @@ class Image(Media):
 
     @cached_property
     def date(self):
+        """The date from the EXIF DateTimeOriginal metadata if available, or
+        from the file date."""
         return (self.exif and self.exif.get('dateobj', None) or
                 self._get_file_date())
 
     @cached_property
     def exif(self):
+        """If not `None` contains a dict with the most common tags. For more
+        information, see :ref:`simple-exif-data`.
+        """
         datetime_format = self.settings['datetime_format']
         return (get_exif_tags(self.raw_exif, datetime_format=datetime_format)
                 if self.raw_exif and self.ext in ('.jpg', '.jpeg') else None)
@@ -201,6 +215,7 @@ class Image(Media):
 
     @cached_property
     def raw_exif(self):
+        """If not `None`, contains the raw EXIF tags."""
         try:
             return (get_exif_data(self.src_path)
                     if self.ext in ('.jpg', '.jpeg') else None)
@@ -210,13 +225,16 @@ class Image(Media):
 
     @cached_property
     def size(self):
+        """The dimensions of the resized image."""
         return get_size(self.dst_path)
 
     @cached_property
     def thumb_size(self):
+        """The dimensions of the thumbnail image."""
         return get_size(self.thumb_path)
 
     def has_location(self):
+        """True if location information is available for EXIF GPSInfo."""
         return self.exif is not None and 'gps' in self.exif
 
 
@@ -247,10 +265,10 @@ class Album:
 
     :var description_file: Name of the Markdown file which gives information
         on an album
-    :ivar index_url: URL to the index page.
-    :ivar output_file: Name of the output HTML file
-    :ivar meta: Meta data from the Markdown file.
-    :ivar description: description from the Markdown file.
+    :var index_url: URL to the index page.
+    :var output_file: Name of the output HTML file
+    :var meta: Meta data from the Markdown file.
+    :var description: description from the Markdown file.
 
     For details how to annotate your albums with meta data, see
     :doc:`album_information`.
