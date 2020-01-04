@@ -1,7 +1,6 @@
 import os
-import PIL
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from PIL import Image
 
 from sigal import init_logging
@@ -139,10 +138,7 @@ def test_get_exif_tags():
     assert simple['iso'] == 50
     assert simple['Make'] == 'NIKON'
     assert simple['datetime'] == '22/01/2006'
-    if PIL.__version__ == '3.0.0':
-        assert simple['exposure'] == 0.00100603
-    else:
-        assert simple['exposure'] == '100603/100000000'
+    assert simple['exposure'] == '100603/100000000'
 
     data = {'FNumber': [1, 0], 'FocalLength': [1, 0], 'ExposureTime': 10}
     simple = get_exif_tags(data)
@@ -168,13 +164,13 @@ def test_get_iptc_data(caplog):
     data = get_iptc_data(src_file)
     # Title
     assert data["title"] == 'Haemostratulus clouds over Canberra - ' + \
-            '2005-12-28 at 03-25-07'
+        '2005-12-28 at 03-25-07'
     # Description
     assert data["description"] == '"Haemo" because they look like haemoglobin ' + \
-            'cells and "stratulus" because I can\'t work out whether ' + \
-            'they\'re Stratus or Cumulus clouds.\nWe\'re driving down ' + \
-            'the main drag in Canberra so it\'s Parliament House that ' + \
-            'you can see at the end of the road.'
+        'cells and "stratulus" because I can\'t work out whether ' + \
+        'they\'re Stratus or Cumulus clouds.\nWe\'re driving down ' + \
+        'the main drag in Canberra so it\'s Parliament House that ' + \
+        'you can see at the end of the road.'
     # This file has no IPTC data
     test_image = '21.jpg'
     src_file = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'exifTest',
@@ -190,8 +186,8 @@ def test_get_iptc_data(caplog):
 
     # Test catching the SyntaxError -- assert output
     with patch('sigal.image.IptcImagePlugin.getiptcinfo', side_effect=SyntaxError):
-            get_iptc_data(src_file)
-            assert ['IPTC Error in'] == [ log.message[:13] for log in caplog.records ]
+        get_iptc_data(src_file)
+        assert ['IPTC Error in'] == [log.message[:13] for log in caplog.records]
 
 
 def test_iso_speed_ratings():
@@ -233,8 +229,6 @@ def test_exif_copy(tmpdir):
     assert not simple
 
 
-@pytest.mark.xfail(PIL.__version__ == '3.0.0',
-                   reason="Pillow 3.0.0 was broken")
 def test_exif_gps(tmpdir):
     """Test reading out correct geo tags"""
 
