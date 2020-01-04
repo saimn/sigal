@@ -4,13 +4,6 @@ dist: xenial
 
 matrix:
   include:
-    - python: 3.5
-      before_install:
-        - sudo add-apt-repository ppa:mc3man/xerus-media -y
-        - sudo apt-get update -qq
-        - sudo apt-get install -qq ubuntu-restricted-extras ffmpeg
-      before_script:
-        ffmpeg --help
     - python: 3.6
       before_install:
         - sudo add-apt-repository ppa:mc3man/xerus-media -y
@@ -25,9 +18,16 @@ matrix:
         - sudo apt-get install -qq ubuntu-restricted-extras ffmpeg
       before_script:
         ffmpeg --help
-    - python: 3.6
+    - python: 3.8
+      before_install:
+        - sudo add-apt-repository ppa:mc3man/xerus-media -y
+        - sudo apt-get update -qq
+        - sudo apt-get install -qq ubuntu-restricted-extras ffmpeg
+      before_script:
+        ffmpeg --help
+    - python: 3.8
       env: TOXENV=doc
-    - python: 3.6
+    - python: 3.8
       env: TOXENV=check
   allow_failures:
     - env: TOXENV=check
