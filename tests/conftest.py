@@ -39,4 +39,4 @@ def disconnect_signals():
 
 
 def pytest_report_header(config):
-    return "project deps: Pillow-{}".format(PIL.PILLOW_VERSION)
+    return "project deps: Pillow-{}".format(PIL.__version__)

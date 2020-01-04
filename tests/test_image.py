@@ -111,7 +111,7 @@ def test_generate_image_processor(tmpdir):
 @pytest.mark.parametrize(
     ("image", "path", "wide_size", "high_size"),
     [(TEST_IMAGE, SRCFILE, (200, 133), (150, 100)),
-     (TEST_GIF_IMAGE, SRC_GIF_FILE, (134, 150), (150, 167))])
+     (TEST_GIF_IMAGE, SRC_GIF_FILE, (134, 150), (150, 168))])
 def test_generate_thumbnail(tmpdir, image, path, wide_size, high_size):
     "Test the generate_thumbnail function."
 
@@ -139,7 +139,7 @@ def test_get_exif_tags():
     assert simple['iso'] == 50
     assert simple['Make'] == 'NIKON'
     assert simple['datetime'] == '22/01/2006'
-    if PIL.PILLOW_VERSION == '3.0.0':
+    if PIL.__version__ == '3.0.0':
         assert simple['exposure'] == 0.00100603
     else:
         assert simple['exposure'] == '100603/100000000'
@@ -233,7 +233,7 @@ def test_exif_copy(tmpdir):
     assert not simple
 
 
-@pytest.mark.xfail(PIL.PILLOW_VERSION == '3.0.0',
+@pytest.mark.xfail(PIL.__version__ == '3.0.0',
                    reason="Pillow 3.0.0 was broken")
 def test_exif_gps(tmpdir):
     """Test reading out correct geo tags"""
