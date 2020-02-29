@@ -87,8 +87,8 @@ class AbstractWriter(object):
         try:
             self.template = env.get_template(self.template_file)
         except TemplateNotFound:
-            self.logger.error('The template %s was not found.',
-                              self.template_file)
+            self.logger.error('The template %s was not found in template folder %s.',
+                              self.template_file, theme_relpath)
             sys.exit(1)
 
         # Copy the theme files in the output dir
