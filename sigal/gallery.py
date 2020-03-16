@@ -40,8 +40,8 @@ from urllib.parse import quote as url_quote
 from click import get_terminal_size, progressbar
 
 from . import image, signals, video
-from .image import (get_exif_data, get_exif_tags, get_iptc_data, get_size,
-                    process_image, get_image_metadata)
+from .image import (get_exif_data, get_exif_tags, get_image_metadata,
+                    get_iptc_data, get_size, process_image)
 from .settings import get_thumb
 from .utils import (Devnull, cached_property, check_or_create_dir, copy,
                     get_mime, is_valid_html5_video, read_markdown,
@@ -84,7 +84,10 @@ class Media:
         self.thumb_path = join(settings['destination'], path, self.thumb_name)
 
         self.logger = logging.getLogger(__name__)
+
+        self.file_metadata = None
         self._get_metadata()
+
         # default: title is the filename
         if not self.title:
             self.title = self.filename
@@ -156,8 +159,6 @@ class Media:
         self.description = ''
         """Description extracted from the Markdown <imagename>.md file."""
 
-        self.file_metadata = {}
-
         self.title = ''
         """Title extracted from the Markdown <imagename>.md file."""
 
@@ -198,34 +199,25 @@ class Image(Media):
 
     def _get_metadata(self):
         super()._get_metadata()
-        src_metadata = get_image_metadata(self.src_path)
-        self.file_metadata[self.src_path] = src_metadata
+        self.file_metadata = get_image_metadata(self.src_path)
+
         # If a title or description hasn't been obtained by other means, look
         #  for the information in IPTC fields
         if self.title and self.description:
             # Nothing to do - we already have title and description
             return
 
-        try:
-            iptc_data = src_metadata.get('iptc', {})
-        except Exception as e:
-            self.logger.warning('Could not read IPTC data from %s: %s',
-                                self.src_path, e)
-        else:
-            if not self.title and iptc_data.get('title'):
-                self.title = iptc_data['title']
-            if not self.description and iptc_data.get('description'):
-                self.description = iptc_data['description']
+        iptc_data = self.file_metadata['iptc']
+        if not self.title and iptc_data.get('title'):
+            self.title = iptc_data['title']
+        if not self.description and iptc_data.get('description'):
+            self.description = iptc_data['description']
 
     @cached_property
     def raw_exif(self):
         """If not `None`, contains the raw EXIF tags."""
-        try:
-            return (self.file_metadata[self.src_path]['exif']
-                    if self.ext in ('.jpg', '.jpeg') else None)
-        except Exception as e:
-            self.logger.warning('Could not read EXIF data from %s: %s',
-                                self.src_path, e)
+        if self.ext in ('.jpg', '.jpeg'):
+            return self.file_metadata['exif']
 
     @cached_property
     def size(self):
@@ -464,7 +456,7 @@ class Album:
                     # fallback to the size of src_path if dst_path is missing
                     size = f.size
                     if size is None:
-                        size = get_size(f.src_path)
+                        size = f.file_metadata['size']
 
                     if size['width'] > size['height']:
                         self._thumbnail = (url_quote(self.name) + '/' +

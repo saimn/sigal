@@ -207,10 +207,7 @@ def get_size(file_path):
         logger.error("Could not read size of %s due to %r", file_path, e)
     else:
         width, height = im.size
-        return {
-            'width': width,
-            'height': height
-        }
+        return {'width': width, 'height': height}
 
 
 def get_exif_data(filename):
@@ -280,36 +277,28 @@ def get_image_metadata(filename):
     try:
         img = _read_image(filename)
     except Exception as e:
-        logger.error('Could not open image %s metadata: %s',
-                     filename, e)
-
-    exif = None
-    iptc = None
-    size = None
+        logger.error('Could not open image %s metadata: %s', filename, e)
+        return {'exif': None, 'iptc': None, 'size': None}
 
     try:
         exif = get_exif_data(img)
     except Exception as e:
-        logger.warning('Could not read EXIF data from %s: %s',
-                       filename, e)
+        logger.warning('Could not read EXIF data from %s: %s', filename, e)
+        exif = {}
 
     try:
         iptc = get_iptc_data(img)
     except Exception as e:
-        logger.warning('Could not read IPTC data from %s: %s',
-                       filename, e)
+        logger.warning('Could not read IPTC data from %s: %s', filename, e)
+        iptc = {}
 
     try:
         size = get_size(img)
     except Exception as e:
-        logger.warning('Could not read size from %s: %s',
-                       filename, e)
+        logger.warning('Could not read size from %s: %s', filename, e)
+        size = {}
 
-    return {
-            'exif': exif,
-            'iptc': iptc,
-            'size': size,
-            }
+    return {'exif': exif, 'iptc': iptc, 'size': size}
 
 
 def dms_to_degrees(v):
