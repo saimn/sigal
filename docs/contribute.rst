@@ -21,7 +21,7 @@ Install sigal in development mode::
 Install additional dependencies for development (Sphinx, pytest), and optional
 dependencies::
 
-    pip install -r requirements.txt
+    pip install -e .\[all,tests\]
 
 Building the docs
 -----------------
