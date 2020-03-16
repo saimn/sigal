@@ -42,6 +42,7 @@ _DEFAULT_CONFIG = {
     'img_extensions': ['.jpg', '.jpeg', '.png', '.gif'],
     'img_processor': 'ResizeToFit',
     'img_size': (640, 480),
+    'img_format': None,
     'index_in_url': False,
     'jpg_options': {'quality': 85, 'optimize': True, 'progressive': True},
     'keep_orig': False,

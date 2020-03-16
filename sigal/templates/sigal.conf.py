@@ -40,6 +40,9 @@ theme = 'galleria'
 # Size of resized image (default: (640, 480))
 img_size = (800, 600)
 
+# Output format of images (default: None, i.e. use input format)
+# img_format = "JPEG"
+
 # Show a map of the images where possible?
 # This option only has an effect on the galleria theme for the while.
 # The leaflet_provider setting allow to customize the tile provider (see

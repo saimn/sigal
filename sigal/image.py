@@ -132,7 +132,9 @@ def generate_image(source, outname, settings, options=None):
     for receiver in signals.img_resized.receivers_for(img):
         img = receiver(img, settings=settings)
 
-    outformat = img.format or original_format or 'JPEG'
+    # first, use hard-coded output format, or PIL format, or original image
+    # format, or fall back to JPEG
+    outformat = settings.get('img_format') or img.format or original_format or 'JPEG'
     logger.debug('Save resized image to %s (%s)', outname, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
