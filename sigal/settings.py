@@ -86,7 +86,7 @@ _DEFAULT_CONFIG = {
 }
 
 
-class Status(object):
+class Status:
     SUCCESS = 0
     FAILURE = 1
 

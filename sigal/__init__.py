@@ -74,7 +74,7 @@ def init(path):
 
     with open(path, 'w', encoding='utf-8') as f:
         f.write(conf.decode('utf8'))
-    print("Sample config file created: {}".format(path))
+    print(f"Sample config file created: {path}")
 
 
 @main.command()
@@ -224,11 +224,11 @@ def serve(destination, port, config):
                          .format(destination=destination, config=config))
         sys.exit(2)
 
-    print('DESTINATION : {}'.format(destination))
+    print(f'DESTINATION : {destination}')
     os.chdir(destination)
     Handler = server.SimpleHTTPRequestHandler
     httpd = socketserver.TCPServer(("", port), Handler, False)
-    print(" * Running on http://127.0.0.1:{}/".format(port))
+    print(f" * Running on http://127.0.0.1:{port}/")
 
     try:
         httpd.allow_reuse_address = True
@@ -255,7 +255,7 @@ def set_meta(target, keys, overwrite=False):
     """
 
     if not os.path.exists(target):
-        sys.stderr.write("The target {} does not exist.\n".format(target))
+        sys.stderr.write(f"The target {target} does not exist.\n")
         sys.exit(1)
     if len(keys) < 2 or len(keys) % 2 > 0:
         sys.stderr.write("Need an even number of arguments.\n")
@@ -273,5 +273,5 @@ def set_meta(target, keys, overwrite=False):
     with open(descfile, "w") as fp:
         for i in range(len(keys) // 2):
             k, v = keys[i * 2:(i + 1) * 2]
-            fp.write("{}: {}\n".format(k.capitalize(), v))
+            fp.write(f"{k.capitalize()}: {v}\n")
     print("{} metadata key(s) written to {}".format(len(keys) // 2, descfile))

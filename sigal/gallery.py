@@ -91,7 +91,7 @@ class Media:
         signals.media_initialized.send(self)
 
     def __repr__(self):
-        return "<%s>(%r)" % (self.__class__.__name__, str(self))
+        return "<{}>({!r})".format(self.__class__.__name__, str(self))
 
     def __str__(self):
         return join(self.path, self.filename)
@@ -195,7 +195,7 @@ class Image(Media):
                 if self.raw_exif and self.ext in ('.jpg', '.jpeg') else None)
 
     def _get_metadata(self):
-        super(Image, self)._get_metadata()
+        super()._get_metadata()
         # If a title or description hasn't been obtained by other means, look
         #  for the information in IPTC fields
         if self.title and self.description:
@@ -244,7 +244,7 @@ class Video(Media):
     type = 'video'
 
     def __init__(self, filename, path, settings):
-        super(Video, self).__init__(filename, path, settings)
+        super().__init__(filename, path, settings)
         base, ext = splitext(filename)
         self.src_filename = filename
         self.date = self._get_file_date()
@@ -322,12 +322,12 @@ class Album:
         signals.album_initialized.send(self)
 
     def __repr__(self):
-        return "<%s>(path=%r, title=%r)" % (self.__class__.__name__, self.path,
-                                            self.title)
+        return "<{}>(path={!r}, title={!r})".format(
+            self.__class__.__name__, self.path, self.title)
 
     def __str__(self):
-        return ('{} : '.format(self.path) +
-                ', '.join('{} {}s'.format(count, _type)
+        return (f'{self.path} : ' +
+                ', '.join(f'{count} {_type}s'
                           for _type, count in self.medias_count.items()))
 
     def __len__(self):
@@ -544,7 +544,7 @@ class Album:
         return None
 
 
-class Gallery(object):
+class Gallery:
 
     def __init__(self, settings, ncpu=None, quiet=False):
         self.settings = settings

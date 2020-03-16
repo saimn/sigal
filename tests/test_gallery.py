@@ -83,7 +83,7 @@ def test_media(settings):
     assert m.title == "Foo Bar"
     assert m.description == "<p>This is a funny description of this image</p>"
 
-    assert repr(m) == "<Media>('{}')".format(file_path)
+    assert repr(m) == f"<Media>('{file_path}')"
     assert str(m) == file_path
 
 
@@ -244,7 +244,7 @@ def test_gallery(settings, tmpdir):
     out_html = os.path.join(settings['destination'], 'index.html')
     assert os.path.isfile(out_html)
 
-    with open(out_html, 'r') as f:
+    with open(out_html) as f:
         html = f.read()
 
     assert '<title>Sigal test gallery</title>' in html

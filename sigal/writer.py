@@ -37,7 +37,7 @@ THEMES_PATH = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
 
-class AbstractWriter(object):
+class AbstractWriter:
     template_file = None
 
     def __init__(self, settings, index_title=''):
