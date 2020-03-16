@@ -48,6 +48,7 @@ them for good.
 
 import logging
 import os
+
 from sigal import signals
 
 logger = logging.getLogger(__name__)

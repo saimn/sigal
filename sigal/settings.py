@@ -25,7 +25,6 @@ import os
 from os.path import abspath, isabs, join, normpath
 from pprint import pformat
 
-
 _DEFAULT_CONFIG = {
     'albums_sort_attr': 'name',
     'albums_sort_reverse': False,

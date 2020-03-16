@@ -1,8 +1,9 @@
-import blinker
 import os
+import shutil
+
+import blinker
 import PIL
 import pytest
-import shutil
 
 from sigal import signals
 from sigal.settings import read_settings

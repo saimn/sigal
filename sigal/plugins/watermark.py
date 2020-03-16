@@ -35,7 +35,9 @@ Settings:
 """
 
 import logging
+
 from PIL import Image, ImageEnhance
+
 from sigal import signals
 
 

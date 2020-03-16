@@ -1,6 +1,6 @@
 import os
 
-from sigal.settings import read_settings, get_thumb
+from sigal.settings import get_thumb, read_settings
 
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 

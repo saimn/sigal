@@ -32,8 +32,8 @@ previous/next :class:`~sigal.gallery.Media` objects.
 import os
 
 from sigal import signals
-from sigal.writer import AbstractWriter
 from sigal.utils import url_from_path
+from sigal.writer import AbstractWriter
 
 
 class PageWriter(AbstractWriter):

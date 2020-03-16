@@ -1,8 +1,9 @@
 import os
+
 import pytest
 
-from sigal.video import video_size, generate_video, process_video
-from sigal.settings import create_settings, Status
+from sigal.settings import Status, create_settings
+from sigal.video import generate_video, process_video, video_size
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_VIDEO = 'example video.ogv'

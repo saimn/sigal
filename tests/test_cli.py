@@ -1,9 +1,10 @@
 import logging
 import os
-from click.testing import CliRunner
 from os.path import join
 
-from sigal import init, build, serve, set_meta
+from click.testing import CliRunner
+
+from sigal import build, init, serve, set_meta
 
 TESTGAL = join(os.path.abspath(os.path.dirname(__file__)), 'sample')
 

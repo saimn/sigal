@@ -31,11 +31,12 @@ present, then make a ZIP archive with all media files.
 
 import logging
 import os
+import zipfile
 from os.path import isfile, join, splitext
+
 from sigal import signals
 from sigal.gallery import Album
 from sigal.utils import cached_property
-import zipfile
 
 logger = logging.getLogger(__name__)
 

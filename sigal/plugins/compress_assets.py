@@ -27,13 +27,14 @@ Settings available as dictionary in ``compress_assets_options``:
 
 """
 
-import logging
 import gzip
-import shutil
+import logging
 import os
+import shutil
+
+from click import progressbar
 
 from sigal import signals
-from click import progressbar
 
 logger = logging.getLogger(__name__)
 

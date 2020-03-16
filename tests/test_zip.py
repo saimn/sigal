@@ -1,5 +1,5 @@
-import os
 import glob
+import os
 import zipfile
 
 from sigal import init_plugins

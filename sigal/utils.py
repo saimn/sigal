@@ -20,10 +20,10 @@
 
 import os
 import shutil
+from urllib.parse import quote
+
 from markdown import Markdown
 from markupsafe import Markup
-
-from urllib.parse import quote
 
 VIDEO_MIMES = {'.mp4': 'video/mp4',
                '.webm': 'video/webm',

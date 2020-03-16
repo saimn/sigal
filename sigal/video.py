@@ -27,7 +27,7 @@ import subprocess
 from os.path import splitext
 
 from . import image, utils
-from .settings import get_thumb, Status
+from .settings import Status, get_thumb
 from .utils import is_valid_html5_video
 
 

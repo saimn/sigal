@@ -1,11 +1,12 @@
+import datetime
 import logging
 import os
-import pytest
-import datetime
-
 from os.path import join
 from urllib.parse import quote
-from sigal.gallery import Album, Media, Image, Video, Gallery
+
+import pytest
+
+from sigal.gallery import Album, Gallery, Image, Media, Video
 from sigal.video import SubprocessException
 
 CURRENT_DIR = os.path.dirname(__file__)

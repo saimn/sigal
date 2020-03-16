@@ -29,22 +29,23 @@
 #
 # and partially modified. The code in question is licensed under MIT license.
 
+import fractions
 import logging
 import os
-import pilkit.processors
 import sys
 import warnings
-import fractions
-
 from copy import deepcopy
 from datetime import datetime
-from PIL.ExifTags import TAGS, GPSTAGS
-from PIL import Image as PILImage, ImageOps, ImageFile, IptcImagePlugin
+
+import pilkit.processors
+from PIL import Image as PILImage
+from PIL import ImageFile, ImageOps, IptcImagePlugin
+from PIL.ExifTags import GPSTAGS, TAGS
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
 from . import signals, utils
-from .settings import get_thumb, Status
+from .settings import Status, get_thumb
 
 # Force loading of truncated files
 ImageFile.LOAD_TRUNCATED_IMAGES = True

@@ -1,5 +1,6 @@
 import os
 import pickle
+
 import pytest
 
 from sigal.gallery import Gallery

@@ -16,8 +16,9 @@ Settings:
 """
 
 import logging
-from PIL import ImageDraw
-from PIL import ImageFont
+
+from PIL import ImageDraw, ImageFont
+
 from sigal import signals
 
 logger = logging.getLogger(__name__)

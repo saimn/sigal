@@ -20,15 +20,15 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import jinja2
-import logging
 import imp
+import logging
 import os
 import sys
 import types
-
 from distutils.dir_util import copy_tree
-from jinja2 import Environment, FileSystemLoader, ChoiceLoader, PrefixLoader
+
+import jinja2
+from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
 
 from .utils import url_from_path

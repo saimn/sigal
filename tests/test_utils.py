@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 from sigal import utils
 
 CURRENT_DIR = os.path.dirname(__file__)

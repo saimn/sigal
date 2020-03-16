@@ -18,7 +18,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import click
 import importlib
 import locale
 import logging
@@ -26,10 +25,11 @@ import os
 import socketserver
 import sys
 import time
-
-from click import argument, option
 from http import server
-from pkg_resources import get_distribution, DistributionNotFound
+
+import click
+from click import argument, option
+from pkg_resources import DistributionNotFound, get_distribution
 
 from .gallery import Gallery
 from .log import init_logging

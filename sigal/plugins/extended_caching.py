@@ -29,9 +29,10 @@ creation of index files dramatically.
 
 """
 
-import pickle
 import logging
 import os
+import pickle
+
 from sigal import signals
 
 logger = logging.getLogger(__name__)

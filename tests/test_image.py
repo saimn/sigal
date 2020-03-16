@@ -1,12 +1,13 @@
 import os
-import pytest
 from unittest.mock import patch
+
+import pytest
 from PIL import Image
 
 from sigal import init_logging
-from sigal.image import (generate_image, generate_thumbnail, get_exif_tags,
-                         get_exif_data, get_size, process_image, get_iptc_data)
-from sigal.settings import create_settings, Status
+from sigal.image import (generate_image, generate_thumbnail, get_exif_data,
+                         get_exif_tags, get_iptc_data, get_size, process_image)
+from sigal.settings import Status, create_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_IMAGE = 'KeckObservatory20071020.jpg'

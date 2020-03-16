@@ -31,23 +31,23 @@ import os
 import pickle
 import random
 import sys
-
-from click import progressbar, get_terminal_size
 from collections import defaultdict
 from datetime import datetime
 from itertools import cycle
 from os.path import isfile, join, splitext
 from urllib.parse import quote as url_quote
 
-from . import image, video, signals
-from .image import (process_image, get_exif_tags, get_exif_data, get_size,
-                    get_iptc_data)
+from click import get_terminal_size, progressbar
+
+from . import image, signals, video
+from .image import (get_exif_data, get_exif_tags, get_iptc_data, get_size,
+                    process_image)
 from .settings import get_thumb
-from .utils import (Devnull, copy, check_or_create_dir, url_from_path,
-                    read_markdown, cached_property, is_valid_html5_video,
-                    get_mime)
+from .utils import (Devnull, cached_property, check_or_create_dir, copy,
+                    get_mime, is_valid_html5_video, read_markdown,
+                    url_from_path)
 from .video import process_video
-from .writer import AlbumPageWriter, AlbumListPageWriter
+from .writer import AlbumListPageWriter, AlbumPageWriter
 
 
 class Media:

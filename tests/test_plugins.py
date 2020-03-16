@@ -1,7 +1,7 @@
 import os
 
-from sigal.gallery import Gallery
 from sigal import init_plugins
+from sigal.gallery import Gallery
 
 CURRENT_DIR = os.path.dirname(__file__)
 

@@ -14,8 +14,10 @@ Settings::
 """
 
 import logging
-from sigal import signals
+
 from pilkit.processors import Adjust
+
+from sigal import signals
 
 logger = logging.getLogger(__name__)
 

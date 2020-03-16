@@ -21,7 +21,6 @@
 import logging
 import os
 import sys
-
 from logging import Formatter
 
 # The background is set with 40 plus the number of the color, and the
