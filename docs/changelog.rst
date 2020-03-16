@@ -14,6 +14,8 @@ Released on 2019-xx-xx.
 - Add a quiet flag [:issue:`376`].
 - Make sure that read-only files can be copied [:issue:`375`].
 - Update photoswipe to v4.1.3
+- Add a setting to force image output format [:issue:`360`].
+- Improve error message when template is not found [:issue:`384`].
 
 Version 2.0
 ~~~~~~~~~~~
