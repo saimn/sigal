@@ -40,8 +40,7 @@ from urllib.parse import quote as url_quote
 from click import get_terminal_size, progressbar
 
 from . import image, signals, video
-from .image import (get_exif_data, get_exif_tags, get_image_metadata,
-                    get_iptc_data, get_size, process_image)
+from .image import get_exif_tags, get_image_metadata, get_size, process_image
 from .settings import get_thumb
 from .utils import (Devnull, cached_property, check_or_create_dir, copy,
                     get_mime, is_valid_html5_video, read_markdown,
