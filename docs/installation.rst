@@ -8,7 +8,7 @@ With pip::
 
 Or to install with optional dependencies (listed below)::
 
-    $ pip install sigal\[all\]
+    $ pip install sigal\[all,tests\]
 
 To install the development version, see the :doc:`contribute`.
 
@@ -29,8 +29,8 @@ The mandatory dependencies are:
 - Pillow
 - Python Markdown
 
-There are also a number of optional dependencies for the :doc:`plugins`, listed
-in the ``requirements.txt`` file:
+There are also a number of optional dependencies for the :doc:`plugins`,
+installable with the ``[all]`` marker:
 
 - Brotli, zopfli (compress assets plugin)
 - Boto (upload to S3 plugin)

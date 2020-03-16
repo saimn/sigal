@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2018 - Simon Conseil
+# Copyright (c) 2009-2020 - Simon Conseil
 # Copyright (c)      2013 - Christophe-Marie Duquesne
 # Copyright (c)      2018 - Edwin Steele
 
@@ -37,7 +37,7 @@ THEMES_PATH = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'themes'))
 
 
-class AbstractWriter(object):
+class AbstractWriter:
     template_file = None
 
     def __init__(self, settings, index_title=''):

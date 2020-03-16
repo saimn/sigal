@@ -58,9 +58,9 @@ def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
 
     for item in medias[:nb_items]:
         if theme == 'galleria':
-            link = '%s/%s/#%s' % (base_url, item.path, item.url)
+            link = f'{base_url}/{item.path}/#{item.url}'
         else:
-            link = '%s/%s/' % (base_url, item.path)
+            link = f'{base_url}/{item.path}/'
 
         feed.add_item(
             title=Markup.escape(item.title or item.url),
@@ -68,7 +68,7 @@ def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
             # unique_id='tag:%s,%s:%s' % (urlparse(link).netloc,
             #                             item.date.date(),
             #                             urlparse(link).path.lstrip('/')),
-            description='<img src="%s/%s/%s" />' % (base_url, item.path,
+            description='<img src="{}/{}/{}" />'.format(base_url, item.path,
                                                     item.thumbnail),
             # categories=item.tags if hasattr(item, 'tags') else None,
             author_name=getattr(item, 'author', ''),

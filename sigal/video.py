@@ -1,5 +1,5 @@
 # Copyright (c)      2013 - Christophe-Marie Duquesne
-# Copyright (c) 2013-2018 - Simon Conseil
+# Copyright (c) 2013-2020 - Simon Conseil
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to

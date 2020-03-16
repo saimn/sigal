@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2018 - Simon Conseil
+# Copyright (c) 2009-2020 - Simon Conseil
 # Copyright (c) 2013      - Christophe-Marie Duquesne
 # Copyright (c) 2017      - Mate Lakat
 
@@ -86,7 +86,7 @@ _DEFAULT_CONFIG = {
 }
 
 
-class Status(object):
+class Status:
     SUCCESS = 0
     FAILURE = 1
 

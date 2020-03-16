@@ -1,4 +1,4 @@
-# Copyright (c) 2011-2018 - Simon Conseil
+# Copyright (c) 2011-2020 - Simon Conseil
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -32,7 +32,7 @@ VIDEO_MIMES = {'.mp4': 'video/mp4',
 MD = None
 
 
-class Devnull(object):
+class Devnull:
     """'Black hole' for output that should not be printed"""
 
     def write(self, *_):
@@ -82,7 +82,7 @@ def read_markdown(filename):
     # Use utf-8-sig codec to remove BOM if it is present. This is only possible
     # this way prior to feeding the text to the markdown parser (which would
     # also default to pure utf-8)
-    with open(filename, 'r', encoding='utf-8-sig') as f:
+    with open(filename, encoding='utf-8-sig') as f:
         text = f.read()
 
     if MD is None:
@@ -122,7 +122,7 @@ def get_mime(ext):
     return VIDEO_MIMES[ext]
 
 
-class cached_property(object):
+class cached_property:
     """ A property that is only computed once per instance and then replaces
     itself with an ordinary attribute. Deleting the attribute resets the
     property.

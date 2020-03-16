@@ -83,7 +83,7 @@ class BaseCompressor:
 
         file_stats = None
         compressed_stats = None
-        compressed_filename = '{}.{}'.format(filename, self.suffix)
+        compressed_filename = f'{filename}.{self.suffix}'
         try:
             file_stats = os.stat(filename)
             compressed_stats = os.stat(compressed_filename)
@@ -146,7 +146,7 @@ def get_compressor(settings):
             logger.error('Unable to import brotli module')
 
     else:
-        logger.error('No such compressor {}'.format(name))
+        logger.error(f'No such compressor {name}')
 
 
 def compress_gallery(gallery):
