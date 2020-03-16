@@ -13,6 +13,7 @@ Released on 2019-xx-xx.
   with a ``.nozip_gallery`` file [:issue:`368`].
 - Add a quiet flag [:issue:`376`].
 - Make sure that read-only files can be copied [:issue:`375`].
+- Update photoswipe to v4.1.3
 
 Version 2.0
 ~~~~~~~~~~~
