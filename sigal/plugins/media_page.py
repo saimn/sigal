@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2018 - Simon Conseil
+# Copyright (c) 2009-2020 - Simon Conseil
 # Copyright (c)      2014 - Jamie Starke
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy

@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2018 - Simon Conseil
+# Copyright (c) 2009-2020 - Simon Conseil
 # Copyright (c) 2013      - Christophe-Marie Duquesne
 # Copyright (c) 2014      - Jonas Kaufmann
 # Copyright (c) 2015      - François D.
