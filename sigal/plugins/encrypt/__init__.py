@@ -1,0 +1,1 @@
+from .encrypt import register

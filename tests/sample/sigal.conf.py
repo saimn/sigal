@@ -17,7 +17,16 @@ plugins = [
     'sigal.plugins.nomedia',
     'sigal.plugins.watermark',
     'sigal.plugins.zip_gallery',
+    'sigal.plugins.encrypt'
 ]
+encrypt_options = {
+    'password': 'password',
+    'ask_password': True,
+    'gcm_tag': 'AuTheNTiCatIoNtAG',
+    'kdf_salt': 'saltysaltsweetysweet',
+    'kdf_iters': 10000,
+    'encrypt_symlinked_originals': False
+}
 copyright = '© An example copyright message'
 adjust_options = {'color': 0.9, 'brightness': 1.0,
                   'contrast': 1.0, 'sharpness': 0.0}
