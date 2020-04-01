@@ -242,9 +242,8 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
 
 def copy_assets(settings):
     theme_path = os.path.join(settings["destination"], 'static')
-    for root, dirs, files in os.walk(ASSETS_PATH):
-        for file in files:
-            copy(os.path.join(root, file), theme_path, symlink=False, rellink=False)
+    copy(ASSETS_PATH + "/decrypt.js", theme_path, symlink=False, rellink=False)
+    copy(ASSETS_PATH + "/decrypt-worker.js", theme_path, symlink=False, rellink=False)
 
 def inject_scripts(context):
     try:
