@@ -1,0 +1,13 @@
+{% if 'sigal.plugins.encrypt' is in settings.plugins %}
+    <script src="{{ theme.url }}/decrypt.js"></script>
+    <script>
+        Decryptor.init({
+            password: "{{ encrypt_options.filtered_password }}",
+            worker_script: "{{ theme.url }}/decrypt-worker.js",
+            galleryId: "{{ encrypt_options.galleryId }}",
+            gcm_tag: "{{ encrypt_options.escaped_gcm_tag }}", 
+            kdf_salt: "{{ encrypt_options.escaped_kdf_salt }}", 
+            kdf_iters: {{ encrypt_options.kdf_iters }} 
+        });
+    </script>
+{% endif %}

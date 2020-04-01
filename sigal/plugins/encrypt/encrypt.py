@@ -62,6 +62,8 @@ from bs4 import BeautifulSoup
 
 from .endec import encrypt, kdf_gen_key
 
+logger = logging.getLogger(__name__)
+
 ASSETS_PATH = os.path.normpath(os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'static'))
 
@@ -71,13 +73,12 @@ class Abort(Exception):
 def gen_rand_string(length=16):
     return "".join(random.SystemRandom().choices(string.ascii_letters + string.digits, k=length))
 
-def get_options(gallery):
-    settings = gallery.settings
-    cache = gallery.encryptCache
+def get_options(settings, cache):
     if "encrypt_options" not in settings:
-        raise ValueError("Encrypt: no options in settings")
+        logging.error("Encrypt: no options in settings")
+        raise Abort
     
-    #try load credential from cache
+    # try load credential from cache
     try:
         options = cache["credentials"]
     except KeyError:
@@ -85,10 +86,15 @@ def get_options(gallery):
 
     table = str.maketrans({'"': r'\"', '\\': r'\\'})
     if "password" not in settings["encrypt_options"]:
-        raise ValueError("Encrypt: no password provided")
+        logger.error("Encrypt: no password provided")
+        raise Abort
     else:
         options["password"] = settings["encrypt_options"]["password"]
         options["escaped_password"] = options["password"].translate(table)
+
+    if "ask_password" not in options:
+        options["ask_password"] = settings["encrypt_options"].get("ask_password", False)
+    options["filtered_password"] = "" if options["ask_password"] else options["escaped_password"]
 
     if "gcm_tag" not in options:
         options["gcm_tag"] = gen_rand_string() 
@@ -104,10 +110,8 @@ def get_options(gallery):
     if "kdf_iters" not in options:
         options["kdf_iters"] = 10000
 
-    if "ask_password" not in options:
-        options["ask_password"] = settings["encrypt_options"].get("ask_password", False)
-
-    gallery.encryptCache["credentials"] = {
+    # in case any of the credentials are newly generated, write them back to cache
+    cache["credentials"] = {
         "gcm_tag": options["gcm_tag"],
         "kdf_salt": options["kdf_salt"],
         "kdf_iters": options["kdf_iters"],
@@ -141,9 +145,11 @@ def get_encrypt_list(settings, media):
     return to_encrypt
 
 def load_property(album):
-    if not hasattr(album.gallery, "encryptCache"):
-        load_cache(album.gallery)
-    cache = album.gallery.encryptCache
+    gallery = album.gallery
+    try:
+        cache = load_cache(gallery.settings)
+    except Abort:
+        return
 
     for media in album.medias:
         if media.type == "image":
@@ -152,32 +158,22 @@ def load_property(album):
                 media.size = cache[key]["size"]
                 media.thumb_size = cache[key]["thumb_size"]
 
-def load_cache(gallery):
-    if hasattr(gallery, "encryptCache"):
-        return
-    logger = gallery.logger
-    settings = gallery.settings
+def load_cache(settings):
     cachePath = os.path.join(settings["destination"], ".encryptCache")
-
     try:
         with open(cachePath, "rb") as cacheFile:
-            gallery.encryptCache = pickle.load(cacheFile)
-            logger.debug("Loaded encryption cache with %d entries", len(gallery.encryptCache))
+            encryptCache = pickle.load(cacheFile)
+            logger.debug("Loaded encryption cache with %d entries", len(encryptCache))
+            return encryptCache
     except FileNotFoundError:
-        gallery.encryptCache = {}
+        encryptCache = {}
+        return encryptCache
     except Exception as e:
         logger.error("Could not load encryption cache: %s", e)
         logger.error("Giving up encryption. Please delete and rebuild the entire gallery.")
         raise Abort
 
-def save_cache(gallery):
-    if hasattr(gallery, "encryptCache"):
-        cache = gallery.encryptCache
-    else:
-        cache = gallery.encryptCache = {}
-    
-    logger = gallery.logger
-    settings = gallery.settings
+def save_cache(settings, cache):
     cachePath = os.path.join(settings["destination"], ".encryptCache")
     try:
         with open(cachePath, "wb") as cacheFile:
@@ -188,25 +184,24 @@ def save_cache(gallery):
         logger.warning("Next build of the gallery is likely to fail!")
 
 def encrypt_gallery(gallery):
-    logger = gallery.logger
     albums = gallery.albums
     settings = gallery.settings
     
     try:
-        load_cache(gallery)
-        config = get_options(gallery)
+        cache = load_cache(settings)
+        config = get_options(settings, cache)
         logger.debug("encryption config: %s", config)
+        # make cache available from gallery object
+        # gallery.encryptCache = cache
+
         logger.info("starting encryption")
-        encrypt_files(gallery, settings, config, albums)
-        fix_html(gallery, settings, config, albums)
+        encrypt_files(settings, config, cache, albums, gallery.progressbar_target)
         copy_assets(settings)
+        save_cache(settings, cache)
     except Abort:
         pass
 
-    save_cache(gallery)
-
-def encrypt_files(gallery, settings, config, albums):
-    logger = gallery.logger
+def encrypt_files(settings, config, cache, albums, progressbar_target):
     if settings["keep_orig"]:
         if settings["orig_link"] and not config["encrypt_symlinked_originals"]:
             logger.warning("Original files are symlinked! Set encrypt_options[\"encrypt_symlinked_originals\"] to True to force encrypting them, if this is what you want.")
@@ -214,16 +209,16 @@ def encrypt_files(gallery, settings, config, albums):
 
     key = kdf_gen_key(config["password"].encode("utf-8"), config["kdf_salt"].encode("utf-8"), config["kdf_iters"])
     medias = list(chain.from_iterable(albums.values()))
-    with progressbar(medias, label="%16s" % "Encrypting files", file=gallery.progressbar_target, show_eta=True) as medias:
+    with progressbar(medias, label="%16s" % "Encrypting files", file=progressbar_target, show_eta=True) as medias:
         for media in medias:
             if media.type != "image":
                 logger.info("Skipping non-image file %s", media.filename)
                 continue
 
-            save_property(gallery.encryptCache, media)
+            save_property(cache, media)
             to_encrypt = get_encrypt_list(settings, media)
 
-            cacheEntry = gallery.encryptCache[cache_key(media)]["encrypted"]
+            cacheEntry = cache[cache_key(media)]["encrypted"]
             for f in to_encrypt:
                 if f in cacheEntry:
                     logger.info("Skipping %s as it is already encrypted", f)
@@ -245,53 +240,25 @@ def encrypt_files(gallery, settings, config, albums):
                         except Exception as e:
                             logger.error("Could not write to file %s: %s", f, e)
 
-def fix_html(gallery, settings, config, albums):
-    logger = gallery.logger
-    if gallery.settings["write_html"]:
-        decryptorConfigTemplate = """
-        Decryptor.init({{
-            password: "{filtered_password}",
-            worker_script: "{worker_script}",
-            galleryId: "{galleryId}",
-            gcm_tag: "{escaped_gcm_tag}", 
-            kdf_salt: "{escaped_kdf_salt}", 
-            kdf_iters: {kdf_iters} 
-        }});
-        """
-        config["filtered_password"] = "" if config.get("ask_password", False) else config["escaped_password"]
-
-        with progressbar(albums.values(), label="%16s" % "Fixing html files", file=gallery.progressbar_target, show_eta=True) as albums:
-            for album in albums:
-                index_file = os.path.join(album.dst_path, album.output_file)
-                contents = None
-                with open(index_file, "r", encoding="utf-8") as f:
-                    contents = f.read()
-                root = BeautifulSoup(contents, "html.parser")
-                head = root.find("head")
-                if head.find(id="_decrypt_script"):
-                    head.find(id="_decrypt_script").decompose()
-                if head.find(id="_decrypt_script_config"):
-                    head.find(id="_decrypt_script_config").decompose()
-                theme_path = os.path.join(settings["destination"], 'static')
-                theme_url = url_from_path(os.path.relpath(theme_path, album.dst_path))
-                scriptNode = root.new_tag("script", id="_decrypt_script", src="{url}/decrypt.js".format(url=theme_url))
-                scriptConfig = root.new_tag("script", id="_decrypt_script_config")
-                config["worker_script"] = "{url}/decrypt-worker.js".format(url=theme_url)
-                decryptorConfig = decryptorConfigTemplate.format(**config)
-                scriptConfig.append(root.new_string(decryptorConfig))
-                head.append(scriptNode)
-                head.append(scriptConfig)
-                with open(index_file, "w", encoding="utf-8") as f:
-                    f.write(root.prettify())
-
 def copy_assets(settings):
     theme_path = os.path.join(settings["destination"], 'static')
     for root, dirs, files in os.walk(ASSETS_PATH):
         for file in files:
             copy(os.path.join(root, file), theme_path, symlink=False, rellink=False)
 
+def inject_scripts(context):
+    try:
+        cache = load_cache(context['settings'])
+        context["encrypt_options"] = get_options(context['settings'], cache)
+    except Abort:
+        # we can't do anything useful without info in cache
+        # so just return the context unmodified
+        pass
+    
+    return context
 
 def register(settings):
     signals.gallery_build.connect(encrypt_gallery)
     signals.album_initialized.connect(load_property)
+    signals.before_render.connect(inject_scripts)
 

@@ -31,6 +31,7 @@ import jinja2
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
 
+from . import signals
 from .utils import url_from_path
 
 THEMES_PATH = os.path.normpath(os.path.join(
@@ -112,8 +113,10 @@ class AbstractWriter:
 
     def write(self, album):
         """Generate the HTML page and save it."""
-
-        page = self.template.render(**self.generate_context(album))
+        context = self.generate_context(album)
+        for receiver in signals.before_render.receivers_for(context):
+            context = receiver(context)
+        page = self.template.render(**context)
         output_file = os.path.join(album.dst_path, album.output_file)
 
         with open(output_file, 'w', encoding='utf-8') as f:
