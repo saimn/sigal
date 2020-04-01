@@ -85,7 +85,8 @@ def get_options(settings, cache):
         options = settings["encrypt_options"]
 
     table = str.maketrans({'"': r'\"', '\\': r'\\'})
-    if "password" not in settings["encrypt_options"]:
+    if "password" not in settings["encrypt_options"] \
+        or len(settings["encrypt_options"]["password"]) == 0:
         logger.error("Encrypt: no password provided")
         raise Abort
     else:
