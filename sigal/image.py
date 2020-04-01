@@ -56,6 +56,10 @@ def _has_exif_tags(img):
 
 
 def _read_image(file_path):
+    # The image is already opened
+    if isinstance(file_path, PILImage.Image):
+        return file_path
+
     with warnings.catch_warnings(record=True) as caught_warnings:
         im = PILImage.open(file_path)
 
@@ -203,10 +207,7 @@ def get_size(file_path):
         logger.error("Could not read size of %s due to %r", file_path, e)
     else:
         width, height = im.size
-        return {
-            'width': width,
-            'height': height
-        }
+        return {'width': width, 'height': height}
 
 
 def get_exif_data(filename):
@@ -269,6 +270,34 @@ def get_iptc_data(filename):
                                                           errors='replace')
 
     return iptc_data
+
+
+def get_image_metadata(filename):
+    logger = logging.getLogger(__name__)
+    exif, iptc, size = {}, {}, {}
+
+    try:
+        img = _read_image(filename)
+    except Exception as e:
+        logger.error('Could not open image %s metadata: %s', filename, e)
+    else:
+        try:
+            if os.path.splitext(filename)[1].lower() in ('.jpg', '.jpeg'):
+                exif = get_exif_data(img)
+        except Exception as e:
+            logger.warning('Could not read EXIF data from %s: %s', filename, e)
+
+        try:
+            iptc = get_iptc_data(img)
+        except Exception as e:
+            logger.warning('Could not read IPTC data from %s: %s', filename, e)
+
+        try:
+            size = get_size(img)
+        except Exception as e:
+            logger.warning('Could not read size from %s: %s', filename, e)
+
+    return {'exif': exif, 'iptc': iptc, 'size': size}
 
 
 def dms_to_degrees(v):
