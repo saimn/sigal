@@ -3,7 +3,7 @@
     <script>
         Decryptor.init({
             password: "{{ encrypt_options.filtered_password }}",
-            worker_script: "{{ theme.url }}/decrypt-worker.js",
+            sw_script: "{{ theme.url }}/../sw.js",
             galleryId: "{{ encrypt_options.galleryId }}",
             gcm_tag: "{{ encrypt_options.escaped_gcm_tag }}", 
             kdf_salt: "{{ encrypt_options.escaped_kdf_salt }}", 

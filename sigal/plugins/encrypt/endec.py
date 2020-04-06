@@ -32,6 +32,7 @@ from cryptography.exceptions import InvalidTag
 from typing import BinaryIO
 
 backend = default_backend()
+MAGIC_STRING = "_e_n_c_r_y_p_t_e_d_"
 
 def kdf_gen_key(password: bytes, salt:bytes, iters: int) -> bytes:
     kdf = PBKDF2HMAC(
@@ -74,6 +75,7 @@ def encrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
     ciphertext = outfile
     rawbytes = plaintext.read()
     encrypted = aesgcm.encrypt(iv, rawbytes, tag)
+    ciphertext.write(MAGIC_STRING.encode("utf-8"))
     ciphertext.write(iv)
     ciphertext.write(encrypted)
 
@@ -83,6 +85,9 @@ def decrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
     aesgcm = AESGCM(key)
     ciphertext = infile
     plaintext = outfile
+    magicstring = ciphertext.read(len(MAGIC_STRING))
+    if magicstring != MAGIC_STRING.encode("utf-8"):
+        raise ValueError("Data is not encrypted")
     iv = ciphertext.read(12)
     rawbytes = ciphertext.read()
     try:

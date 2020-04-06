@@ -196,8 +196,8 @@ def encrypt_gallery(gallery):
         # gallery.encryptCache = cache
 
         logger.info("starting encryption")
-        encrypt_files(settings, config, cache, albums, gallery.progressbar_target)
         copy_assets(settings)
+        encrypt_files(settings, config, cache, albums, gallery.progressbar_target)
         save_cache(settings, cache)
     except Abort:
         pass
@@ -209,6 +209,8 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
             raise Abort
 
     key = kdf_gen_key(config["password"].encode("utf-8"), config["kdf_salt"].encode("utf-8"), config["kdf_iters"])
+    gcm_tag = config["gcm_tag"].encode("utf-8")
+
     medias = list(chain.from_iterable(albums.values()))
     with progressbar(medias, label="%16s" % "Encrypting files", file=progressbar_target, show_eta=True) as medias:
         for media in medias:
@@ -226,25 +228,38 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
                     continue
 
                 full_path = os.path.join(settings["destination"], f)
-                with BytesIO() as outBuffer:
-                    try:
-                        with open(full_path, "rb") as infile:
-                            encrypt(key, infile, outBuffer, config["gcm_tag"].encode("utf-8"))
-                    except Exception as e:
-                        logger.error("Encryption failed for %s: %s", f, e)
-                    else:
-                        logger.info("Encrypting %s...", f)
-                        try:
-                            with open(full_path, "wb") as outfile:
-                                outfile.write(outBuffer.getbuffer())
-                            cacheEntry.add(f)
-                        except Exception as e:
-                            logger.error("Could not write to file %s: %s", f, e)
+                if encrypt_file(f, full_path, key, gcm_tag):
+                    cacheEntry.add(f)
+
+    key_check_path = os.path.join(
+                        os.path.join(settings["destination"], 'static'), 
+                        'keycheck.txt'
+                    )
+    encrypt_file("keycheck.txt", key_check_path, key, gcm_tag)
+
+def encrypt_file(filename, full_path, key, gcm_tag):
+    with BytesIO() as outBuffer:
+        try:
+            with open(full_path, "rb") as infile:
+                encrypt(key, infile, outBuffer, gcm_tag)
+        except Exception as e:
+            logger.error("Encryption failed for %s: %s", filename, e)
+            return False
+        else:
+            logger.info("Encrypting %s...", filename)
+            try:
+                with open(full_path, "wb") as outfile:
+                    outfile.write(outBuffer.getbuffer())
+            except Exception as e:
+                logger.error("Could not write to file %s: %s", filename, e)
+                return False
+    return True
 
 def copy_assets(settings):
     theme_path = os.path.join(settings["destination"], 'static')
-    copy(ASSETS_PATH + "/decrypt.js", theme_path, symlink=False, rellink=False)
-    copy(ASSETS_PATH + "/decrypt-worker.js", theme_path, symlink=False, rellink=False)
+    copy(os.path.join(ASSETS_PATH, "decrypt.js"), theme_path, symlink=False, rellink=False)
+    copy(os.path.join(ASSETS_PATH, "keycheck.txt"), theme_path, symlink=False, rellink=False)
+    copy(os.path.join(ASSETS_PATH, "sw.js"), settings["destination"], symlink=False, rellink=False)
 
 def inject_scripts(context):
     try:
