@@ -35,8 +35,12 @@ class Decryptor {
                 return;
             }
             this._role = "main";
-            this._galleryId = config.galleryId;
-            this._mSetupServiceWorker(config);
+            this._config = config;
+            const localConfig = this._mGetLocalConfig();
+            if (localConfig) {
+                this._config = localConfig;
+            }
+            this._mSetupServiceWorker();
         }
 
         console.info("Decryptor initialized");
@@ -79,10 +83,8 @@ class Decryptor {
                 Decryptor.decrypt(crypto, encrypted_blob_arraybuffer, aes_key, gcm_tag);
             this._swNotifyWorkerReady();
         } else {
-            const array_clients = await self.clients.matchAll({includeUncontrolled: true});
-            for (let client of array_clients) {
-                this._proxyWrap(client)._mNotifyIncorrectPassword();
-            }
+            this.workerReady = false;
+            this._swNotifyIncorrectPassword()
         }
     }
 
@@ -111,7 +113,14 @@ class Decryptor {
     async _swNotifyWorkerReady() {
         const array_clients = await self.clients.matchAll({includeUncontrolled: true});
         for (let client of array_clients) {
-            this._proxyWrap(client)._mReload();
+            this._proxyWrap(client)._mSetWorkerReady();
+        }
+    }
+
+    async _swNotifyIncorrectPassword() {
+        const array_clients = await self.clients.matchAll({includeUncontrolled: true});
+        for (let client of array_clients) {
+            this._proxyWrap(client)._mUnsetWorkerReady();
         }
     }
 
@@ -135,15 +144,25 @@ class Decryptor {
         }
     }
 
-    _mReload() {
-        window.location.reload();
+    _mSetWorkerReady() {
+        this.workerReady = true;
+        const had_been_ready_before = localStorage.getItem(this._config.galleryId) !== null;
+        localStorage.setItem(this._config.galleryId, JSON.stringify(this._config));
+        if (!had_been_ready_before) {
+            window.location.reload();
+        }
     }
 
-    _mNotifyIncorrectPassword() {
-        localStorage.removeItem(this._galleryId);
+    _mUnsetWorkerReady() {
+        this.workerReady = false;
+        localStorage.removeItem(this._config.galleryId);
     }
 
-    async _mSetupServiceWorker(config) {
+    _mGetLocalConfig() {
+        return JSON.parse(localStorage.getItem(this._config.galleryId));
+    }
+
+    async _mSetupServiceWorker() {
         if (!('serviceWorker' in navigator)) {
             console.error("Fatal: Your browser does not support service worker");
             throw new Error("no service worker support");
@@ -152,7 +171,7 @@ class Decryptor {
         if (navigator.serviceWorker.controller) {
             this.serviceWorker = navigator.serviceWorker.controller;
         } else {
-            navigator.serviceWorker.register(config.sw_script);
+            navigator.serviceWorker.register(this._config.sw_script);
             const registration = await navigator.serviceWorker.ready;
             this.serviceWorker = registration.active;
         }
@@ -162,10 +181,10 @@ class Decryptor {
         this.serviceWorker = this._proxyWrap(this.serviceWorker);
 
         if (!(await this.serviceWorker.Decryptor.isInitialized())) {
-            if (!('password' in config && config.password)) {
-                config.password = await this._mAskPassword();
+            if (!('password' in this._config && this._config.password)) {
+                this._config.password = await this._mAskPassword();
             }
-            this.serviceWorker._swInitServiceWorker(config);
+            this.serviceWorker._swInitServiceWorker(this._config);
         }
     }
 
@@ -187,17 +206,16 @@ class Decryptor {
 
     /* main thread only */
     async _mAskPassword() {
-        let password = localStorage.getItem(this._galleryId);
-        if (!password) {
-            const password = prompt("Input password to view this gallery:");
-            if (password) {
-                localStorage.setItem(this._galleryId, password);
-                return password;
-            } else {
-                return "__wrong_password__";
-            }
-        } else {
+        const config = JSON.parse(localStorage.getItem(this._config.galleryId));
+        if (config && config.password) {
+            return config.password;
+        }
+        const password = prompt("Input password to view this gallery:");
+        if (password) {
+            this._config.password = password;
             return password;
+        } else {
+            return "__wrong_password__";
         }
     }
 
@@ -461,8 +479,24 @@ class Decryptor {
         console.debug(`Fetch succeeded with encrypted image ${request.url}, trying to decrypt`);
 
         if (!Decryptor.isInitialized()) {
-            console.debug(`Service worker not initialized on fetch event`);
-            return Decryptor.errorResponse.clone();
+            if ('decryptor' in self) {
+                try{
+                    const clients = await self.clients.matchAll({type: "window"});
+                    const races = Promise.race(
+                        clients.map((client) => {
+                            return self.decryptor._proxyWrap(client)._mGetLocalConfig();
+                        })
+                    );
+                    const config = await Promise.timeout(races, 100);
+                    await self.decryptor._swInitServiceWorker(config);
+                } catch (error) {
+                    // do nothing
+                }
+            }
+            if (!Decryptor.isInitialized()) {
+                console.debug(`Service worker not initialized on fetch event`);
+                return Decryptor.errorResponse.clone();
+            }
         }
 
         let decrypted_blob;
@@ -533,3 +567,13 @@ Decryptor.errorResponse = new Response(
     }
 );
 
+Promise.timeout = function(cb_or_pm, timeout) {
+    return Promise.race([
+        cb_or_pm instanceof Function ? new Promise(cb) : cb_or_pm,
+        new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject('Timed out');
+            }, timeout);
+        })
+    ]);
+}
