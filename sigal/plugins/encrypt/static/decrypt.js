@@ -31,14 +31,14 @@ class Decryptor {
             this._role = "service_worker";
         } else if (!Decryptor.isWorker()) {
             if (!Decryptor.featureTest()) {
-                alert("This page cannot function properly because your browser does not support some critical features. Please update your browser.");
+                alert("This page cannot function properly because your browser does not support some critical features or you are in private browsing mode. Please update your browser or exit private browsing mode.");
                 return;
             }
             this._role = "main";
             this._config = config;
-            const localConfig = this._mGetLocalConfig();
-            if (localConfig) {
-                this._config = localConfig;
+            const local_config = this._mGetLocalConfig();
+            if (local_config) {
+                this._config = local_config;
             }
             this._mSetupServiceWorker();
         }
@@ -159,7 +159,18 @@ class Decryptor {
     }
 
     _mGetLocalConfig() {
-        return JSON.parse(localStorage.getItem(this._config.galleryId));
+        const local_config = JSON.parse(localStorage.getItem(this._config.galleryId));
+        if (local_config 
+            && local_config.galleryId
+            && local_config.sw_script
+            && local_config.password
+            && local_config.gcm_tag
+            && local_config.kdf_salt
+            && local_config.kdf_iters) {
+            return local_config;
+        } else {
+            return null;
+        }
     }
 
     async _mSetupServiceWorker() {
@@ -290,7 +301,7 @@ class Decryptor {
 
         if (check_magic_string && !(await Decryptor.checkMagicString(arraybuffer))) {
             // data is not encrypted
-            return blob;
+            return blob_or_arraybuffer;
         }
         
         const iv = new DataView(
@@ -391,12 +402,14 @@ class Decryptor {
     static onMessage(replyPort, e) {
         const type = e.data.type;
         const id = e.data.id;
-        const method = e.data.method;
-        const args = e.data.args;
-        const instance = e.data.static ? Decryptor : (Decryptor.isWorker() ? self : window).decryptor;
 
         if (type === "job") {
-            Decryptor._asyncReturn(instance, method, args)
+            const method = e.data.method;
+            const args = e.data.args;
+            const instance = e.data.static ? Decryptor :
+                (Decryptor.isWorker() ? self : window).decryptor;
+
+                Decryptor._asyncReturn(instance, method, args)
             .then(
                 (result) => { return {type: "reply", success: true, result: result}; }, 
                 (error) => { return {type: "reply", success: false, result: error.message}; }
@@ -406,17 +419,22 @@ class Decryptor {
                 replyPort.postMessage(reply);
             });
         } else if (type === "reply") {
-            const callbacks = decryptor._jobMap.get(e.data.id);
-            if (e.data.success) {
-                if (callbacks.success) callbacks.success(e.data.result);
+            // if we are receiving replies, we must have been initialized
+            // so no need to check if "decryptor" exists here
+            const success = e.data.success;
+            const result = e.data.result;
+            const callbacks = decryptor._jobMap.get(id);
+
+            if (success) {
+                if (callbacks.success) callbacks.success(result);
             } else {
-                if (callbacks.error) callbacks.error(new Error(e.data.result));
+                if (callbacks.error) callbacks.error(new Error(result));
             }
-            decryptor._jobMap.delete(e.data.id);
+            decryptor._jobMap.delete(id);
         }
     }
 
-    static async onServiceWorkerInstall(e) {
+    static onServiceWorkerInstall(e) {
         console.log("service worker on install: ", e);
         e.waitUntil(self.skipWaiting());
     }
