@@ -58,7 +58,6 @@ from sigal import signals
 from sigal.utils import url_from_path, copy
 from sigal.settings import get_thumb
 from click import progressbar
-from bs4 import BeautifulSoup
 
 from .endec import encrypt, kdf_gen_key
 
