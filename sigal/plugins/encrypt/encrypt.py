@@ -230,10 +230,7 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
                 if encrypt_file(f, full_path, key, gcm_tag):
                     cacheEntry.add(f)
 
-    key_check_path = os.path.join(
-                        os.path.join(settings["destination"], 'static'), 
-                        'keycheck.txt'
-                    )
+    key_check_path = os.path.join(settings["destination"], 'static', 'keycheck.txt')
     encrypt_file("keycheck.txt", key_check_path, key, gcm_tag)
 
 def encrypt_file(filename, full_path, key, gcm_tag):
