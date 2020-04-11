@@ -40,7 +40,11 @@ class Decryptor {
             if (local_config) {
                 this._config = local_config;
             }
-            this._mSetupServiceWorker();
+            window.addEventListener(
+                "load",
+                (e) => this._mSetupServiceWorker(),
+                { once: true, passive: true }
+            );
         }
 
         console.info("Decryptor initialized");
