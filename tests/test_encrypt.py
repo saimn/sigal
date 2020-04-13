@@ -49,7 +49,7 @@ def test_encrypt(settings, tmpdir, disconnect_signals):
 
     testAlbum = gal.albums["encryptTest"]
     key, tag = get_key_tag(settings)
-    
+
     for media in testAlbum:
         # check if sizes are stored in cache
         assert cache_key(media) in encryptCache
@@ -58,7 +58,7 @@ def test_encrypt(settings, tmpdir, disconnect_signals):
         assert "encrypted" in encryptCache[cache_key(media)]
 
         encryptedImages = [
-            media.dst_path, 
+            media.dst_path,
             media.thumb_path
         ]
         if settings["keep_orig"]:
@@ -78,7 +78,7 @@ def test_encrypt(settings, tmpdir, disconnect_signals):
     assert os.path.isfile(os.path.join(settings["destination"], "sw.js"))
 
     # check keycheck file
-    with open(os.path.join(settings["destination"], 
+    with open(os.path.join(settings["destination"],
                             'static', "keycheck.txt"), "rb") as infile:
         with BytesIO() as outfile:
             endec.decrypt(key, infile, outfile, tag)
