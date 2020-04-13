@@ -114,8 +114,7 @@ class AbstractWriter:
     def write(self, album):
         """Generate the HTML page and save it."""
         context = self.generate_context(album)
-        for receiver in signals.before_render.receivers_for(context):
-            context = receiver(context)
+        signals.before_render.send(context)
         page = self.template.render(**context)
         output_file = os.path.join(album.dst_path, album.output_file)
 

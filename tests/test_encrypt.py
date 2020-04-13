@@ -2,7 +2,6 @@ import os
 import pickle
 from io import BytesIO
 
-import pytest
 from sigal import init_plugins
 from sigal.gallery import Gallery
 from sigal.plugins.encrypt import endec
@@ -10,12 +9,6 @@ from sigal.plugins.encrypt.encrypt import cache_key
 
 CURRENT_DIR = os.path.dirname(__file__)
 
-
-@pytest.fixture()
-def remove_cache(settings):
-    yield
-    cachepath = os.path.join(settings['destination'], ".encryptCache")
-    os.remove(cachepath)
 
 def get_key_tag(settings):
     options = settings["encrypt_options"]
@@ -27,7 +20,7 @@ def get_key_tag(settings):
     tag = options["gcm_tag"].encode("utf-8")
     return (key, tag)
 
-def test_encrypt(settings, tmpdir, disconnect_signals, remove_cache):
+def test_encrypt(settings, tmpdir, disconnect_signals):
     settings['destination'] = str(tmpdir)
     if "sigal.plugins.encrypt" not in settings["plugins"]:
         settings['plugins'] += ["sigal.plugins.encrypt"]
