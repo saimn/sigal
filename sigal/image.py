@@ -317,10 +317,8 @@ def get_exif_tags(data, datetime_format='%c'):
 
     for tag in ('Model', 'Make', 'LensModel'):
         if tag in data:
-            if isinstance(data[tag], tuple):
-                simple[tag] = data[tag][0].strip()
-            else:
-                simple[tag] = data[tag].strip()
+            val = data[tag][0] if isinstance(data[tag], tuple) else data[tag]
+            simple[tag] = str(val).strip()
 
     if 'FNumber' in data:
         fnumber = data['FNumber']
