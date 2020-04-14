@@ -149,10 +149,10 @@ def save_property(cache, media):
 
 def get_encrypt_list(settings, media):
     to_encrypt = []
-    to_encrypt.append(media.filename) #resized image
+    to_encrypt.append(media.filename) #resized image or in case of "use_orig", the original
     if settings["make_thumbs"]:
         to_encrypt.append(get_thumb(settings, media.filename)) #thumbnail
-    if media.big is not None:
+    if media.big is not None and not settings["use_orig"]:
         to_encrypt.append(media.big) #original image
     to_encrypt = list(map(lambda path: os.path.join(media.path, path), to_encrypt))
     return to_encrypt
