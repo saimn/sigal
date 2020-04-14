@@ -79,8 +79,8 @@ def gen_rand_string(length=16):
 
 def get_options(settings, cache):
     if "encrypt_options" not in settings:
-        logging.error("Encrypt: no options in settings")
-        raise Abort
+        logging.error("Encrypt: no encrypt_options in settings")
+        raise ValueError("no encrypt_options in settings")
     
     # try load credential from cache
     try:
@@ -92,7 +92,7 @@ def get_options(settings, cache):
     if "password" not in settings["encrypt_options"] \
         or len(settings["encrypt_options"]["password"]) == 0:
         logger.error("Encrypt: no password provided")
-        raise Abort
+        raise ValueError("no password provided")
     else:
         options["password"] = settings["encrypt_options"]["password"]
         options["escaped_password"] = options["password"].translate(table)
@@ -151,10 +151,7 @@ def get_encrypt_list(settings, media):
 
 def load_property(album):
     gallery = album.gallery
-    try:
-        cache = load_cache(gallery.settings)
-    except Abort:
-        return
+    cache = load_cache(gallery.settings)
 
     for media in album.medias:
         if media.type == "image":
@@ -175,7 +172,7 @@ def load_cache(settings):
         return encryptCache
     except Exception as e:
         logger.error("Could not load encryption cache: %s", e)
-        logger.error("Giving up encryption. Please delete and rebuild the entire gallery.")
+        logger.error("Giving up encryption. You may have to delete and rebuild the entire gallery.")
         raise Abort
 
 def save_cache(settings, cache):
@@ -191,26 +188,21 @@ def save_cache(settings, cache):
 def encrypt_gallery(gallery):
     albums = gallery.albums
     settings = gallery.settings
-    
-    try:
-        cache = load_cache(settings)
-        config = get_options(settings, cache)
-        logger.debug("encryption config: %s", config)
-        # make cache available from gallery object
-        # gallery.encryptCache = cache
 
-        logger.info("starting encryption")
-        copy_assets(settings)
-        encrypt_files(settings, config, cache, albums, gallery.progressbar_target)
-        save_cache(settings, cache)
-    except Abort:
-        pass
+    cache = load_cache(settings)
+    config = get_options(settings, cache)
+    logger.debug("encryption config: %s", config)
+
+    logger.info("starting encryption")
+    copy_assets(settings)
+    encrypt_files(settings, config, cache, albums, gallery.progressbar_target)
+    save_cache(settings, cache)
 
 def encrypt_files(settings, config, cache, albums, progressbar_target):
-    if settings["keep_orig"]:
-        if settings["orig_link"] and not config["encrypt_symlinked_originals"]:
-            logger.warning("Original files are symlinked! Set encrypt_options[\"encrypt_symlinked_originals\"] to True to force encrypting them, if this is what you want.")
-            raise Abort
+    if settings["keep_orig"] and settings["orig_link"] \
+        and not config["encrypt_symlinked_originals"]:
+        logger.warning("Original files are symlinked! Set encrypt_options[\"encrypt_symlinked_originals\"] to True to force encrypting them, if this is what you want.")
+        raise Abort
 
     key = kdf_gen_key(config["password"], config["kdf_salt"], config["kdf_iters"])
     gcm_tag = config["gcm_tag"].encode("utf-8")
@@ -234,6 +226,11 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
                 full_path = os.path.join(settings["destination"], f)
                 if encrypt_file(f, full_path, key, gcm_tag):
                     cacheEntry.add(f)
+                else:
+                    # save the progress and abort the build if any image
+                    # fails to be encrypted
+                    save_cache(settings, cache)
+                    raise Abort
 
     key_check_path = os.path.join(settings["destination"], 'static', 'keycheck.txt')
     encrypt_file("keycheck.txt", key_check_path, key, gcm_tag)
@@ -263,15 +260,8 @@ def copy_assets(settings):
     copy(os.path.join(ASSETS_PATH, "sw.js"), settings["destination"], symlink=False, rellink=False)
 
 def inject_scripts(context):
-    try:
-        cache = load_cache(context['settings'])
-        context["encrypt_options"] = get_options(context['settings'], cache)
-    except Abort:
-        # we can't do anything useful without info in cache
-        # so just return the context unmodified
-        pass
-    
-    return context
+    cache = load_cache(context['settings'])
+    context["encrypt_options"] = get_options(context['settings'], cache)
 
 def register(settings):
     signals.gallery_build.connect(encrypt_gallery)
