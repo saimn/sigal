@@ -13,8 +13,8 @@ CURRENT_DIR = os.path.dirname(__file__)
 def get_key_tag(settings):
     options = settings["encrypt_options"]
     key = endec.kdf_gen_key(
-        options["password"].encode("utf-8"),
-        options["kdf_salt"].encode("utf-8"),
+        options["password"],
+        options["kdf_salt"],
         options["kdf_iters"]
     )
     tag = options["gcm_tag"].encode("utf-8")

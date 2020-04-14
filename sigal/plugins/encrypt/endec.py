@@ -21,20 +21,24 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import io
+import os
 from pathlib import Path
-import os, io
 from base64 import b64decode
+from typing import BinaryIO
+
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.exceptions import InvalidTag
-from typing import BinaryIO
 
 backend = default_backend()
-MAGIC_STRING = "_e_n_c_r_y_p_t_e_d_"
+MAGIC_STRING = "_e_n_c_r_y_p_t_e_d_".encode("utf-8")
 
-def kdf_gen_key(password: bytes, salt:bytes, iters: int) -> bytes:
+def kdf_gen_key(password: str, salt: str, iters: int) -> bytes:
+    password = password.encode("utf-8")
+    salt = salt.encode("utf-8")
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA1(),
         length=16,
@@ -50,11 +54,7 @@ def dispatchargs(decorated):
         if args.key is not None:
             key = b64decode(args.key.encode("utf-8"))
         elif args.password is not None:
-            key = kdf_gen_key(
-                args.password.encode("utf-8"), 
-                args.kdf_salt.encode("utf-8"), 
-                args.kdf_iters
-                )
+            key = kdf_gen_key(args.password, args.kdf_salt, args.kdf_iters)
         else:
             raise ValueError("Neither password nor key is provided")
         tag = args.gcm_tag.encode("utf-8")
@@ -75,7 +75,7 @@ def encrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
     ciphertext = outfile
     rawbytes = plaintext.read()
     encrypted = aesgcm.encrypt(iv, rawbytes, tag)
-    ciphertext.write(MAGIC_STRING.encode("utf-8"))
+    ciphertext.write(MAGIC_STRING)
     ciphertext.write(iv)
     ciphertext.write(encrypted)
 
@@ -86,7 +86,7 @@ def decrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
     ciphertext = infile
     plaintext = outfile
     magicstring = ciphertext.read(len(MAGIC_STRING))
-    if magicstring != MAGIC_STRING.encode("utf-8"):
+    if magicstring != MAGIC_STRING:
         raise ValueError("Data is not encrypted")
     iv = ciphertext.read(12)
     rawbytes = ciphertext.read()

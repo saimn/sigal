@@ -20,7 +20,8 @@
 
 '''Plugin to protect gallery by encrypting image files using a password.
 
-Options:
+Options::
+
     encrypt_options = {
         'password': 'password',
         'ask_password': False,
@@ -50,7 +51,11 @@ BUILT, or there will be inconsistency in encrypted files and viewers will not be
 to see some of the images any more.
 '''
 
-import os, random, string, logging, pickle
+import os
+import random
+import string
+import logging
+import pickle
 from io import BytesIO
 from itertools import chain
 
@@ -207,7 +212,7 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
             logger.warning("Original files are symlinked! Set encrypt_options[\"encrypt_symlinked_originals\"] to True to force encrypting them, if this is what you want.")
             raise Abort
 
-    key = kdf_gen_key(config["password"].encode("utf-8"), config["kdf_salt"].encode("utf-8"), config["kdf_iters"])
+    key = kdf_gen_key(config["password"], config["kdf_salt"], config["kdf_iters"])
     gcm_tag = config["gcm_tag"].encode("utf-8")
 
     medias = list(chain.from_iterable(albums.values()))
