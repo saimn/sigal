@@ -38,6 +38,7 @@ from os.path import isfile, join, splitext
 from urllib.parse import quote as url_quote
 
 from click import get_terminal_size, progressbar
+from natsort import natsort_keygen, ns
 
 from . import image, signals, video
 from .image import get_exif_tags, get_image_metadata, get_size, process_image
@@ -372,14 +373,15 @@ class Album:
                 root_path = self.path if self.path != '.' else ''
                 if albums_sort_attr.startswith("meta."):
                     meta_key = albums_sort_attr.split(".", 1)[1]
-                    key = lambda s: locale.strxfrm(
-                        self.gallery.albums[join(root_path, s)].meta.get(meta_key, [''])[0])
+                    key = natsort_keygen(key=lambda s:
+                        self.gallery.albums[join(root_path, s)].meta.get(meta_key, [''])[0],
+                        alg=ns.LOCALE)
                 else:
-                    key = lambda s: locale.strxfrm(
-                        getattr(self.gallery.albums[join(root_path, s)],
-                                albums_sort_attr))
+                    key = natsort_keygen(key=lambda s:
+                        getattr(self.gallery.albums[join(root_path, s)], albums_sort_attr),
+                        alg=ns.LOCALE)
             else:
-                key = locale.strxfrm
+                key = natsort_keygen(alg=ns.LOCALE)
 
             self.subdirs.sort(key=key,
                               reverse=self.settings['albums_sort_reverse'])
@@ -392,9 +394,11 @@ class Album:
                 key = lambda s: s.date or datetime.now()
             elif medias_sort_attr.startswith('meta.'):
                 meta_key = medias_sort_attr.split(".", 1)[1]
-                key = lambda s: locale.strxfrm(s.meta.get(meta_key, [''])[0])
+                key = natsort_keygen(key=lambda s: s.meta.get(meta_key, [''])[0],
+                                    alg=ns.LOCALE)
             else:
-                key = lambda s: locale.strxfrm(getattr(s, medias_sort_attr))
+                key = natsort_keygen(key=lambda s: getattr(s, medias_sort_attr),
+                                    alg=ns.LOCALE)
 
             self.medias.sort(key=key,
                              reverse=self.settings['medias_sort_reverse'])
