@@ -1,22 +1,14 @@
 import os
 import pickle
 
-import pytest
-
 from sigal.gallery import Gallery
 from sigal.plugins import extended_caching
 
 CURRENT_DIR = os.path.dirname(__file__)
 
 
-@pytest.fixture()
-def remove_cache(settings):
-    yield
-    cachepath = os.path.join(settings['destination'], ".exif_cache")
-    os.remove(cachepath)
-
-
-def test_save_cache(settings, remove_cache):
+def test_save_cache(settings, tmpdir):
+    settings['destination'] = str(tmpdir)
     gal = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal)
 
@@ -32,7 +24,8 @@ def test_save_cache(settings, remove_cache):
     assert cache["exifTest/noexif.png"] == gal.albums["exifTest"].medias[2].exif
 
 
-def test_restore_cache(settings, remove_cache):
+def test_restore_cache(settings, tmpdir):
+    settings['destination'] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal2 = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal1)
@@ -40,7 +33,8 @@ def test_restore_cache(settings, remove_cache):
     assert gal1.exifCache == gal2.exifCache
 
 
-def test_load_exif(settings, remove_cache):
+def test_load_exif(settings, tmpdir):
+    settings['destination'] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal1.albums["exifTest"].medias[2].exif = "blafoo"
     gal1.exifCache = {"exifTest/21.jpg": "Foo",
