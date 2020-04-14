@@ -27,6 +27,8 @@ To ignore a ZIP gallery generation for a particular album, put
 a ``.nozip_gallery`` file next to it in its parent folder. Only the existence
 of this ``.nozip_gallery`` file is tested.  If no ``.nozip_gallery`` file is
 present, then make a ZIP archive with all media files.
+
+See :ref:`compatibility with the encrypt plugin <compatibility-with-encrypt>`.
 """
 
 import logging

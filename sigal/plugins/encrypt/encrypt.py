@@ -49,6 +49,14 @@ the first build, so that incremental builds can share the same credentials.
 DO NOT CHANGE THE PASSWORD OR OTHER CRYPTOGRAPHIC PARAMETERS ONCE A GALLERY IS 
 BUILT, or there will be inconsistency in encrypted files and viewers will not be able
 to see some of the images any more.
+
+.. _compatibility-with-encrypt:
+
+Compatibility with other plugins:
+
+- ``zip_gallery``: if you enable both this plugin and the ``zip_gallery`` plugin, 
+  the generated zip archives will contain encrypted images, which is generally 
+  meaningless since viewers cannot easily decrypt them outside a browser.
 '''
 
 import os
