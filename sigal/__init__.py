@@ -158,8 +158,8 @@ def build(source, destination, debug, verbose, quiet, force, config, theme,
 
     # copy extra files
     for src, dst in settings['files_to_copy']:
-        src = os.path.join(settings['source'], src)
-        dst = os.path.join(settings['destination'], dst)
+        src = os.path.join(settings['source'], src.decode('utf-8'))
+        dst = os.path.join(settings['destination'], dst.decode('utf-8'))
         logger.debug('Copy %s to %s', src, dst)
         copy(src, dst, symlink=settings['orig_link'], rellink=settings['rel_link'])
 
