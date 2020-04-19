@@ -27,8 +27,7 @@ Options::
         'ask_password': False,
         'gcm_tag': 'randomly_generated',
         'kdf_salt': 'randomly_generated',
-        'kdf_iters': 10000,
-        'encrypt_symlinked_originals': False
+        'kdf_iters': 10000
     }
 
 - ``password``: The password used to encrypt the images on gallery build, 
@@ -41,8 +40,6 @@ Options::
   encrypting the files. ``gcm_tag``, ``kdf_salt`` are meant to be randomly generated, 
   ``kdf_iters`` defaults to 10000. Do not specify them in the config file unless 
   you have good reasons to do so.
-- ``encrypt_symlinked_originals``: Force encrypting original images even if they 
-  are symlinked. If you don't know what it means, leave it to ``False``.
 
 Note: The plugin caches the cryptographic parameters (but not the password) after 
 the first build, so that incremental builds can share the same credentials. 
@@ -131,9 +128,6 @@ def get_options(settings, cache):
         "galleryId": options["galleryId"]
     }
 
-    if "encrypt_symlinked_originals" not in options:
-        options["encrypt_symlinked_originals"] = settings["encrypt_options"].get("encrypt_symlinked_originals", False)
-
     return options
 
 def cache_key(media):
@@ -207,9 +201,8 @@ def encrypt_gallery(gallery):
     save_cache(settings, cache)
 
 def encrypt_files(settings, config, cache, albums, progressbar_target):
-    if settings["keep_orig"] and settings["orig_link"] \
-        and not config["encrypt_symlinked_originals"]:
-        logger.warning("Original files are symlinked! Set encrypt_options[\"encrypt_symlinked_originals\"] to True to force encrypting them, if this is what you want.")
+    if settings["keep_orig"] and settings["orig_link"]:
+        logger.warning("Original images are symlinked! Encryption is aborted. Please set \"orig_link\" to False and restart gallery build.")
         raise Abort
 
     key = kdf_gen_key(config["password"], config["kdf_salt"], config["kdf_iters"])
