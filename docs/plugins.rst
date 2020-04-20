@@ -101,6 +101,11 @@ Copyright plugin
 
 .. automodule:: sigal.plugins.copyright
 
+Encrypt plugin
+==============
+
+.. automodule:: sigal.plugins.encrypt
+
 Extended caching plugin
 =======================
 
@@ -135,3 +140,4 @@ ZIP Gallery plugin
 ==================
 
 .. automodule:: sigal.plugins.zip_gallery
+

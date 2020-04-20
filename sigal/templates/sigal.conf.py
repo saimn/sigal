@@ -243,7 +243,8 @@ ignore_files = []
 # from this file must be serializable).
 # plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
 #            'sigal.plugins.upload_s3', 'sigal.plugins.media_page',
-#            'sigal.plugins.nomedia', 'sigal.plugins.extended_caching']
+#            'sigal.plugins.nomedia', 'sigal.plugins.extended_caching',
+#            'sigal.plugins.encrypt']
 
 # Add a copyright text on the image (default: '')
 # copyright = "© An example copyright message"
@@ -265,4 +266,10 @@ ignore_files = []
 # Settings for compressing static assets
 # compress_assets_options = {
 #    'method': 'gzip' # Or 'zopfli' or 'brotli'
+# }
+
+# Settings for encryption plugin
+# encrypt_options = {
+#    'password': 'password',
+#    'ask_password': False
 # }

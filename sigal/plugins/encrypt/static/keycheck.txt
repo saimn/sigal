@@ -1,0 +1,1 @@
+This file will be decrypted to test if the password supplied by the user is correct.
