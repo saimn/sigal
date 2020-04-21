@@ -7,6 +7,7 @@ include *.txt
 include tox.ini
 recursive-include docs *
 prune docs/_build
+recursive-include sigal/plugins *
 recursive-include sigal/themes *
 include sigal/templates/sigal.conf.py
 recursive-include tests *
