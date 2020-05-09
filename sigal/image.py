@@ -37,10 +37,11 @@ import warnings
 from copy import deepcopy
 from datetime import datetime
 
-import pilkit.processors
 from PIL import Image as PILImage
 from PIL import ImageFile, ImageOps, IptcImagePlugin
 from PIL.ExifTags import GPSTAGS, TAGS
+
+import pilkit.processors
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
 

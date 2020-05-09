@@ -16,7 +16,6 @@ Settings::
 import logging
 
 from pilkit.processors import Adjust
-
 from sigal import signals
 
 logger = logging.getLogger(__name__)

@@ -25,10 +25,10 @@ Settings (all settings are wrapped in ``upload_s3_options`` dict):
 import logging
 import os
 
-import boto
-from boto.s3.key import Key
 from click import progressbar
 
+import boto
+from boto.s3.key import Key
 from sigal import signals
 
 logger = logging.getLogger(__name__)

@@ -23,15 +23,15 @@
 
 import io
 import os
-from pathlib import Path
 from base64 import b64decode
+from pathlib import Path
 from typing import BinaryIO
 
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from cryptography.exceptions import InvalidTag
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 backend = default_backend()
 MAGIC_STRING = "_e_n_c_r_y_p_t_e_d_".encode("utf-8")
@@ -114,4 +114,3 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     args.execute(args)
-

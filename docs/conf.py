@@ -1,9 +1,8 @@
 import os
 import sys
 
-from pkg_resources import get_distribution
-
 import alabaster
+from pkg_resources import get_distribution
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

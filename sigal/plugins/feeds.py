@@ -20,9 +20,9 @@ import logging
 import os
 from datetime import datetime
 
-from feedgenerator import Atom1Feed, Rss201rev2Feed
 from jinja2 import Markup
 
+from feedgenerator import Atom1Feed, Rss201rev2Feed
 from sigal import signals
 
 logger = logging.getLogger(__name__)

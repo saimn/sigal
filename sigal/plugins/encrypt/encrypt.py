@@ -56,18 +56,19 @@ Compatibility with other plugins:
   meaningless since viewers cannot easily decrypt them outside a browser.
 '''
 
+import logging
 import os
+import pickle
 import random
 import string
-import logging
-import pickle
 from io import BytesIO
 from itertools import chain
 
-from sigal import signals
-from sigal.utils import url_from_path, copy
-from sigal.settings import get_thumb
 from click import progressbar
+
+from sigal import signals
+from sigal.settings import get_thumb
+from sigal.utils import copy, url_from_path
 
 from .endec import encrypt, kdf_gen_key
 
@@ -268,4 +269,3 @@ def register(settings):
     signals.gallery_build.connect(encrypt_gallery)
     signals.album_initialized.connect(load_property)
     signals.before_render.connect(inject_scripts)
-
