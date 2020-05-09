@@ -1,7 +1,6 @@
 include AUTHORS
 include CONTRIBUTING.rst
 include LICENSE
-include Makefile
 include README.rst
 include *.txt
 include tox.ini

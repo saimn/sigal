@@ -8,14 +8,19 @@ Version 2.1.dev
 Released on 2019-xx-xx.
 
 - Add setting to use relative symbolic links [:issue:`359`].
+- Add a setting to force image output format [:issue:`360`].
 - Feeds: fix links to gallery and image [:issue:`361`].
+- Improve performance when reading metadata [:issue:`361`].
 - Add new plugin to allow one to disable ZIP generation on a per album basis
   with a ``.nozip_gallery`` file [:issue:`368`].
-- Add a quiet flag [:issue:`376`].
 - Make sure that read-only files can be copied [:issue:`375`].
+- Add a quiet flag [:issue:`376`].
 - Update photoswipe to v4.1.3
-- Add a setting to force image output format [:issue:`360`].
 - Improve error message when template is not found [:issue:`384`].
+- New plugin to protect gallery by encrypting image files using a password
+  [:issue:`385`].
+- Force conversion of some EXIF tags to str [:issue:`386`].
+- Use natural sorting thanks to the ``natsort`` package [:issue:`387`].
 
 Version 2.0
 ~~~~~~~~~~~
