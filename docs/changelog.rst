@@ -2,6 +2,11 @@
  Changelog
 ===========
 
+Version 2.2.dev
+~~~~~~~~~~~~~~~
+
+Released on 2020-xx-xx.
+
 Version 2.1.1
 ~~~~~~~~~~~~~
 
