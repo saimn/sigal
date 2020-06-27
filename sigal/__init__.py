@@ -84,7 +84,8 @@ def init(path):
         help="Force the reprocessing of existing images")
 @option('-v', '--verbose', is_flag=True, help="Show all messages")
 @option('-d', '--debug', is_flag=True,
-        help="Show all messages, including debug messages")
+        help="Show all messages, including debug messages. Also raise "
+        "exception if an error happen when processing files.")
 @option('-q', '--quiet', is_flag=True, help="Show only error messages")
 @option('-c', '--config', default=_DEFAULT_CONFIG_FILE, show_default=True,
         help="Configuration file")
