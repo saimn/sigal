@@ -30,15 +30,16 @@ class Decryptor {
         if (Decryptor.isServiceWorker()) {
             this._role = "service_worker";
         } else if (!Decryptor.isWorker()) {
-            if (!Decryptor.featureTest()) {
-                alert("This page cannot function properly because your browser does not support some critical features or you are in private browsing mode. Please update your browser or exit private browsing mode.");
-                return;
-            }
             this._role = "main";
             this._config = config;
             document.addEventListener(
                 "DOMContentLoaded",
                 (e) => {
+                    if (!Decryptor.featureTest()) {
+                        Decryptor.mSetUIVisibility("main-prompt", true);
+                        Decryptor.mSetUIVisibility("missing-feature", true);
+                        return;
+                    }
                     const local_config = this._mGetLocalConfig();
                     if (local_config) {
                         this._config = local_config;
@@ -53,11 +54,7 @@ class Decryptor {
     }
 
     static init(config) {
-        if (Decryptor.isServiceWorker()) {
-            self.decryptor = new Decryptor(config);
-        } else {
-            window.decryptor = new Decryptor(config);
-        }
+        self.decryptor = new Decryptor(config);
     }
 
     static featureTest() {
@@ -131,11 +128,11 @@ class Decryptor {
     }
 
     static isInitialized() {
-        if (Decryptor.isServiceWorker()) {
-            return 'decryptor' in self && self.decryptor.workerReady;
-        } else {
-            return 'decryptor' in window && window.decryptor.workerReady;
-        }
+        return 'decryptor' in self;
+    }
+
+    static isWorkerReady() {
+        return Decryptor.isInitialized() && self.decryptor._workerReady;
     }
 
     get workerReady() {
@@ -148,9 +145,12 @@ class Decryptor {
 
     _mSetWorkerReady() {
         this.workerReady = true;
-        const had_been_ready_before = this._mGetLocalConfig() !== null;
-        localStorage.setItem(this._config.galleryId, JSON.stringify(this._config));
-        if (!had_been_ready_before) {
+        Decryptor.mSetUIVisibility("main-prompt", false);
+        Decryptor.mSetUIVisibility("password-prompt", false);
+        Decryptor.mSetUIVisibility("incorrect-password", false);
+        const firstVisit = this._mGetLocalConfig() === null;
+        if (firstVisit) {
+            localStorage.setItem(this._config.galleryId, JSON.stringify(this._config));
             window.location.reload();
         }
     }
@@ -158,7 +158,10 @@ class Decryptor {
     _mUnsetWorkerReady() {
         this.workerReady = false;
         localStorage.removeItem(this._config.galleryId);
-        alert("Incorrect password!");
+        Decryptor.mSetUIVisibility("main-prompt", true);
+        Decryptor.mSetUIVisibility("password-prompt", true);
+        Decryptor.mSetUIVisibility("incorrect-password", true);
+        Decryptor.mPlayUIAnimation("incorrect-password");
     }
 
     _mGetLocalConfig() {
@@ -197,11 +200,28 @@ class Decryptor {
             (e) => Decryptor.onMessage(this.serviceWorker, e);
         this.serviceWorker = this._proxyWrap(this.serviceWorker);
 
-        if (!(await this.serviceWorker.Decryptor.isInitialized())) {
-            if (!('password' in this._config && this._config.password)) {
-                this._config.password = await this._mAskPassword();
+        if (!(await this.serviceWorker.Decryptor.isWorkerReady())) {
+            if ('password' in this._config && this._config.password) {
+                this.serviceWorker._swInitServiceWorker(this._config);
+            } else {
+                Decryptor.mSetUIVisibility("main-prompt", true);
+                Decryptor.mSetUIVisibility("password-prompt", true);
+                document.addEventListener(
+                    "DecryptorPasswordProvided",
+                    (e) => {
+                        const password = e.detail;
+                        if (password) {
+                            this._config.password = password;
+                            this.serviceWorker._swInitServiceWorker(this._config);
+                        }
+                    },
+                    { passive: true }
+                );
             }
-            this.serviceWorker._swInitServiceWorker(this._config);
+        } else {
+            this.workerReady = true;
+            Decryptor.mSetUIVisibility("main-prompt", false);
+            Decryptor.mSetUIVisibility("password-prompt", false);
         }
     }
 
@@ -221,18 +241,43 @@ class Decryptor {
         }
     }
 
-    /* main thread only */
-    async _mAskPassword() {
-        const config = this._mGetLocalConfig();
-        if (config && config.password) {
-            return config.password;
+    static async setPassword(password) {
+        Decryptor._sendEvent(document, "DecryptorPasswordProvided", password);
+    }
+
+    static mSetUIVisibility(UIElement, visible) {
+        let element;
+        switch (UIElement) {
+            case "password-prompt":
+                element = "decrypt-password-prompt";
+                break;
+            case "incorrect-password":
+                element = "indicator-text-incorrect-password";
+                break;
+            case "missing-feature":
+                element = "decrypt-missing-feature";
+                break;
+            case "main-prompt":
+                element = "decrypt-main-prompt";
+                break;
+            default:
+                return;
         }
-        const password = prompt("Input password to view this gallery:");
-        if (password) {
-            this._config.password = password;
-            return password;
+        if (visible) {
+            document.getElementById(element).classList.remove("hidden");
         } else {
-            return "__wrong_password__";
+            document.getElementById(element).classList.add("hidden");
+        }
+    }
+
+    static mPlayUIAnimation(UIElement) {
+        switch (UIElement) {
+            case "incorrect-password":
+                const element = document.getElementById("indicator-text-incorrect-password").parentElement;
+                element.classList.add("shake-animated");
+                break;
+            default:
+                return;
         }
     }
 
@@ -507,8 +552,8 @@ class Decryptor {
         }
         console.debug(`Fetch succeeded with encrypted image ${request.url}, trying to decrypt`);
 
-        if (!Decryptor.isInitialized()) {
-            if ('decryptor' in self) {
+        if (!Decryptor.isWorkerReady()) {
+            if (Decryptor.isInitialized()) {
                 try{
                     const client = await self.clients.get(e.clientId);
                     const config = await self.decryptor._proxyWrap(client)._mGetLocalConfig();
@@ -517,7 +562,7 @@ class Decryptor {
                     // do nothing
                 }
             }
-            if (!Decryptor.isInitialized()) {
+            if (!Decryptor.isWorkerReady()) {
                 console.debug(`Decryptor not initialized on fetch event`);
                 return Decryptor.imageErrorResponse.clone();
             }

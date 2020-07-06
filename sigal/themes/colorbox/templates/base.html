@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
     {% block extra_head %}{% endblock extra_head %}
     {% include 'analytics.html' %}
-    {% include 'decrypt.html' %}
   </head>
   <body>
     {% include 'gtm.html' %}
@@ -50,5 +49,6 @@
     </div>
     {% block footer %}{% endblock %}
     {% include 'piwik.html' %}
+    {% include 'decrypt.html' %}
   </body>
 </html>
