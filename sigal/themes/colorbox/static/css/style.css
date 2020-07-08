@@ -1,4 +1,5 @@
- /* Override a few styles from skeleton */
+body { background-color: white; }
+/* Override a few styles from skeleton */
 h1 { font-size: 4.0rem; }
 h2 { font-size: 3.6rem; }
 h3 { font-size: 3.0rem; }
