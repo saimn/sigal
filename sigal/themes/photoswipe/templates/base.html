@@ -13,6 +13,7 @@
     {% include 'analytics.html' %}
   </head>
   <body>
+    {% include 'decrypt.html' %}
     {% include 'gtm.html' %}
     <div class="container">
       <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
@@ -34,6 +35,5 @@
       {% block extra_footer %}{% endblock %}
   </div>
   {% include 'piwik.html' %}
-  {% include 'decrypt.html' %}
   </body>
 </html>

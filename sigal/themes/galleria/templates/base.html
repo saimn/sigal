@@ -16,6 +16,7 @@
     {% include 'analytics.html' %}
   </head>
   <body>
+    {% include 'decrypt.html' %}
     {% include 'gtm.html' %}
     <div class="container">
       <header>
@@ -35,6 +36,5 @@
     </div>
     {% block late_js %}{% endblock late_js %}
     {% include 'piwik.html' %}
-    {% include 'decrypt.html' %}
   </body>
 </html>

@@ -15,6 +15,7 @@
     {% include 'analytics.html' %}
   </head>
   <body>
+    {% include 'decrypt.html' %}
     {% include 'gtm.html' %}
     <div class="container">
       <div class="three columns">
@@ -49,6 +50,5 @@
     </div>
     {% block footer %}{% endblock %}
     {% include 'piwik.html' %}
-    {% include 'decrypt.html' %}
   </body>
 </html>
