@@ -1,13 +1,97 @@
 {% if 'sigal.plugins.encrypt' is in settings.plugins %}
-    <script src="{{ theme.url }}/decrypt.js"></script>
-    <script>
-        Decryptor.init({
-            password: "{{ encrypt_options.filtered_password }}",
-            sw_script: "{{ theme.url }}/../sw.js",
-            galleryId: "{{ encrypt_options.galleryId }}",
-            gcm_tag: "{{ encrypt_options.escaped_gcm_tag }}", 
-            kdf_salt: "{{ encrypt_options.escaped_kdf_salt }}", 
-            kdf_iters: {{ encrypt_options.kdf_iters }} 
-        });
-    </script>
+<script src="{{ theme.url }}/decrypt.js"></script>
+<script>
+    Decryptor.init({
+        password: "{{ encrypt_options.filtered_password }}",
+        sw_script: "{{ theme.url }}/../sw.js",
+        galleryId: "{{ encrypt_options.galleryId }}",
+        gcm_tag: "{{ encrypt_options.escaped_gcm_tag }}", 
+        kdf_salt: "{{ encrypt_options.escaped_kdf_salt }}", 
+        kdf_iters: {{ encrypt_options.kdf_iters }} 
+    });
+</script>
+<style>
+    .decrypt-fixed-prompt {
+        position: fixed;
+        top: 0; 
+        left: 0; 
+        width: 100vw; 
+        height: 100vh; 
+        background-color: inherit; 
+    }
+    .decrypt-prompt-panel {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .decrypt-error-indicator {
+        color: red;
+        transform: translateX(0);
+    }
+    .hidden {
+        display: none !important;
+    }
+    .shake-animated {
+        animation: 0.1s ease-in-out 0s 2 normal shake;
+    }
+    @keyframes shake {
+        0% {transform: translateX(0px);}
+        25% {transform: translateX(-5px);}
+        50% {transform: translateX(0px);}
+        75% {transform: translateX(5px);}
+        100% {transform: translateX(0px);}
+    }
+    .close-marker {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 2rem;
+        height: 2rem;
+        cursor: pointer;
+        background-color: inherit;
+    }
+    .close-marker-line {
+        width:2rem;
+        height: 2px;
+        background-color: inherit;
+        position: absolute; 
+        top: 1rem;
+        left: 0;
+        filter: invert(1);
+    }
+</style>
+<div class="decrypt-fixed-prompt hidden" id="decrypt-main-prompt">
+    <div id="decrypt-close-marker" class="close-marker" onclick="this.parentElement.classList.add('hidden')">
+        <div class="close-marker-line" style="transform: rotate(45deg);"></div>
+        <div class="close-marker-line" style="transform: rotate(-45deg);"></div>
+    </div>
+    <div class="decrypt-prompt-panel hidden" id="decrypt-password-prompt">
+        <h1>Private Gallery: {{ index_title }}</h1>
+        <p>Password is required to access this gallery:</p>
+        <form action="#" onsubmit="Decryptor.setPassword(document.getElementById('decrypt-password-input').value); return false;">
+            <input id="decrypt-password-input" placeholder="Password" type="text" />
+            <button id="decrypt-password-enter">Enter</button>
+        </form>
+        <p class="decrypt-error-indicator" onanimationend="this.classList.remove('shake-animated')">&nbsp;
+            <span class="hidden" id="indicator-text-incorrect-password">Incorrect password!</span>
+        </p>
+    </div>
+    <div class="decrypt-prompt-panel hidden"  id="decrypt-missing-feature">
+        <h1>Private Gallery: {{ index_title }}</h1>
+        <p>Password is required to access this gallery:</p>
+        <p class="decrypt-error-indicator">
+            This page cannot function properly because some features are not available.
+        </p>
+        <p>Some possible solutions are:</p>
+        <ul>
+            <li>You are in private browsing mode. Try switching to normal mode.</li>
+            <li>This page is not loaded from a HTTPS connection. Reload with HTTPS.</li>
+            <li>Your browser is outdated. Consider upgrading to a latest version.</li>
+        </ul>
+    </div>
+</div>
 {% endif %}

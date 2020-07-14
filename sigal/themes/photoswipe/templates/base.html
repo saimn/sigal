@@ -11,9 +11,9 @@
     {% block extra_head %}{% endblock extra_head %}
     <link rel="stylesheet" href="{{ theme.url }}/styles.css">
     {% include 'analytics.html' %}
-    {% include 'decrypt.html' %}
   </head>
   <body>
+    {% include 'decrypt.html' %}
     {% include 'gtm.html' %}
     <div class="container">
       <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
