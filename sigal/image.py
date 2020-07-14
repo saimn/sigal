@@ -48,6 +48,12 @@ from pilkit.utils import save_image
 from . import signals, utils
 from .settings import Status, get_thumb
 
+try:
+    # Pillow 7.2+
+    from PIL.TiffImagePlugin import IFDRational
+except ImportError:
+    IFDRational = None
+
 # Force loading of truncated files
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -304,9 +310,14 @@ def get_image_metadata(filename):
 def dms_to_degrees(v):
     """Convert degree/minute/second to decimal degrees."""
 
-    d = float(v[0][0]) / float(v[0][1])
-    m = float(v[1][0]) / float(v[1][1])
-    s = float(v[2][0]) / float(v[2][1])
+    if IFDRational and isinstance(v[0], IFDRational):
+        d = float(v[0])
+        m = float(v[1])
+        s = float(v[2])
+    else:
+        d = float(v[0][0]) / float(v[0][1])
+        m = float(v[1][0]) / float(v[1][1])
+        s = float(v[2][0]) / float(v[2][1])
     return d + (m / 60.0) + (s / 3600.0)
 
 
@@ -324,21 +335,29 @@ def get_exif_tags(data, datetime_format='%c'):
     if 'FNumber' in data:
         fnumber = data['FNumber']
         try:
-            simple['fstop'] = float(fnumber[0]) / fnumber[1]
+            if IFDRational and isinstance(fnumber, IFDRational):
+                simple['fstop'] = float(fnumber)
+            else:
+                simple['fstop'] = float(fnumber[0]) / fnumber[1]
         except Exception:
             logger.debug('Skipped invalid FNumber: %r', fnumber, exc_info=True)
 
     if 'FocalLength' in data:
         focal = data['FocalLength']
         try:
-            simple['focal'] = round(float(focal[0]) / focal[1])
+            if IFDRational and isinstance(focal, IFDRational):
+                simple['focal'] = round(float(focal))
+            else:
+                simple['focal'] = round(float(focal[0]) / focal[1])
         except Exception:
             logger.debug('Skipped invalid FocalLength: %r', focal,
                          exc_info=True)
 
     if 'ExposureTime' in data:
         exptime = data['ExposureTime']
-        if isinstance(exptime, tuple):
+        if IFDRational and isinstance(exptime, IFDRational):
+            simple['exposure'] = str(exptime)
+        elif isinstance(exptime, tuple):
             try:
                 simple['exposure'] = str(fractions.Fraction(exptime[0],
                                                             exptime[1]))

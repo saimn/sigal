@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#coding: utf-8
 
 # copyright (c) 2020 Bowen Ding
 
@@ -34,7 +33,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 backend = default_backend()
-MAGIC_STRING = "_e_n_c_r_y_p_t_e_d_".encode("utf-8")
+MAGIC_STRING = b"_e_n_c_r_y_p_t_e_d_"
 
 def kdf_gen_key(password: str, salt: str, iters: int) -> bytes:
     password = password.encode("utf-8")
