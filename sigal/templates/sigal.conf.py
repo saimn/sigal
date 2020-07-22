@@ -201,13 +201,6 @@ ignore_files = []
 # Example : {'tracker_url': 'http://stats.domain.com', 'site_id' : 2}
 # piwik = {'tracker_url': '', 'site_id' : 0}
 
-# Set zip_gallery to either False or a file name. The file name can be formatted
-# python style with an 'album' variable, for example '{album.name}.zip'. The final archive will
-# contain all resized or original files (depending on `zip_media_format`).
-# zip_gallery = False   # False or 'archive.zip'
-# zip_media_format = 'resized'  # 'resized' or 'orig'
-# zip_skip_if_exists = False # Skip archive generation if archive is already present. Warning: new photos in an album won't be added to archive
-
 # Specify a different locale. If set to '', the default locale is used.
 # locale = ''
 
@@ -241,13 +234,19 @@ ignore_files = []
 # Another option is to import the plugin and put the module in the list, but
 # this will break with the multiprocessing feature (the settings dict obtained
 # from this file must be serializable).
-# plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
-#            'sigal.plugins.upload_s3', 'sigal.plugins.media_page',
-#            'sigal.plugins.nomedia', 'sigal.plugins.extended_caching',
-#            'sigal.plugins.encrypt']
-
-# Add a copyright text on the image (default: '')
-# copyright = "© An example copyright message"
+# plugins = [
+#     'sigal.plugins.adjust',
+#     'sigal.plugins.compress_assets',
+#     'sigal.plugins.copyright',
+#     'sigal.plugins.encrypt',
+#     'sigal.plugins.extended_caching',
+#     'sigal.plugins.feeds',
+#     'sigal.plugins.media_page',
+#     'sigal.plugins.nomedia',
+#     'sigal.plugins.upload_s3',
+#     'sigal.plugins.watermark',
+#     'sigal.plugins.zip_gallery',
+# ]
 
 # Adjust the image after resizing it. A default value of 1.0 leaves the images
 # untouched.
@@ -256,6 +255,20 @@ ignore_files = []
 #                   'contrast': 1.0,
 #                   'sharpness': 1.0}
 
+# Settings for compressing static assets
+# compress_assets_options = {
+#    'method': 'gzip' # Or 'zopfli' or 'brotli'
+# }
+
+# Add a copyright text on the image (default: '')
+# copyright = "© An example copyright message"
+
+# Settings for encryption plugin
+# encrypt_options = {
+#    'password': 'password',
+#    'ask_password': False
+# }
+
 # Settings for upload to s3 plugin
 # upload_s3_options = {
 # 	'bucket': 'my-bucket',
@@ -263,13 +276,11 @@ ignore_files = []
 # 	'overwrite': False
 # }
 
-# Settings for compressing static assets
-# compress_assets_options = {
-#    'method': 'gzip' # Or 'zopfli' or 'brotli'
-# }
-
-# Settings for encryption plugin
-# encrypt_options = {
-#    'password': 'password',
-#    'ask_password': False
-# }
+# Set zip_gallery to either False or a file name. The file name can
+# be formatted python style with an 'album' variable, for example
+# '{album.name}.zip'. The final archive will contain all resized or
+# original files (depending on `zip_media_format`).
+# zip_gallery = False   # False or 'archive.zip'
+# zip_media_format = 'resized'  # 'resized' or 'orig'
+# zip_skip_if_exists = False # Skip archive generation if archive is
+# already present. Warning: new photos in an album won't be added to archive
