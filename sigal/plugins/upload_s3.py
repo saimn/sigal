@@ -27,14 +27,13 @@ import os
 
 from click import progressbar
 
-import boto
-from boto.s3.key import Key
 from sigal import signals
 
 logger = logging.getLogger(__name__)
 
 
 def upload_s3(gallery, settings=None):
+    import boto
     upload_files = []
 
     # Get local files
@@ -86,6 +85,7 @@ def generate_cache_metadata(gallery, f):
 def upload_file(gallery, bucket, f):
     logger.debug("Uploading file %s" % (f))
 
+    from boto.s3.key import Key
     key = Key(bucket)
     key.key = f
 

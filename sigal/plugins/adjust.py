@@ -6,10 +6,12 @@ Based on pilkit's Adjust_ processor.
 
 Settings::
 
-    adjust_options = {'color': 1.0,
-                      'brightness': 1.0,
-                      'contrast': 1.0,
-                      'sharpness': 1.0}
+    adjust_options = {
+        'color': 1.0,
+        'brightness': 1.0,
+        'contrast': 1.0,
+        'sharpness': 1.0
+    }
 
 """
 

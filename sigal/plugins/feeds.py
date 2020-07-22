@@ -22,7 +22,6 @@ from datetime import datetime
 
 from jinja2 import Markup
 
-from feedgenerator import Atom1Feed, Rss201rev2Feed
 from sigal import signals
 
 logger = logging.getLogger(__name__)
@@ -43,6 +42,7 @@ def generate_feeds(gallery):
 
 
 def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
+    from feedgenerator import Atom1Feed, Rss201rev2Feed
     root_album = gallery.albums['.']
     cls = Rss201rev2Feed if feed_type == 'rss' else Atom1Feed
     feed = cls(

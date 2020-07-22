@@ -18,44 +18,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-'''Plugin to protect gallery by encrypting image files using a password.
-
-Options::
-
-    encrypt_options = {
-        'password': 'password',
-        'ask_password': False,
-        'gcm_tag': 'randomly_generated',
-        'kdf_salt': 'randomly_generated',
-        'kdf_iters': 10000
-    }
-
-- ``password``: The password used to encrypt the images on gallery build, 
-  and decrypt them when viewers access the gallery. No default value. You must
-  specify a password.
-- ``ask_password``: Whether or not viewers are asked for the password to view 
-  the gallery. If set to ``False``, the password will be present in the HTML files
-  so the images are decrypted automatically. Defaults to ``False``.
-- ``gcm_tag``, ``kdf_salt``, ``kdf_iters``: Cryptographic parameters used when
-  encrypting the files. ``gcm_tag``, ``kdf_salt`` are meant to be randomly generated, 
-  ``kdf_iters`` defaults to 10000. Do not specify them in the config file unless 
-  you have good reasons to do so.
-
-Note: The plugin caches the cryptographic parameters (but not the password) after 
-the first build, so that incremental builds can share the same credentials. 
-DO NOT CHANGE THE PASSWORD OR OTHER CRYPTOGRAPHIC PARAMETERS ONCE A GALLERY IS 
-BUILT, or there will be inconsistency in encrypted files and viewers will not be able
-to see some of the images any more.
-
-.. _compatibility-with-encrypt:
-
-Compatibility with other plugins:
-
-- ``zip_gallery``: if you enable both this plugin and the ``zip_gallery`` plugin, 
-  the generated zip archives will contain encrypted images, which is generally 
-  meaningless since viewers cannot easily decrypt them outside a browser.
-'''
-
 import logging
 import os
 import pickle
@@ -87,7 +49,7 @@ def get_options(settings, cache):
     if "encrypt_options" not in settings:
         logging.error("Encrypt: no encrypt_options in settings")
         raise ValueError("no encrypt_options in settings")
-    
+
     # try load credential from cache
     try:
         options = cache["credentials"]
@@ -108,16 +70,16 @@ def get_options(settings, cache):
     options["filtered_password"] = "" if options["ask_password"] else options["escaped_password"]
 
     if "gcm_tag" not in options:
-        options["gcm_tag"] = gen_rand_string() 
+        options["gcm_tag"] = gen_rand_string()
     options["escaped_gcm_tag"] = options["gcm_tag"].translate(table)
-    
+
     if "kdf_salt" not in options:
         options["kdf_salt"] = gen_rand_string()
     options["escaped_kdf_salt"] = options["kdf_salt"].translate(table)
 
     if "galleryId" not in options:
         options["galleryId"] = gen_rand_string(6)
-    
+
     if "kdf_iters" not in options:
         options["kdf_iters"] = 10000
 
