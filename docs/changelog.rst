@@ -7,6 +7,12 @@ Version 2.2.dev
 
 Released on 2020-xx-xx.
 
+- Compatibility with Pillow 7.2
+- Fix issue with encrypt template and some Jinja2 versions [:issue:`399`].
+- Bug fixes and UI improvements for encrypt plugin [:issue:`399`].
+- Reorganize info about plugins in the template config and fix documentation
+  issues with some plugins.
+
 Version 2.1
 ~~~~~~~~~~~
 
