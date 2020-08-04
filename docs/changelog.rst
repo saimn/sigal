@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 2.2.dev
-~~~~~~~~~~~~~~~
+Version 2.1.1
+~~~~~~~~~~~~~
 
-Released on 2020-xx-xx.
+Released on 2020-08-03.
 
 - Compatibility with Pillow 7.2
 - Fix issue with encrypt template and some Jinja2 versions [:issue:`399`].
