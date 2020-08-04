@@ -31,7 +31,6 @@ Links :
 * Source, issues and pull requests on GitHub_
 * Releases on PyPI_
 * ``#sigal`` on Freenode, or with the webchat_ interface.
-* `Mailing list`_ at Librelist (Archives_).
 
 Themes & Demo
 -------------
@@ -53,6 +52,4 @@ Javascript libraries:
 .. _colorbox demo: http://saimon.org/sigal-demo/colorbox/
 .. _photoswipe demo: http://saimon.org/sigal-demo/photoswipe/
 .. _webchat: http://webchat.freenode.net/?channels=sigal
-.. _Archives: http://librelist.com/browser/sigal/
-.. _Mailing list: mailto:sigal@librelist.com
 .. _Jinja2: http://jinja.pocoo.org/

@@ -9,9 +9,8 @@ to get diagnostic information (debug mode, only one core). If you can identify
 an image or video that is causing the issue, you can create a new directory
 containing only this image/video and rerun ``sigal build -fd -n 1``.
 
-Then, put the output into a gist/pastebin, and fill an issue on github.  You
-can also write to the `mailing list`_ or try to get help via the ``#sigal`` IRC
-channel on freenode.
+Then, put the output into a gist/pastebin, and fill an issue on github.  You can
+also try to get help via the ``#sigal`` IRC channel on freenode.
 
 How To Contribute
 -----------------
@@ -32,7 +31,6 @@ Please:
 Thank you for considering to contribute to sigal !
 
 
-.. _Mailing list: mailto:sigal@librelist.com
 .. _squash: http://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html
 .. _PEP 8: http://www.python.org/dev/peps/pep-0008/
 .. _PEP 257: http://www.python.org/dev/peps/pep-0257/
