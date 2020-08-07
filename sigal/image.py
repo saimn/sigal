@@ -67,17 +67,14 @@ def _read_image(file_path):
     if isinstance(file_path, PILImage.Image):
         return file_path
 
+    logger = logging.getLogger(__name__)
+
     with warnings.catch_warnings(record=True) as caught_warnings:
         im = PILImage.open(file_path)
 
-    for warning in caught_warnings:
-        if warning.category == PILImage.DecompressionBombWarning:
-            logger = logging.getLogger(__name__)
-            logger.info('PILImage reported a possible DecompressionBomb'
-                        ' for file {}'.format(file_path))
-        else:
-            warnings.showwarning(warning.message, warning.category,
-                                 warning.filename, warning.lineno)
+    for w in caught_warnings:
+        logger.warning(f'PILImage reported a warning for file {file_path}\n'
+                       f'{w.category}: {w.message}')
     return im
 
 
