@@ -990,6 +990,8 @@ var publicMethods = {
 		_shout('close');
 		_unbindEvents();
 
+        self.pauseVideo();
+
 		_showOrHide(self.currItem, null, true, self.destroy);
 	},
 
@@ -1059,6 +1061,9 @@ var publicMethods = {
 		index = _getLoopedId(index);
 
 		var diff = index - _currentItemIndex;
+        if (diff != 0) {
+            self.pauseVideo();
+        }
 		_indexDiff = diff;
 
 		_currentItemIndex = index;
@@ -1335,8 +1340,14 @@ var publicMethods = {
 		} else {
 			onUpdate(1);
 		}
-	}
+	},
 
+    pauseVideo: function() {
+        var videos = document.getElementsByTagName("video");
+        for (var i = 0; i < videos.length; i+=1) {
+            videos[i].pause();
+        }
+    }
 
 };
 
