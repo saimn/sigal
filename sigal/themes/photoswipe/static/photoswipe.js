@@ -1061,9 +1061,6 @@ var publicMethods = {
 		index = _getLoopedId(index);
 
 		var diff = index - _currentItemIndex;
-        if (diff != 0) {
-            self.pauseVideo();
-        }
 		_indexDiff = diff;
 
 		_currentItemIndex = index;
@@ -1109,6 +1106,7 @@ var publicMethods = {
 		_panOffset.x = _currPanBounds.center.x;
 		_panOffset.y = _currPanBounds.center.y;
 
+
 		if(emulateSetContent) {
 			_shout('afterChange');
 		}
@@ -1137,6 +1135,7 @@ var publicMethods = {
 			return;
 		}
 
+        self.pauseVideo();
 
 		self.currItem = _getItemAt( _currentItemIndex );
 		_renderMaxResolution = false;
