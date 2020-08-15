@@ -745,27 +745,22 @@ var _isOpen,
             }
         };
         swipeAreaElement.resize = function() {
-            // swiping in top 70% of the video works
-            // yes it's not a very good solution but better than swiping not working at all
-            // this is to ensure that both works internal browser controls *and* swiping
+            // swiping in the middle 70% of the video so both swipe and controls work
+            // yes it's not a very good solution but better than swiping not working at all on android
+            // this is to ensure that both internal browser controls *and* swiping work
             if (videoElement.scrollHeight > 400) {
                 swipeAreaElement.style.height = (videoElement.scrollHeight * 0.7) + "px"; 
                 // swipeArea is vertically and horizontally centered just like the video
-                // but should appear at the top so we do top -> 40%
-                // keep 25 px at the top not covered so video can register mouse coming back
-                swipeAreaElement.style.top = "calc(35% + 25px)";
             } else if (videoElement.scrollHeight > 150) {
-                // minimal height *not* covered by swipe area is 70px
+                // minimal height *not* covered by swipe area is 80px
                 // to ensure controls always work
-                swipeAreaElement.style.height = videoElement.scrollHeight - 70 + "px";
-                // 35px (half of height) - 10% extra (for video to register mouse coming back)
-                swipeAreaElement.style.top = "calc(50% - 25px)";
+                swipeAreaElement.style.height = videoElement.scrollHeight - 80 + "px";
             } else {
                 // the video is so small that a user can swipe above/below anyway
                 swipeAreaElement.style.height = 0;
             }
             // do not extend the swipe area across the whole video width
-            // so the video can regiser when mouse moves in/out so controls can reappear
+            // so the video can register when mouse moves in/out so controls can reappear
             if (videoElement.scrollWidth > 300) {
                 swipeAreaElement.style.width = videoElement.scrollWidth - 50 + "px";
             } else if (videoElement.scrollWidth > 100) {
