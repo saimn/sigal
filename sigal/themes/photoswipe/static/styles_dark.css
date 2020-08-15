@@ -1,0 +1,30 @@
+body {
+  background: #1f1a20;
+  font-family: "myriad-pro","Myriad Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 18px;
+  line-height: 26px;
+  color: #90A5C8;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -moz-font-feature-settings: "liga", "kern";
+}
+
+.album-list {
+  width: 100%;
+  padding: 2em 0;
+  margin: auto;
+  background: #1f1a20 none repeat scroll 0 0;
+  float:left;
+}
+
+.thumbnail img {
+  max-width: 85%;
+  height: auto;
+  margin: 0 2px 5px 2px;
+  border: 10px solid #6868689e;
+  border-radius: 4px;
+}
+.thumbnail img:hover {
+  box-shadow: 0 0 5px #fff;
+}

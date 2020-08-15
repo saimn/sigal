@@ -10,13 +10,19 @@
     <meta name="viewport" content="width=device-width">
     {% block extra_head %}{% endblock extra_head %}
     <link rel="stylesheet" href="{{ theme.url }}/styles.css">
+    {# later defined css takes precedence #}
+    {% if album.settings.get('photoswipe_darktheme', False) %}
+    <link rel="stylesheet" href="{{ theme.url }}/styles_dark.css">
+    {% endif %}
     {% include 'analytics.html' %}
   </head>
   <body>
     {% include 'decrypt.html' %}
     {% include 'gtm.html' %}
     <div class="container">
-      <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
+      {% if not album.settings.get('photoswipe_notitle', False) -%}
+          <h1><a href="{{ album.index_url }}">{{ index_title }}</a></h1>
+      {%- endif %}
 
       {% include 'links.html' %}
 
