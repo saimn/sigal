@@ -32,8 +32,12 @@
       {% if media.type == "video" %}
         <figure class="gallery__img--secondary thumbnail"
                 itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+          <!-- because events (taps, touches, clicks) on video with controls are not propagated we use swipeare which covers most of the video
+               except the bottom controls and later bind click on video_swipearea to do play/pause
+               this fixes swiping over video to go to next/previous item or close the gallery, so it is usable on mobile
+               very ugly hack, if you know of a better solution, please go ahead -->
           <a href="{{ media.url }}" itemprop="contentUrl" data-type="video"
-             data-video='<div class="video"><div class="video__container"><video controls><source src="{{ media.url }}" type="{{ media.mime }}" /></video></div></div>'>
+             data-video='<div class="video"><div class="video__container"><div class="video__swipearea"></div><video controls playsinline><source src="{{ media.url }}" type="{{ media.mime }}" /></video></div></div>'>
           <img src="{{ theme.url }}/echo/blank.gif"
                data-echo="{{ media.thumbnail }}"
                alt="{{ media.thumbnail }}" itemprop="thumbnail" title="" />

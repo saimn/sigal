@@ -702,8 +702,87 @@ var _isOpen,
 
 	_updatePageScrollOffset = function() {
 		self.setScrollOffset(0, framework.getScrollY());		
-	};
-	
+	},
+
+
+    _unbindAllSwipeAreaPlayPause = function() {
+        for (var i=0; i < NUM_HOLDERS; i++) {
+            _unbindSwipeAreaPlayPause(_itemHolders[i].el);
+        }
+    },
+
+    _unbindSwipeAreaPlayPause = function(containerElement) {
+        var childrenVideoElements = containerElement.getElementsByTagName("video");
+        var childrenSwipeAreaElements = containerElement.getElementsByClassName("video__swipearea");
+        if (childrenVideoElements.length != 1 || childrenSwipeAreaElements.length != 1) {
+            return
+        }
+        var videoElement = childrenVideoElements[0];
+        var swipeAreaElement = childrenSwipeAreaElements[0];
+        if (swipeAreaElement.play_pause != undefined) {
+            framework.unbind(swipeAreaElement, 'click', swipeAreaElement.play_pause);
+        }
+        if (swipeAreaElement.resize != undefined) {
+            framework.unbind(videoElement, "loadeddata", swipeAreaElement.resize);
+            framework.unbind(videoElement, "canplay", swipeAreaElement.resize);
+            framework.unbind(window, 'resize', swipeAreaElement.resize);
+        }
+    },
+
+    _bindSwipeAreaPlayPause = function(containerElement) {
+        var childrenVideoElements = containerElement.getElementsByTagName("video");
+        var childrenSwipeAreaElements = containerElement.getElementsByClassName("video__swipearea");
+        if (childrenVideoElements.length != 1 || childrenSwipeAreaElements.length != 1) {
+            return;
+        }
+        var videoElement = childrenVideoElements[0];
+        var swipeAreaElement = childrenSwipeAreaElements[0];
+        swipeAreaElement.play_pause = function(e) {
+            if (videoElement.paused) {
+                videoElement.play();
+            } else {
+                videoElement.pause();
+            }
+        };
+        swipeAreaElement.resize = function() {
+            // swiping in top 70% of the video works
+            // yes it's not a very good solution but better than swiping not working at all
+            // this is to ensure that both works internal browser controls *and* swiping
+            if (videoElement.scrollHeight > 400) {
+                swipeAreaElement.style.height = (videoElement.scrollHeight * 0.7) + "px"; 
+                // swipeArea is vertically and horizontally centered just like the video
+                // but should appear at the top so we do top -> 40%
+                // keep 25 px at the top not covered so video can register mouse coming back
+                swipeAreaElement.style.top = "calc(35% + 25px)";
+            } else if (videoElement.scrollHeight > 150) {
+                // minimal height *not* covered by swipe area is 70px
+                // to ensure controls always work
+                swipeAreaElement.style.height = videoElement.scrollHeight - 70 + "px";
+                // 35px (half of height) - 10% extra (for video to register mouse coming back)
+                swipeAreaElement.style.top = "calc(50% - 25px)";
+            } else {
+                // the video is so small that a user can swipe above/below anyway
+                swipeAreaElement.style.height = 0;
+            }
+            // do not extend the swipe area across the whole video width
+            // so the video can regiser when mouse moves in/out so controls can reappear
+            if (videoElement.scrollWidth > 300) {
+                swipeAreaElement.style.width = videoElement.scrollWidth - 50 + "px";
+            } else if (videoElement.scrollWidth > 100) {
+                swipeAreaElement.style.width = videoElement.scrollWidth - 20 + "px";
+            } else {
+                // the video is so narrow that a user can swipe around the video anyway
+                swipeAreaElement.style.width = 0;
+            }
+        };
+
+        framework.bind(swipeAreaElement, 'click', swipeAreaElement.play_pause);
+        framework.bind(videoElement, 'loadeddata', swipeAreaElement.resize);
+        framework.bind(videoElement, 'canplay', swipeAreaElement.resize);
+        framework.bind(window, 'resize', swipeAreaElement.resize);
+
+        swipeAreaElement.resize(); // set the initial size
+    };
 
 
 	
@@ -989,8 +1068,8 @@ var publicMethods = {
 		_isDestroying = true;
 		_shout('close');
 		_unbindEvents();
-
         self.pauseVideo();
+        _unbindAllSwipeAreaPlayPause();
 
 		_showOrHide(self.currItem, null, true, self.destroy);
 	},
@@ -1099,7 +1178,7 @@ var publicMethods = {
 		} else {
 			_currZoomElementStyle = null;
 		}
-		
+
 		_currPanBounds = self.currItem.bounds;	
 		_startZoomLevel = _currZoomLevel = self.currItem.initialZoomLevel;
 
@@ -1136,6 +1215,7 @@ var publicMethods = {
 		}
 
         self.pauseVideo();
+        _unbindAllSwipeAreaPlayPause();
 
 		self.currItem = _getItemAt( _currentItemIndex );
 		_renderMaxResolution = false;
@@ -1164,6 +1244,9 @@ var publicMethods = {
 			}
 			
 		}
+
+        // set the video__swipearea onclick to play/pause video
+        _bindSwipeAreaPlayPause(_itemHolders[1].el);
 
 		// reset zoom/pan on previous item
 		if(_currZoomElementStyle && Math.abs(_indexDiff) === 1) {
