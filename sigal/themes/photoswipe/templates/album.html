@@ -17,6 +17,11 @@
   {% endif %}
 
   <div class="gallery" itemscope itemtype="http://schema.org/ImageGallery">
+    {% if album.settings.get('photoswipe_video_playsinline', False) %}
+        {% set playsinline = 'playsinline' %}
+    {% else %}
+        {% set playsinline = '' %}
+    {% endif %}
     {% for media in album.medias %}
       {% if media.type == "image" %}
         <figure class="gallery__img--{{ "main" if loop.first else "secondary" }} thumbnail"
@@ -37,7 +42,7 @@
                this fixes swiping over video to go to next/previous item or close the gallery, so it is usable on mobile
                very ugly hack, if you know of a better solution, please go ahead -->
           <a href="{{ media.url }}" itemprop="contentUrl" data-type="video"
-             data-video='<div class="video"><div class="video__container"><div class="video__swipearea"></div><video controls playsinline><source src="{{ media.url }}" type="{{ media.mime }}" /></video></div></div>'>
+             data-video='<div class="video"><div class="video__container"><div class="video__swipearea"></div><video controls {{playsinline}}><source src="{{ media.url }}" type="{{ media.mime }}" /></video></div></div>'>
           <img src="{{ theme.url }}/echo/blank.gif"
                data-echo="{{ media.thumbnail }}"
                alt="{{ media.thumbnail }}" itemprop="thumbnail" title="" />
