@@ -27,7 +27,9 @@
       {% include 'links.html' %}
 
       <div class="content">
-        {% include 'breadcrumb.html' %}
+        {% if not album.settings.get('photoswipe_notitle', False) -%}
+          {% include 'breadcrumb.html' %}
+        {%- endif %}
         {% block content %}{% endblock %}
 
         {% if album.description %}
