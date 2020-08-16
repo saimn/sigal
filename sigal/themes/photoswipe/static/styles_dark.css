@@ -24,7 +24,10 @@ body {
   margin: 0 2px 5px 2px;
   border: 10px solid #6868689e;
   border-radius: 4px;
+  box-shadow: none;
+  padding: 0;
 }
+
 .thumbnail img:hover {
   box-shadow: 0 0 5px #fff;
 }
