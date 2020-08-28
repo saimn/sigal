@@ -222,10 +222,15 @@ def get_exif_data(filename):
     img = _read_image(filename)
 
     try:
-        exif = img._getexif() or {}
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            exif = img._getexif() or {}
     except ZeroDivisionError:
         logger.warning('Failed to read EXIF data.')
         return None
+
+    for w in caught_warnings:
+        logger.warning(f'PILImage reported a warning for file {filename}\n'
+                       f'{w.category}: {w.message}')
 
     data = {TAGS.get(tag, tag): value for tag, value in exif.items()}
 
