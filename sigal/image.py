@@ -234,7 +234,6 @@ def get_exif_data(filename):
             data['GPSInfo'] = {GPSTAGS.get(tag, tag): value
                                for tag, value in data['GPSInfo'].items()}
         except AttributeError:
-            logger = logging.getLogger(__name__)
             logger.info('Failed to get GPS Info')
             del data['GPSInfo']
     return data
