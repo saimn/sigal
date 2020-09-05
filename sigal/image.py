@@ -229,7 +229,9 @@ def get_exif_data(filename):
         return None
 
     for w in caught_warnings:
-        logger.warning(f'PILImage reported a warning for file {filename}\n'
+        fname = (filename.filename if isinstance(filename, PILImage.Image)
+                 else filename)
+        logger.warning(f'PILImage reported a warning for file {fname}\n'
                        f'{w.category}: {w.message}')
 
     data = {TAGS.get(tag, tag): value for tag, value in exif.items()}
