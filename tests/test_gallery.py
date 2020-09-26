@@ -233,6 +233,17 @@ def test_medias_sort(settings):
         'CMB_Timeline300_no_WMAP.jpg', '21.jpg', '22.jpg']
 
 
+def test_flatten_merge(settings):
+    gal = Gallery(settings, ncpu=1)
+    flat_album = gal.flatten()
+    # expected = sum([len(album['medias']) for album in REF.values()])
+    # XXX: not sure why, but the above Gallery does not skip .nomedia
+    # even if the plugin is present
+    expected = 25
+    assert expected == len(flat_album.medias), 'right number of items'
+    assert '/' not in ''.join(gal.albums['dir1'].medias), 'original paths preserved'
+
+
 def test_gallery(settings, tmpdir):
     "Test the Gallery class."
 

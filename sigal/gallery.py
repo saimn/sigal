@@ -23,6 +23,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+from copy import copy as shallowcopy
 import fnmatch
 import locale
 import logging
@@ -542,6 +543,34 @@ class Album:
         """
         return None
 
+    def flatten(self):
+        '''flatten album hierarchy in a single album
+
+        this modifies the album: make sure to call `.copy()` if you need
+        the original album untouched.
+        '''
+        ret = shallowcopy(self)
+        for album in ret.albums:
+            ret.merge(album)
+            album.flatten()
+        return ret
+
+    def merge(self, album):
+        '''merge in another album into this album
+
+        ..todo:: could be reimplemented as __add__()? but then you'd have
+                 consumers expecting `all operators`_ to be supported?
+
+        .. _all operators: https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types
+        '''
+        for media in album.medias:
+            media = shallowcopy(media)
+            media.thumb_name = os.path.join(album.path, media.thumb_name)
+            media.filename = os.path.join(album.path, media.filename)
+            self.medias.append(media)
+            # XXX; should be factored out? copied from Album.__init__()
+            self.medias_count[media.type] += 1
+
 
 class Gallery:
 
@@ -760,6 +789,13 @@ class Gallery:
                 self.stats[f.type] += 1
                 yield (f.type, f.path, f.filename, f.src_path, album.dst_path,
                        self.settings)
+
+    def flatten(self, path='.'):
+        '''flatten all albums into a single one'''
+        flat_album = Album(path, self.settings, [], [], self)
+        for album in self.albums.values():
+            flat_album.merge(album)
+        return flat_album.flatten()
 
 
 def process_file(args):
