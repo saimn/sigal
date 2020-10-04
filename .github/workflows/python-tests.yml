@@ -10,7 +10,8 @@ on: [push, pull_request]
 #   schedule:
 #     # Run everyday at 03:53 UTC
 #     - cron: 53 3 * * *
-
+#  workflow_dispatch:
+  
 jobs:
   build:
 
@@ -21,6 +22,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
