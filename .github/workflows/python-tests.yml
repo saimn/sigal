@@ -16,7 +16,11 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Tox and any other packages
+    - name: Install FFmpeg
+      run: |
+        sudo apt install ffmpeg
+        ffmpeg -version
+    - name: Install Tox
       run: pip install tox
     - name: Run Tox
       # Run tox using the version of Python in `PATH`
