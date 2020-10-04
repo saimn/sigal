@@ -20,7 +20,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import imp
+import importlib
 import logging
 import os
 import sys
@@ -80,7 +80,7 @@ class AbstractWriter:
         # handle optional filters.py
         filters_py = os.path.join(self.theme, 'filters.py')
         if os.path.exists(filters_py):
-            mod = imp.load_source('filters', filters_py)
+            mod = importlib.import_module(filters_py)
             for name in dir(mod):
                 if isinstance(getattr(mod, name), types.FunctionType):
                     env.filters[name] = getattr(mod, name)
@@ -88,8 +88,9 @@ class AbstractWriter:
         try:
             self.template = env.get_template(self.template_file)
         except TemplateNotFound:
-            self.logger.error('The template %s was not found in template folder %s.',
-                              self.template_file, theme_relpath)
+            self.logger.error(
+                'The template %s was not found in template folder %s.',
+                self.template_file, theme_relpath)
             sys.exit(1)
 
         # Copy the theme files in the output dir
