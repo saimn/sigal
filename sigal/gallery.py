@@ -454,16 +454,23 @@ class Album:
             # find and return the first landscape image
             for f in self.medias:
                 ext = splitext(f.filename)[1]
-                if ext.lower() in self.settings['img_extensions']:
-                    # Use f.size if available as it is quicker (in cache), but
-                    # fallback to the size of src_path if dst_path is missing
-                    size = f.size
-                    if size is None:
-                        size = f.file_metadata['size']
+                if ext.lower() not in self.settings['img_extensions']:
+                    continue
 
-                    if size['width'] > size['height']:
+                # Use f.size if available as it is quicker (in cache), but
+                # fallback to the size of src_path if dst_path is missing
+                size = f.size
+                if size is None:
+                    size = f.file_metadata['size']
+
+                if size['width'] > size['height']:
+                    try:
                         self._thumbnail = (url_quote(self.name) + '/' +
                                            f.thumbnail)
+                    except Exception as e:
+                        self.logger.info("Failed to get thumbnail for %s: %s",
+                                         f.filename, e)
+                    else:
                         self.logger.debug(
                             "Use 1st landscape image as thumbnail for %r : %s",
                             self, self._thumbnail)
@@ -473,12 +480,19 @@ class Album:
             if not self._thumbnail and self.medias:
                 for media in self.medias:
                     if media.thumbnail is not None:
-                        self._thumbnail = (url_quote(self.name) + '/' +
-                                           media.thumbnail)
-                        break
+                        try:
+                            self._thumbnail = (url_quote(self.name) + '/' +
+                                               media.thumbnail)
+                        except Exception as e:
+                            self.logger.info(
+                                "Failed to get thumbnail for %s: %s",
+                                media.filename, e
+                            )
+                        else:
+                            break
                 else:
                     self.logger.warning("No thumbnail found for %r", self)
-                    return None
+                    return
 
                 self.logger.debug("Use the 1st image as thumbnail for %r : %s",
                                   self, self._thumbnail)
@@ -496,7 +510,6 @@ class Album:
                         return self._thumbnail
 
         self.logger.error('Thumbnail not found for %r', self)
-        return None
 
     @property
     def random_thumbnail(self):
@@ -540,7 +553,6 @@ class Album:
         """Placeholder ZIP method.
         The ZIP logic is controlled by the zip_gallery plugin
         """
-        return None
 
 
 class Gallery:
