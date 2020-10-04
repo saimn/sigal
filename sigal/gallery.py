@@ -24,7 +24,6 @@
 # IN THE SOFTWARE.
 
 import fnmatch
-import locale
 import logging
 import multiprocessing
 import os
@@ -373,13 +372,17 @@ class Album:
                 root_path = self.path if self.path != '.' else ''
                 if albums_sort_attr.startswith("meta."):
                     meta_key = albums_sort_attr.split(".", 1)[1]
-                    key = natsort_keygen(key=lambda s:
-                        self.gallery.albums[join(root_path, s)].meta.get(meta_key, [''])[0],
-                        alg=ns.LOCALE)
+
+                    def sort_key(s):
+                        album = self.gallery.albums[join(root_path, s)]
+                        return album.meta.get(meta_key, [''])[0]
+
                 else:
-                    key = natsort_keygen(key=lambda s:
-                        getattr(self.gallery.albums[join(root_path, s)], albums_sort_attr),
-                        alg=ns.LOCALE)
+                    def sort_key(s):
+                        album = self.gallery.albums[join(root_path, s)]
+                        return getattr(album, albums_sort_attr)
+
+                key = natsort_keygen(key=sort_key, alg=ns.LOCALE)
             else:
                 key = natsort_keygen(alg=ns.LOCALE)
 
@@ -394,11 +397,13 @@ class Album:
                 key = lambda s: s.date or datetime.now()
             elif medias_sort_attr.startswith('meta.'):
                 meta_key = medias_sort_attr.split(".", 1)[1]
-                key = natsort_keygen(key=lambda s: s.meta.get(meta_key, [''])[0],
-                                    alg=ns.LOCALE)
+                key = natsort_keygen(
+                    key=lambda s: s.meta.get(meta_key, [''])[0],
+                    alg=ns.LOCALE)
             else:
-                key = natsort_keygen(key=lambda s: getattr(s, medias_sort_attr),
-                                    alg=ns.LOCALE)
+                key = natsort_keygen(
+                    key=lambda s: getattr(s, medias_sort_attr),
+                    alg=ns.LOCALE)
 
             self.medias.sort(key=key,
                              reverse=self.settings['medias_sort_reverse'])
