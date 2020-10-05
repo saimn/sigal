@@ -1,16 +1,15 @@
 name: Run unit tests
 
-on: [push, pull_request]
-# on:
-#   pull_request:
-#   push:
-#     branches:
-#     - master
-#     tags:
-#   schedule:
-#     # Run everyday at 03:53 UTC
-#     - cron: 53 3 * * *
-#  workflow_dispatch:
+on:
+  pull_request:
+  push:
+    branches:
+    - master
+    tags:
+  workflow_dispatch:
+  schedule:
+    # Run every Sunday at 03:53 UTC
+    - cron: 53 3 * * *
 
 jobs:
   build:
