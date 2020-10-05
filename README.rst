@@ -1,8 +1,8 @@
 Sigal - Simple Static Gallery Generator
 =======================================
 
-.. image:: https://github.com/saimn/sigal/workflows/CI/badge.svg?branch=master
-   :target: https://github.com/saimn/sigal/actions?workflow=CI
+.. image:: https://github.com/saimn/sigal/workflows/Run%20unit%20tests/badge.svg
+   :target: https://github.com/saimn/sigal/actions
    :alt: CI Status
 
 .. image:: https://codecov.io/gh/saimn/sigal/branch/master/graph/badge.svg
