@@ -1,0 +1,43 @@
+name: Run unit tests
+
+on:
+  pull_request:
+  push:
+    branches:
+    - master
+    tags:
+  workflow_dispatch:
+  schedule:
+    # Run every Sunday at 03:53 UTC
+    - cron: 53 3 * * *
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, pypy3]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install FFmpeg
+      run: |
+        sudo apt install ffmpeg
+        ffmpeg -version
+    - name: Install Tox
+      run: python -m pip install tox tox-gh-actions coverage
+    - name: Run Tox
+      run: tox
+    - name: Convert coverage
+      run: python -m coverage xml
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        fail_ci_if_error: true

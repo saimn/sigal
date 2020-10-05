@@ -1,9 +1,9 @@
 Sigal - Simple Static Gallery Generator
 =======================================
 
-.. image:: https://secure.travis-ci.org/saimn/sigal.png?branch=master
-   :target: https://travis-ci.org/saimn/sigal
-   :alt: Travis-ci: continuous integration status.
+.. image:: https://github.com/saimn/sigal/workflows/CI/badge.svg?branch=master
+   :target: https://github.com/saimn/sigal/actions?workflow=CI
+   :alt: CI Status
 
 .. image:: https://codecov.io/gh/saimn/sigal/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/saimn/sigal
