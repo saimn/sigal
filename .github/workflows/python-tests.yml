@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
   schedule:
     # Run every Sunday at 03:53 UTC
-    - cron: 53 3 * * *
+    - cron: 53 3 * * 0
 
 jobs:
   build:
