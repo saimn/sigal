@@ -52,4 +52,4 @@ Javascript libraries:
 .. _colorbox demo: http://saimon.org/sigal-demo/colorbox/
 .. _photoswipe demo: http://saimon.org/sigal-demo/photoswipe/
 .. _webchat: http://webchat.freenode.net/?channels=sigal
-.. _Jinja2: http://jinja.pocoo.org/
+.. _Jinja2: https://palletsprojects.com/p/jinja/
