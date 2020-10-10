@@ -15,4 +15,5 @@ dist/
 docs/_build
 htmlcov/
 output/
+sigal/version.py
 tags

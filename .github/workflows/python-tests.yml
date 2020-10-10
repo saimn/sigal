@@ -12,8 +12,7 @@ on:
     - cron: 53 3 * * 0
 
 jobs:
-  build:
-
+  tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
