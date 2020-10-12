@@ -29,7 +29,6 @@ from http import server
 
 import click
 from click import argument, option
-from pkg_resources import DistributionNotFound, get_distribution
 
 from .gallery import Gallery
 from .log import init_logging
@@ -37,8 +36,8 @@ from .settings import read_settings
 from .utils import copy
 
 try:
-    __version__ = get_distribution(__name__).version
-except DistributionNotFound:
+    from .version import __version__
+except ImportError:
     # package is not installed
     __version__ = None
 
