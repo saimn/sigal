@@ -7,6 +7,11 @@ Version 2.2.dev
 
 Released on 2020-xx-xx.
 
+- Convert pillow warnings to logging with filename [:issue:`394`].
+- Catch warnings when reading EXIF data.
+- Avoid crash when thumbnail cannot be generated [:issue:`401`].
+- Replace deprecated usage of `imp`.
+
 Version 2.1.1
 ~~~~~~~~~~~~~
 
