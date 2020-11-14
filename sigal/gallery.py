@@ -38,6 +38,7 @@ from urllib.parse import quote as url_quote
 
 from click import get_terminal_size, progressbar
 from natsort import natsort_keygen, ns
+from PIL import Image as PILImage
 
 from . import image, signals, video
 from .image import get_exif_tags, get_image_metadata, get_size, process_image
@@ -66,18 +67,20 @@ class Media:
     """Type of media, e.g. ``"image"`` or ``"video"``."""
 
     def __init__(self, filename, path, settings):
+        self.path = path
+        self.settings = settings
+
         self.filename = filename
         """Filename of the resized image."""
 
         self.src_filename = filename
-        """Filename of the resized image."""
+        """Filename of the input image."""
 
-        self.path = path
-        self.settings = settings
         self.ext = os.path.splitext(filename)[1].lower()
+        """Input extension."""
 
-        self.src_path = join(settings['source'], path, filename)
-        self.dst_path = join(settings['destination'], path, filename)
+        self.src_path = join(settings['source'], path, self.src_filename)
+        self.dst_path = join(settings['destination'], path, self.filename)
 
         self.thumb_name = get_thumb(self.settings, self.filename)
         self.thumb_path = join(settings['destination'], path, self.thumb_name)
@@ -96,7 +99,7 @@ class Media:
         return "<{}>({!r})".format(self.__class__.__name__, str(self))
 
     def __str__(self):
-        return join(self.path, self.filename)
+        return join(self.path, self.src_filename)
 
     @property
     def url(self):
@@ -112,7 +115,7 @@ class Media:
             s = self.settings
             if s['use_orig']:
                 # The image *is* the original, just use it
-                return self.filename
+                return self.src_filename
             orig_path = join(s['destination'], self.path, s['orig_dir'])
             check_or_create_dir(orig_path)
             big_path = join(orig_path, self.src_filename)
@@ -180,6 +183,17 @@ class Image(Media):
 
     type = 'image'
 
+    def __init__(self, filename, path, settings):
+        super().__init__(filename, path, settings)
+        img_format = settings.get('img_format')
+
+        if img_format and PILImage.EXTENSION[self.ext] != img_format.upper():
+            # Find the extension that should match img_format
+            extensions = {v: k for k, v in PILImage.EXTENSION.items()}
+            outname = (os.path.splitext(filename)[0] +
+                       extensions[img_format.upper()])
+            self.dst_path = join(settings['destination'], path, outname)
+
     @cached_property
     def date(self):
         """The date from the EXIF DateTimeOriginal metadata if available, or
@@ -241,8 +255,9 @@ class Video(Media):
     def __init__(self, filename, path, settings):
         super().__init__(filename, path, settings)
         base, ext = splitext(filename)
-        self.src_filename = filename
+        # self.src_filename = filename
         self.date = self._get_file_date()
+
         if not settings['use_orig'] or not is_valid_html5_video(ext):
             video_format = settings['video_format']
             ext = '.' + video_format
@@ -775,7 +790,7 @@ class Gallery:
                 self.stats[f.type + '_skipped'] += 1
             else:
                 self.stats[f.type] += 1
-                yield (f.type, f.path, f.filename, f.src_path, album.dst_path,
+                yield (f.type, f.path, f.filename, f.src_path, f.dst_path,
                        self.settings)
 
 

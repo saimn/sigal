@@ -143,7 +143,9 @@ def generate_image(source, outname, settings, options=None):
 
     # first, use hard-coded output format, or PIL format, or original image
     # format, or fall back to JPEG
-    outformat = settings.get('img_format') or img.format or original_format or 'JPEG'
+    outformat = (settings.get('img_format') or img.format or
+                 original_format or 'JPEG')
+
     logger.debug('Save resized image to %s (%s)', outname, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
@@ -174,7 +176,6 @@ def process_image(filepath, outpath, settings):
     logger = logging.getLogger(__name__)
     logger.info('Processing %s', filepath)
     filename = os.path.split(filepath)[1]
-    outname = os.path.join(outpath, filename)
     ext = os.path.splitext(filename)[1]
 
     if ext in ('.jpg', '.jpeg', '.JPG', '.JPEG'):
@@ -185,15 +186,21 @@ def process_image(filepath, outpath, settings):
         options = {}
 
     try:
-        generate_image(filepath, outname, settings, options=options)
+        generate_image(filepath, outpath, settings, options=options)
 
         if settings['make_thumbs']:
-            thumb_name = os.path.join(outpath, get_thumb(settings, filename))
+            thumb_name = os.path.join(os.path.dirname(outpath),
+                                      get_thumb(settings, filename))
             generate_thumbnail(
-                outname, thumb_name, settings['thumb_size'],
-                fit=settings['thumb_fit'], options=options,
-                thumb_fit_centering=settings["thumb_fit_centering"])
+                outpath,
+                thumb_name,
+                settings['thumb_size'],
+                fit=settings['thumb_fit'],
+                options=options,
+                thumb_fit_centering=settings["thumb_fit_centering"]
+            )
     except Exception as e:
+        __import__('pdb').set_trace()
         logger.info('Failed to process: %r', e)
         if logger.getEffectiveLevel() == logging.DEBUG:
             raise

@@ -39,7 +39,7 @@ _DEFAULT_CONFIG = {
     'google_tag_manager': '',
     'ignore_directories': [],
     'ignore_files': [],
-    'img_extensions': ['.jpg', '.jpeg', '.png', '.gif'],
+    'img_extensions': ['.jpg', '.jpeg', '.png', '.gif', '.tif', '.tiff'],
     'img_processor': 'ResizeToFit',
     'img_size': (640, 480),
     'img_format': None,

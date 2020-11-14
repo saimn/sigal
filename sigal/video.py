@@ -166,8 +166,7 @@ def process_video(filepath, outpath, settings):
 
     try:
         if settings['use_orig'] and is_valid_html5_video(ext):
-            outname = os.path.join(outpath, filename)
-            utils.copy(filepath, outname, symlink=settings['orig_link'])
+            utils.copy(filepath, outpath, symlink=settings['orig_link'])
         else:
             valid_formats = ['mp4', 'webm']
             video_format = settings['video_format']
@@ -177,8 +176,7 @@ def process_video(filepath, outpath, settings):
                              valid_formats)
                 raise ValueError
 
-            outname = os.path.join(outpath, basename + '.' + video_format)
-            generate_video(filepath, outname, settings,
+            generate_video(filepath, outpath, settings,
                            options=settings.get(video_format + '_options'))
     except Exception:
         if logger.getEffectiveLevel() == logging.DEBUG:
@@ -187,13 +185,18 @@ def process_video(filepath, outpath, settings):
             return Status.FAILURE
 
     if settings['make_thumbs']:
-        thumb_name = os.path.join(outpath, get_thumb(settings, filename))
+        thumb_name = os.path.join(os.path.dirname(outpath),
+                                  get_thumb(settings, filename))
         try:
             generate_thumbnail(
-                outname, thumb_name, settings['thumb_size'],
-                settings['thumb_video_delay'], fit=settings['thumb_fit'],
+                outpath,
+                thumb_name,
+                settings['thumb_size'],
+                settings['thumb_video_delay'],
+                fit=settings['thumb_fit'],
                 options=settings['jpg_options'],
-                converter=settings['video_converter'])
+                converter=settings['video_converter']
+            )
         except Exception:
             if logger.getEffectiveLevel() == logging.DEBUG:
                 raise

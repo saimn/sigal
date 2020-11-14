@@ -4,6 +4,7 @@ source = 'pictures'
 thumb_suffix = '.tn'
 keep_orig = True
 thumb_video_delay = 5
+img_format = 'jpeg'
 
 links = [('Example link', 'http://example.org'),
          ('Another link', 'http://example.org')]
