@@ -136,9 +136,20 @@ def generate_thumbnail(source, outname, box, delay, fit=True, options=None,
 
     # dump an image of the video
     cmd = [converter, '-i', source, '-an', '-r', '1',
-           '-ss', delay, '-vframes', '1', '-y', tmpfile]
+           '-ss', str(delay), '-vframes', '1', '-y', tmpfile]
     logger.debug('Create thumbnail for video: %s', ' '.join(cmd))
     check_subprocess(cmd, source, outname)
+
+    # Sometimes ffmpeg fails with returncode zero but without producing an
+    # output file Thus, we need to check if an output file was created. If
+    # not, assume ffmpeg failed
+    if not os.path.isfile(tmpfile):
+        logger.debug('Thumbnail generation failed. Likely due to very short '
+                     'video length.')
+        cmd = [converter, '-i', source, '-an', '-r', '1',
+               '-ss', '0', '-vframes', '1', '-y', tmpfile]
+        logger.debug('Retry to create thumbnail for video: %s', ' '.join(cmd))
+        check_subprocess(cmd, source, outname)
 
     # use the generate_thumbnail function from sigal.image
     image.generate_thumbnail(tmpfile, outname, box, fit=fit, options=options)
