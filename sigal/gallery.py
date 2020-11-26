@@ -238,6 +238,11 @@ class Image(Media):
         return get_size(self.dst_path)
 
     @cached_property
+    def input_size(self):
+        """The dimensions of the input image."""
+        return get_size(self.src_path)
+
+    @cached_property
     def thumb_size(self):
         """The dimensions of the thumbnail image."""
         return get_size(self.thumb_path)
@@ -479,7 +484,7 @@ class Album:
 
                 # Use f.size if available as it is quicker (in cache), but
                 # fallback to the size of src_path if dst_path is missing
-                size = f.size
+                size = f.input_size
                 if size is None:
                     size = f.file_metadata['size']
 

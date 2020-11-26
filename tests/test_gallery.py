@@ -141,8 +141,11 @@ def test_image(settings, tmpdir):
 def test_video(settings, tmpdir):
     settings['destination'] = str(tmpdir)
     m = Video('example video.ogv', 'video', settings)
+
+    src_path = join('video', 'example video.ogv')
+    assert str(m) == src_path
+
     file_path = join('video', 'example video.webm')
-    assert str(m) == file_path
     assert m.dst_path == join(settings['destination'], file_path)
 
     os.makedirs(join(settings['destination'], 'video', 'thumbnails'))
