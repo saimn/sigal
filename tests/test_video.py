@@ -3,7 +3,8 @@ import os
 import pytest
 
 from sigal.settings import Status, create_settings
-from sigal.video import generate_video, process_video, video_size
+from sigal.video import (generate_thumbnail, generate_video, process_video,
+                         video_size)
 
 CURRENT_DIR = os.path.dirname(__file__)
 TEST_VIDEO = 'example video.ogv'
@@ -15,6 +16,12 @@ def test_video_size():
     assert size_src == (320, 240)
     size_src = video_size('missing/file.mp4')
     assert size_src == (0, 0)
+
+
+def test_generate_thumbnail(tmpdir):
+    outname = str(tmpdir.join('test.jpg'))
+    generate_thumbnail(SRCFILE, outname, (50, 50), 5)
+    assert os.path.isfile(outname)
 
 
 def test_process_video(tmpdir):
@@ -48,7 +55,7 @@ def test_generate_video_fit_height(tmpdir, fmt):
 
     assert size_dst[0] == 80
     # less than 2% error on ratio
-    assert abs(size_dst[0]/size_dst[1] - size_src[0]/size_src[1]) < 2e-2
+    assert abs(size_dst[0] / size_dst[1] - size_src[0] / size_src[1]) < 2e-2
 
 
 @pytest.mark.parametrize("fmt", ['webm', 'mp4'])
@@ -66,7 +73,7 @@ def test_generate_video_fit_width(tmpdir, fmt):
 
     assert size_dst[1] == 50
     # less than 2% error on ratio
-    assert abs(size_dst[0]/size_dst[1] - size_src[0]/size_src[1]) < 2e-2
+    assert abs(size_dst[0] / size_dst[1] - size_src[0] / size_src[1]) < 2e-2
 
 
 @pytest.mark.parametrize("fmt", ['webm', 'mp4', 'ogv'])
