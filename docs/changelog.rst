@@ -11,6 +11,7 @@ Released on 2020-xx-xx.
 - Catch warnings when reading EXIF data.
 - Avoid crash when thumbnail cannot be generated [:issue:`401`].
 - Replace deprecated usage of `imp`.
+- Fix video thumbnail creation when delay > video length [:issue:`411`].
 
 Version 2.1.1
 ~~~~~~~~~~~~~
