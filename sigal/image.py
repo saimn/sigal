@@ -36,6 +36,7 @@ import sys
 import warnings
 from copy import deepcopy
 from datetime import datetime
+from tempfile import TemporaryDirectory
 
 from PIL import Image as PILImage
 from PIL import ImageFile, ImageOps, IptcImagePlugin
@@ -184,12 +185,18 @@ def process_image(filepath, outpath, settings):
         options = {}
 
     try:
-        generate_image(filepath, outname, settings, options=options)
+        if ext == '.cr2':
+            td = TemporaryDirectory()
+            tmpname = td.name + '/1.jpg'
+            os.system('dcraw -c -e "' + filepath + '" > "' + tmpname + '"')
+            generate_image(tmpname, outname, settings, options=options)
+        else:
+            generate_image(filepath, outname, settings, options=options)
 
         if settings['make_thumbs']:
             thumb_name = os.path.join(outpath, get_thumb(settings, filename))
             generate_thumbnail(
-                outname, thumb_name, settings['thumb_size'],
+                filepath, thumb_name, settings.get('img_format'), settings['thumb_size'],
                 fit=settings['thumb_fit'], options=options,
                 thumb_fit_centering=settings["thumb_fit_centering"])
     except Exception as e:
