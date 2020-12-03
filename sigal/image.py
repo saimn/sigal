@@ -148,7 +148,7 @@ def generate_image(source, outname, settings, options=None):
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
-def generate_thumbnail(source, outname, box, fit=True, options=None,
+def generate_thumbnail(source, outname, target_format, box, fit=True, options=None,
                        thumb_fit_centering=(0.5, 0.5)):
     """Create a thumbnail image."""
 
@@ -162,8 +162,8 @@ def generate_thumbnail(source, outname, box, fit=True, options=None,
     else:
         img.thumbnail(box, PILImage.ANTIALIAS)
 
-    outformat = img.format or original_format or 'JPEG'
-    logger.debug('Save thumnail image: %s (%s)', outname, outformat)
+    outformat = target_format or img.format or original_format or 'JPEG'
+    logger.debug('Save thumbnail image to %s (%s)', outname, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
@@ -173,10 +173,14 @@ def process_image(filepath, outpath, settings):
     logger = logging.getLogger(__name__)
     logger.info('Processing %s', filepath)
     filename = os.path.split(filepath)[1]
+    fn, ext = os.path.splitext(filename)
+    target_ext = ext
+    if settings.get('img_format') == 'JPEG':
+        filename = fn + '.jpg'
+        target_ext = '.jpg'
     outname = os.path.join(outpath, filename)
-    ext = os.path.splitext(filename)[1]
 
-    if ext in ('.jpg', '.jpeg', '.JPG', '.JPEG'):
+    if target_ext in ('.jpg', '.jpeg', '.JPG', '.JPEG'):
         options = settings['jpg_options']
     elif ext == '.png':
         options = {'optimize': True}

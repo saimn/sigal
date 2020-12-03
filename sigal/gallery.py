@@ -140,11 +140,11 @@ class Media:
                 s = self.settings
                 if self.type == 'image':
                     image.generate_thumbnail(
-                        path, self.thumb_path, s['thumb_size'],
+                        path, self.thumb_path, s.get('img_format'), s['thumb_size'],
                         fit=s['thumb_fit'])
                 elif self.type == 'video':
                     video.generate_thumbnail(
-                        path, self.thumb_path, s['thumb_size'],
+                        path, self.thumb_path, s.get('img_format'), s['thumb_size'],
                         s['thumb_video_delay'], fit=s['thumb_fit'],
                         converter=s['video_converter'])
             except Exception as e:
@@ -179,6 +179,22 @@ class Image(Media):
     """Gather all informations on an image file."""
 
     type = 'image'
+
+    def __init__(self, filename, path, settings):
+        super().__init__(filename, path, settings)
+        base, ext = splitext(filename)
+        self.src_filename = filename
+        self.date = self._get_file_date()
+        if not settings['use_orig']:
+            if settings.get('img_format') == 'JPEG':
+                ext = '.jpg'
+            else:
+               ext = '.' + settings.get('img_format')
+            self.filename = base + ext
+            self.title = self.filename
+            self.dst_path = join(settings['destination'], path, base + ext)
+            self.thumb_name = get_thumb(self.settings, self.filename)
+            self.thumb_path = join(settings['destination'], path, self.thumb_name)
 
     @cached_property
     def date(self):

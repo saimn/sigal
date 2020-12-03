@@ -127,7 +127,7 @@ def generate_video(source, outname, settings, options=None):
     check_subprocess(cmd, source, outname)
 
 
-def generate_thumbnail(source, outname, box, delay, fit=True, options=None,
+def generate_thumbnail(source, outname, target_format, box, delay, fit=True, options=None,
                        converter='ffmpeg'):
     """Create a thumbnail image for the video source, based on ffmpeg."""
 
@@ -141,7 +141,7 @@ def generate_thumbnail(source, outname, box, delay, fit=True, options=None,
     check_subprocess(cmd, source, outname)
 
     # use the generate_thumbnail function from sigal.image
-    image.generate_thumbnail(tmpfile, outname, box, fit=fit, options=options)
+    image.generate_thumbnail(tmpfile, outname, target_format, box, fit=fit, options=options)
     # remove the image
     os.unlink(tmpfile)
 
@@ -179,7 +179,7 @@ def process_video(filepath, outpath, settings):
         thumb_name = os.path.join(outpath, get_thumb(settings, filename))
         try:
             generate_thumbnail(
-                outname, thumb_name, settings['thumb_size'],
+                outname, thumb_name, settings.get('img_format'), settings['thumb_size'],
                 settings['thumb_video_delay'], fit=settings['thumb_fit'],
                 options=settings['jpg_options'],
                 converter=settings['video_converter'])
