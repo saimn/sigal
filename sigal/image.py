@@ -154,6 +154,7 @@ def generate_thumbnail(source, outname, box, fit=True, options=None,
 
     logger = logging.getLogger(__name__)
     img = _read_image(source)
+    img = Transpose().process(img)
     original_format = img.format
 
     if fit:
