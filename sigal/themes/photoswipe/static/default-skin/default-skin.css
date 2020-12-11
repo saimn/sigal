@@ -72,6 +72,9 @@
 .pswp__button--share {
   background-position: -44px -44px; }
 
+.pswp__button--download {
+  background-position: -176px 0; }
+
 .pswp__button--fs {
   display: none; }
 
@@ -92,8 +95,8 @@
   background-position: -132px 0; }
 
 /* no arrows on touch screens */
-.pswp--touch .pswp__button--arrow--left,
-.pswp--touch .pswp__button--arrow--right {
+.pswp--touch:not(.pswp--preventswipe) .pswp__button--arrow--left,
+.pswp--touch:not(.pswp--preventswipe) .pswp__button--arrow--right {
   visibility: hidden; }
 
 /*
@@ -140,7 +143,6 @@
 .pswp__counter,
 .pswp__share-modal {
   -webkit-user-select: none;
-  -moz-user-select: none;
   -ms-user-select: none;
       user-select: none; }
 
@@ -153,7 +155,7 @@
   left: 0;
   padding: 10px;
   position: absolute;
-  z-index: 1600;
+  z-index: 16777371;
   opacity: 0;
   -webkit-transition: opacity 0.25s ease-out;
           transition: opacity 0.25s ease-out;
@@ -164,9 +166,9 @@
   display: none; }
 
 .pswp__share-tooltip {
-  z-index: 1620;
+  z-index: 16777391;
   position: absolute;
-  background: #FFF;
+  background: #fff;
   top: 56px;
   border-radius: 2px;
   display: block;
@@ -216,28 +218,28 @@ a.pswp__share--facebook:before {
   position: absolute;
   top: -12px;
   right: 15px;
-  border: 6px solid transparent;
-  border-bottom-color: #FFF;
+  border: 6px solid rgba(0, 0, 0, 0);
+  border-bottom-color: #fff;
   -webkit-pointer-events: none;
   -moz-pointer-events: none;
   pointer-events: none; }
 
 a.pswp__share--facebook:hover {
-  background: #3E5C9A;
-  color: #FFF; }
+  background: #3e5c9a;
+  color: #fff; }
   a.pswp__share--facebook:hover:before {
-    border-bottom-color: #3E5C9A; }
+    border-bottom-color: #3e5c9a; }
 
 a.pswp__share--twitter:hover {
-  background: #55ACEE;
-  color: #FFF; }
+  background: #55acee;
+  color: #fff; }
 
 a.pswp__share--pinterest:hover {
-  background: #CCC;
-  color: #CE272D; }
+  background: #ccc;
+  color: #ce272d; }
 
 a.pswp__share--download:hover {
-  background: #DDD; }
+  background: #ddd; }
 
 /*
 
@@ -251,7 +253,7 @@ a.pswp__share--download:hover {
   height: 44px;
   font-size: 13px;
   line-height: 44px;
-  color: #FFF;
+  color: #fff;
   opacity: 0.75;
   padding: 0 10px; }
 
@@ -268,16 +270,16 @@ a.pswp__share--download:hover {
   min-height: 44px; }
   .pswp__caption small {
     font-size: 11px;
-    color: #BBB; }
+    color: #bbb; }
 
 .pswp__caption__center {
-  text-align: left;
+  text-align: center;
   max-width: 420px;
   margin: 0 auto;
   font-size: 13px;
   padding: 10px;
   line-height: 20px;
-  color: #CCC; }
+  color: #ccc; }
 
 .pswp__caption--empty {
   display: none; }
@@ -351,7 +353,7 @@ a.pswp__share--download:hover {
           box-sizing: border-box;
   width: 14px;
   height: 14px;
-  border: 2px solid #FFF;
+  border: 2px solid #fff;
   border-radius: 50%;
   border-left-color: transparent;
   border-bottom-color: transparent;
@@ -417,7 +419,7 @@ a.pswp__share--download:hover {
   -webkit-font-smoothing: auto;
   visibility: visible;
   opacity: 1;
-  z-index: 1550; }
+  z-index: 16777321; }
 
 /* top black bar with buttons and "1 of X" indicator */
 .pswp__top-bar {
@@ -467,7 +469,8 @@ a.pswp__share--download:hover {
 .pswp__ui--hidden .pswp__button--arrow--left,
 .pswp__ui--hidden .pswp__button--arrow--right {
   /* Force paint & create composition layer for controls. */
-  opacity: 0.001; }
+  opacity: 0.001;
+  visibility: hidden; }
 
 /* pswp__ui--one-slide class is added when there is just one item in gallery */
 .pswp__ui--one-slide .pswp__button--arrow--left,
