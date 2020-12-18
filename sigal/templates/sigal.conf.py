@@ -24,6 +24,9 @@ source = 'pictures'
 # directory
 theme = 'galleria'
 
+# Theme for galleria (https://galleriajs.github.io/themes/)
+# galleria_theme = 'classic'
+
 # Author. Used in the footer of the pages and in the author meta tag.
 # author = ''
 
