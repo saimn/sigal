@@ -1,14 +1,30 @@
 /**
- * Galleria v1.5.7 2017-05-10
- * http://galleria.io
+ * Galleria v1.6.1
  *
- * Copyright (c) 2010 - 2016 worse is better UG
+ * Copyright (c) 2010 - 2019 worse is better UG
  * Licensed under the MIT license
- * https://raw.github.com/worseisbetter/galleria/master/LICENSE
  *
  */
 
-(function( $, window, Galleria, undef ) {
+( function( window, factory ) {
+    if ( typeof define == 'function' && define.amd ) {
+        define( [ 'jquery' ], function( jQuery ) {
+            return factory( window, jQuery );
+        });
+    } else if ( typeof module == 'object' && module.exports ) {
+        module.exports = factory(
+            window,
+            require('jquery')
+        );
+    } else {
+        // browser global
+        window.Galleria = factory(
+            window,
+            window.jQuery
+        );
+    }
+
+}( window, function factory( window, $, Galleria, undef ) {
 
 /*global jQuery, navigator, Image, module, define */
 
@@ -16,12 +32,13 @@
 var doc    = window.document,
     $doc   = $( doc ),
     $win   = $( window ),
+    jQuery = $,
 
 // native prototypes
     protoArray = Array.prototype,
 
 // internal constants
-    VERSION = 1.57,
+    VERSION = 1.61,
     DEBUG = true,
     TIMEOUT = 30000,
     DUMMY = false,
@@ -128,7 +145,7 @@ var doc    = window.document,
                 return PROT + '//img.youtube.com/vi/'+this.id+'/default.jpg';
             },
             get_image: function( data ) {
-                return PROT + '//img.youtube.com/vi/'+this.id+'/hqdefault.jpg';            }
+                return PROT + '//img.youtube.com/vi/'+this.id+'/maxresdefault.jpg';            }
         },
         vimeo: {
             reg: /https?:\/\/(?:www\.)?(vimeo\.com)\/(?:hd#)?([0-9]+)/i,
@@ -885,7 +902,7 @@ var doc    = window.document,
                             // If failed, tell the dev to download the latest theme
                             Galleria.raise( 'Theme CSS could not load after 20 sec. ' + ( Galleria.QUIRK ?
                                 'Your browser is in Quirks Mode, please add a correct doctype.' :
-                                'Please download the latest theme at http://galleria.io/customer/.' ), true );
+                                'Please download the latest theme.' ), true );
                         },
                         timeout: 5000
                     });
@@ -1866,8 +1883,14 @@ Galleria = function() {
                             var image = self._controls.getActive().image;
                             if ( image ) {
                                 $( image ).width( big.image.width ).height( big.image.height )
-                                    .attr( 'style', $( big.image ).attr('style') )
-                                    .attr( 'src', big.image.src );
+                                    .attr( 'style', $( big.image ).attr('style') );
+                                if (big.image.src.srcset) {
+                                    $( image ).attr( 'srcset', big.image.src.srcset );
+                                }
+                                if (big.image.src.sizes) {
+                                    $( image ).attr( 'sizes', big.image.src.sizes );
+                                }
+                                $( image ).attr( 'src', big.image.src );
                             }
                         }
                     });
@@ -3873,22 +3896,37 @@ Galleria.prototype = {
                 } else if( href && elem.hasClass('iframe') ) {
                     data.iframe = href;
                 } else {
-                    data.image = data.big = href;
+                    data.image = href;
                 }
 
                 if ( rel ) {
                     data.big = rel;
                 }
 
-                // alternative extraction from HTML5 data attribute, added in 1.2.7
-                $.each( 'big title description link layer image'.split(' '), function( i, val ) {
+                data.imagesrcset = parent.data( 'srcset' );
+                data.imagesizes = parent.data( 'sizes' );
+                data.thumbsizes = elem.attr( 'sizes' );
+                data.thumbsrcset = elem.attr( 'srcset' );
+
+                // alternative extraction from HTML5 data attribute
+                $.each( 'big bigsrcset bigsizes title description link layer image imagesrcset imagesizes'.split(' '), function( i, val ) {
                     if ( elem.data(val) ) {
                         data[ val ] = elem.data(val).toString();
                     }
                 });
 
+                if (elem.data('srcset')) {
+                    data.imagesrcset = elem.data('srcset');
+                }
+
+                if (elem.data('sizes')) {
+                    data.imagesizes = elem.data('sizes');
+                }
+
                 if ( !data.big ) {
                     data.big = data.image;
+                    data.bigsrcset = data.imagesrcset;
+                    data.bigsizes = data.imagesizes;
                 }
 
                 // mix default extractions with the hrefs and config
@@ -3949,6 +3987,15 @@ Galleria.prototype = {
         $.each( this._data, function( i, data ) {
 
             current = self._data[ i ];
+
+            // q&d hack to attach srcset & sizes to src
+            $.each( 'big image thumb'.split(' '), function( i, val ) {
+                if ( data[ val] ) {
+                    data[val] = new String(data[val]);
+                    data[val].srcset = data [val + 'srcset'];
+                    data[val].sizes = data [val + 'sizes'];
+                }
+            });
 
             // copy image as thumb if no thumb exists
             if ( 'thumb' in data === false ) {
@@ -4029,6 +4076,7 @@ Galleria.prototype = {
         this.clearTimer();
         Utils.removeFromArray( _instances, this );
         Utils.removeFromArray( _galleries, this );
+        _video._inst = [];
         if ( Galleria._waiters !== undefined && Galleria._waiters.length ) {
             $.each( Galleria._waiters, function( i, w ) {
                 if ( w ) window.clearTimeout( w );
@@ -6168,11 +6216,22 @@ Galleria.Picture.prototype = {
     */
 
     preload: function( src ) {
-        $( new Image() ).on( 'load', (function(src, cache) {
+        var $image = $( new Image() ).on( 'load', (function(src, cache) {
             return function() {
                 cache[ src ] = src;
             };
-        }( src, this.cache ))).attr( 'src', src );
+        }( src, this.cache )));
+
+        // due to a bug in safari, need to set srcset first
+        if (src.srcset) {
+            $image.attr( 'srcset', src.srcset );
+        }
+
+        if (src.sizes) {
+            $image.attr( 'sizes', src.sizes );
+        }
+
+        $image.attr( 'src', src );
     },
 
     /**
@@ -6340,7 +6399,14 @@ Galleria.Picture.prototype = {
         });
 
         // begin load and insert in cache when done
-        $image.on( 'load', onload ).on( 'error', onerror ).attr( 'src', src );
+        $image.on( 'load', onload ).on( 'error', onerror );
+        if (src.srcset) {
+            $image.attr( 'srcset', src.srcset );
+        }
+        if (src.sizes) {
+            $image.attr( 'sizes', src.sizes );
+        }
+        $image.attr( 'src', src );
 
         // return the container
         return this.container;
@@ -6915,16 +6981,7 @@ $.fn.galleria = function( options ) {
 
 };
 
-// export as AMD or CommonJS
-if ( typeof module === "object" && module && typeof module.exports === "object" ) {
-    module.exports = Galleria;
-} else {
-    window.Galleria = Galleria;
-    if ( typeof define === "function" && define.amd ) {
-        define( "galleria", ['jquery'], function() { return Galleria; } );
-    }
-}
-
 // phew
+return Galleria;
 
-}( jQuery, this ) );
+}));

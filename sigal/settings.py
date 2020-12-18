@@ -34,6 +34,7 @@ _DEFAULT_CONFIG = {
     'datetime_format': '%c',
     'destination': '_build',
     'files_to_copy': (),
+    'galleria_theme': 'classic',
     'google_analytics': '',
     'google_tag_manager': '',
     'ignore_directories': [],
