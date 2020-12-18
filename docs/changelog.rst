@@ -12,6 +12,8 @@ Released on 2020-xx-xx.
 - Avoid crash when thumbnail cannot be generated [:issue:`401`].
 - Replace deprecated usage of `imp`.
 - Fix video thumbnail creation when delay > video length [:issue:`411`].
+- Update photoswipe to 4.4.0 [:issue:`415`].
+- Update galleria to v1.6.1 and add new themes [:issue:`417`].
 
 Version 2.1.1
 ~~~~~~~~~~~~~
