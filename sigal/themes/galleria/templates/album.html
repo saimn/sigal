@@ -22,6 +22,11 @@
           <a id="fullscreen"><img src="{{ theme.url }}/img/fullscreen.png"
             title="Fullscreen" alt="Fullscreen (f)" /></a>
         </div>
+        <!-- 360 icon -->
+        <div class="icons" style="right: 40px; top: 6px">
+          <a id="vr"><img src="{{ theme.url }}/valiant/vr.png"
+            title="VR" alt="VR" /></a>
+        </div>
         <div id="gallery"></div>
 
         {% if album.zip %}
@@ -71,6 +76,48 @@
     <script src="{{ theme.url }}/galleria.min.js"></script>
     <script src="{{ theme.url }}/themes/{{ settings.galleria_theme }}/galleria.{{ settings.galleria_theme }}.min.js"></script>
     <script src="{{ theme.url }}/plugins/history/galleria.history.min.js"></script>
+
+    <!-- Add valiant JS -->
+    <script src="static/valiant/js/three.min.js"></script>
+    <script src="static/valiant/js/valiant360.js"></script>
+    <script type="text/javascript">
+        var span = document.getElementsByClassName("close")[0];
+        span.onclick = function() {
+            // Hide modal
+            $("#myModal").css("display", "none");
+
+            $('.valiantContainer')
+                // Purge webGL
+                .Valiant360('destroy')
+                // Cleanup DOM otherwise overlapping images
+                .html("");
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if ($(event.target).is("#myModal")) {
+                // Hide modal
+                $("#myModal").css("display", "none");
+
+                $('.valiantContainer')
+                    // Purge webGL
+                    .Valiant360('destroy')
+                    // Cleanup DOM otherwise overlapping images
+                    .html("");
+            }
+        }
+
+        $(document).on('click', 'img', function(e) {
+            if (!this.src.includes("thumbnails/") && !this.src.includes(".png")) {
+                $("#modal-body")
+                    .attr("data-photo-src", this.src)
+                    .addClass("valiantPhoto")
+                    .Valiant360()
+                    .parent().parent().css("display", "block");
+            }
+        });
+    </script>
+
     <script>
     var data = [
       {% for media in album.medias -%}
@@ -221,6 +268,33 @@
         var gallery = this;
         $('#fullscreen').click(function() {
           gallery.toggleFullscreen();
+        });
+
+        $('#vr').click(function() {
+            current = gallery._data[gallery._active];
+
+            if (current.title.toLowerCase().endsWith(".webm")) {
+                console.log("360 vid", gallery._active, current.title);
+                $("#modal-body")
+                    .attr("data-video-src", current.title)
+                    .attr("data-photo-src", "")
+                    .addClass("valiantVideo")
+                    .Valiant360()
+                    .parent().parent().css("display", "block");
+            }
+            else if (current.title.toLowerCase().endsWith(".jpg")) {
+                console.log("360 img", gallery._active, current.title);
+                $("#modal-body")
+                    .attr("data-photo-src", current.title)
+                    .attr("data-video-src", "")
+                    .addClass("valiantPhoto")
+                    .Valiant360()
+                    .parent().parent().css("display", "block");
+            }
+
+            else {
+                console.log("debug", current);
+            }
         });
 
         $('.icons').appendTo(this.$('container'));
