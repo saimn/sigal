@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     {% block extra_head %}{% endblock extra_head %}
     <link rel="stylesheet" href="{{ theme.url }}/styles.css">
-    {% if settings.user_css %}
+    {% if user_css %}
     <link rel="stylesheet" href="{{ theme.url }}/{{ user_css }}">
     {% endif %}
     {% include 'analytics.html' %}
