@@ -100,12 +100,19 @@ class AbstractWriter:
         # FIXME: use dirs_exist_ok when minimum Python is 3.8
         shutil.copytree(os.path.join(self.theme, 'static'), self.theme_path)
 
+        if self.settings['user_css']:
+            if not os.path.exists(self.settings['user_css']):
+                self.logger.error('CSS file %s could not be found',
+                                  self.settings['user_css'])
+            else:
+                shutil.copy(self.settings['user_css'], self.theme_path)
+
     def generate_context(self, album):
         """Generate the context dict for the given path."""
 
         from . import __url__ as sigal_link
         self.logger.info("Output album : %r", album)
-        return {
+        ctx = {
             'album': album,
             'index_title': self.index_title,
             'settings': self.settings,
@@ -114,6 +121,9 @@ class AbstractWriter:
                       'url': url_from_path(os.path.relpath(self.theme_path,
                                                            album.dst_path))},
         }
+        if self.settings['user_css']:
+            ctx['user_css'] = os.path.basename(self.settings['user_css'])
+        return ctx
 
     def write(self, album):
         """Generate the HTML page and save it."""
