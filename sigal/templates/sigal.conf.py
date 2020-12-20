@@ -36,6 +36,9 @@ theme = 'galleria'
 # Originals will be symlinked if orig_link = True, else they will be copied.
 # use_orig = False
 
+# Path to a CSS file that can be used to customize themes
+# user_css =
+
 # ----------------
 # Image processing (ignored if use_orig = True)
 # ----------------

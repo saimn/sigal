@@ -74,6 +74,7 @@ _DEFAULT_CONFIG = {
     'thumb_video_delay': '0',
     'title': '',
     'use_orig': False,
+    'user_css': None,
     'video_converter': 'ffmpeg',
     'video_extensions': ['.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp'],
     'video_format': 'webm',

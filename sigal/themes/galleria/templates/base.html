@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="{{ theme.url }}/css/normalize.css">
     <link rel="stylesheet" href="{{ theme.url }}/themes/{{ settings.galleria_theme }}/galleria.{{ settings.galleria_theme }}.css">
     <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
+    {% if settings.user_css %}
+    <link rel="stylesheet" href="{{ theme.url }}/{{ settings.user_css }}">
+    {% endif %}
     {% block extra_head %}{% endblock extra_head %}
     {% include 'analytics.html' %}
   </head>

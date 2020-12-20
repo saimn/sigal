@@ -236,11 +236,18 @@ def test_medias_sort(settings):
 def test_gallery(settings, tmpdir):
     "Test the Gallery class."
 
+    with open(str(tmpdir.join('my.css')), mode='w') as f:
+        f.write('color: red')
+
     settings['destination'] = str(tmpdir)
+    settings['user_css'] = str(tmpdir.join('my.css'))
     settings['webm_options'] = ['-missing-option', 'foobar']
 
     gal = Gallery(settings, ncpu=1)
     gal.build()
+
+    mycss = os.path.join(settings['destination'], 'static', 'my.css')
+    assert os.path.isfile(mycss)
 
     out_html = os.path.join(settings['destination'], 'index.html')
     assert os.path.isfile(out_html)
@@ -249,6 +256,7 @@ def test_gallery(settings, tmpdir):
         html = f.read()
 
     assert '<title>Sigal test gallery</title>' in html
+    assert '<link rel="stylesheet" href="static/my.css">' in html
 
     logger = logging.getLogger('sigal')
     logger.setLevel(logging.DEBUG)

@@ -14,6 +14,7 @@ Released on 2020-xx-xx.
 - Fix video thumbnail creation when delay > video length [:issue:`411`].
 - Update photoswipe to 4.4.0 [:issue:`415`].
 - Update galleria to v1.6.1 and add new themes [:issue:`417`].
+- Add ``user_css`` option to allow easier css customization [:issue:`418`].
 
 Version 2.1.1
 ~~~~~~~~~~~~~
