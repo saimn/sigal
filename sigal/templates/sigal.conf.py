@@ -148,6 +148,15 @@ thumb_size = (280, 210)
 # http://docs.python.org/2/library/fnmatch.html
 ignore_directories = []
 ignore_files = []
+# List of tags that the image must have to be included in gallery:
+# (if empty, all images are included)
+# include_xmp_tags = []
+# List of tags that the image must NOT have to be included in gallery:
+# (if empty, all images are included)
+# exclude_xmp_tags = []
+# The XMP property that holds the tag list:
+# xmp_tags_field = 'Xmp.dc.subject'
+
 
 # -------------
 # Video options

@@ -35,6 +35,7 @@ from datetime import datetime
 from itertools import cycle
 from os.path import isfile, join, splitext
 from urllib.parse import quote as url_quote
+from gi.repository import GExiv2
 
 from click import get_terminal_size, progressbar
 from natsort import natsort_keygen, ns
@@ -603,6 +604,40 @@ class Gallery:
                 self.logger.debug('Files before filtering: %r', files)
                 files = [os.path.split(f)[1] for f in files_path]
                 self.logger.debug('Files after filtering: %r', files)
+
+            # Only keep files that match only_metadata and
+            # do not match ignore_metadata filters
+            ff = []
+            tags_field = self.settings['xmp_tags_field']
+            for f in files:
+                try:
+                    tagstring = GExiv2.Metadata(join(src_path, f)).get(tags_field)
+                    if tagstring is None or tagstring is '':
+                        taglist = []
+                    else:
+                        taglist = [x.strip() for x in tagstring.split(',')]
+                except RuntimeError:
+                    # The file format is unknown to GExiv2:
+                    # filters are not applicable, include file
+                    taglist = None
+
+                self.logger.debug('Taglist: %r', taglist)
+                if taglist is None:
+                    keep = True
+                else:
+                    if len(self.settings['include_xmp_tags'])>0 and len(set(self.settings['include_xmp_tags']).intersection(taglist))==0:
+                        self.logger.debug('File %s dropped: does not match positive taglist', f)
+                        keep = False
+                    else:
+                        # either no include filter was given, or there is a match
+                        keep = True
+                    if len(self.settings['exclude_xmp_tags'])>0 and len(set(self.settings['exclude_xmp_tags']).intersection(taglist))==0:
+                        self.logger.debug('File %s dropped: matches exclude taglist', f)
+                        keep = False
+                if keep:
+                    ff.append(f)
+            files = ff
+            self.logger.debug('Files after tag filtering: %r', files)
 
             # Remove sub-directories that have been ignored in a previous
             # iteration (as topdown=False, sub-directories are processed before
