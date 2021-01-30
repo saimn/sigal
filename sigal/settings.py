@@ -1,6 +1,7 @@
 # Copyright (c) 2009-2020 - Simon Conseil
 # Copyright (c) 2013      - Christophe-Marie Duquesne
 # Copyright (c) 2017      - Mate Lakat
+# Copyright (c) 2021      - Keith Feldman
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -54,6 +55,7 @@ _DEFAULT_CONFIG = {
     'medias_sort_attr': 'filename',
     'medias_sort_reverse': False,
     'mp4_options': ['-crf', '23', '-strict', '-2'],
+    'mp4_options_second_pass': None,
     'orig_dir': 'original',
     'orig_link': False,
     'rel_link': False,
@@ -78,10 +80,13 @@ _DEFAULT_CONFIG = {
     'video_converter': 'ffmpeg',
     'video_extensions': ['.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp'],
     'video_format': 'webm',
+    'video_resize': True,
+    'video_always_convert': False,
     'video_size': (480, 360),
     'watermark': '',
     'webm_options': ['-crf', '10', '-b:v', '1.6M',
                      '-qmin', '4', '-qmax', '63'],
+    'webm_options_second_pass': None,
     'write_html': True,
     'zip_gallery': False,
     'zip_media_format': 'resized',
