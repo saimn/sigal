@@ -189,16 +189,13 @@ ignore_files = []
 
 
 # Size of resized video (default: (480, 360))
+# Set this to None if no resizing is desired on the video.
 # video_size = (480, 360)
 
 # If the desired video extension and filename are the same, the video will
 # not be converted. If a transcode to different quality is required,
 # set this to True to force convert it. False by default.
 # video_always_convert = False
-
-# Set this to false if no resizing is desired on the video. This overrides
-# the video_size option.
-# video_resize = True
 
 # -------------
 # Miscellaneous

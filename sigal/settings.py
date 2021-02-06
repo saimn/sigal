@@ -80,7 +80,6 @@ _DEFAULT_CONFIG = {
     'video_converter': 'ffmpeg',
     'video_extensions': ['.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp'],
     'video_format': 'webm',
-    'video_resize': True,
     'video_always_convert': False,
     'video_size': (480, 360),
     'watermark': '',

@@ -77,33 +77,17 @@ def video_size(source, converter='ffmpeg'):
         x, y = y, x
     return x, y
 
-
-def get_dimensions(source, converter, output_size):
-    """Figure out src and dest width and height for video.
+def get_resize_options(source, converter, output_size):
+    """Figure out resize options for video from src and dst sizes.
 
     :param source: path to a video
     :param outname: path to the generated video
     :param settings: settings dict
-
     """
     logger = logging.getLogger(__name__)
-
-    # Don't transcode if source is in the required format and
-    # has fitting datedimensions, copy instead.
     w_src, h_src = video_size(source, converter=converter)
     w_dst, h_dst = output_size
     logger.debug('Video size: %i, %i -> %i, %i', w_src, h_src, w_dst, h_dst)
-    return {'src': (w_src, h_src), 'dst': (w_dst, h_dst)}
-
-
-def get_resize_options(src_dst_dimension_dict):
-    """Figure out resize options for video from src and dst sizes.
-
-    :param src_dst_dimension_dict: a dictionary of src and dst,
-                                    each with a width, height tuple
-    """
-    w_src, h_src = src_dst_dimension_dict['src']
-    w_dst, h_dst = src_dst_dimension_dict['dst']
 
     # do not resize if input dimensions are smaller than output dimensions
     if w_src <= w_dst and h_src <= h_dst:
@@ -160,10 +144,9 @@ def generate_video(source, outname, settings):
     converter = settings['video_converter']
 
     resize_opt = []
-    if settings.get("video_resize"):
-        src_dst_dimension_dict = get_dimensions(source, converter,
-                                                settings['video_size'])
-        resize_opt = get_resize_options(src_dst_dimension_dict)
+    if settings.get("video_size"):
+        resize_opt = get_resize_options(source, converter,
+                                        settings['video_size'])
 
     base, src_ext = splitext(source)
     base, dst_ext = splitext(outname)
