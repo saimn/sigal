@@ -244,8 +244,7 @@ def test_medias_sort(settings):
     settings['medias_sort_reverse'] = False
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
-    assert [im.dst_filename for im in a.images] == [
-        '22.jpg', 'CMB_Timeline300_no_WMAP.jpg', '21.tiff']
+    assert a.medias[0].src_filename == '22.jpg'
 
     settings['medias_sort_attr'] = 'meta.order'
     settings['medias_sort_reverse'] = False
