@@ -2,32 +2,37 @@ import os
 from unittest.mock import patch
 
 import pytest
-from PIL import Image
+from PIL import Image as PILImage
 
 from sigal import init_logging
 from sigal.image import (generate_image, generate_thumbnail, get_exif_data,
                          get_exif_tags, get_iptc_data, get_size, process_image)
+from sigal.gallery import Image
 from sigal.settings import Status, create_settings
 
 CURRENT_DIR = os.path.dirname(__file__)
+SRCDIR = os.path.join(CURRENT_DIR, 'sample', 'pictures')
 TEST_IMAGE = 'KeckObservatory20071020.jpg'
-SRCFILE = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'dir2', TEST_IMAGE)
+SRCFILE = os.path.join(SRCDIR, 'dir2', TEST_IMAGE)
 
 TEST_GIF_IMAGE = 'example.gif'
-SRC_GIF_FILE = os.path.join(CURRENT_DIR, 'sample', 'pictures',
-                            'dir1', 'test1', TEST_GIF_IMAGE)
+SRC_GIF_FILE = os.path.join(SRCDIR, 'dir1', 'test1', TEST_GIF_IMAGE)
 
 
 def test_process_image(tmpdir):
     "Test the process_image function."
 
-    status = process_image('foo.txt', 'none.txt', {})
+    status = process_image(Image('foo.txt', 'bar', create_settings()))
     assert status == Status.FAILURE
 
-    settings = create_settings(img_processor='ResizeToFill', make_thumbs=False)
-    status = process_image(SRCFILE, str(tmpdir), settings)
+    settings = create_settings(img_processor='ResizeToFill',
+                               make_thumbs=False,
+                               source=os.path.join(SRCDIR, 'dir2'),
+                               destination=str(tmpdir))
+    image = Image(TEST_IMAGE, '.', settings)
+    status = process_image(image)
     assert status == Status.SUCCESS
-    im = Image.open(os.path.join(str(tmpdir), TEST_IMAGE))
+    im = PILImage.open(os.path.join(str(tmpdir), TEST_IMAGE))
     assert im.size == settings['img_size']
 
 
@@ -40,20 +45,24 @@ def test_generate_image(tmpdir):
                                    copy_exif_data=True)
         options = None if i == 0 else {'quality': 85}
         generate_image(SRCFILE, dstfile, settings, options=options)
-        im = Image.open(dstfile)
+        im = PILImage.open(dstfile)
         assert im.size == size
+
 
 def test_generate_image_imgformat(tmpdir):
     "Test the effects of the img_format setting on generate_image."
 
     dstfile = str(tmpdir.join(TEST_IMAGE))
     for i, outfmt in enumerate(["JPEG", "PNG", "TIFF"]):
-        settings = create_settings(img_size=(300,300), img_processor='ResizeToFill',
-                                   copy_exif_data=True, img_format=outfmt)
+        settings = create_settings(img_size=(300, 300),
+                                   img_processor='ResizeToFill',
+                                   copy_exif_data=True,
+                                   img_format=outfmt)
         options = {'quality': 85}
         generate_image(SRCFILE, dstfile, settings, options=options)
-        im = Image.open(dstfile)
+        im = PILImage.open(dstfile)
         assert im.format == outfmt
+
 
 def test_resize_image_portrait(tmpdir):
     """Test that the area is the same regardless of aspect ratio."""
@@ -65,7 +74,7 @@ def test_resize_image_portrait(tmpdir):
     portrait_dst = str(tmpdir.join(portrait_image))
 
     generate_image(portrait_src, portrait_dst, settings)
-    im = Image.open(portrait_dst)
+    im = PILImage.open(portrait_dst)
 
     # In the default mode, PILKit resizes in a way to never make an image
     # smaller than either of the lengths, the other is scaled accordingly.
@@ -77,7 +86,7 @@ def test_resize_image_portrait(tmpdir):
     landscape_dst = str(tmpdir.join(landscape_image))
 
     generate_image(landscape_src, landscape_dst, settings)
-    im = Image.open(landscape_dst)
+    im = PILImage.open(landscape_dst)
     assert im.size[1] == 200
 
 
@@ -129,13 +138,13 @@ def test_generate_thumbnail(tmpdir, image, path, wide_size, high_size):
     dstfile = str(tmpdir.join(image))
     for size in [(200, 150), (150, 200)]:
         generate_thumbnail(path, dstfile, size)
-        im = Image.open(dstfile)
+        im = PILImage.open(dstfile)
         assert im.size == size
 
     for size, thumb_size in [((200, 150), wide_size),
                              ((150, 200), high_size)]:
         generate_thumbnail(path, dstfile, size, fit=False)
-        im = Image.open(dstfile)
+        im = PILImage.open(dstfile)
         assert im.size == thumb_size
 
 

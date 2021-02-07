@@ -143,7 +143,9 @@ def generate_image(source, outname, settings, options=None):
 
     # first, use hard-coded output format, or PIL format, or original image
     # format, or fall back to JPEG
-    outformat = settings.get('img_format') or img.format or original_format or 'JPEG'
+    outformat = (settings.get('img_format') or img.format or
+                 original_format or 'JPEG')
+
     logger.debug('Save resized image to %s (%s)', outname, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
@@ -168,31 +170,32 @@ def generate_thumbnail(source, outname, box, fit=True, options=None,
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
-def process_image(filepath, outpath, settings):
+def process_image(media):
     """Process one image: resize, create thumbnail."""
 
     logger = logging.getLogger(__name__)
-    logger.info('Processing %s', filepath)
-    filename = os.path.split(filepath)[1]
-    outname = os.path.join(outpath, filename)
-    ext = os.path.splitext(filename)[1]
+    logger.info('Processing %s', media.src_path)
 
-    if ext in ('.jpg', '.jpeg', '.JPG', '.JPEG'):
-        options = settings['jpg_options']
-    elif ext == '.png':
+    if media.src_ext in ('.jpg', '.jpeg', '.JPG', '.JPEG'):
+        options = media.settings['jpg_options']
+    elif media.src_ext == '.png':
         options = {'optimize': True}
     else:
         options = {}
 
     try:
-        generate_image(filepath, outname, settings, options=options)
+        generate_image(media.src_path, media.dst_path, media.settings,
+                       options=options)
 
-        if settings['make_thumbs']:
-            thumb_name = os.path.join(outpath, get_thumb(settings, filename))
+        if media.settings['make_thumbs']:
             generate_thumbnail(
-                outname, thumb_name, settings['thumb_size'],
-                fit=settings['thumb_fit'], options=options,
-                thumb_fit_centering=settings["thumb_fit_centering"])
+                media.dst_path,
+                media.thumb_path,
+                media.settings['thumb_size'],
+                fit=media.settings['thumb_fit'],
+                options=options,
+                thumb_fit_centering=media.settings["thumb_fit_centering"]
+            )
     except Exception as e:
         logger.info('Failed to process: %r', e)
         if logger.getEffectiveLevel() == logging.DEBUG:

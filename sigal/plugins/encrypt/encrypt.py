@@ -30,20 +30,25 @@ from click import progressbar
 
 from sigal import signals
 from sigal.settings import get_thumb
-from sigal.utils import copy, url_from_path
+from sigal.utils import copy
 
 from .endec import encrypt, kdf_gen_key
 
 logger = logging.getLogger(__name__)
 
-ASSETS_PATH = os.path.normpath(os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), 'static'))
+ASSETS_PATH = os.path.normpath(
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static'))
+
 
 class Abort(Exception):
     pass
 
+
 def gen_rand_string(length=16):
-    return "".join(random.SystemRandom().choices(string.ascii_letters + string.digits, k=length))
+    return "".join(random.SystemRandom().choices(string.ascii_letters +
+                                                 string.digits,
+                                                 k=length))
+
 
 def get_options(settings, cache):
     if "encrypt_options" not in settings:
@@ -58,7 +63,7 @@ def get_options(settings, cache):
 
     table = str.maketrans({'"': r'\"', '\\': r'\\'})
     if "password" not in settings["encrypt_options"] \
-        or len(settings["encrypt_options"]["password"]) == 0:
+            or len(settings["encrypt_options"]["password"]) == 0:
         logger.error("Encrypt: no password provided")
         raise ValueError("no password provided")
     else:
@@ -66,8 +71,10 @@ def get_options(settings, cache):
         options["escaped_password"] = options["password"].translate(table)
 
     if "ask_password" not in options:
-        options["ask_password"] = settings["encrypt_options"].get("ask_password", False)
-    options["filtered_password"] = "" if options["ask_password"] else options["escaped_password"]
+        options["ask_password"] = settings["encrypt_options"].get(
+            "ask_password", False)
+    options["filtered_password"] = "" if options["ask_password"] else options[
+        "escaped_password"]
 
     if "gcm_tag" not in options:
         options["gcm_tag"] = gen_rand_string()
@@ -83,7 +90,8 @@ def get_options(settings, cache):
     if "kdf_iters" not in options:
         options["kdf_iters"] = 10000
 
-    # in case any of the credentials are newly generated, write them back to cache
+    # in case any of the credentials are newly generated, write them back
+    # to cache
     cache["credentials"] = {
         "gcm_tag": options["gcm_tag"],
         "kdf_salt": options["kdf_salt"],
@@ -93,8 +101,10 @@ def get_options(settings, cache):
 
     return options
 
+
 def cache_key(media):
-    return os.path.join(media.path, media.filename)
+    return os.path.join(media.path, media.dst_filename)
+
 
 def save_property(cache, media):
     key = cache_key(media)
@@ -104,15 +114,19 @@ def save_property(cache, media):
         cache[key]["thumb_size"] = media.thumb_size
         cache[key]["encrypted"] = set()
 
+
 def get_encrypt_list(settings, media):
     to_encrypt = []
-    to_encrypt.append(media.filename) #resized image or in case of "use_orig", the original
+    # resized image or in case of "use_orig", the original
+    to_encrypt.append(media.dst_filename)
     if settings["make_thumbs"]:
-        to_encrypt.append(get_thumb(settings, media.filename)) #thumbnail
+        to_encrypt.append(get_thumb(settings, media.dst_filename))  # thumbnail
     if media.big is not None and not settings["use_orig"]:
-        to_encrypt.append(media.big) #original image
-    to_encrypt = list(map(lambda path: os.path.join(media.path, path), to_encrypt))
+        to_encrypt.append(media.big)  # original image
+    to_encrypt = list(
+        map(lambda path: os.path.join(media.path, path), to_encrypt))
     return to_encrypt
+
 
 def load_property(album):
     gallery = album.gallery
@@ -125,20 +139,24 @@ def load_property(album):
                 media.size = cache[key]["size"]
                 media.thumb_size = cache[key]["thumb_size"]
 
+
 def load_cache(settings):
     cachePath = os.path.join(settings["destination"], ".encryptCache")
     try:
         with open(cachePath, "rb") as cacheFile:
             encryptCache = pickle.load(cacheFile)
-            logger.debug("Loaded encryption cache with %d entries", len(encryptCache))
+            logger.debug("Loaded encryption cache with %d entries",
+                         len(encryptCache))
             return encryptCache
     except FileNotFoundError:
         encryptCache = {}
         return encryptCache
     except Exception as e:
         logger.error("Could not load encryption cache: %s", e)
-        logger.error("Giving up encryption. You may have to delete and rebuild the entire gallery.")
+        logger.error("Giving up encryption. You may have to delete and "
+                     "rebuild the entire gallery.")
         raise Abort
+
 
 def save_cache(settings, cache):
     cachePath = os.path.join(settings["destination"], ".encryptCache")
@@ -149,6 +167,7 @@ def save_cache(settings, cache):
     except Exception as e:
         logger.warning("Could not store encryption cache: %s", e)
         logger.warning("Next build of the gallery is likely to fail!")
+
 
 def encrypt_gallery(gallery):
     albums = gallery.albums
@@ -163,19 +182,26 @@ def encrypt_gallery(gallery):
     encrypt_files(settings, config, cache, albums, gallery.progressbar_target)
     save_cache(settings, cache)
 
+
 def encrypt_files(settings, config, cache, albums, progressbar_target):
     if settings["keep_orig"] and settings["orig_link"]:
-        logger.warning("Original images are symlinked! Encryption is aborted. Please set \"orig_link\" to False and restart gallery build.")
+        logger.warning(
+            "Original images are symlinked! Encryption is aborted. "
+            "Please set 'orig_link' to False and restart gallery build.")
         raise Abort
 
-    key = kdf_gen_key(config["password"], config["kdf_salt"], config["kdf_iters"])
+    key = kdf_gen_key(config["password"], config["kdf_salt"],
+                      config["kdf_iters"])
     gcm_tag = config["gcm_tag"].encode("utf-8")
 
     medias = list(chain.from_iterable(albums.values()))
-    with progressbar(medias, label="%16s" % "Encrypting files", file=progressbar_target, show_eta=True) as medias:
+    with progressbar(medias,
+                     label="%16s" % "Encrypting files",
+                     file=progressbar_target,
+                     show_eta=True) as medias:
         for media in medias:
             if media.type != "image":
-                logger.info("Skipping non-image file %s", media.filename)
+                logger.info("Skipping non-image file %s", media.src_filename)
                 continue
 
             save_property(cache, media)
@@ -196,8 +222,10 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
                     save_cache(settings, cache)
                     raise Abort
 
-    key_check_path = os.path.join(settings["destination"], 'static', 'keycheck.txt')
+    key_check_path = os.path.join(settings["destination"], 'static',
+                                  'keycheck.txt')
     encrypt_file("keycheck.txt", key_check_path, key, gcm_tag)
+
 
 def encrypt_file(filename, full_path, key, gcm_tag):
     with BytesIO() as outBuffer:
@@ -217,15 +245,27 @@ def encrypt_file(filename, full_path, key, gcm_tag):
                 return False
     return True
 
+
 def copy_assets(settings):
     theme_path = os.path.join(settings["destination"], 'static')
-    copy(os.path.join(ASSETS_PATH, "decrypt.js"), theme_path, symlink=False, rellink=False)
-    copy(os.path.join(ASSETS_PATH, "keycheck.txt"), theme_path, symlink=False, rellink=False)
-    copy(os.path.join(ASSETS_PATH, "sw.js"), settings["destination"], symlink=False, rellink=False)
+    copy(os.path.join(ASSETS_PATH, "decrypt.js"),
+         theme_path,
+         symlink=False,
+         rellink=False)
+    copy(os.path.join(ASSETS_PATH, "keycheck.txt"),
+         theme_path,
+         symlink=False,
+         rellink=False)
+    copy(os.path.join(ASSETS_PATH, "sw.js"),
+         settings["destination"],
+         symlink=False,
+         rellink=False)
+
 
 def inject_scripts(context):
     cache = load_cache(context['settings'])
     context["encrypt_options"] = get_options(context['settings'], cache)
+
 
 def register(settings):
     signals.gallery_build.connect(encrypt_gallery)

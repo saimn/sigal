@@ -2,7 +2,6 @@ import datetime
 import logging
 import os
 from os.path import join
-from urllib.parse import quote
 
 import pytest
 
@@ -31,9 +30,9 @@ REF = {
     'dir1/test2': {
         'title': 'test2',
         'name': 'test2',
-        'thumbnail': 'test2/thumbnails/21.tn.jpg',
+        'thumbnail': 'test2/thumbnails/21.tn.tiff',
         'subdirs': [],
-        'medias': ['21.jpg', '22.jpg', 'CMB_Timeline300_no_WMAP.jpg'],
+        'medias': ['21.tiff', '22.jpg', 'CMB_Timeline300_no_WMAP.jpg'],
     },
     'dir1/test3': {
         'title': '01 First title alphabetically',
@@ -76,7 +75,7 @@ def test_media(settings):
     file_path = join(path, '11.jpg')
     thumb = join('thumbnails', '11.tn.jpg')
 
-    assert m.filename == '11.jpg'
+    assert m.dst_filename == '11.jpg'
     assert m.src_path == join(settings['source'], file_path)
     assert m.dst_path == join(settings['destination'], file_path)
     assert m.thumb_name == thumb
@@ -100,7 +99,7 @@ def test_media_orig(settings, tmpdir):
     assert m.big == 'original/11.jpg'
 
     m = Video('example video.ogv', 'video', settings)
-    assert m.filename == 'example video.webm'
+    assert m.dst_filename == 'example video.webm'
     assert m.big_url == 'original/example%20video.ogv'
     assert os.path.isfile(join(settings['destination'], m.path, m.big))
 
@@ -116,14 +115,34 @@ def test_media_iptc_override(settings):
     # Markdown parsing adds formatting. Let's just focus on content
     assert "Markdown description beats iptc" in img_with_md.description
     img_no_md = Image('1.jpg', 'iptcTest', settings)
-    assert img_no_md.title == 'Haemostratulus clouds over Canberra - ' + \
-            '2005-12-28 at 03-25-07'
-    assert img_no_md.description == \
-            '"Haemo" because they look like haemoglobin ' + \
-            'cells and "stratulus" because I can\'t work out whether ' + \
-            'they\'re Stratus or Cumulus clouds.\nWe\'re driving down ' + \
-            'the main drag in Canberra so it\'s Parliament House that ' + \
-            'you can see at the end of the road.'
+    assert img_no_md.title == ('Haemostratulus clouds over Canberra - '
+                               '2005-12-28 at 03-25-07')
+    assert img_no_md.description == (
+        '"Haemo" because they look like haemoglobin '
+        'cells and "stratulus" because I can\'t work out whether '
+        'they\'re Stratus or Cumulus clouds.\nWe\'re driving down '
+        'the main drag in Canberra so it\'s Parliament House that '
+        'you can see at the end of the road.'
+    )
+
+
+def test_media_img_format(settings):
+    settings['img_format'] = 'jpeg'
+    m = Image('11.tiff', 'dir1/test1', settings)
+    path = join('dir1', 'test1')
+    thumb = join('thumbnails', '11.tn.jpeg')
+
+    assert m.dst_filename == '11.jpeg'
+    assert m.src_path == join(settings['source'], path, '11.tiff')
+    assert m.dst_path == join(settings['destination'], path, '11.jpeg')
+    assert m.thumb_name == thumb
+    assert m.thumb_path == join(settings['destination'], path, thumb)
+    assert m.title == "Foo Bar"
+    assert m.description == "<p>This is a funny description of this image</p>"
+
+    file_path = join(path, '11.tiff')
+    assert repr(m) == f"<Image>('{file_path}')"
+    assert str(m) == file_path
 
 
 def test_image(settings, tmpdir):
@@ -141,8 +160,11 @@ def test_image(settings, tmpdir):
 def test_video(settings, tmpdir):
     settings['destination'] = str(tmpdir)
     m = Video('example video.ogv', 'video', settings)
+
+    src_path = join('video', 'example video.ogv')
+    assert str(m) == src_path
+
     file_path = join('video', 'example video.webm')
-    assert str(m) == file_path
     assert m.dst_path == join(settings['destination'], file_path)
 
     os.makedirs(join(settings['destination'], 'video', 'thumbnails'))
@@ -161,11 +183,11 @@ def test_album(path, album, settings, tmpdir):
     assert a.thumbnail == album['thumbnail']
     if path == 'video':
         assert list(a.images) == []
-        assert [m.filename for m in a.medias] == \
+        assert [m.dst_filename for m in a.medias] == \
             [album['medias'][0].replace('.ogv', '.webm')]
     else:
         assert list(a.videos) == []
-        assert [m.filename for m in a.medias] == album['medias']
+        assert [m.dst_filename for m in a.medias] == album['medias']
     assert len(a) == len(album['medias'])
 
 
@@ -216,21 +238,20 @@ def test_medias_sort(settings):
     settings['medias_sort_reverse'] = True
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
-    assert [im.filename for im in a.images] == list(reversed(album['medias']))
+    assert [im.dst_filename for im in a.images] == list(reversed(album['medias']))
 
     settings['medias_sort_attr'] = 'date'
     settings['medias_sort_reverse'] = False
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
-    assert [im.filename for im in a.images] == ['22.jpg', '21.jpg',
-                                                'CMB_Timeline300_no_WMAP.jpg']
+    assert a.medias[0].src_filename == '22.jpg'
 
     settings['medias_sort_attr'] = 'meta.order'
     settings['medias_sort_reverse'] = False
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
-    assert [im.filename for im in a.images] == [
-        'CMB_Timeline300_no_WMAP.jpg', '21.jpg', '22.jpg']
+    assert [im.dst_filename for im in a.images] == [
+        '21.tiff', '22.jpg', 'CMB_Timeline300_no_WMAP.jpg']
 
 
 def test_gallery(settings, tmpdir):
