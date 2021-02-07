@@ -76,7 +76,7 @@ def test_media(settings):
     file_path = join(path, '11.jpg')
     thumb = join('thumbnails', '11.tn.jpg')
 
-    assert m.filename == '11.jpg'
+    assert m.dst_filename == '11.jpg'
     assert m.src_path == join(settings['source'], file_path)
     assert m.dst_path == join(settings['destination'], file_path)
     assert m.thumb_name == thumb
@@ -100,7 +100,7 @@ def test_media_orig(settings, tmpdir):
     assert m.big == 'original/11.jpg'
 
     m = Video('example video.ogv', 'video', settings)
-    assert m.filename == 'example video.webm'
+    assert m.dst_filename == 'example video.webm'
     assert m.big_url == 'original/example%20video.ogv'
     assert os.path.isfile(join(settings['destination'], m.path, m.big))
 
@@ -164,11 +164,11 @@ def test_album(path, album, settings, tmpdir):
     assert a.thumbnail == album['thumbnail']
     if path == 'video':
         assert list(a.images) == []
-        assert [m.filename for m in a.medias] == \
+        assert [m.dst_filename for m in a.medias] == \
             [album['medias'][0].replace('.ogv', '.webm')]
     else:
         assert list(a.videos) == []
-        assert [m.filename for m in a.medias] == album['medias']
+        assert [m.dst_filename for m in a.medias] == album['medias']
     assert len(a) == len(album['medias'])
 
 
@@ -219,20 +219,20 @@ def test_medias_sort(settings):
     settings['medias_sort_reverse'] = True
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
-    assert [im.filename for im in a.images] == list(reversed(album['medias']))
+    assert [im.dst_filename for im in a.images] == list(reversed(album['medias']))
 
     settings['medias_sort_attr'] = 'date'
     settings['medias_sort_reverse'] = False
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
-    assert [im.filename for im in a.images] == ['22.jpg', '21.jpg',
+    assert [im.dst_filename for im in a.images] == ['22.jpg', '21.jpg',
                                                 'CMB_Timeline300_no_WMAP.jpg']
 
     settings['medias_sort_attr'] = 'meta.order'
     settings['medias_sort_reverse'] = False
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
-    assert [im.filename for im in a.images] == [
+    assert [im.dst_filename for im in a.images] == [
         'CMB_Timeline300_no_WMAP.jpg', '21.jpg', '22.jpg']
 
 

@@ -56,7 +56,7 @@ class Media:
     Attributes:
 
     :var Media.type: ``"image"`` or ``"video"``.
-    :var Media.filename: Filename of the resized image.
+    :var Media.dst_filename: Filename of the resized image.
     :var Media.thumbnail: Location of the corresponding thumbnail image.
     :var Media.big: If not None, location of the unmodified image.
     :var Media.big_url: If not None, url of the unmodified image.
@@ -70,20 +70,20 @@ class Media:
         self.path = path
         self.settings = settings
 
-        self.filename = filename
+        self.basename = os.path.splitext(filename)[0]
+
+        self.dst_filename = filename
         """Filename of the resized image."""
 
         self.src_filename = filename
         """Filename of the input image."""
 
-        self.ext = os.path.splitext(filename)[1].lower()
+        self.src_ext = os.path.splitext(filename)[1].lower()
         """Input extension."""
 
         self.src_path = join(settings['source'], path, self.src_filename)
-        self.dst_path = join(settings['destination'], path, self.filename)
 
-        self.thumb_name = get_thumb(self.settings, self.filename)
-        self.thumb_path = join(settings['destination'], path, self.thumb_name)
+        self.thumb_name = get_thumb(self.settings, self.dst_filename)
 
         self.logger = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ class Media:
 
         # default: title is the filename
         if not self.title:
-            self.title = self.filename
+            self.title = self.basename
         signals.media_initialized.send(self)
 
     def __repr__(self):
@@ -101,10 +101,27 @@ class Media:
     def __str__(self):
         return join(self.path, self.src_filename)
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # remove un-pickable objects
+        state['logger'] = None
+        return state
+
+    def __setstate__(self, state):
+        self.logger = logging.getLogger(__name__)
+
+    @property
+    def dst_path(self):
+        return join(self.settings['destination'], self.path, self.dst_filename)
+
+    @property
+    def thumb_path(self):
+        return join(self.settings['destination'], self.path, self.thumb_name)
+
     @property
     def url(self):
         """URL of the media."""
-        return url_from_path(self.filename)
+        return url_from_path(self.dst_filename)
 
     @property
     def big(self):
@@ -185,14 +202,14 @@ class Image(Media):
 
     def __init__(self, filename, path, settings):
         super().__init__(filename, path, settings)
-        img_format = settings.get('img_format')
+        imgformat = settings.get('img_format')
 
-        if img_format and PILImage.EXTENSION[self.ext] != img_format.upper():
+        if imgformat and PILImage.EXTENSION[self.src_ext] != imgformat.upper():
             # Find the extension that should match img_format
             extensions = {v: k for k, v in PILImage.EXTENSION.items()}
-            outname = (os.path.splitext(filename)[0] +
-                       extensions[img_format.upper()])
-            self.dst_path = join(settings['destination'], path, outname)
+            ext = extensions[imgformat.upper()]
+            self.dst_filename = self.basename + ext
+            self.thumb_name = get_thumb(self.settings, self.dst_filename)
 
     @cached_property
     def date(self):
@@ -208,7 +225,7 @@ class Image(Media):
         """
         datetime_format = self.settings['datetime_format']
         return (get_exif_tags(self.raw_exif, datetime_format=datetime_format)
-                if self.raw_exif and self.ext in ('.jpg', '.jpeg') else None)
+                if self.raw_exif and self.src_ext in ('.jpg', '.jpeg') else None)
 
     def _get_metadata(self):
         super()._get_metadata()
@@ -229,7 +246,7 @@ class Image(Media):
     @cached_property
     def raw_exif(self):
         """If not `None`, contains the raw EXIF tags."""
-        if self.ext in ('.jpg', '.jpeg'):
+        if self.src_ext in ('.jpg', '.jpeg'):
             return self.file_metadata['exif']
 
     @cached_property
@@ -259,18 +276,17 @@ class Video(Media):
 
     def __init__(self, filename, path, settings):
         super().__init__(filename, path, settings)
-        base, ext = splitext(filename)
-        # self.src_filename = filename
         self.date = self._get_file_date()
 
-        if not settings['use_orig'] or not is_valid_html5_video(ext):
+        if not settings['use_orig'] or not is_valid_html5_video(self.src_ext):
             video_format = settings['video_format']
             ext = '.' + video_format
-            self.filename = base + ext
+            self.dst_filename = self.basename + ext
             self.mime = get_mime(ext)
-            self.dst_path = join(settings['destination'], path, base + ext)
+            self.dst_path = join(settings['destination'], path,
+                                 self.dst_filename)
         else:
-            self.mime = get_mime(ext)
+            self.mime = get_mime(self.src_ext)
 
 
 class Album:
@@ -413,6 +429,9 @@ class Album:
 
     def sort_medias(self, medias_sort_attr):
         if self.medias:
+            if medias_sort_attr == 'filename':
+                medias_sort_attr = 'dst_filename'
+
             if medias_sort_attr == 'date':
                 key = lambda s: s.date or datetime.now()
             elif medias_sort_attr.startswith('meta.'):
@@ -478,7 +497,7 @@ class Album:
         else:
             # find and return the first landscape image
             for f in self.medias:
-                ext = splitext(f.filename)[1]
+                ext = splitext(f.dst_filename)[1]
                 if ext.lower() not in self.settings['img_extensions']:
                     continue
 
@@ -494,7 +513,7 @@ class Album:
                                            f.thumbnail)
                     except Exception as e:
                         self.logger.info("Failed to get thumbnail for %s: %s",
-                                         f.filename, e)
+                                         f.dst_filename, e)
                     else:
                         self.logger.debug(
                             "Use 1st landscape image as thumbnail for %r : %s",
@@ -511,7 +530,7 @@ class Album:
                         except Exception as e:
                             self.logger.info(
                                 "Failed to get thumbnail for %s: %s",
-                                media.filename, e
+                                media.dst_filename, e
                             )
                         else:
                             break
@@ -718,14 +737,13 @@ class Gallery:
         bar_opt = {'label': "Processing files",
                    'show_pos': True,
                    'file': self.progressbar_target}
-        failed_files = []
 
         if self.pool:
+            result = []
             try:
                 with progressbar(length=len(media_list), **bar_opt) as bar:
-                    for res in self.pool.imap_unordered(worker, media_list):
-                        if res:
-                            failed_files.append(res)
+                    for status in self.pool.imap_unordered(worker, media_list):
+                        result.append(status)
                         bar.update(1)
                 self.pool.close()
                 self.pool.join()
@@ -741,12 +759,11 @@ class Gallery:
                 sys.exit('Abort')
         else:
             with progressbar(media_list, **bar_opt) as medias:
-                for media_item in medias:
-                    res = process_file(media_item)
-                    if res:
-                        failed_files.append(res)
+                result = [process_file(media_item) for media_item in medias]
 
-        if failed_files:
+        if any(result):
+            failed_files = [media for status, media in zip(result, media_list)
+                            if status != 0]
             self.remove_files(failed_files)
 
         if self.settings['write_html']:
@@ -774,13 +791,13 @@ class Gallery:
 
         signals.gallery_build.send(self)
 
-    def remove_files(self, files):
+    def remove_files(self, medias):
         self.logger.error('Some files have failed to be processed:')
-        for path, filename in files:
-            self.logger.error('  - %s/%s', path, filename)
-            album = self.albums[path]
+        for media in medias:
+            self.logger.error('  - %s/%s', media.dst_filename)
+            album = self.albums[media.path]
             for f in album.medias:
-                if f.filename == filename:
+                if f.dst_filename == media.dst_filename:
                     self.stats[f.type + '_failed'] += 1
                     album.medias.remove(f)
                     break
@@ -791,21 +808,16 @@ class Gallery:
         """Process a list of images in a directory."""
         for f in album:
             if isfile(f.dst_path) and not force:
-                self.logger.info("%s exists - skipping", f.filename)
+                self.logger.info("%s exists - skipping", f.dst_filename)
                 self.stats[f.type + '_skipped'] += 1
             else:
                 self.stats[f.type] += 1
-                yield (f.type, f.path, f.filename, f.src_path, f.dst_path,
-                       self.settings)
+                yield f
 
 
-def process_file(args):
-    # args => ftype, path, filename, src_path, dst_path, settings
-    processor = process_image if args[0] == 'image' else process_video
-    ret = processor(*args[3:])
-    # If the processor return an error (ret != 0), then we return the path and
-    # filename of the failed file to the parent process.
-    return args[1:3] if ret else None
+def process_file(media):
+    processor = process_image if media.type == 'image' else process_video
+    return processor(media)
 
 
 def worker(args):

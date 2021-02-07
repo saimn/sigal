@@ -103,7 +103,7 @@ def get_options(settings, cache):
 
 
 def cache_key(media):
-    return os.path.join(media.path, media.filename)
+    return os.path.join(media.path, media.dst_filename)
 
 
 def save_property(cache, media):
@@ -118,9 +118,9 @@ def save_property(cache, media):
 def get_encrypt_list(settings, media):
     to_encrypt = []
     # resized image or in case of "use_orig", the original
-    to_encrypt.append(media.filename)
+    to_encrypt.append(media.dst_filename)
     if settings["make_thumbs"]:
-        to_encrypt.append(get_thumb(settings, media.filename))  # thumbnail
+        to_encrypt.append(get_thumb(settings, media.dst_filename))  # thumbnail
     if media.big is not None and not settings["use_orig"]:
         to_encrypt.append(media.big)  # original image
     to_encrypt = list(
