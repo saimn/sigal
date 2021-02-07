@@ -252,7 +252,7 @@ def test_medias_sort(settings):
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
     assert [im.dst_filename for im in a.images] == [
-        'CMB_Timeline300_no_WMAP.jpg', '21.tiff', '22.jpg']
+        '21.tiff', '22.jpg', 'CMB_Timeline300_no_WMAP.jpg']
 
 
 def test_gallery(settings, tmpdir):
