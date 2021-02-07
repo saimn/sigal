@@ -21,7 +21,7 @@ def test_save_cache(settings, tmpdir):
 
     assert cache["exifTest/21.jpg"] == gal.albums["exifTest"].medias[0].exif
     assert cache["exifTest/22.jpg"] == gal.albums["exifTest"].medias[1].exif
-    assert cache["exifTest/noexif.png"] == gal.albums["exifTest"].medias[2].exif
+    assert cache["exifTest/noexif.png"] is None
 
 
 def test_restore_cache(settings, tmpdir):
