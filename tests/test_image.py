@@ -63,6 +63,7 @@ def test_generate_image_imgformat(tmpdir):
         im = PILImage.open(dstfile)
         assert im.format == outfmt
 
+
 def test_resize_image_portrait(tmpdir):
     """Test that the area is the same regardless of aspect ratio."""
     size = (300, 200)

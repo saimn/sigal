@@ -2,7 +2,6 @@ import datetime
 import logging
 import os
 from os.path import join
-from urllib.parse import quote
 
 import pytest
 
@@ -125,6 +124,25 @@ def test_media_iptc_override(settings):
         'the main drag in Canberra so it\'s Parliament House that '
         'you can see at the end of the road.'
     )
+
+
+def test_media_img_format(settings):
+    settings['img_format'] = 'jpeg'
+    m = Image('11.tiff', 'dir1/test1', settings)
+    path = join('dir1', 'test1')
+    thumb = join('thumbnails', '11.tn.jpeg')
+
+    assert m.dst_filename == '11.jpeg'
+    assert m.src_path == join(settings['source'], path, '11.tiff')
+    assert m.dst_path == join(settings['destination'], path, '11.jpeg')
+    assert m.thumb_name == thumb
+    assert m.thumb_path == join(settings['destination'], path, thumb)
+    assert m.title == "Foo Bar"
+    assert m.description == "<p>This is a funny description of this image</p>"
+
+    file_path = join(path, '11.tiff')
+    assert repr(m) == f"<Image>('{file_path}')"
+    assert str(m) == file_path
 
 
 def test_image(settings, tmpdir):
