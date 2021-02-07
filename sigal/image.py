@@ -197,7 +197,6 @@ def process_image(media):
                 thumb_fit_centering=media.settings["thumb_fit_centering"]
             )
     except Exception as e:
-        __import__('pdb').set_trace()
         logger.info('Failed to process: %r', e)
         if logger.getEffectiveLevel() == logging.DEBUG:
             raise

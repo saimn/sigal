@@ -2,13 +2,15 @@ import os
 
 import pytest
 
+from sigal.gallery import Video
 from sigal.settings import Status, create_settings
 from sigal.video import (generate_thumbnail, generate_video, process_video,
                          video_size)
 
 CURRENT_DIR = os.path.dirname(__file__)
+SRCDIR = os.path.join(CURRENT_DIR, 'sample', 'pictures')
 TEST_VIDEO = 'example video.ogv'
-SRCFILE = os.path.join(CURRENT_DIR, 'sample', 'pictures', 'video', TEST_VIDEO)
+SRCFILE = os.path.join(SRCDIR, 'video', TEST_VIDEO)
 
 
 def test_video_size():
@@ -27,17 +29,20 @@ def test_generate_thumbnail(tmpdir):
 def test_process_video(tmpdir):
     base, ext = os.path.splitext(TEST_VIDEO)
 
-    settings = create_settings(video_format='ogv', use_orig=True,
-                               orig_link=True)
-    process_video(SRCFILE, str(tmpdir), settings)
+    settings = create_settings(video_format='ogv',
+                               use_orig=True, orig_link=True,
+                               source=os.path.join(SRCDIR, 'video'),
+                               destination=str(tmpdir))
+    video = Video(TEST_VIDEO, '.', settings)
+    process_video(video)
     dstfile = str(tmpdir.join(base + '.ogv'))
     assert os.path.realpath(dstfile) == SRCFILE
 
     settings = create_settings(video_format='mjpg')
-    assert process_video(SRCFILE, str(tmpdir), settings) == Status.FAILURE
+    assert process_video(video) == Status.FAILURE
 
     settings = create_settings(thumb_video_delay=-1)
-    assert process_video(SRCFILE, str(tmpdir), settings) == Status.FAILURE
+    assert process_video(video) == Status.FAILURE
 
 
 @pytest.mark.parametrize("fmt", ['webm', 'mp4'])

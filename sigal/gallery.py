@@ -108,6 +108,8 @@ class Media:
         return state
 
     def __setstate__(self, state):
+        for slot, value in state.items():
+            setattr(self, slot, value)
         self.logger = logging.getLogger(__name__)
 
     @property
@@ -283,8 +285,6 @@ class Video(Media):
             ext = '.' + video_format
             self.dst_filename = self.basename + ext
             self.mime = get_mime(ext)
-            self.dst_path = join(settings['destination'], path,
-                                 self.dst_filename)
         else:
             self.mime = get_mime(self.src_ext)
 
@@ -794,7 +794,7 @@ class Gallery:
     def remove_files(self, medias):
         self.logger.error('Some files have failed to be processed:')
         for media in medias:
-            self.logger.error('  - %s/%s', media.dst_filename)
+            self.logger.error('  - %s', media.dst_filename)
             album = self.albums[media.path]
             for f in album.medias:
                 if f.dst_filename == media.dst_filename:

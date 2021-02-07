@@ -31,9 +31,9 @@ REF = {
     'dir1/test2': {
         'title': 'test2',
         'name': 'test2',
-        'thumbnail': 'test2/thumbnails/21.tn.jpg',
+        'thumbnail': 'test2/thumbnails/21.tn.tiff',
         'subdirs': [],
-        'medias': ['21.jpg', '22.jpg', 'CMB_Timeline300_no_WMAP.jpg'],
+        'medias': ['21.tiff', '22.jpg', 'CMB_Timeline300_no_WMAP.jpg'],
     },
     'dir1/test3': {
         'title': '01 First title alphabetically',
@@ -116,14 +116,15 @@ def test_media_iptc_override(settings):
     # Markdown parsing adds formatting. Let's just focus on content
     assert "Markdown description beats iptc" in img_with_md.description
     img_no_md = Image('1.jpg', 'iptcTest', settings)
-    assert img_no_md.title == 'Haemostratulus clouds over Canberra - ' + \
-            '2005-12-28 at 03-25-07'
-    assert img_no_md.description == \
-            '"Haemo" because they look like haemoglobin ' + \
-            'cells and "stratulus" because I can\'t work out whether ' + \
-            'they\'re Stratus or Cumulus clouds.\nWe\'re driving down ' + \
-            'the main drag in Canberra so it\'s Parliament House that ' + \
-            'you can see at the end of the road.'
+    assert img_no_md.title == ('Haemostratulus clouds over Canberra - '
+                               '2005-12-28 at 03-25-07')
+    assert img_no_md.description == (
+        '"Haemo" because they look like haemoglobin '
+        'cells and "stratulus" because I can\'t work out whether '
+        'they\'re Stratus or Cumulus clouds.\nWe\'re driving down '
+        'the main drag in Canberra so it\'s Parliament House that '
+        'you can see at the end of the road.'
+    )
 
 
 def test_image(settings, tmpdir):
@@ -225,15 +226,15 @@ def test_medias_sort(settings):
     settings['medias_sort_reverse'] = False
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
-    assert [im.dst_filename for im in a.images] == ['22.jpg', '21.jpg',
-                                                'CMB_Timeline300_no_WMAP.jpg']
+    assert [im.dst_filename for im in a.images] == [
+        '22.jpg', 'CMB_Timeline300_no_WMAP.jpg', '21.tiff']
 
     settings['medias_sort_attr'] = 'meta.order'
     settings['medias_sort_reverse'] = False
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
     assert [im.dst_filename for im in a.images] == [
-        'CMB_Timeline300_no_WMAP.jpg', '21.jpg', '22.jpg']
+        'CMB_Timeline300_no_WMAP.jpg', '21.tiff', '22.jpg']
 
 
 def test_gallery(settings, tmpdir):
