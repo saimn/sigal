@@ -5,7 +5,6 @@ thumb_suffix = ".tn"
 keep_orig = True
 thumb_video_delay = 5
 # img_format = 'jpeg'
-copy_exif_data = True
 
 links = [
     ("Example link", "http://example.org"),

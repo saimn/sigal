@@ -1,7 +1,9 @@
 import os
 from unittest.mock import patch
 
+import PIL
 import pytest
+from packaging.version import Version
 from PIL import Image as PILImage
 
 from sigal import init_logging
@@ -280,6 +282,9 @@ def test_exif_copy(tmpdir):
     assert not simple
 
 
+@pytest.mark.skipif(
+    Version(PIL.__version__) < Version('8.0'), reason='fails with Pillow < 8.0'
+)
 def test_exif_gps(tmpdir):
     """Test reading out correct geo tags"""
 
