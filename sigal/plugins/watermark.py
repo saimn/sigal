@@ -86,10 +86,10 @@ def watermark(im, mark, position, opacity=1):
 def add_watermark(img, settings=None):
     logger = logging.getLogger(__name__)
     logger.debug('Adding watermark to %r', img)
-    mark = Image.open(settings['watermark'])
-    position = settings.get('watermark_position', 'scale')
-    opacity = settings.get("watermark_opacity", 1)
-    return watermark(img, mark, position, opacity)
+    with Image.open(settings['watermark']) as mark:
+        position = settings.get('watermark_position', 'scale')
+        opacity = settings.get("watermark_opacity", 1)
+        return watermark(img, mark, position, opacity)
 
 
 def register(settings):
