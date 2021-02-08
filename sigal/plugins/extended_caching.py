@@ -46,7 +46,7 @@ def load_exif(album):
 
     for media in album.medias:
         if media.type == "image":
-            key = os.path.join(media.path, media.filename)
+            key = os.path.join(media.path, media.dst_filename)
             if key in cache:
                 media.exif = cache[key]
 
@@ -76,7 +76,7 @@ def save_cache(gallery):
 
     for album in gallery.albums.values():
         for image in album.images:
-            cache[os.path.join(image.path, image.filename)] = image.exif
+            cache[os.path.join(image.path, image.dst_filename)] = image.exif
 
     cachePath = os.path.join(gallery.settings["destination"], ".exif_cache")
 

@@ -199,16 +199,15 @@ def generate_thumbnail(source, outname, box, delay, fit=True, options=None,
     os.unlink(tmpfile)
 
 
-def process_video(filepath, outpath, settings):
+def process_video(media):
     """Process a video: resize, create thumbnail."""
     logger = logging.getLogger(__name__)
-    filename = os.path.split(filepath)[1]
-    basename, ext = splitext(filename)
+    settings = media.settings
 
     try:
-        if settings['use_orig'] and is_valid_html5_video(ext):
-            outname = os.path.join(outpath, filename)
-            utils.copy(filepath, outname, symlink=settings['orig_link'])
+        if settings['use_orig'] and is_valid_html5_video(media.src_ext):
+            utils.copy(media.src_path, media.dst_path,
+                       symlink=settings['orig_link'])
         else:
             valid_formats = ['mp4', 'webm']
             video_format = settings['video_format']
@@ -217,9 +216,7 @@ def process_video(filepath, outpath, settings):
                 logger.error('Invalid video_format. Please choose one of: %s',
                              valid_formats)
                 raise ValueError
-
-            outname = os.path.join(outpath, basename + '.' + video_format)
-            generate_video(filepath, outname, settings)
+            generate_video(media.src_path, media.dst_path, settings)
     except Exception:
         if logger.getEffectiveLevel() == logging.DEBUG:
             raise
@@ -227,13 +224,16 @@ def process_video(filepath, outpath, settings):
             return Status.FAILURE
 
     if settings['make_thumbs']:
-        thumb_name = os.path.join(outpath, get_thumb(settings, filename))
         try:
             generate_thumbnail(
-                outname, thumb_name, settings['thumb_size'],
-                settings['thumb_video_delay'], fit=settings['thumb_fit'],
+                media.dst_path,
+                media.thumb_path,
+                settings['thumb_size'],
+                settings['thumb_video_delay'],
+                fit=settings['thumb_fit'],
                 options=settings['jpg_options'],
-                converter=settings['video_converter'])
+                converter=settings['video_converter']
+            )
         except Exception:
             if logger.getEffectiveLevel() == logging.DEBUG:
                 raise

@@ -45,7 +45,7 @@ class PageWriter(AbstractWriter):
         ''' Generate the media page and save it '''
 
         from sigal import __url__ as sigal_link
-        file_path = os.path.join(album.dst_path, media_group[0].filename)
+        file_path = os.path.join(album.dst_path, media_group[0].dst_filename)
 
         page = self.template.render({
             'album': album,
