@@ -1,5 +1,6 @@
 # Copyright (c)      2013 - Christophe-Marie Duquesne
 # Copyright (c) 2013-2020 - Simon Conseil
+# Copyright (c)      2021 - Keith Feldman
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -35,7 +36,7 @@ class SubprocessException(Exception):
     pass
 
 
-def check_subprocess(cmd, source, outname):
+def check_subprocess(cmd, source, outname=None):
     """Run the command to resize the video and remove the output file if the
     processing fails.
 
@@ -46,22 +47,21 @@ def check_subprocess(cmd, source, outname):
                              stderr=subprocess.PIPE)
     except KeyboardInterrupt:
         logger.debug('Process terminated, removing file %s', outname)
-        if os.path.isfile(outname):
+        if outname and os.path.isfile(outname):
             os.remove(outname)
         raise
 
     if res.returncode:
         logger.debug('STDOUT:\n %s', res.stdout.decode('utf8'))
         logger.debug('STDERR:\n %s', res.stderr.decode('utf8'))
-        if os.path.isfile(outname):
+        if outname and os.path.isfile(outname):
             logger.debug('Removing file %s', outname)
             os.remove(outname)
         raise SubprocessException('Failed to process ' + source)
 
 
 def video_size(source, converter='ffmpeg'):
-    """Returns the dimensions of the video."""
-
+    """Return the dimensions of the video."""
     res = subprocess.run([converter, '-i', source], stderr=subprocess.PIPE)
     stderr = res.stderr.decode('utf8')
     pattern = re.compile(r'Stream.*Video.* ([0-9]+)x([0-9]+)')
@@ -77,31 +77,21 @@ def video_size(source, converter='ffmpeg'):
         x, y = y, x
     return x, y
 
-
-def generate_video(source, outname, settings, options=None):
-    """Video processor.
+def get_resize_options(source, converter, output_size):
+    """Figure out resize options for video from src and dst sizes.
 
     :param source: path to a video
     :param outname: path to the generated video
     :param settings: settings dict
-    :param options: array of options passed to ffmpeg
-
     """
     logger = logging.getLogger(__name__)
-
-    # Don't transcode if source is in the required format and
-    # has fitting datedimensions, copy instead.
-    converter = settings['video_converter']
     w_src, h_src = video_size(source, converter=converter)
-    w_dst, h_dst = settings['video_size']
+    w_dst, h_dst = output_size
     logger.debug('Video size: %i, %i -> %i, %i', w_src, h_src, w_dst, h_dst)
 
-    base, src_ext = splitext(source)
-    base, dst_ext = splitext(outname)
-    if dst_ext == src_ext and w_src <= w_dst and h_src <= h_dst:
-        logger.debug('Video is smaller than the max size, copying it instead')
-        shutil.copy(source, outname)
-        return
+    # do not resize if input dimensions are smaller than output dimensions
+    if w_src <= w_dst and h_src <= h_dst:
+        return []
 
     # http://stackoverflow.com/questions/8218363/maintaining-ffmpeg-aspect-ratio
     # + I made a drawing on paper to figure this out
@@ -112,25 +102,77 @@ def generate_video(source, outname, settings, options=None):
         # biggest fitting dimension is width
         resize_opt = ['-vf', "scale=%i:trunc(ow/a/2)*2" % w_dst]
 
-    # do not resize if input dimensions are smaller than output dimensions
-    if w_src <= w_dst and h_src <= h_dst:
-        resize_opt = []
+    return resize_opt
 
+
+def _get_empty_if_none_else_variable(variable):
+    return [] if not variable else variable
+
+
+def generate_video_pass(converter, source, options, outname=None):
+    """Run a single pass of encoding.
+
+    :param source: source video
+    :param options: options to pass to encoder
+    :param outname: if multi-pass, this is None on the first pass
+    """
+    logger = logging.getLogger(__name__)
+    outname_opt = [] if not outname else [outname]
     # Encoding options improved, thanks to
     # http://ffmpeg.org/trac/ffmpeg/wiki/vpxEncodingGuide
     cmd = [converter, '-i', source, '-y']  # -y to overwrite output files
-    if options is not None:
-        cmd += options
-    cmd += resize_opt + [outname]
-
+    cmd += options + outname_opt
     logger.debug('Processing video: %s', ' '.join(cmd))
-    check_subprocess(cmd, source, outname)
+    check_subprocess(cmd, source, outname=outname)
+
+
+def generate_video(source, outname, settings):
+    """Video processor.
+
+    :param source: path to a video
+    :param outname: path to the generated video
+    :param settings: settings dict
+    :param options: array of options passed to ffmpeg
+
+    """
+    logger = logging.getLogger(__name__)
+
+    video_format = settings.get('video_format')
+    options = settings.get(video_format + '_options')
+    second_pass_options = settings.get(video_format + '_options_second_pass')
+    video_always_convert = settings.get('video_always_convert')
+    converter = settings['video_converter']
+
+    resize_opt = []
+    if settings.get("video_size"):
+        resize_opt = get_resize_options(source, converter,
+                                        settings['video_size'])
+
+    base, src_ext = splitext(source)
+    base, dst_ext = splitext(outname)
+
+    if dst_ext == src_ext and not resize_opt and not video_always_convert:
+        logger.debug('For %s, the source and destination extension are the " \
+                        "same, there is no resizing to be done, and " \
+                        "video_always_convert is False, so the output is " \
+                        " being copied', outname)
+        shutil.copy(source, outname)
+        return
+
+    final_pass_options = _get_empty_if_none_else_variable(options) + resize_opt
+    if second_pass_options:
+        generate_video_pass(converter, source, final_pass_options)
+        final_second_pass_options = _get_empty_if_none_else_variable(
+                    second_pass_options) + resize_opt
+        generate_video_pass(converter, source,
+                            final_second_pass_options, outname)
+    else:
+        generate_video_pass(converter, source, final_pass_options, outname)
 
 
 def generate_thumbnail(source, outname, box, delay, fit=True, options=None,
                        converter='ffmpeg'):
     """Create a thumbnail image for the video source, based on ffmpeg."""
-
     logger = logging.getLogger(__name__)
     tmpfile = outname + ".tmp.jpg"
 
@@ -159,7 +201,6 @@ def generate_thumbnail(source, outname, box, delay, fit=True, options=None,
 
 def process_video(media):
     """Process a video: resize, create thumbnail."""
-
     logger = logging.getLogger(__name__)
     settings = media.settings
 
@@ -175,9 +216,7 @@ def process_video(media):
                 logger.error('Invalid video_format. Please choose one of: %s',
                              valid_formats)
                 raise ValueError
-
-            generate_video(media.src_path, media.dst_path, settings,
-                           options=settings.get(video_format + '_options'))
+            generate_video(media.src_path, media.dst_path, settings)
     except Exception:
         if logger.getEffectiveLevel() == logging.DEBUG:
             raise

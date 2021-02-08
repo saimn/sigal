@@ -17,3 +17,5 @@ htmlcov/
 output/
 sigal/version.py
 tags
+venv
+ffmpeg2pass-0.log

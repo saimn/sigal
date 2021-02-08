@@ -171,13 +171,31 @@ ignore_files = []
 # webm_options = ['-crf', '10', '-b:v', '1.6M',
 #                 '-qmin', '4', '-qmax', '63']
 
+# Webm options for 2-pass encoding
+# Options used to encode the webm video on the second pass.
+# Set to None by default, set to an array if a second pass is desired.
+# webm_options_second_pass = None
+
+
 # MP4 options
 # Options used to encode the mp4 video. You may want to read
 # https://trac.ffmpeg.org/wiki/Encode/H.264
 # mp4_options = ['-crf', '23' ]
 
+# MP4 options for 2-pass encoding
+# Options used to encode the mp4 video on the second pass.
+# Set to None by default, set to an array if a second pass is desired.
+# mp4_options_second_pass = None
+
+
 # Size of resized video (default: (480, 360))
+# Set this to None if no resizing is desired on the video.
 # video_size = (480, 360)
+
+# If the desired video extension and filename are the same, the video will
+# not be converted. If a transcode to different quality is required,
+# set this to True to force convert it. False by default.
+# video_always_convert = False
 
 # -------------
 # Miscellaneous
