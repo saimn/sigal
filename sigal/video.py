@@ -63,7 +63,7 @@ def check_subprocess(cmd, source, outname=None):
 def video_size(source, converter='ffmpeg'):
     """Return the dimensions of the video."""
     res = subprocess.run([converter, '-i', source], stderr=subprocess.PIPE)
-    stderr = res.stderr.decode('utf8')
+    stderr = res.stderr.decode('utf8', errors='ignore')
     pattern = re.compile(r'Stream.*Video.* ([0-9]+)x([0-9]+)')
     match = pattern.search(stderr)
     rot_pattern = re.compile(r'rotate\s*:\s*-?(90|270)')
