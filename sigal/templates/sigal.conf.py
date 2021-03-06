@@ -124,11 +124,12 @@ thumb_size = (280, 210)
 # Use symbolic links instead of copying the original images
 # orig_link = False
 
-# Use symbolic links that are relative to the source directory instead of absolute paths
+# Use symbolic links that are relative to the source directory instead of
+# absolute paths
 # rel_link = False
 
-# Attribute of Album objects which is used to sort medias (eg 'title'). To sort
-# on a metadata key, use 'meta.key'.
+# Attribute of Album objects which is used to sort medias (eg 'title'). To
+# sort on a metadata key, use 'meta.key'.
 # albums_sort_attr = 'name'
 
 # Reverse sort for albums

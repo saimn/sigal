@@ -404,26 +404,32 @@ class Album:
 
     def sort_subdirs(self, albums_sort_attr):
         if self.subdirs:
-            if albums_sort_attr:
-                root_path = self.path if self.path != '.' else ''
-                if albums_sort_attr.startswith("meta."):
-                    meta_key = albums_sort_attr.split(".", 1)[1]
+            albums_sort_attr = self.settings['albums_sort_attr']
+            reverse = self.settings['albums_sort_reverse']
 
-                    def sort_key(s):
-                        album = self.gallery.albums[join(root_path, s)]
-                        return album.meta.get(meta_key, [''])[0]
-
+            if 'sort' in self.meta:
+                albums_sort_attr = self.meta['sort'][0]
+                if albums_sort_attr[0] == '-':
+                    albums_sort_attr = albums_sort_attr[1:]
+                    reverse = True
                 else:
-                    def sort_key(s):
-                        album = self.gallery.albums[join(root_path, s)]
-                        return getattr(album, albums_sort_attr)
+                    reverse = False
 
-                key = natsort_keygen(key=sort_key, alg=ns.LOCALE)
+            root_path = self.path if self.path != '.' else ''
+            if albums_sort_attr.startswith("meta."):
+                meta_key = albums_sort_attr.split(".", 1)[1]
+
+                def sort_key(s):
+                    album = self.gallery.albums[join(root_path, s)]
+                    return album.meta.get(meta_key, [''])[0]
+
             else:
-                key = natsort_keygen(alg=ns.LOCALE)
+                def sort_key(s):
+                    album = self.gallery.albums[join(root_path, s)]
+                    return getattr(album, albums_sort_attr)
 
-            self.subdirs.sort(key=key,
-                              reverse=self.settings['albums_sort_reverse'])
+            key = natsort_keygen(key=sort_key, alg=ns.LOCALE)
+            self.subdirs.sort(key=key, reverse=reverse)
 
         signals.albums_sorted.send(self)
 

@@ -10,6 +10,7 @@ named ``index.md`` :
     Title: Another example gallery
     Thumbnail: test2.jpg
     Author: John Doe
+    Sort: -name
 
     And a description with *Markdown* syntax.
 
@@ -21,6 +22,8 @@ gallery:
   represent the gallery.
 - *Author*: the author of the gallery, if present it is used instead of the
   author setting.
+- *Sort*: the sort order for this album. If prefixed with a '-' it will be in
+  reversed order.
 
 Any additional meta-data is available in the templates. For instance::
 
