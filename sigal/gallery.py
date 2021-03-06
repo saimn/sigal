@@ -473,6 +473,10 @@ class Album:
                 for path in self.subdirs]
 
     @property
+    def nbmedias(self):
+        return len(self.medias) + sum(len(album) for album in self.albums)
+
+    @property
     def url(self):
         """URL of the album, relative to its parent."""
         url = self.name.encode('utf-8')
