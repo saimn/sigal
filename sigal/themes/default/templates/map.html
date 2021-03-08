@@ -1,7 +1,12 @@
 {% if settings.show_map and album.show_map %}
 <div id="mapid" style="height: {{ settings.map_height }};"></div>
 <script charset="utf-8">
-  var map = L.map('mapid');
+  var map = L.map('mapid', {
+    fullscreenControl: true,
+    fullscreenControlOptions: {
+      position: 'topleft'
+    }
+  });
   L.tileLayer.provider('{{ settings.leaflet_provider }}').addTo(map);
 
   var markers = new Array();
