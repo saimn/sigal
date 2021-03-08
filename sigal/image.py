@@ -362,7 +362,7 @@ def get_exif_tags(data, datetime_format='%c'):
     if 'ExposureTime' in data:
         exptime = data['ExposureTime']
         if IFDRational and isinstance(exptime, IFDRational):
-            simple['exposure'] = str(exptime)
+            simple['exposure'] = f'{exptime.numerator}/{exptime.denominator}'
         elif isinstance(exptime, tuple):
             try:
                 simple['exposure'] = str(fractions.Fraction(exptime[0], exptime[1]))
