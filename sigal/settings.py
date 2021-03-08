@@ -53,6 +53,7 @@ _DEFAULT_CONFIG = {
     'locale': '',
     'make_thumbs': True,
     'max_img_pixels': None,
+    'map_height': '500px',
     'medias_sort_attr': 'filename',
     'medias_sort_reverse': False,
     'mp4_options': ['-crf', '23', '-strict', '-2'],

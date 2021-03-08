@@ -1,0 +1,26 @@
+{% if settings.show_map and album.show_map %}
+<div id="mapid" style="height: {{ settings.map_height }};"></div>
+<script charset="utf-8">
+  var map = L.map('mapid');
+  L.tileLayer.provider('{{ settings.leaflet_provider }}').addTo(map);
+
+  var markers = new Array();
+
+  {% for media in album.medias %}
+    {% if media.exif and media.exif.gps %}
+    var marker = L.marker([{{ media.exif.gps.lat }}, {{ media.exif.gps.lon }}]);
+    marker.bindPopup(
+      '<img src="{{ media.thumbnail }}" title="{{ media.title }}" /></a>',
+      {'minWidth': 200}
+    ).openPopup();
+    markers.push(marker);
+    marker.addTo(map);
+    {% endif %}
+  {% endfor %}
+
+  var group = L.featureGroup(markers).addTo(map);
+  setTimeout(function () {
+    map.fitBounds(group.getBounds());
+  }, 1000);
+</script>
+{% endif %}
