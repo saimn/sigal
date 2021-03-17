@@ -15,6 +15,11 @@ Released on 2020-xx-xx.
 - Update photoswipe to 4.4.0 [:issue:`415`].
 - Update galleria to v1.6.1 and add new themes [:issue:`417`].
 - Add ``user_css`` option to allow easier css customization [:issue:`418`].
+- Allow to specify the sort order per album.
+- Add a ``.nbmedias`` attribute to get the number of files in an album.
+- More options for vieo resizing [:issue:`420`].
+- Fixes for img_format [:issue:`421`].
+- Fix encoding issue with ffmpeg output [:issue:`423`].
 
 Version 2.1.1
 ~~~~~~~~~~~~~
