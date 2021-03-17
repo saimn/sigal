@@ -404,7 +404,8 @@ class Album:
 
     def sort_subdirs(self, albums_sort_attr):
         if self.subdirs:
-            albums_sort_attr = self.settings['albums_sort_attr']
+            if not albums_sort_attr:
+                albums_sort_attr = self.settings['albums_sort_attr']
             reverse = self.settings['albums_sort_reverse']
 
             if 'sort' in self.meta:
