@@ -5,7 +5,7 @@ Sigal - Simple Static Gallery Generator
    :target: https://github.com/saimn/sigal/actions
    :alt: CI Status
 
-.. image:: https://codecov.io/gh/saimn/sigal/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/saimn/sigal/branch/main/graph/badge.svg
    :target: https://codecov.io/gh/saimn/sigal
    :alt: codecov.io
 

@@ -26,7 +26,7 @@ Please:
   name to the license header of the files you modify.
 - Write `good commit messages`_.
 - Ideally, squash_ your commits, i.e. make your pull requests just one commit.
-- Use a branch, it will be easier to squash or rebase on upstream's master.
+- Use a branch, it will be easier to squash or rebase on upstream's main.
 
 Thank you for considering to contribute to sigal !
 

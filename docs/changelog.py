@@ -22,14 +22,14 @@ Dependencies
 - pygithub
 
 This script comes from Numpy:
-https://github.com/numpy/numpy/blob/master/tools/changelog.py
+https://github.com/numpy/numpy/blob/main/tools/changelog.py
 
 Examples
 --------
 
 From the bash command line with $GITHUB token::
 
-    $ ./docs/changelog.py $GITHUB 1.4.0..master
+    $ ./docs/changelog.py $GITHUB 1.4.0..main
 
 """
 

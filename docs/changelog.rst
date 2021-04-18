@@ -231,7 +231,7 @@ Released on 2014-12-07.
 - Fix the title which was not unicode when using the settings file [:issue:`104`].
 - Add more info on how the report a bug or contribute [:issue:`128`].
 - Add more commands to the Makefile.
-- Add `coveralls.io <https://coveralls.io/r/saimn/sigal?branch=master>`_
+- Use coveralls.io
 - New plugin to upload generated gallery to Amazon S3 [:issue:`114`].
 - Handling of empty markdown or missing meta-data [:issue:`120`].
 - Include plugins in the distributed package [:issue:`117`].
