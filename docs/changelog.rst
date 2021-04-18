@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 2.2.dev
-~~~~~~~~~~~~~~~
+Version 2.2
+~~~~~~~~~~~
 
-Released on 2020-xx-xx.
+Released on 2021-04-18.
 
 - Convert pillow warnings to logging with filename [:issue:`394`].
 - Catch warnings when reading EXIF data.
