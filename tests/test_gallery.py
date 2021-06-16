@@ -4,6 +4,7 @@ import os
 from os.path import join
 
 import pytest
+from PIL import Image as PILImage
 
 from sigal.gallery import Album, Gallery, Image, Media, Video
 from sigal.video import SubprocessException
@@ -285,6 +286,34 @@ def test_gallery(settings, tmpdir):
         gal = Gallery(settings, ncpu=1)
         with pytest.raises(SubprocessException):
             gal.build()
+    finally:
+        logger.setLevel(logging.INFO)
+
+
+def test_gallery_max_img_pixels(settings, tmpdir, monkeypatch):
+    "Test the Gallery class with the max_img_pixels setting."
+    # monkeypatch is used here to reset the value to the PIL default.
+    # This value does not matter, other than it is "large"
+    # to show that settings['max_img_pixels'] works.
+    monkeypatch.setattr('PIL.Image.MAX_IMAGE_PIXELS', 100_000_000)
+
+    with open(str(tmpdir.join('my.css')), mode='w') as f:
+        f.write('color: red')
+
+    settings['destination'] = str(tmpdir)
+    settings['user_css'] = str(tmpdir.join('my.css'))
+    settings['max_img_pixels'] = 5000
+
+    logger = logging.getLogger('sigal')
+    logger.setLevel(logging.DEBUG)
+    try:
+        with pytest.raises(PILImage.DecompressionBombError):
+            gal = Gallery(settings, ncpu=1)
+            gal.build()
+
+        settings['max_img_pixels'] = 100_000_000
+        gal = Gallery(settings, ncpu=1)
+        gal.build()
     finally:
         logger.setLevel(logging.INFO)
 

@@ -52,6 +52,7 @@ _DEFAULT_CONFIG = {
     'links': '',
     'locale': '',
     'make_thumbs': True,
+    'max_img_pixels': None,
     'medias_sort_attr': 'filename',
     'medias_sort_reverse': False,
     'mp4_options': ['-crf', '23', '-strict', '-2'],
