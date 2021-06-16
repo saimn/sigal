@@ -292,6 +292,9 @@ def test_gallery(settings, tmpdir):
 
 def test_gallery_max_img_pixels(settings, tmpdir, monkeypatch):
     "Test the Gallery class with the max_img_pixels setting."
+    # monkeypatch is used here to reset the value to the PIL default.
+    # This value does not matter, other than it is "large"
+    # to show that settings['max_img_pixels'] works.
     monkeypatch.setattr('PIL.Image.MAX_IMAGE_PIXELS', 100_000_000)
 
     with open(str(tmpdir.join('my.css')), mode='w') as f:
