@@ -292,7 +292,7 @@ def test_gallery(settings, tmpdir):
 
 def test_gallery_max_img_pixels(settings, tmpdir, monkeypatch):
     "Test the Gallery class with the max_img_pixels setting."
-    monkeypatch.setattr('PIL.Image.MAX_IMAGE_PIXELS', 100000000)
+    monkeypatch.setattr('PIL.Image.MAX_IMAGE_PIXELS', 100_000_000)
 
     with open(str(tmpdir.join('my.css')), mode='w') as f:
         f.write('color: red')
@@ -308,7 +308,7 @@ def test_gallery_max_img_pixels(settings, tmpdir, monkeypatch):
             gal = Gallery(settings, ncpu=1)
             gal.build()
 
-        settings['max_img_pixels'] = 100000000
+        settings['max_img_pixels'] = 100_000_000
         gal = Gallery(settings, ncpu=1)
         gal.build()
     finally:
