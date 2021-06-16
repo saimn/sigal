@@ -619,6 +619,9 @@ class Gallery:
         self.init_pool(ncpu)
         check_or_create_dir(settings['destination'])
 
+        if settings['max_img_pixels']:
+            PILImage.MAX_IMAGE_PIXELS = settings['max_img_pixels']
+
         # Build the list of directories with images
         albums = self.albums = {}
         src_path = self.settings['source']
@@ -708,7 +711,11 @@ class Gallery:
 
         self.logger.info("Using %s cores", ncpu)
         if ncpu > 1:
-            self.pool = multiprocessing.Pool(processes=ncpu)
+            def pool_init():
+                if self.settings['max_img_pixels']:
+                    PILImage.MAX_IMAGE_PIXELS = self.settings['max_img_pixels']
+            self.pool = multiprocessing.Pool(processes=ncpu,
+                                             initializer=pool_init)
         else:
             self.pool = None
 
@@ -756,8 +763,6 @@ class Gallery:
                     for status in self.pool.imap_unordered(worker, media_list):
                         result.append(status)
                         bar.update(1)
-                self.pool.close()
-                self.pool.join()
             except KeyboardInterrupt:
                 self.pool.terminate()
                 sys.exit('Interrupted')
@@ -768,6 +773,9 @@ class Gallery:
                     "defined in the settings file, which can't be serialized.",
                     exc_info=True)
                 sys.exit('Abort')
+            finally:
+                self.pool.close()
+                self.pool.join()
         else:
             with progressbar(media_list, **bar_opt) as medias:
                 result = [process_file(media_item) for media_item in medias]

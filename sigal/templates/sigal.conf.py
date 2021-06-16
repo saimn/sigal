@@ -46,6 +46,11 @@ theme = 'galleria'
 # Size of resized image (default: (640, 480))
 img_size = (800, 600)
 
+# Max input image size in pixels (default: None, i.e. use PIL default)
+# This option sets `PIL.Image.MAX_IMAGE_PIXELS` in case you want to
+# convert/resize very large images.
+# max_img_pixels = None
+
 # Output format of images (default: None, i.e. use input format)
 # img_format = "JPEG"
 
