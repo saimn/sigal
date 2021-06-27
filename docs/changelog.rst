@@ -9,6 +9,9 @@ Not released yet.
 
 Sigal now requires Python 3.7+.
 
+- Add option ``max_img_pixels`` to allow processing huge images (sets
+  ``PIL.Image.MAX_IMAGE_PIXELS``) [:issue:`431`].
+- Add webp to the list of images formats supported by default [:issue:`433`].
 
 Version 2.2
 ~~~~~~~~~~~
