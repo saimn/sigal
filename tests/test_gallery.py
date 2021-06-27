@@ -62,11 +62,17 @@ REF = {
     'video': {
         'title': 'video',
         'name': 'video',
-        'thumbnail': ('video/thumbnails/'
-                      'example%20video.tn.jpg'),
+        'thumbnail': 'video/thumbnails/example%20video.tn.jpg',
         'subdirs': [],
         'medias': ['example video.ogv']
-    }
+    },
+    'webp': {
+        'title': 'webp',
+        'name': 'webp',
+        'thumbnail': 'webp/thumbnails/_MG_7805_lossy80.tn.webp',
+        'subdirs': [],
+        'medias': ['_MG_7805_lossy80.webp', '_MG_7808_lossy80.webp']
+    },
 }
 
 
