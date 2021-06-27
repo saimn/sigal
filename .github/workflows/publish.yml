@@ -10,7 +10,7 @@ jobs:
   build-n-publish:
     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
     runs-on: ubuntu-latest
-    if: (github.repository == 'saimn/sigal' && (github.event_name == 'tags' || contains(github.event.pull_request.labels.*.name, 'Build wheels')))
+    if: ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags')) || contains(github.event.pull_request.labels.*.name, 'Build wheels'))
 
     steps:
     - uses: actions/checkout@master
@@ -22,10 +22,13 @@ jobs:
 
     - name: Install python-build and twine
       run: python -m pip install build twine
+
     - name: Build package
       run: python -m build --sdist --wheel .
+
     - name: List result
       run: ls -l dist
+
     - name: Check long_description
       run: python -m twine check dist/*
 
@@ -33,4 +36,5 @@ jobs:
       if: startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@master
       with:
+        user: __token__
         password: ${{ secrets.pypi_password }}
