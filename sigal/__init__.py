@@ -173,9 +173,13 @@ def build(source, destination, debug, verbose, quiet, force, config, theme,
         return '{} {}s{}'.format(stats[_type], _type, opt)
 
     if not quiet:
-        print('Done, processed {} and {} in {:.2f} seconds.'
-              .format(format_stats('image'), format_stats('video'),
-                      time.time() - start_time))
+        stats_str = ''
+        types = sorted(set(t.rsplit('_',1)[0] for t in stats))
+        for t in types[:-1]:
+            stats_str += '{} and '.format(format_stats(t))
+        stats_str += '{}'.format(format_stats(types[-1]))
+        print('Done, processed {} in {:.2f} seconds.'
+              .format(stats_str, time.time() - start_time))
 
 
 def init_plugins(settings):

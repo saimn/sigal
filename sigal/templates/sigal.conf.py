@@ -273,6 +273,7 @@ ignore_files = []
 #     'sigal.plugins.feeds',
 #     'sigal.plugins.media_page',
 #     'sigal.plugins.nomedia',
+#     'sigal.plugins.nonmedia_files',
 #     'sigal.plugins.upload_s3',
 #     'sigal.plugins.watermark',
 #     'sigal.plugins.zip_gallery',
@@ -297,6 +298,12 @@ ignore_files = []
 # encrypt_options = {
 #    'password': 'password',
 #    'ask_password': False
+# }
+
+# Settings for nonmedia_files plugin
+# nonmedia_files_options = {
+#     'ext_as_thumb': True,
+#     'ignore_ext': ['.md'],
 # }
 
 # Settings for upload to s3 plugin
