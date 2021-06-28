@@ -157,11 +157,12 @@ def read_settings(filename=None):
                 logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
 
     for key in ('img_size', 'thumb_size', 'video_size'):
-        w, h = settings[key]
-        if h > w:
-            settings[key] = (h, w)
-            logger.warning("The %s setting should be specified with the "
-                           "largest value first.", key)
+        if settings[key]:
+            w, h = settings[key]
+            if h > w:
+                settings[key] = (h, w)
+                logger.warning("The %s setting should be specified with the "
+                               "largest value first.", key)
 
     if not settings['img_processor']:
         logger.info('No Processor, images will not be resized')
