@@ -126,6 +126,11 @@ Nomedia plugin
 
 .. automodule:: sigal.plugins.nomedia
 
+Non-media Files plugin
+======================
+
+.. automodule:: sigal.plugins.nonmedia_files
+
 Upload to S3 plugin
 ===================
 
