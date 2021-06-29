@@ -300,10 +300,14 @@ ignore_files = []
 #    'ask_password': False
 # }
 
-# Settings for nonmedia_files plugin
+# Settings for nonmedia_files plugin.
 # nonmedia_files_options = {
 #     'ext_as_thumb': True,
 #     'ignore_ext': ['.md'],
+#     'thumb_bg_color': (255, 255, 255),
+#     'thumb_font': None, # name/path of font file
+#     'thumb_font_color': (0, 0, 0),
+#     'thumb_font_size': 40, # only applies when a font is selected
 # }
 
 # Settings for upload to s3 plugin

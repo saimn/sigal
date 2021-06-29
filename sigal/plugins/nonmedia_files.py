@@ -10,6 +10,14 @@ Settings available as dictionary in ``nonmedia_files_options``:
   Default to ``True``
 - ``ignore_ext``: List of file extensions to ignore.
   Default to ``[".md"]``
+- ``thumb_bg_color``: Background color for thumbnail. Accepts (r, g, b) tuple.
+  Default to white ``(255, 255, 255)``.
+- ``thumb_font``: Name or path to font file.
+  Default to ``None`` to automatically choose the font.
+- ``thumb_font_color``: Font color for thumbnail. Accepts (r, g, b) tuple.
+  Default to black ``(0, 0, 0)``.
+- ``thumb_font_size``: Font size for thumbnail. Must select a font to apply.
+  Default to ``40``.
 
 """
 
@@ -32,6 +40,10 @@ logger = logging.getLogger(__name__)
 DEFAULT_CONFIG = {
     'ext_as_thumb': True,
     'ignore_ext': ['.md'],
+    'thumb_bg_color': (255, 255, 255),
+    'thumb_font': None,
+    'thumb_font_color': (0, 0, 0),
+    'thumb_font_size': 40,
 }
 
 
@@ -68,19 +80,43 @@ class NonMedia(Media):
     def thumbnail(self):
         """Path to the thumbnail image (relative to the album directory)."""
         if not os.path.isfile(self.thumb_path):
+            kwargs = {}
+            plugin_settings = self.settings.get('nonmedia_files_options', {})
+            if plugin_settings.get('thumb_bg_color', None):
+                kwargs['bg_color'] = plugin_settings['thumb_bg_color']
+            if plugin_settings.get('thumb_font', None):
+                kwargs['font'] = plugin_settings['thumb_font']
+            if plugin_settings.get('thumb_font_color', None):
+                kwargs['font_color'] = plugin_settings['thumb_font_color']
+            if plugin_settings.get('thumb_font_size', None):
+                kwargs['font_size'] = plugin_settings['thumb_font_size']
             generate_thumbnail(self.src_ext[1:].upper(), self.thumb_path,
-                               self.settings['thumb_size'])
+                               self.settings['thumb_size'],
+                               options=self.settings['jpg_options'],
+                               **kwargs)
         return super().thumbnail
 
 
-def generate_thumbnail(text, outname, box, options=None):
+def generate_thumbnail(text, outname, box,
+                       bg_color=DEFAULT_CONFIG['thumb_bg_color'],
+                       font=DEFAULT_CONFIG['thumb_font'],
+                       font_color=DEFAULT_CONFIG['thumb_font_color'],
+                       font_size=DEFAULT_CONFIG['thumb_font_size'],
+                       options=None):
     """Create a thumbnail image."""
-    img = PILImage.new("RGB", box, (255, 255, 255))
 
-    fnt = ImageFont.truetype("Pillow/Tests/fonts/FreeMono.ttf", 40)
+    kwargs = {}
+    if font:
+        kwargs['font'] = ImageFont.truetype(font, font_size)
+    if font_color:
+        kwargs['fill'] = font_color
+
+    img = PILImage.new("RGB", box, bg_color)
+
     anchor = (box[0] // 2, box[1] // 2)
     d = ImageDraw.Draw(img)
-    d.text(anchor, text, font=fnt, fill=(0, 0, 0), anchor='mm')
+    logger.info(f"kwargs: {kwargs}")
+    d.text(anchor, text, anchor='mm', **kwargs)
 
     outformat = 'JPEG'
     logger.info('Save thumnail image: %s (%s)', outname, outformat)
@@ -91,7 +127,7 @@ def process_nonmedia(media):
     """Process a non-media file: copy and create thumbnail."""
     logger.info('Processing non-media file: %s', media.dst_filename)
     settings = media.settings
-    plugin_settings = settings.get('nonmedia_files_settings', {})
+    plugin_settings = settings.get('nonmedia_files_options', {})
 
     try:
         utils.copy(media.src_path, media.dst_path,
@@ -103,12 +139,21 @@ def process_nonmedia(media):
             return Status.FAILURE
 
     if plugin_settings.get('ext_as_thumb', DEFAULT_CONFIG['ext_as_thumb']):
+        logger.info('plugin_settings: %r', plugin_settings)
         try:
+            kwargs = {}
+            if plugin_settings.get('thumb_font', None):
+                kwargs['font'] = plugin_settings['thumb_font']
+            if plugin_settings.get('thumb_bg_color', None):
+                kwargs['bg_color'] = plugin_settings['thumb_bg_color']
+            if plugin_settings.get('thumb_font_color', None):
+                kwargs['font_color'] = plugin_settings['thumb_font_color']
             generate_thumbnail(
                 media.src_ext[1:].upper(),
                 media.thumb_path,
                 settings['thumb_size'],
                 options=settings['jpg_options'],
+                **kwargs
             )
         except Exception:
             if logger.getEffectiveLevel() == logging.DEBUG:
@@ -120,7 +165,7 @@ def process_nonmedia(media):
 def album_file(album, filename, media=None):
     if not media:
         ext = os.path.splitext(filename)[1]
-        ext_ignore = album.settings.get('nonmedia_files_settings', {}).get(
+        ext_ignore = album.settings.get('nonmedia_files_options', {}).get(
             'ignore_ext', DEFAULT_CONFIG['ignore_ext'])
         if ext in ext_ignore:
             logger.info('Ignoring non-media file: %s', filename)
