@@ -31,10 +31,14 @@ present, then make a ZIP archive with all media files.
 See :ref:`compatibility with the encrypt plugin <compatibility-with-encrypt>`.
 """
 
+import io
 import logging
 import os
 import zipfile
-from os.path import isfile, join, splitext
+import zlib
+
+from os.path import getsize, isfile, join, normpath, splitext
+from urllib.parse import quote
 
 from sigal import signals
 from sigal.gallery import Album
@@ -81,6 +85,38 @@ def _generate_album_zip(album):
 
     return False
 
+def _compute_crc32(fpath, block_size=65536):
+    crc = 0
+
+    with open(fpath, 'rb') as fh:
+        chunk = fh.read(block_size)
+
+        while chunk:
+            crc = zlib.crc32(chunk, crc)
+            chunk = fh.read(block_size)
+
+    return "{:08x}".format(crc)
+
+def _generate_album_list(album):
+    attr = 'src_path' if album.settings['zip_media_format'] == 'orig' else 'dst_path'
+    zip_fname = '{}.zip'.format(album.name)
+    list_path = join(album.dst_path, zip_fname)
+
+    logger.info('Generating %s (list)', list_path)
+
+    with open(list_path, 'w') as fh:
+        for p in album:
+            img_path = getattr(p, attr)
+            img_crc32 = _compute_crc32(img_path)
+            img_size = getsize(img_path)
+            zip_path = join(album.name, p.filename)
+            http_path = quote(join('/', p.path, p.filename))
+
+            fh.write('{} {} {} {}\n'.format(
+                img_crc32, img_size, http_path, zip_path))
+
+    return zip_fname
+
 def generate_album_zip(album):
     """Checks for .nozip_gallery file in album folder.
     If this file exists, no ZIP archive is generated.
@@ -89,6 +125,8 @@ def generate_album_zip(album):
     If the ``zip_gallery`` setting is set,it contains the location of a zip
     archive with all original images of the corresponding directory.
     """
+    if album.settings.get('zip_gallery', False) == "nginx":
+        return _generate_album_list(album)
 
     # check if ZIP file generation as been disabled by .nozip_gallery file
     if not _should_generate_album_zip(album):
