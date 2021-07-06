@@ -13,12 +13,16 @@ Settings available as dictionary in ``nonmedia_files_options``:
 - ``thumb_bg_color``: Background color for thumbnail. Accepts (r, g, b) tuple.
   Default to white ``(255, 255, 255)``.
 - ``thumb_font``: Name or path to font file.
-  Default to ``None`` to automatically choose the font.
+  Default to ``None`` to use the PIL built-in font.
 - ``thumb_font_color``: Font color for thumbnail. Accepts (r, g, b) tuple.
   Default to black ``(0, 0, 0)``.
 - ``thumb_font_size``: Font size for thumbnail. Must select a font to apply.
   Default to ``40``.
 
+.. note:: Thumbnails are generated using the file extension text on a
+    background color. It is highly recommended to select a font
+    (such as ``"FreeMono.ttf"``), since the default PIL font does not
+    respect font size.
 """
 
 import logging
@@ -160,6 +164,7 @@ def process_nonmedia(media):
                 raise
             else:
                 return Status.FAILURE
+    return Status.SUCCESS
 
 
 def album_file(album, filename, media=None):
