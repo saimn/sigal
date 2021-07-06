@@ -42,7 +42,7 @@ from PIL import Image as PILImage
 
 from . import image, signals, video
 from .image import get_exif_tags, get_image_metadata, get_size, process_image
-from .settings import get_thumb
+from .settings import Status, get_thumb
 from .utils import (Devnull, cached_property, check_or_create_dir, copy,
                     get_mime, is_valid_html5_video, read_markdown,
                     url_from_path)
@@ -340,15 +340,22 @@ class Album:
 
         for f in filenames:
             ext = splitext(f)[1]
+            media = None
             if ext.lower() in settings['img_extensions']:
                 media = Image(f, self.path, settings)
             elif ext.lower() in settings['video_extensions']:
                 media = Video(f, self.path, settings)
-            else:
-                continue
 
-            self.medias_count[media.type] += 1
-            medias.append(media)
+            # Allow modification of the media, including overriding the class
+            # type for the media.
+            result = signals.album_file.send(self, filename=f, media=media)
+            for recv, ret in result:
+                if ret is not None:
+                    media = ret
+
+            if media:
+                self.medias_count[media.type] += 1
+                medias.append(media)
 
         signals.album_initialized.send(self)
 
@@ -835,8 +842,23 @@ class Gallery:
 
 
 def process_file(media):
-    processor = process_image if media.type == 'image' else process_video
-    return processor(media)
+    processor = None
+    if media.type == 'image':
+        processor = process_image
+    elif media.type == 'video':
+        processor = process_video
+
+    # Allow overriding of the processor
+    result = signals.process_file.send(media, processor=processor)
+    for recv, ret in result:
+        if ret is not None:
+            processor = ret
+
+    if processor:
+        return processor(media)
+    else:
+        logging.warning('Processor not found for media %s', media.path)
+        return Status.FAILURE
 
 
 def worker(args):

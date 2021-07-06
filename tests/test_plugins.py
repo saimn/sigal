@@ -27,3 +27,22 @@ def test_plugins(settings, tmpdir, disconnect_signals):
 
         for file in files:
             assert "ignore" not in file
+
+
+def test_nonmedia_files(settings, tmpdir, disconnect_signals):
+
+    settings['destination'] = str(tmpdir)
+    settings['plugins'] += ['sigal.plugins.nonmedia_files']
+
+    init_plugins(settings)
+
+    gal = Gallery(settings)
+    gal.build()
+
+    outfile = os.path.join(settings['destination'],
+                           'nonmedia_files', 'dummy.pdf')
+    assert os.path.isfile(outfile)
+
+    outthumb = os.path.join(settings['destination'],
+                            'nonmedia_files', 'thumbnails', 'dummy.tn.jpg')
+    assert os.path.isfile(outthumb)
