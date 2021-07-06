@@ -145,4 +145,3 @@ ZIP Gallery plugin
 ==================
 
 .. automodule:: sigal.plugins.zip_gallery
-

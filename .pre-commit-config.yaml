@@ -1,0 +1,19 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    - id: check-yaml
+    - id: check-added-large-files
+    - id: trailing-whitespace
+      exclude: ".*(galleria|photoswipe|jquery).*$"
+    - id: end-of-file-fixer
+      exclude: ".*(galleria|photoswipe|jquery).*$"
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+    - id: flake8
+      types: [file, python]
+-   repo: https://github.com/timothycrosley/isort
+    rev: 5.8.0
+    hooks:
+    - id: isort

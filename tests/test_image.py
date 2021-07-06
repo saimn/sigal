@@ -5,9 +5,9 @@ import pytest
 from PIL import Image as PILImage
 
 from sigal import init_logging
+from sigal.gallery import Image
 from sigal.image import (generate_image, generate_thumbnail, get_exif_data,
                          get_exif_tags, get_iptc_data, get_size, process_image)
-from sigal.gallery import Image
 from sigal.settings import Status, create_settings
 
 CURRENT_DIR = os.path.dirname(__file__)

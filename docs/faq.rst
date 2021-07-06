@@ -119,7 +119,7 @@ end of the file, like so::
   #!/bin/sh
   # automatically configured by git-annex
   git annex post-receive
-  
+
   /home/foo/src/git-hooks/sigal-git-hook
 
 This assumes, of course, that you are running your own Git server;

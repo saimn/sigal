@@ -30,11 +30,9 @@ import os
 
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageFont
-
 from pilkit.utils import save_image
 
-from sigal import signals
-from sigal import utils
+from sigal import signals, utils
 from sigal.gallery import Media
 from sigal.settings import Status
 

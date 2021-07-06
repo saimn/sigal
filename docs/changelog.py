@@ -37,7 +37,6 @@ import os
 import re
 
 from git import Repo
-
 from github import Github
 
 this_repo = Repo(os.path.join(os.path.dirname(__file__), ".."))

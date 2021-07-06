@@ -7,10 +7,10 @@
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
  * sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -82,7 +82,7 @@ class Decryptor {
         const aes_key = await Decryptor._initAesKey(crypto, salt, iters, shared_key);
         if (await this._swCheckAesKey(aes_key, gcm_tag)) {
             this.workerReady = true;
-            this._decrypt = (encrypted_blob_arraybuffer) => 
+            this._decrypt = (encrypted_blob_arraybuffer) =>
                 Decryptor.decrypt(crypto, encrypted_blob_arraybuffer, aes_key, gcm_tag);
             this._swNotifyWorkerReady();
         } else {
@@ -167,7 +167,7 @@ class Decryptor {
     _mGetLocalConfig() {
         try {
             const local_config = JSON.parse(localStorage.getItem(this._config.galleryId));
-            if (local_config 
+            if (local_config
                 && local_config.galleryId
                 && local_config.sw_script
                 && local_config.password
@@ -178,7 +178,7 @@ class Decryptor {
             }
         } catch (e) {
             console.error("Error retrieving config from local storage: " + e);
-        } 
+        }
         return null;
     }
 
@@ -196,7 +196,7 @@ class Decryptor {
             this.serviceWorker = registration.active;
         }
 
-        navigator.serviceWorker.onmessage = 
+        navigator.serviceWorker.onmessage =
             (e) => Decryptor.onMessage(this.serviceWorker, e);
         this.serviceWorker = this._proxyWrap(this.serviceWorker);
 
@@ -283,10 +283,10 @@ class Decryptor {
 
     static async _initAesKey(crypto, kdf_salt, kdf_iters, shared_key) {
         const pbkdf2key = await crypto.importKey(
-            "raw", 
-            shared_key, 
-            "PBKDF2", 
-            false, 
+            "raw",
+            shared_key,
+            "PBKDF2",
+            false,
             ["deriveKey"]
         );
         const pbkdf2params = {
@@ -296,10 +296,10 @@ class Decryptor {
             iterations: kdf_iters
         };
         return await crypto.deriveKey(
-            pbkdf2params, 
-            pbkdf2key, 
-            { name: "AES-GCM", length: 128 }, 
-            false, 
+            pbkdf2params,
+            pbkdf2key,
+            { name: "AES-GCM", length: 128 },
+            false,
             ["decrypt"]
         );
     }
@@ -315,8 +315,8 @@ class Decryptor {
 
     static async checkMagicString(arraybuffer) {
         const sample = new DataView(
-            arraybuffer, 
-            0, 
+            arraybuffer,
+            0,
             Decryptor.MAGIC_STRING_ARRAYBUFFER.byteLength
         );
         for (let i = 0; i < Decryptor.MAGIC_STRING_ARRAYBUFFER.byteLength; i++) {
@@ -343,7 +343,7 @@ class Decryptor {
         // although 1 byte of data seems not acceptable for some browsers
         // in which case crypto.decrypt will throw an error
         // "The provided data is too small"
-        if (arraybuffer.byteLength < 
+        if (arraybuffer.byteLength <
             Decryptor.MAGIC_STRING_ARRAYBUFFER.byteLength
             + Decryptor.IV_LENGTH
             + 1) {
@@ -354,14 +354,14 @@ class Decryptor {
             // data is not encrypted
             return blob_or_arraybuffer;
         }
-        
+
         const iv = new DataView(
-            arraybuffer, 
-            Decryptor.MAGIC_STRING_ARRAYBUFFER.byteLength, 
+            arraybuffer,
+            Decryptor.MAGIC_STRING_ARRAYBUFFER.byteLength,
             Decryptor.IV_LENGTH
         );
         const ciphertext = new DataView(
-            arraybuffer, 
+            arraybuffer,
             Decryptor.MAGIC_STRING_ARRAYBUFFER.byteLength + Decryptor.IV_LENGTH
         );
         const decrypted = await crypto.decrypt(
@@ -437,7 +437,7 @@ class Decryptor {
         if (!(method in instance && instance[method] instanceof Function)) {
             return Promise.reject(new Error(`no such method: ${method}`))
         }
-        
+
         try {
             let promise_or_value = instance[method].apply(instance, args);
             if (promise_or_value instanceof Promise) {
@@ -462,7 +462,7 @@ class Decryptor {
 
                 Decryptor._asyncReturn(instance, method, args)
             .then(
-                (result) => { return {type: "reply", success: true, result: result}; }, 
+                (result) => { return {type: "reply", success: true, result: result}; },
                 (error) => { return {type: "reply", success: false, result: error.message}; }
             )
             .then((reply) => {
@@ -589,7 +589,7 @@ class Decryptor {
             }
         );
         decrypted_response.headers.set("content-length", decrypted_blob.size);
-        
+
         Decryptor._addToCache(request, decrypted_response.clone());
 
         console.debug(`Responding with decrypted response ${request.url}`);
