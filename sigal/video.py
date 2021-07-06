@@ -43,8 +43,7 @@ def check_subprocess(cmd, source, outname=None):
     """
     logger = logging.getLogger(__name__)
     try:
-        res = subprocess.run(cmd, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+        res = subprocess.run(cmd, capture_output=True)
     except KeyboardInterrupt:
         logger.debug('Process terminated, removing file %s', outname)
         if outname and os.path.isfile(outname):

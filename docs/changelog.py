@@ -54,7 +54,7 @@ A total of %d pull requests were merged for this release.
 
 def get_authors(revision_range):
     pat = '^.*\\t(.*)$'
-    lst_release, cur_release = [r.strip() for r in revision_range.split('..')]
+    lst_release, cur_release = (r.strip() for r in revision_range.split('..'))
 
     # authors, in current release and previous to current release.
     cur = set(re.findall(pat, this_repo.git.shortlog('-s', revision_range),
@@ -94,7 +94,7 @@ def get_pull_requests(repo, revision_range):
 
 
 def main(token, revision_range):
-    lst_release, cur_release = [r.strip() for r in revision_range.split('..')]
+    lst_release, cur_release = (r.strip() for r in revision_range.split('..'))
 
     github = Github(token)
     github_repo = github.get_repo('saimn/sigal')

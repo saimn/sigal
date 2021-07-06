@@ -25,8 +25,8 @@ from logging import Formatter
 
 # The background is set with 40 plus the number of the color, and the
 # foreground with 30
-BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = [30 + i
-                                                         for i in range(8)]
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (30 + i
+                                                         for i in range(8))
 
 COLORS = {
     'DEBUG': BLUE,

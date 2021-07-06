@@ -101,7 +101,7 @@ def test_second_pass_video(mock_generate_video_pass, fmt, tmpdir):
     base, ext = os.path.splitext(TEST_VIDEO)
     dstfile = str(tmpdir.join(base + '.' + fmt))
     settings_1 = '-c:v libvpx-vp9 -b:v 0 -crf 30 -pass 1 -an -f null dev/null'
-    settings_2 = '-c:v libvpx-vp9 -b:v 0 -crf 30 -pass 2 -f {}'.format(fmt)
+    settings_2 = f'-c:v libvpx-vp9 -b:v 0 -crf 30 -pass 2 -f {fmt}'
     settings_opts = {'video_size': (100, 50), 'video_format': fmt,
                      fmt + '_options': settings_1.split(" "),
                      fmt + '_options_second_pass': settings_2.split(" ")}

@@ -96,7 +96,7 @@ class Media:
         signals.media_initialized.send(self)
 
     def __repr__(self):
-        return "<{}>({!r})".format(self.__class__.__name__, str(self))
+        return f"<{self.__class__.__name__}>({str(self)!r})"
 
     def __str__(self):
         return join(self.path, self.src_filename)

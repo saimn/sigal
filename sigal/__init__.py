@@ -170,14 +170,14 @@ def build(source, destination, debug, verbose, quiet, force, config, theme,
                for subtype in ('skipped', 'failed')
                if stats[_type + '_' + subtype] > 0]
         opt = ' ({})'.format(', '.join(opt)) if opt else ''
-        return '{} {}s{}'.format(stats[_type], _type, opt)
+        return f'{stats[_type]} {_type}s{opt}'
 
     if not quiet:
         stats_str = ''
-        types = sorted(set(t.rsplit('_', 1)[0] for t in stats))
+        types = sorted({t.rsplit('_', 1)[0] for t in stats})
         for t in types[:-1]:
-            stats_str += '{} and '.format(format_stats(t))
-        stats_str += '{}'.format(format_stats(types[-1]))
+            stats_str += f'{format_stats(t)} and '
+        stats_str += f'{format_stats(types[-1])}'
         print('Done, processed {} in {:.2f} seconds.'
               .format(stats_str, time.time() - start_time))
 
@@ -278,4 +278,4 @@ def set_meta(target, keys, overwrite=False):
         for i in range(len(keys) // 2):
             k, v = keys[i * 2:(i + 1) * 2]
             fp.write(f"{k.capitalize()}: {v}\n")
-    print("{} metadata key(s) written to {}".format(len(keys) // 2, descfile))
+    print(f"{len(keys) // 2} metadata key(s) written to {descfile}")
