@@ -20,7 +20,7 @@ import logging
 import os
 from datetime import datetime
 
-from jinja2 import Markup
+from markupsafe import Markup
 
 from sigal import signals
 
