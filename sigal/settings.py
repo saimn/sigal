@@ -40,8 +40,7 @@ _DEFAULT_CONFIG = {
     'google_tag_manager': '',
     'ignore_directories': [],
     'ignore_files': [],
-    'img_extensions': ['.jpg', '.jpeg', '.png', '.gif', '.tif', '.tiff',
-                       '.webp'],
+    'img_extensions': ['.jpg', '.jpeg', '.png', '.gif', '.tif', '.tiff', '.webp'],
     'img_processor': 'ResizeToFit',
     'img_size': (640, 480),
     'img_format': None,
@@ -85,8 +84,7 @@ _DEFAULT_CONFIG = {
     'video_always_convert': False,
     'video_size': (480, 360),
     'watermark': '',
-    'webm_options': ['-crf', '10', '-b:v', '1.6M',
-                     '-qmin', '4', '-qmax', '63'],
+    'webm_options': ['-crf', '10', '-b:v', '1.6M', '-qmin', '4', '-qmax', '63'],
     'webm_options_second_pass': None,
     'write_html': True,
     'zip_gallery': False,
@@ -119,8 +117,11 @@ def get_thumb(settings, filename):
 
     if ext.lower() in settings['video_extensions']:
         ext = '.jpg'
-    return join(path, settings['thumb_dir'], settings['thumb_prefix'] +
-                name + settings['thumb_suffix'] + ext)
+    return join(
+        path,
+        settings['thumb_dir'],
+        settings['thumb_prefix'] + name + settings['thumb_suffix'] + ext,
+    )
 
 
 def read_settings(filename=None):
@@ -139,15 +140,16 @@ def read_settings(filename=None):
             code = compile(f.read(), filename, 'exec')
             exec(code, tempdict)
 
-        settings.update((k, v) for k, v in tempdict.items()
-                        if k not in ['__builtins__'])
+        settings.update(
+            (k, v) for k, v in tempdict.items() if k not in ['__builtins__']
+        )
 
         # Make the paths relative to the settings file
         paths = ['source', 'destination', 'watermark']
 
-        if os.path.isdir(join(settings_path, settings['theme'])) and \
-                os.path.isdir(join(settings_path, settings['theme'],
-                                   'templates')):
+        if os.path.isdir(join(settings_path, settings['theme'])) and os.path.isdir(
+            join(settings_path, settings['theme'], 'templates')
+        ):
             paths.append('theme')
 
         for p in paths:
@@ -161,8 +163,10 @@ def read_settings(filename=None):
             w, h = settings[key]
             if h > w:
                 settings[key] = (h, w)
-                logger.warning("The %s setting should be specified with the "
-                               "largest value first.", key)
+                logger.warning(
+                    "The %s setting should be specified with the largest value first.",
+                    key,
+                )
 
     if not settings['img_processor']:
         logger.info('No Processor, images will not be resized')

@@ -25,8 +25,7 @@ from logging import Formatter
 
 # The background is set with 40 plus the number of the color, and the
 # foreground with 30
-BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (30 + i
-                                                         for i in range(8))
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (30 + i for i in range(8))
 
 COLORS = {
     'DEBUG': BLUE,
@@ -47,7 +46,6 @@ def colored(text, color):
 
 
 class ColoredFormatter(Formatter):
-
     def format(self, record):
         level = record.levelname
         return colored(level, COLORS[level]) + ': ' + record.getMessage()
@@ -63,8 +61,7 @@ def init_logging(name, level=logging.INFO):
     logger.setLevel(level)
 
     try:
-        if os.isatty(sys.stdout.fileno()) and \
-                not sys.platform.startswith('win'):
+        if os.isatty(sys.stdout.fileno()) and not sys.platform.startswith('win'):
             formatter = ColoredFormatter()
         elif level == logging.DEBUG:
             formatter = Formatter('%(levelname)s - %(message)s')

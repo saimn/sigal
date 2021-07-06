@@ -24,9 +24,12 @@ REF = {
         'name': 'test1',
         'thumbnail': 'test1/thumbnails/11.tn.jpg',
         'subdirs': [],
-        'medias': ['11.jpg', 'CMB_Timeline300_no_WMAP.jpg',
-                   'flickr_jerquiaga_2394751088_cc-by-nc.jpg',
-                   'example.gif'],
+        'medias': [
+            '11.jpg',
+            'CMB_Timeline300_no_WMAP.jpg',
+            'flickr_jerquiaga_2394751088_cc-by-nc.jpg',
+            'example.gif',
+        ],
     },
     'dir1/test2': {
         'title': 'test2',
@@ -47,10 +50,12 @@ REF = {
         'name': 'dir2',
         'thumbnail': 'dir2/thumbnails/m57_the_ring_nebula-587px.tn.jpg',
         'subdirs': [],
-        'medias': ['KeckObservatory20071020.jpg',
-                   'Hubble Interacting Galaxy NGC 5257.jpg',
-                   'Hubble ultra deep field.jpg',
-                   'm57_the_ring_nebula-587px.jpg'],
+        'medias': [
+            'KeckObservatory20071020.jpg',
+            'Hubble Interacting Galaxy NGC 5257.jpg',
+            'Hubble ultra deep field.jpg',
+            'm57_the_ring_nebula-587px.jpg',
+        ],
     },
     'accentué': {
         'title': 'accentué',
@@ -64,14 +69,14 @@ REF = {
         'name': 'video',
         'thumbnail': 'video/thumbnails/example%20video.tn.jpg',
         'subdirs': [],
-        'medias': ['example video.ogv']
+        'medias': ['example video.ogv'],
     },
     'webp': {
         'title': 'webp',
         'name': 'webp',
         'thumbnail': 'webp/thumbnails/_MG_7805_lossy80.tn.webp',
         'subdirs': [],
-        'medias': ['_MG_7805_lossy80.webp', '_MG_7808_lossy80.webp']
+        'medias': ['_MG_7805_lossy80.webp', '_MG_7808_lossy80.webp'],
     },
 }
 
@@ -122,10 +127,13 @@ def test_media_iptc_override(settings):
     # Markdown parsing adds formatting. Let's just focus on content
     assert "Markdown description beats iptc" in img_with_md.description
     img_no_md = Image('1.jpg', 'iptcTest', settings)
-    assert img_no_md.title == ('Haemostratulus clouds over Canberra - '
-                               '2005-12-28 at 03-25-07')
-    assert img_no_md.description == (
-        '"Haemo" because they look like haemoglobin '
+    assert (
+        img_no_md.title
+        == 'Haemostratulus clouds over Canberra - 2005-12-28 at 03-25-07'
+    )
+    assert (
+        img_no_md.description
+        == '"Haemo" because they look like haemoglobin '
         'cells and "stratulus" because I can\'t work out whether '
         'they\'re Stratus or Cumulus clouds.\nWe\'re driving down '
         'the main drag in Canberra so it\'s Parliament House that '
@@ -190,8 +198,9 @@ def test_album(path, album, settings, tmpdir):
     assert a.thumbnail == album['thumbnail']
     if path == 'video':
         assert list(a.images) == []
-        assert [m.dst_filename for m in a.medias] == \
-            [album['medias'][0].replace('.ogv', '.webm')]
+        assert [m.dst_filename for m in a.medias] == [
+            album['medias'][0].replace('.ogv', '.webm')
+        ]
     else:
         assert list(a.videos) == []
         assert [m.dst_filename for m in a.medias] == album['medias']
@@ -258,7 +267,10 @@ def test_medias_sort(settings):
     a = Album('dir1/test2', settings, album['subdirs'], album['medias'], gal)
     a.sort_medias(settings['medias_sort_attr'])
     assert [im.dst_filename for im in a.images] == [
-        '21.tiff', '22.jpg', 'CMB_Timeline300_no_WMAP.jpg']
+        '21.tiff',
+        '22.jpg',
+        'CMB_Timeline300_no_WMAP.jpg',
+    ]
 
 
 def test_gallery(settings, tmpdir):
@@ -340,7 +352,5 @@ def test_ignores(settings, tmpdir):
 
     assert 'test2' not in os.listdir(join(tmp, 'dir1'))
     assert 'accentué' not in os.listdir(tmp)
-    assert 'CMB_Timeline300_no_WMAP.jpg' not in os.listdir(
-        join(tmp, 'dir1', 'test1'))
-    assert 'Hubble Interacting Galaxy NGC 5257.jpg' not in os.listdir(
-        join(tmp, 'dir2'))
+    assert 'CMB_Timeline300_no_WMAP.jpg' not in os.listdir(join(tmp, 'dir1', 'test1'))
+    assert 'Hubble Interacting Galaxy NGC 5257.jpg' not in os.listdir(join(tmp, 'dir2'))

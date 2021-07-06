@@ -4,3 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 write_to = "sigal/version.py"
+
+[tool.black]
+line-length = 88
+target-version = ['py37', 'py38', 'py39']
+experimental-string-processing = true
+skip-string-normalization = true

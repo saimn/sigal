@@ -37,37 +37,39 @@ from sigal.writer import AbstractWriter
 
 
 class PageWriter(AbstractWriter):
-    '''A writer for writing media pages, based on writer'''
+    """A writer for writing media pages, based on writer"""
 
     template_file = "media.html"
 
     def write(self, album, media_group):
-        ''' Generate the media page and save it '''
+        """Generate the media page and save it"""
 
         from sigal import __url__ as sigal_link
+
+        ctx = {
+            "album": album,
+            "media": media_group[0],
+            "previous_media": media_group[-1],
+            "next_media": media_group[1],
+            "index_title": self.index_title,
+            "settings": self.settings,
+            "sigal_link": sigal_link,
+            "theme": {
+                "name": os.path.basename(self.theme),
+                "url": url_from_path(os.path.relpath(self.theme_path, album.dst_path)),
+            },
+        }
+        page = self.template.render(ctx)
+
         file_path = os.path.join(album.dst_path, media_group[0].dst_filename)
+        output_file = f"{file_path}.html"
 
-        page = self.template.render({
-            'album': album,
-            'media': media_group[0],
-            'previous_media': media_group[-1],
-            'next_media': media_group[1],
-            'index_title': self.index_title,
-            'settings': self.settings,
-            'sigal_link': sigal_link,
-            'theme': {'name': os.path.basename(self.theme),
-                      'url': url_from_path(os.path.relpath(self.theme_path,
-                                                           album.dst_path))},
-        })
-
-        output_file = "%s.html" % file_path
-
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(page)
 
 
 def generate_media_pages(gallery):
-    '''Generates and writes the media pages for all media in the gallery'''
+    """Generates and writes the media pages for all media in the gallery"""
 
     writer = PageWriter(gallery.settings, index_title=gallery.title)
 

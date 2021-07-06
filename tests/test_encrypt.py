@@ -13,9 +13,7 @@ CURRENT_DIR = os.path.dirname(__file__)
 def get_key_tag(settings):
     options = settings["encrypt_options"]
     key = endec.kdf_gen_key(
-        options["password"],
-        options["kdf_salt"],
-        options["kdf_iters"]
+        options["password"], options["kdf_salt"], options["kdf_iters"]
     )
     tag = options["gcm_tag"].encode("utf-8")
     return (key, tag)
@@ -32,7 +30,7 @@ def test_encrypt(settings, tmpdir, disconnect_signals):
         'gcm_tag': 'AuTheNTiCatIoNtAG',
         'kdf_salt': 'saltysaltsweetysweet',
         'kdf_iters': 10000,
-        'encrypt_symlinked_originals': False
+        'encrypt_symlinked_originals': False,
     }
 
     init_plugins(settings)
@@ -58,13 +56,11 @@ def test_encrypt(settings, tmpdir, disconnect_signals):
         assert "thumb_size" in encryptCache[cache_key(media)]
         assert "encrypted" in encryptCache[cache_key(media)]
 
-        encryptedImages = [
-            media.dst_path,
-            media.thumb_path
-        ]
+        encryptedImages = [media.dst_path, media.thumb_path]
         if settings["keep_orig"]:
-            encryptedImages.append(os.path.join(settings["destination"],
-                                                media.path, media.big))
+            encryptedImages.append(
+                os.path.join(settings["destination"], media.path, media.big)
+            )
 
         # check if images are encrypted by trying to decrypt
         for image in encryptedImages:
@@ -79,7 +75,8 @@ def test_encrypt(settings, tmpdir, disconnect_signals):
     assert os.path.isfile(os.path.join(settings["destination"], "sw.js"))
 
     # check keycheck file
-    with open(os.path.join(settings["destination"],
-                           'static', "keycheck.txt"), "rb") as infile:
+    with open(
+        os.path.join(settings["destination"], 'static', "keycheck.txt"), "rb"
+    ) as infile:
         with BytesIO() as outfile:
             endec.decrypt(key, infile, outfile, tag)

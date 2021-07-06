@@ -29,27 +29,31 @@ logger = logging.getLogger(__name__)
 
 def generate_feeds(gallery):
     # Get all images and videos and sort by date
-    medias = [med for album in gallery.albums.values()
-              for med in album.medias if med.date is not None]
+    medias = [
+        med
+        for album in gallery.albums.values()
+        for med in album.medias
+        if med.date is not None
+    ]
     medias.sort(key=lambda m: m.date, reverse=True)
 
     settings = gallery.settings
     if settings.get('rss_feed'):
         generate_feed(gallery, medias, feed_type='rss', **settings['rss_feed'])
     if settings.get('atom_feed'):
-        generate_feed(gallery, medias, feed_type='atom',
-                      **settings['atom_feed'])
+        generate_feed(gallery, medias, feed_type='atom', **settings['atom_feed'])
 
 
 def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
     from feedgenerator import Atom1Feed, Rss201rev2Feed
+
     root_album = gallery.albums['.']
     cls = Rss201rev2Feed if feed_type == 'rss' else Atom1Feed
     feed = cls(
         title=Markup.escape(root_album.title),
         link='/',
         feed_url=feed_url,
-        description=Markup.escape(root_album.description).striptags()
+        description=Markup.escape(root_album.description).striptags(),
     )
 
     theme = gallery.settings['theme']
@@ -69,8 +73,9 @@ def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
             # unique_id='tag:%s,%s:%s' % (urlparse(link).netloc,
             #                             item.date.date(),
             #                             urlparse(link).path.lstrip('/')),
-            description='<img src="{}/{}/{}" />'.format(base_url, item.path,
-                                                        item.thumbnail),
+            description='<img src="{}/{}/{}" />'.format(
+                base_url, item.path, item.thumbnail
+            ),
             # categories=item.tags if hasattr(item, 'tags') else None,
             author_name=getattr(item, 'author', ''),
             pubdate=item.date or datetime.now(),

@@ -56,10 +56,8 @@ def get_authors(revision_range):
     lst_release, cur_release = (r.strip() for r in revision_range.split('..'))
 
     # authors, in current release and previous to current release.
-    cur = set(re.findall(pat, this_repo.git.shortlog('-s', revision_range),
-                         re.M))
-    pre = set(re.findall(pat, this_repo.git.shortlog('-s', lst_release),
-                         re.M))
+    cur = set(re.findall(pat, this_repo.git.shortlog('-s', revision_range), re.M))
+    pre = set(re.findall(pat, this_repo.git.shortlog('-s', lst_release), re.M))
 
     # Append '+' to new authors.
     authors = [s + ' +' for s in cur - pre] + [s for s in cur & pre]
@@ -71,18 +69,18 @@ def get_pull_requests(repo, revision_range):
     prnums = []
 
     # From regular merges
-    merges = this_repo.git.log(
-        '--oneline', '--merges', revision_range)
+    merges = this_repo.git.log('--oneline', '--merges', revision_range)
     issues = re.findall("Merge pull request \\#(\\d*)", merges)
     prnums.extend(int(s) for s in issues)
 
     # From Homu merges (Auto merges)
-    issues = re. findall("Auto merge of \\#(\\d*)", merges)
+    issues = re.findall("Auto merge of \\#(\\d*)", merges)
     prnums.extend(int(s) for s in issues)
 
     # From fast forward squash-merges
     commits = this_repo.git.log(
-        '--oneline', '--no-merges', '--first-parent', revision_range)
+        '--oneline', '--no-merges', '--first-parent', revision_range
+    )
     issues = re.findall('^.*\\(\\#(\\d+)\\)$', commits, re.M)
     prnums.extend(int(s) for s in issues)
 

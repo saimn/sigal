@@ -37,8 +37,7 @@ def test_load_exif(settings, tmpdir):
     settings['destination'] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal1.albums["exifTest"].medias[2].exif = "blafoo"
-    gal1.exifCache = {"exifTest/21.jpg": "Foo",
-                      "exifTest/22.jpg": "Bar"}
+    gal1.exifCache = {"exifTest/21.jpg": "Foo", "exifTest/22.jpg": "Bar"}
 
     extended_caching.load_exif(gal1.albums["exifTest"])
 

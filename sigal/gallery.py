@@ -43,9 +43,16 @@ from PIL import Image as PILImage
 from . import image, signals, video
 from .image import get_exif_tags, get_image_metadata, get_size, process_image
 from .settings import Status, get_thumb
-from .utils import (Devnull, cached_property, check_or_create_dir, copy,
-                    get_mime, is_valid_html5_video, read_markdown,
-                    url_from_path)
+from .utils import (
+    Devnull,
+    cached_property,
+    check_or_create_dir,
+    copy,
+    get_mime,
+    is_valid_html5_video,
+    read_markdown,
+    url_from_path,
+)
 from .video import process_video
 from .writer import AlbumListPageWriter, AlbumPageWriter
 
@@ -139,8 +146,12 @@ class Media:
             check_or_create_dir(orig_path)
             big_path = join(orig_path, self.src_filename)
             if not isfile(big_path):
-                copy(self.src_path, big_path, symlink=s['orig_link'],
-                     rellink=self.settings['rel_link'])
+                copy(
+                    self.src_path,
+                    big_path,
+                    symlink=s['orig_link'],
+                    rellink=self.settings['rel_link'],
+                )
             return join(s['orig_dir'], self.src_filename)
 
     @property
@@ -155,20 +166,23 @@ class Media:
 
         if not isfile(self.thumb_path):
             self.logger.debug('Generating thumbnail for %r', self)
-            path = (self.dst_path if os.path.exists(self.dst_path)
-                    else self.src_path)
+            path = self.dst_path if os.path.exists(self.dst_path) else self.src_path
             try:
                 # if thumbnail is missing (if settings['make_thumbs'] is False)
                 s = self.settings
                 if self.type == 'image':
                     image.generate_thumbnail(
-                        path, self.thumb_path, s['thumb_size'],
-                        fit=s['thumb_fit'])
+                        path, self.thumb_path, s['thumb_size'], fit=s['thumb_fit']
+                    )
                 elif self.type == 'video':
                     video.generate_thumbnail(
-                        path, self.thumb_path, s['thumb_size'],
-                        s['thumb_video_delay'], fit=s['thumb_fit'],
-                        converter=s['video_converter'])
+                        path,
+                        self.thumb_path,
+                        s['thumb_size'],
+                        s['thumb_video_delay'],
+                        fit=s['thumb_fit'],
+                        converter=s['video_converter'],
+                    )
             except Exception as e:
                 self.logger.error('Failed to generate thumbnail: %s', e)
                 return
@@ -217,8 +231,7 @@ class Image(Media):
     def date(self):
         """The date from the EXIF DateTimeOriginal metadata if available, or
         from the file date."""
-        return (self.exif and self.exif.get('dateobj', None) or
-                self._get_file_date())
+        return self.exif and self.exif.get('dateobj', None) or self._get_file_date()
 
     @cached_property
     def exif(self):
@@ -226,8 +239,11 @@ class Image(Media):
         information, see :ref:`simple-exif-data`.
         """
         datetime_format = self.settings['datetime_format']
-        return (get_exif_tags(self.raw_exif, datetime_format=datetime_format)
-                if self.raw_exif and self.src_ext in ('.jpg', '.jpeg') else None)
+        return (
+            get_exif_tags(self.raw_exif, datetime_format=datetime_format)
+            if self.raw_exif and self.src_ext in ('.jpg', '.jpeg')
+            else None
+        )
 
     def _get_metadata(self):
         super()._get_metadata()
@@ -330,8 +346,11 @@ class Album:
         # optionally add index.html to the URLs
         self.url_ext = self.output_file if settings['index_in_url'] else ''
 
-        self.index_url = url_from_path(os.path.relpath(
-            settings['destination'], self.dst_path)) + '/' + self.url_ext
+        self.index_url = (
+            url_from_path(os.path.relpath(settings['destination'], self.dst_path))
+            + '/'
+            + self.url_ext
+        )
 
         #: List of all medias in the album (:class:`~sigal.gallery.Image` and
         #: :class:`~sigal.gallery.Video`).
@@ -361,12 +380,13 @@ class Album:
 
     def __repr__(self):
         return "<{}>(path={!r}, title={!r})".format(
-            self.__class__.__name__, self.path, self.title)
+            self.__class__.__name__, self.path, self.title
+        )
 
     def __str__(self):
-        return (f'{self.path} : ' +
-                ', '.join(f'{count} {_type}s'
-                          for _type, count in self.medias_count.items()))
+        return f'{self.path} : ' + ', '.join(
+            f'{count} {_type}s' for _type, count in self.medias_count.items()
+        )
 
     def __len__(self):
         return len(self.medias)
@@ -384,8 +404,7 @@ class Album:
         self.description = ''
         self.meta = {}
         # default: get title from directory name
-        self.title = os.path.basename(self.path if self.path != '.'
-                                      else self.src_path)
+        self.title = os.path.basename(self.path if self.path != '.' else self.src_path)
 
         if isfile(descfile):
             meta = read_markdown(descfile)
@@ -402,8 +421,7 @@ class Album:
         check_or_create_dir(self.dst_path)
 
         if self.medias:
-            check_or_create_dir(join(self.dst_path,
-                                     self.settings['thumb_dir']))
+            check_or_create_dir(join(self.dst_path, self.settings['thumb_dir']))
 
         if self.medias and self.settings['keep_orig']:
             self.orig_path = join(self.dst_path, self.settings['orig_dir'])
@@ -432,6 +450,7 @@ class Album:
                     return album.meta.get(meta_key, [''])[0]
 
             else:
+
                 def sort_key(s):
                     album = self.gallery.albums[join(root_path, s)]
                     return getattr(album, albums_sort_attr)
@@ -451,15 +470,14 @@ class Album:
             elif medias_sort_attr.startswith('meta.'):
                 meta_key = medias_sort_attr.split(".", 1)[1]
                 key = natsort_keygen(
-                    key=lambda s: s.meta.get(meta_key, [''])[0],
-                    alg=ns.LOCALE)
+                    key=lambda s: s.meta.get(meta_key, [''])[0], alg=ns.LOCALE
+                )
             else:
                 key = natsort_keygen(
-                    key=lambda s: getattr(s, medias_sort_attr),
-                    alg=ns.LOCALE)
+                    key=lambda s: getattr(s, medias_sort_attr), alg=ns.LOCALE
+                )
 
-            self.medias.sort(key=key,
-                             reverse=self.settings['medias_sort_reverse'])
+            self.medias.sort(key=key, reverse=self.settings['medias_sort_reverse'])
 
         signals.medias_sorted.send(self)
 
@@ -483,8 +501,7 @@ class Album:
         sub-directory.
         """
         root_path = self.path if self.path != '.' else ''
-        return [self.gallery.albums[join(root_path, path)]
-                for path in self.subdirs]
+        return [self.gallery.albums[join(root_path, path)] for path in self.subdirs]
 
     @property
     def nbmedias(self):
@@ -508,8 +525,9 @@ class Album:
         thumbnail = self.meta.get('thumbnail', [''])[0]
 
         if thumbnail and isfile(join(self.src_path, thumbnail)):
-            self._thumbnail = url_from_path(join(
-                self.name, get_thumb(self.settings, thumbnail)))
+            self._thumbnail = url_from_path(
+                join(self.name, get_thumb(self.settings, thumbnail))
+            )
             self.logger.debug("Thumbnail for %r : %s", self, self._thumbnail)
             return self._thumbnail
         else:
@@ -527,15 +545,17 @@ class Album:
 
                 if size['width'] > size['height']:
                     try:
-                        self._thumbnail = (url_quote(self.name) + '/' +
-                                           f.thumbnail)
+                        self._thumbnail = url_quote(self.name) + '/' + f.thumbnail
                     except Exception as e:
-                        self.logger.info("Failed to get thumbnail for %s: %s",
-                                         f.dst_filename, e)
+                        self.logger.info(
+                            "Failed to get thumbnail for %s: %s", f.dst_filename, e
+                        )
                     else:
                         self.logger.debug(
                             "Use 1st landscape image as thumbnail for %r : %s",
-                            self, self._thumbnail)
+                            self,
+                            self._thumbnail,
+                        )
                         return self._thumbnail
 
             # else simply return the 1st media file
@@ -543,12 +563,14 @@ class Album:
                 for media in self.medias:
                     if media.thumbnail is not None:
                         try:
-                            self._thumbnail = (url_quote(self.name) + '/' +
-                                               media.thumbnail)
+                            self._thumbnail = (
+                                url_quote(self.name) + '/' + media.thumbnail
+                            )
                         except Exception as e:
                             self.logger.info(
                                 "Failed to get thumbnail for %s: %s",
-                                media.dst_filename, e
+                                media.dst_filename,
+                                e,
                             )
                         else:
                             break
@@ -556,19 +578,21 @@ class Album:
                     self.logger.warning("No thumbnail found for %r", self)
                     return
 
-                self.logger.debug("Use the 1st image as thumbnail for %r : %s",
-                                  self, self._thumbnail)
+                self.logger.debug(
+                    "Use the 1st image as thumbnail for %r : %s", self, self._thumbnail
+                )
                 return self._thumbnail
 
             # use the thumbnail of their sub-directories
             if not self._thumbnail:
                 for path, album in self.gallery.get_albums(self.path):
                     if album.thumbnail:
-                        self._thumbnail = (url_quote(self.name) + '/' +
-                                           album.thumbnail)
+                        self._thumbnail = url_quote(self.name) + '/' + album.thumbnail
                         self.logger.debug(
                             "Using thumbnail from sub-directory for %r : %s",
-                            self, self._thumbnail)
+                            self,
+                            self._thumbnail,
+                        )
                         return self._thumbnail
 
         self.logger.error('Thumbnail not found for %r', self)
@@ -576,8 +600,7 @@ class Album:
     @property
     def random_thumbnail(self):
         try:
-            return url_from_path(join(self.name,
-                                      random.choice(self.medias).thumbnail))
+            return url_from_path(join(self.name, random.choice(self.medias).thumbnail))
         except IndexError:
             return self.thumbnail
 
@@ -597,8 +620,7 @@ class Album:
             if path == '.':
                 break
 
-            url = (url_from_path(os.path.relpath(path, self.path)) + '/' +
-                   self.url_ext)
+            url = url_from_path(os.path.relpath(path, self.path)) + '/' + self.url_ext
             breadcrumb.append((url, self.gallery.albums[path].title))
 
         breadcrumb.reverse()
@@ -606,8 +628,7 @@ class Album:
 
     @property
     def show_map(self):
-        """Check if we have at least one photo with GPS location in the album
-        """
+        """Check if we have at least one photo with GPS location in the album"""
         return any(image.has_location() for image in self.images)
 
     @cached_property
@@ -618,7 +639,6 @@ class Album:
 
 
 class Gallery:
-
     def __init__(self, settings, ncpu=None, quiet=False):
         self.settings = settings
         self.logger = logging.getLogger(__name__)
@@ -637,20 +657,22 @@ class Gallery:
         ignore_files = settings['ignore_files']
 
         progressChars = cycle(["/", "-", "\\", "|"])
-        show_progress = (not quiet and
-                         self.logger.getEffectiveLevel() >= logging.WARNING and
-                         os.isatty(sys.stdout.fileno()))
+        show_progress = (
+            not quiet
+            and self.logger.getEffectiveLevel() >= logging.WARNING
+            and os.isatty(sys.stdout.fileno())
+        )
         self.progressbar_target = None if show_progress else Devnull()
 
-        for path, dirs, files in os.walk(src_path, followlinks=True,
-                                         topdown=False):
+        for path, dirs, files in os.walk(src_path, followlinks=True, topdown=False):
             if show_progress:
                 print("\rCollecting albums " + next(progressChars), end="")
             relpath = os.path.relpath(path, src_path)
 
             # Test if the directory match the ignore_dirs settings
-            if ignore_dirs and any(fnmatch.fnmatch(relpath, ignore)
-                                   for ignore in ignore_dirs):
+            if ignore_dirs and any(
+                fnmatch.fnmatch(relpath, ignore) for ignore in ignore_dirs
+            ):
                 self.logger.info('Ignoring %s', relpath)
                 continue
 
@@ -683,13 +705,19 @@ class Gallery:
         if show_progress:
             print("\rCollecting albums, done.")
 
-        with progressbar(albums.values(), label="%16s" % "Sorting albums",
-                         file=self.progressbar_target) as progress_albums:
+        with progressbar(
+            albums.values(),
+            label="%16s" % "Sorting albums",
+            file=self.progressbar_target,
+        ) as progress_albums:
             for album in progress_albums:
                 album.sort_subdirs(settings['albums_sort_attr'])
 
-        with progressbar(albums.values(), label="%16s" % "Sorting media",
-                         file=self.progressbar_target) as progress_albums:
+        with progressbar(
+            albums.values(),
+            label="%16s" % "Sorting media",
+            file=self.progressbar_target,
+        ) as progress_albums:
             for album in progress_albums:
                 album.sort_medias(settings['medias_sort_attr'])
 
@@ -718,11 +746,12 @@ class Gallery:
 
         self.logger.info("Using %s cores", ncpu)
         if ncpu > 1:
+
             def pool_init():
                 if self.settings['max_img_pixels']:
                     PILImage.MAX_IMAGE_PIXELS = self.settings['max_img_pixels']
-            self.pool = multiprocessing.Pool(processes=ncpu,
-                                             initializer=pool_init)
+
+            self.pool = multiprocessing.Pool(processes=ncpu, initializer=pool_init)
         else:
             self.pool = None
 
@@ -751,17 +780,24 @@ class Gallery:
                 return ""
 
         try:
-            with progressbar(self.albums.values(), label="Collecting files",
-                             item_show_func=log_func, show_eta=False,
-                             file=self.progressbar_target) as albums:
-                media_list = [f for album in albums
-                              for f in self.process_dir(album, force=force)]
+            with progressbar(
+                self.albums.values(),
+                label="Collecting files",
+                item_show_func=log_func,
+                show_eta=False,
+                file=self.progressbar_target,
+            ) as albums:
+                media_list = [
+                    f for album in albums for f in self.process_dir(album, force=force)
+                ]
         except KeyboardInterrupt:
             sys.exit('Interrupted')
 
-        bar_opt = {'label': "Processing files",
-                   'show_pos': True,
-                   'file': self.progressbar_target}
+        bar_opt = {
+            'label': "Processing files",
+            'show_pos': True,
+            'file': self.progressbar_target,
+        }
 
         if self.pool:
             result = []
@@ -778,7 +814,8 @@ class Gallery:
                     "Failed to process files with the multiprocessing feature."
                     " This can be caused by some module import or object "
                     "defined in the settings file, which can't be serialized.",
-                    exc_info=True)
+                    exc_info=True,
+                )
                 sys.exit('Abort')
             finally:
                 self.pool.close()
@@ -788,19 +825,23 @@ class Gallery:
                 result = [process_file(media_item) for media_item in medias]
 
         if any(result):
-            failed_files = [media for status, media in zip(result, media_list)
-                            if status != 0]
+            failed_files = [
+                media for status, media in zip(result, media_list) if status != 0
+            ]
             self.remove_files(failed_files)
 
         if self.settings['write_html']:
-            album_writer = AlbumPageWriter(self.settings,
-                                           index_title=self.title)
-            album_list_writer = AlbumListPageWriter(self.settings,
-                                                    index_title=self.title)
-            with progressbar(self.albums.values(),
-                             label="%16s" % "Writing files",
-                             item_show_func=log_func, show_eta=False,
-                             file=self.progressbar_target) as albums:
+            album_writer = AlbumPageWriter(self.settings, index_title=self.title)
+            album_list_writer = AlbumListPageWriter(
+                self.settings, index_title=self.title
+            )
+            with progressbar(
+                self.albums.values(),
+                label="%16s" % "Writing files",
+                item_show_func=log_func,
+                show_eta=False,
+                file=self.progressbar_target,
+            ) as albums:
                 for album in albums:
                     if album.albums:
                         if album.medias:
@@ -808,7 +849,8 @@ class Gallery:
                                 "Album %s contains sub-albums and images. "
                                 "Please move images to their own sub-album. "
                                 "Images in album %s will not be visible.",
-                                album.title, album.title
+                                album.title,
+                                album.title,
                             )
                         album_list_writer.write(album)
                     else:
@@ -827,8 +869,10 @@ class Gallery:
                     self.stats[f.type + '_failed'] += 1
                     album.medias.remove(f)
                     break
-        self.logger.error('You can run "sigal build" in verbose (--verbose) or'
-                          ' debug (--debug) mode to get more details.')
+        self.logger.error(
+            'You can run "sigal build" in verbose (--verbose) or'
+            ' debug (--debug) mode to get more details.'
+        )
 
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""

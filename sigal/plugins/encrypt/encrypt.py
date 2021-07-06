@@ -37,7 +37,8 @@ from .endec import encrypt, kdf_gen_key
 logger = logging.getLogger(__name__)
 
 ASSETS_PATH = os.path.normpath(
-    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static'))
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static')
+)
 
 
 class Abort(Exception):
@@ -45,9 +46,9 @@ class Abort(Exception):
 
 
 def gen_rand_string(length=16):
-    return "".join(random.SystemRandom().choices(string.ascii_letters +
-                                                 string.digits,
-                                                 k=length))
+    return "".join(
+        random.SystemRandom().choices(string.ascii_letters + string.digits, k=length)
+    )
 
 
 def get_options(settings, cache):
@@ -62,8 +63,10 @@ def get_options(settings, cache):
         options = settings["encrypt_options"]
 
     table = str.maketrans({'"': r'\"', '\\': r'\\'})
-    if "password" not in settings["encrypt_options"] \
-            or len(settings["encrypt_options"]["password"]) == 0:
+    if (
+        "password" not in settings["encrypt_options"]
+        or len(settings["encrypt_options"]["password"]) == 0
+    ):
         logger.error("Encrypt: no password provided")
         raise ValueError("no password provided")
     else:
@@ -71,10 +74,10 @@ def get_options(settings, cache):
         options["escaped_password"] = options["password"].translate(table)
 
     if "ask_password" not in options:
-        options["ask_password"] = settings["encrypt_options"].get(
-            "ask_password", False)
-    options["filtered_password"] = "" if options["ask_password"] else options[
-        "escaped_password"]
+        options["ask_password"] = settings["encrypt_options"].get("ask_password", False)
+    options["filtered_password"] = (
+        "" if options["ask_password"] else options["escaped_password"]
+    )
 
     if "gcm_tag" not in options:
         options["gcm_tag"] = gen_rand_string()
@@ -96,7 +99,7 @@ def get_options(settings, cache):
         "gcm_tag": options["gcm_tag"],
         "kdf_salt": options["kdf_salt"],
         "kdf_iters": options["kdf_iters"],
-        "galleryId": options["galleryId"]
+        "galleryId": options["galleryId"],
     }
 
     return options
@@ -123,8 +126,7 @@ def get_encrypt_list(settings, media):
         to_encrypt.append(get_thumb(settings, media.dst_filename))  # thumbnail
     if media.big is not None and not settings["use_orig"]:
         to_encrypt.append(media.big)  # original image
-    to_encrypt = list(
-        map(lambda path: os.path.join(media.path, path), to_encrypt))
+    to_encrypt = list(map(lambda path: os.path.join(media.path, path), to_encrypt))
     return to_encrypt
 
 
@@ -145,16 +147,17 @@ def load_cache(settings):
     try:
         with open(cachePath, "rb") as cacheFile:
             encryptCache = pickle.load(cacheFile)
-            logger.debug("Loaded encryption cache with %d entries",
-                         len(encryptCache))
+            logger.debug("Loaded encryption cache with %d entries", len(encryptCache))
             return encryptCache
     except FileNotFoundError:
         encryptCache = {}
         return encryptCache
     except Exception as e:
         logger.error("Could not load encryption cache: %s", e)
-        logger.error("Giving up encryption. You may have to delete and "
-                     "rebuild the entire gallery.")
+        logger.error(
+            "Giving up encryption. You may have to delete and "
+            "rebuild the entire gallery."
+        )
         raise Abort
 
 
@@ -187,18 +190,20 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
     if settings["keep_orig"] and settings["orig_link"]:
         logger.warning(
             "Original images are symlinked! Encryption is aborted. "
-            "Please set 'orig_link' to False and restart gallery build.")
+            "Please set 'orig_link' to False and restart gallery build."
+        )
         raise Abort
 
-    key = kdf_gen_key(config["password"], config["kdf_salt"],
-                      config["kdf_iters"])
+    key = kdf_gen_key(config["password"], config["kdf_salt"], config["kdf_iters"])
     gcm_tag = config["gcm_tag"].encode("utf-8")
 
     medias = list(chain.from_iterable(albums.values()))
-    with progressbar(medias,
-                     label="%16s" % "Encrypting files",
-                     file=progressbar_target,
-                     show_eta=True) as medias:
+    with progressbar(
+        medias,
+        label="%16s" % "Encrypting files",
+        file=progressbar_target,
+        show_eta=True,
+    ) as medias:
         for media in medias:
             if media.type != "image":
                 logger.info("Skipping non-image file %s", media.src_filename)
@@ -222,8 +227,7 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
                     save_cache(settings, cache)
                     raise Abort
 
-    key_check_path = os.path.join(settings["destination"], 'static',
-                                  'keycheck.txt')
+    key_check_path = os.path.join(settings["destination"], 'static', 'keycheck.txt')
     encrypt_file("keycheck.txt", key_check_path, key, gcm_tag)
 
 
@@ -248,18 +252,24 @@ def encrypt_file(filename, full_path, key, gcm_tag):
 
 def copy_assets(settings):
     theme_path = os.path.join(settings["destination"], 'static')
-    copy(os.path.join(ASSETS_PATH, "decrypt.js"),
-         theme_path,
-         symlink=False,
-         rellink=False)
-    copy(os.path.join(ASSETS_PATH, "keycheck.txt"),
-         theme_path,
-         symlink=False,
-         rellink=False)
-    copy(os.path.join(ASSETS_PATH, "sw.js"),
-         settings["destination"],
-         symlink=False,
-         rellink=False)
+    copy(
+        os.path.join(ASSETS_PATH, "decrypt.js"),
+        theme_path,
+        symlink=False,
+        rellink=False,
+    )
+    copy(
+        os.path.join(ASSETS_PATH, "keycheck.txt"),
+        theme_path,
+        symlink=False,
+        rellink=False,
+    )
+    copy(
+        os.path.join(ASSETS_PATH, "sw.js"),
+        settings["destination"],
+        symlink=False,
+        rellink=False,
+    )
 
 
 def inject_scripts(context):

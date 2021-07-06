@@ -72,8 +72,10 @@ def _read_image(file_path):
         im = PILImage.open(file_path)
 
     for w in caught_warnings:
-        logger.warning(f'PILImage reported a warning for file {file_path}\n'
-                       f'{w.category}: {w.message}')
+        logger.warning(
+            f'PILImage reported a warning for file {file_path}\n'
+            f'{w.category}: {w.message}'
+        )
     return im
 
 
@@ -97,9 +99,11 @@ def generate_image(source, outname, settings, options=None):
     original_format = img.format
 
     if settings['copy_exif_data'] and settings['autorotate_images']:
-        logger.warning("The 'autorotate_images' and 'copy_exif_data' settings "
-                       "are not compatible because Sigal can't save the "
-                       "modified Orientation tag.")
+        logger.warning(
+            "The 'autorotate_images' and 'copy_exif_data' settings "
+            "are not compatible because Sigal can't save the "
+            "modified Orientation tag."
+        )
 
     # Preserve EXIF data
     if settings['copy_exif_data'] and _has_exif_tags(img):
@@ -120,8 +124,7 @@ def generate_image(source, outname, settings, options=None):
     if settings['img_processor']:
         try:
             logger.debug('Processor: %s', settings['img_processor'])
-            processor_cls = getattr(pilkit.processors,
-                                    settings['img_processor'])
+            processor_cls = getattr(pilkit.processors, settings['img_processor'])
         except AttributeError:
             logger.error('Wrong processor name: %s', settings['img_processor'])
             sys.exit()
@@ -142,15 +145,15 @@ def generate_image(source, outname, settings, options=None):
 
     # first, use hard-coded output format, or PIL format, or original image
     # format, or fall back to JPEG
-    outformat = (settings.get('img_format') or img.format or
-                 original_format or 'JPEG')
+    outformat = settings.get('img_format') or img.format or original_format or 'JPEG'
 
     logger.debug('Save resized image to %s (%s)', outname, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
-def generate_thumbnail(source, outname, box, fit=True, options=None,
-                       thumb_fit_centering=(0.5, 0.5)):
+def generate_thumbnail(
+    source, outname, box, fit=True, options=None, thumb_fit_centering=(0.5, 0.5)
+):
     """Create a thumbnail image."""
 
     logger = logging.getLogger(__name__)
@@ -159,8 +162,7 @@ def generate_thumbnail(source, outname, box, fit=True, options=None,
     original_format = img.format
 
     if fit:
-        img = ImageOps.fit(img, box, PILImage.ANTIALIAS,
-                           centering=thumb_fit_centering)
+        img = ImageOps.fit(img, box, PILImage.ANTIALIAS, centering=thumb_fit_centering)
     else:
         img.thumbnail(box, PILImage.ANTIALIAS)
 
@@ -183,8 +185,7 @@ def process_image(media):
         options = {}
 
     try:
-        generate_image(media.src_path, media.dst_path, media.settings,
-                       options=options)
+        generate_image(media.src_path, media.dst_path, media.settings, options=options)
 
         if media.settings['make_thumbs']:
             generate_thumbnail(
@@ -193,7 +194,7 @@ def process_image(media):
                 media.settings['thumb_size'],
                 fit=media.settings['thumb_fit'],
                 options=options,
-                thumb_fit_centering=media.settings["thumb_fit_centering"]
+                thumb_fit_centering=media.settings["thumb_fit_centering"],
             )
     except Exception as e:
         logger.info('Failed to process: %r', e)
@@ -232,17 +233,18 @@ def get_exif_data(filename):
         return None
 
     for w in caught_warnings:
-        fname = (filename.filename if isinstance(filename, PILImage.Image)
-                 else filename)
-        logger.warning(f'PILImage reported a warning for file {fname}\n'
-                       f'{w.category}: {w.message}')
+        fname = filename.filename if isinstance(filename, PILImage.Image) else filename
+        logger.warning(
+            f'PILImage reported a warning for file {fname}\n{w.category}: {w.message}'
+        )
 
     data = {TAGS.get(tag, tag): value for tag, value in exif.items()}
 
     if 'GPSInfo' in data:
         try:
-            data['GPSInfo'] = {GPSTAGS.get(tag, tag): value
-                               for tag, value in data['GPSInfo'].items()}
+            data['GPSInfo'] = {
+                GPSTAGS.get(tag, tag): value for tag, value in data['GPSInfo'].items()
+            }
         except AttributeError:
             logger.info('Failed to get GPS Info')
             del data['GPSInfo']
@@ -259,7 +261,8 @@ def get_iptc_data(filename):
 
     # PILs IptcImagePlugin issues a SyntaxError in certain circumstances
     # with malformed metadata, see PIL/IptcImagePlugin.py", line 71.
-    # ( https://github.com/python-pillow/Pillow/blob/9dd0348be2751beb2c617e32ff9985aa2f92ae5f/src/PIL/IptcImagePlugin.py#L71 )
+    # ( https://github.com/python-pillow/Pillow/blob/
+    # 9dd0348be2751beb2c617e32ff9985aa2f92ae5f/src/PIL/IptcImagePlugin.py#L71 )
     try:
         img = _read_image(filename)
         raw_iptc = IptcImagePlugin.getiptcinfo(img)
@@ -274,13 +277,11 @@ def get_iptc_data(filename):
 
     # 2:120 is the IPTC description property
     if raw_iptc and (2, 120) in raw_iptc:
-        iptc_data["description"] = raw_iptc[(2, 120)].decode('utf-8',
-                                                             errors='replace')
+        iptc_data["description"] = raw_iptc[(2, 120)].decode('utf-8', errors='replace')
 
     # 2:105 is the IPTC headline property
     if raw_iptc and (2, 105) in raw_iptc:
-        iptc_data["headline"] = raw_iptc[(2, 105)].decode('utf-8',
-                                                          errors='replace')
+        iptc_data["headline"] = raw_iptc[(2, 105)].decode('utf-8', errors='replace')
 
     return iptc_data
 
@@ -356,8 +357,7 @@ def get_exif_tags(data, datetime_format='%c'):
             else:
                 simple['focal'] = round(float(focal[0]) / focal[1])
         except Exception:
-            logger.debug('Skipped invalid FocalLength: %r', focal,
-                         exc_info=True)
+            logger.debug('Skipped invalid FocalLength: %r', focal, exc_info=True)
 
     if 'ExposureTime' in data:
         exptime = data['ExposureTime']
@@ -365,8 +365,7 @@ def get_exif_tags(data, datetime_format='%c'):
             simple['exposure'] = str(exptime)
         elif isinstance(exptime, tuple):
             try:
-                simple['exposure'] = str(fractions.Fraction(exptime[0],
-                                                            exptime[1]))
+                simple['exposure'] = str(fractions.Fraction(exptime[0], exptime[1]))
             except ZeroDivisionError:
                 logger.info('Invalid ExposureTime: %r', exptime)
         elif isinstance(exptime, int):
@@ -402,8 +401,8 @@ def get_exif_tags(data, datetime_format='%c'):
                 logger.info('Failed to read GPS info')
             else:
                 simple['gps'] = {
-                    'lat': - lat if lat_ref_info != 'N' else lat,
-                    'lon': - lon if lon_ref_info != 'E' else lon,
+                    'lat': -lat if lat_ref_info != 'N' else lat,
+                    'lon': -lon if lon_ref_info != 'E' else lon,
                 }
 
     return simple

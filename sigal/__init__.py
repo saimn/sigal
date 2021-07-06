@@ -69,6 +69,7 @@ def init(path):
         sys.exit(1)
 
     from pkg_resources import resource_string
+
     conf = resource_string(__name__, 'templates/sigal.conf.py')
 
     with open(path, 'w', encoding='utf-8') as f:
@@ -79,21 +80,37 @@ def init(path):
 @main.command()
 @argument('source', required=False)
 @argument('destination', required=False)
-@option('-f', '--force', is_flag=True,
-        help="Force the reprocessing of existing images")
+@option('-f', '--force', is_flag=True, help="Force the reprocessing of existing images")
 @option('-v', '--verbose', is_flag=True, help="Show all messages")
-@option('-d', '--debug', is_flag=True,
-        help="Show all messages, including debug messages. Also raise "
-        "exception if an error happen when processing files.")
+@option(
+    '-d',
+    '--debug',
+    is_flag=True,
+    help=(
+        "Show all messages, including debug messages. Also raise "
+        "exception if an error happen when processing files."
+    ),
+)
 @option('-q', '--quiet', is_flag=True, help="Show only error messages")
-@option('-c', '--config', default=_DEFAULT_CONFIG_FILE, show_default=True,
-        help="Configuration file")
-@option('-t', '--theme', help="Specify a theme directory, or a theme name for "
-        "the themes included with Sigal")
+@option(
+    '-c',
+    '--config',
+    default=_DEFAULT_CONFIG_FILE,
+    show_default=True,
+    help="Configuration file",
+)
+@option(
+    '-t',
+    '--theme',
+    help=(
+        "Specify a theme directory, or a theme name for the themes included with Sigal"
+    ),
+)
 @option('--title', help="Title of the gallery (overrides the title setting.")
 @option('-n', '--ncpu', help="Number of cpu to use (default: all)")
-def build(source, destination, debug, verbose, quiet, force, config, theme,
-          title, ncpu):
+def build(
+    source, destination, debug, verbose, quiet, force, config, theme, title, ncpu
+):
     """Run sigal to process a directory.
 
     If provided, 'source', 'destination' and 'theme' will override the
@@ -137,14 +154,14 @@ def build(source, destination, debug, verbose, quiet, force, config, theme,
     # paths are anyway not relative
     relative_check = True
     try:
-        relative_check = os.path.relpath(settings['destination'],
-                                         settings['source']).startswith('..')
+        relative_check = os.path.relpath(
+            settings['destination'], settings['source']
+        ).startswith('..')
     except ValueError:
         pass
 
     if not relative_check:
-        logger.error("Output directory should be outside of the input "
-                     "directory.")
+        logger.error("Output directory should be outside of the input directory.")
         sys.exit(1)
 
     if title:
@@ -166,9 +183,11 @@ def build(source, destination, debug, verbose, quiet, force, config, theme,
     stats = gal.stats
 
     def format_stats(_type):
-        opt = ["{} {}".format(stats[_type + '_' + subtype], subtype)
-               for subtype in ('skipped', 'failed')
-               if stats[_type + '_' + subtype] > 0]
+        opt = [
+            "{} {}".format(stats[_type + '_' + subtype], subtype)
+            for subtype in ('skipped', 'failed')
+            if stats[_type + '_' + subtype] > 0
+        ]
         opt = ' ({})'.format(', '.join(opt)) if opt else ''
         return f'{stats[_type]} {_type}s{opt}'
 
@@ -178,8 +197,8 @@ def build(source, destination, debug, verbose, quiet, force, config, theme,
         for t in types[:-1]:
             stats_str += f'{format_stats(t)} and '
         stats_str += f'{format_stats(types[-1])}'
-        print('Done, processed {} in {:.2f} seconds.'
-              .format(stats_str, time.time() - start_time))
+        end_time = time.time() - start_time
+        print(f'Done, processed {stats_str} in {end_time:.2f} seconds.')
 
 
 def init_plugins(settings):
@@ -209,8 +228,13 @@ def init_plugins(settings):
 @main.command()
 @argument('destination', default='_build')
 @option('-p', '--port', help="Port to use", default=8000)
-@option('-c', '--config', default=_DEFAULT_CONFIG_FILE,
-        show_default=True, help='Configuration file')
+@option(
+    '-c',
+    '--config',
+    default=_DEFAULT_CONFIG_FILE,
+    show_default=True,
+    help='Configuration file',
+)
 def serve(destination, port, config):
     """Run a simple web server."""
     if os.path.exists(destination):
@@ -219,13 +243,16 @@ def serve(destination, port, config):
         settings = read_settings(config)
         destination = settings.get('destination')
         if not os.path.exists(destination):
-            sys.stderr.write("The '{}' directory doesn't exist, maybe try "
-                             "building first?\n".format(destination))
+            sys.stderr.write(
+                f"The '{destination}' directory doesn't exist, maybe try building"
+                " first?\n"
+            )
             sys.exit(1)
     else:
-        sys.stderr.write("The {destination} directory doesn't exist "
-                         "and the config file ({config}) could not be read.\n"
-                         .format(destination=destination, config=config))
+        sys.stderr.write(
+            f"The {destination} directory doesn't exist "
+            f"and the config file ({config}) could not be read.\n"
+        )
         sys.exit(2)
 
     print(f'DESTINATION : {destination}')
@@ -246,8 +273,9 @@ def serve(destination, port, config):
 @main.command()
 @argument('target')
 @argument('keys', nargs=-1)
-@option('-o', '--overwrite', default=False, is_flag=True,
-        help='Overwrite existing .md file')
+@option(
+    '-o', '--overwrite', default=False, is_flag=True, help='Overwrite existing .md file'
+)
 def set_meta(target, keys, overwrite=False):
     """Write metadata keys to .md file.
 
@@ -270,12 +298,14 @@ def set_meta(target, keys, overwrite=False):
     else:
         descfile = os.path.splitext(target)[0] + '.md'
     if os.path.exists(descfile) and not overwrite:
-        sys.stderr.write("Description file '{}' already exists. "
-                         "Use --overwrite to overwrite it.\n".format(descfile))
+        sys.stderr.write(
+            f"Description file '{descfile}' already exists. "
+            "Use --overwrite to overwrite it.\n"
+        )
         sys.exit(2)
 
     with open(descfile, "w") as fp:
         for i in range(len(keys) // 2):
-            k, v = keys[i * 2:(i + 1) * 2]
+            k, v = keys[i * 2 : (i + 1) * 2]
             fp.write(f"{k.capitalize()}: {v}\n")
     print(f"{len(keys) // 2} metadata key(s) written to {descfile}")

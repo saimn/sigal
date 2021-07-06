@@ -19,8 +19,9 @@ def test_init(tmpdir):
 
     result = runner.invoke(init, [config_file])
     assert result.exit_code == 1
-    assert result.output == ("Found an existing config file, will abort to "
-                             "keep it safe.\n")
+    assert (
+        result.output == "Found an existing config file, will abort to keep it safe.\n"
+    )
 
 
 def test_build(tmpdir, disconnect_signals):
@@ -33,10 +34,11 @@ def test_build(tmpdir, disconnect_signals):
     try:
         result = runner.invoke(init, [config_file])
         assert result.exit_code == 0
-        os.symlink(join(TESTGAL, 'watermark.png'),
-                   join(tmpdir, 'watermark.png'))
-        os.symlink(join(TESTGAL, 'pictures', 'dir2', 'KeckObservatory20071020.jpg'),
-                   join(tmpdir, 'pictures', 'KeckObservatory20071020.jpg'))
+        os.symlink(join(TESTGAL, 'watermark.png'), join(tmpdir, 'watermark.png'))
+        os.symlink(
+            join(TESTGAL, 'pictures', 'dir2', 'KeckObservatory20071020.jpg'),
+            join(tmpdir, 'pictures', 'KeckObservatory20071020.jpg'),
+        )
 
         result = runner.invoke(build, ['-n', 1, '--debug'])
         assert result.exit_code == 1
@@ -46,8 +48,7 @@ def test_build(tmpdir, disconnect_signals):
         result = runner.invoke(build, ['foo', '-n', 1, '--debug'])
         assert result.exit_code == 1
 
-        result = runner.invoke(build, ['pictures', 'pictures/out',
-                                       '-n', 1, '--debug'])
+        result = runner.invoke(build, ['pictures', 'pictures/out', '-n', 1, '--debug'])
         assert result.exit_code == 1
 
         with open(config_file) as f:
@@ -72,12 +73,13 @@ atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
         with open(config_file, 'w') as f:
             f.write(text)
 
-        result = runner.invoke(build, ['pictures', 'build',
-                                       '--title', 'Testing build',
-                                       '-n', 1, '--debug'])
+        result = runner.invoke(
+            build, ['pictures', 'build', '--title', 'Testing build', '-n', 1, '--debug']
+        )
         assert result.exit_code == 0
-        assert os.path.isfile(join(tmpdir, 'build', 'thumbnails',
-                                   'KeckObservatory20071020.jpg'))
+        assert os.path.isfile(
+            join(tmpdir, 'build', 'thumbnails', 'KeckObservatory20071020.jpg')
+        )
         assert os.path.isfile(join(tmpdir, 'build', 'feed.atom'))
         assert os.path.isfile(join(tmpdir, 'build', 'feed.rss'))
         assert os.path.isfile(join(tmpdir, 'build', 'watermark.png'))
@@ -121,8 +123,9 @@ def test_set_meta(tmpdir):
     result = runner.invoke(set_meta, [str(testdir), "title", "testing"])
     assert result.exit_code == 2
 
-    result = runner.invoke(set_meta, [str(testdir.join("non-existant.jpg")),
-                                      "title", "testing"])
+    result = runner.invoke(
+        set_meta, [str(testdir.join("non-existant.jpg")), "title", "testing"]
+    )
     assert result.exit_code == 1
 
     result = runner.invoke(set_meta, [str(testfile), "title", "testing"])

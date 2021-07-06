@@ -40,11 +40,7 @@ def kdf_gen_key(password: str, salt: str, iters: int) -> bytes:
     password = password.encode("utf-8")
     salt = salt.encode("utf-8")
     kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA1(),
-        length=16,
-        salt=salt,
-        iterations=iters,
-        backend=backend
+        algorithm=hashes.SHA1(), length=16, salt=salt, iterations=iters, backend=backend
     )
     key = kdf.derive(password)
     return key
@@ -102,11 +98,16 @@ def decrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
 
 if __name__ == "__main__":
     import argparse as ap
+
     parser = ap.ArgumentParser(description="Encrypt or decrypt using AES-128-GCM")
     parser.add_argument("-k", "--key", help="Base64-encoded key")
     parser.add_argument("-p", "--password", help="Password in plaintext")
-    parser.add_argument("--kdf-salt", help="PBKDF2 salt", default="saltysaltsweetysweet")
-    parser.add_argument("--kdf-iters", type=int, help="PBKDF2 iterations", default=10000)
+    parser.add_argument(
+        "--kdf-salt", help="PBKDF2 salt", default="saltysaltsweetysweet"
+    )
+    parser.add_argument(
+        "--kdf-iters", type=int, help="PBKDF2 iterations", default=10000
+    )
     parser.add_argument("--gcm-tag", help="AES-GCM tag", default="AuTheNTiCatIoNtAG")
     parser.add_argument("-i", "--infile", help="Input file")
     parser.add_argument("-o", "--outfile", help="Output file")

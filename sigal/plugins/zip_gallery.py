@@ -61,14 +61,14 @@ def _generate_album_zip(album):
     if zip_gallery and len(album) > 0:
         zip_gallery = zip_gallery.format(album=album)
         archive_path = join(album.dst_path, zip_gallery)
-        if (album.settings.get('zip_skip_if_exists', False) and
-                isfile(archive_path)):
+        if album.settings.get('zip_skip_if_exists', False) and isfile(archive_path):
             logger.debug("Archive %s already created, passing", archive_path)
             return zip_gallery
 
         archive = zipfile.ZipFile(archive_path, 'w', allowZip64=True)
-        attr = ('src_path' if album.settings['zip_media_format'] == 'orig'
-                else 'dst_path')
+        attr = (
+            'src_path' if album.settings['zip_media_format'] == 'orig' else 'dst_path'
+        )
 
         for p in album:
             path = getattr(p, attr)
@@ -95,8 +95,11 @@ def generate_album_zip(album):
 
     # check if ZIP file generation as been disabled by .nozip_gallery file
     if not _should_generate_album_zip(album):
-        logger.info("Ignoring ZIP gallery generation for album '%s' because of present "
-                    ".nozip_gallery file", album.name)
+        logger.info(
+            "Ignoring ZIP gallery generation for album '%s' because of present "
+            ".nozip_gallery file",
+            album.name,
+        )
         return False
 
     return _generate_album_zip(album)

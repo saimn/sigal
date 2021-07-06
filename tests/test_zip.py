@@ -28,9 +28,12 @@ def test_zipped_correctly(tmpdir):
     assert os.path.isfile(zipf)
 
     zip_file = zipfile.ZipFile(zipf, 'r')
-    expected = ('11.jpg', 'CMB_Timeline300_no_WMAP.jpg',
-                'flickr_jerquiaga_2394751088_cc-by-nc.jpg',
-                'example.gif')
+    expected = (
+        '11.jpg',
+        'CMB_Timeline300_no_WMAP.jpg',
+        'flickr_jerquiaga_2394751088_cc-by-nc.jpg',
+        'example.gif',
+    )
 
     for filename in zip_file.namelist():
         assert filename in expected
@@ -44,8 +47,9 @@ def test_not_zipped(tmpdir):
     # test that the zip file is not created when the .nozip_gallery file
     # is present
     outpath = str(tmpdir)
-    gallery = make_gallery(destination=outpath, zip_gallery='archive.zip',
-                           source_dir='dir2')
+    gallery = make_gallery(
+        destination=outpath, zip_gallery='archive.zip', source_dir='dir2'
+    )
     gallery.build()
     assert not os.path.isfile(os.path.join(outpath, 'archive.zip'))
 

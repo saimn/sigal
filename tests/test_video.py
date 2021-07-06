@@ -5,8 +5,7 @@ import pytest
 
 from sigal.gallery import Video
 from sigal.settings import Status, create_settings
-from sigal.video import (generate_thumbnail, generate_video, process_video,
-                         video_size)
+from sigal.video import generate_thumbnail, generate_video, process_video, video_size
 
 CURRENT_DIR = os.path.dirname(__file__)
 SRCDIR = os.path.join(CURRENT_DIR, 'sample', 'pictures')
@@ -30,10 +29,13 @@ def test_generate_thumbnail(tmpdir):
 def test_process_video(tmpdir):
     base, ext = os.path.splitext(TEST_VIDEO)
 
-    settings = create_settings(video_format='ogv',
-                               use_orig=True, orig_link=True,
-                               source=os.path.join(SRCDIR, 'video'),
-                               destination=str(tmpdir))
+    settings = create_settings(
+        video_format='ogv',
+        use_orig=True,
+        orig_link=True,
+        source=os.path.join(SRCDIR, 'video'),
+        destination=str(tmpdir),
+    )
     video = Video(TEST_VIDEO, '.', settings)
     process_video(video)
     dstfile = str(tmpdir.join(base + '.ogv'))
@@ -102,9 +104,12 @@ def test_second_pass_video(mock_generate_video_pass, fmt, tmpdir):
     dstfile = str(tmpdir.join(base + '.' + fmt))
     settings_1 = '-c:v libvpx-vp9 -b:v 0 -crf 30 -pass 1 -an -f null dev/null'
     settings_2 = f'-c:v libvpx-vp9 -b:v 0 -crf 30 -pass 2 -f {fmt}'
-    settings_opts = {'video_size': (100, 50), 'video_format': fmt,
-                     fmt + '_options': settings_1.split(" "),
-                     fmt + '_options_second_pass': settings_2.split(" ")}
+    settings_opts = {
+        'video_size': (100, 50),
+        'video_format': fmt,
+        fmt + '_options': settings_1.split(" "),
+        fmt + '_options_second_pass': settings_2.split(" "),
+    }
 
     settings = create_settings(**settings_opts)
     generate_video(SRCFILE, dstfile, settings)

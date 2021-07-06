@@ -92,19 +92,26 @@ class NonMedia(Media):
                 kwargs['font_color'] = plugin_settings['thumb_font_color']
             if plugin_settings.get('thumb_font_size', None):
                 kwargs['font_size'] = plugin_settings['thumb_font_size']
-            generate_thumbnail(self.src_ext[1:].upper(), self.thumb_path,
-                               self.settings['thumb_size'],
-                               options=self.settings['jpg_options'],
-                               **kwargs)
+            generate_thumbnail(
+                self.src_ext[1:].upper(),
+                self.thumb_path,
+                self.settings['thumb_size'],
+                options=self.settings['jpg_options'],
+                **kwargs,
+            )
         return super().thumbnail
 
 
-def generate_thumbnail(text, outname, box,
-                       bg_color=DEFAULT_CONFIG['thumb_bg_color'],
-                       font=DEFAULT_CONFIG['thumb_font'],
-                       font_color=DEFAULT_CONFIG['thumb_font_color'],
-                       font_size=DEFAULT_CONFIG['thumb_font_size'],
-                       options=None):
+def generate_thumbnail(
+    text,
+    outname,
+    box,
+    bg_color=DEFAULT_CONFIG['thumb_bg_color'],
+    font=DEFAULT_CONFIG['thumb_font'],
+    font_color=DEFAULT_CONFIG['thumb_font_color'],
+    font_size=DEFAULT_CONFIG['thumb_font_size'],
+    options=None,
+):
     """Create a thumbnail image."""
 
     kwargs = {}
@@ -132,8 +139,7 @@ def process_nonmedia(media):
     plugin_settings = settings.get('nonmedia_files_options', {})
 
     try:
-        utils.copy(media.src_path, media.dst_path,
-                   symlink=settings['orig_link'])
+        utils.copy(media.src_path, media.dst_path, symlink=settings['orig_link'])
     except Exception:
         if logger.getEffectiveLevel() == logging.DEBUG:
             raise
@@ -155,7 +161,7 @@ def process_nonmedia(media):
                 media.thumb_path,
                 settings['thumb_size'],
                 options=settings['jpg_options'],
-                **kwargs
+                **kwargs,
             )
         except Exception:
             if logger.getEffectiveLevel() == logging.DEBUG:
@@ -169,7 +175,8 @@ def album_file(album, filename, media=None):
     if not media:
         ext = os.path.splitext(filename)[1]
         ext_ignore = album.settings.get('nonmedia_files_options', {}).get(
-            'ignore_ext', DEFAULT_CONFIG['ignore_ext'])
+            'ignore_ext', DEFAULT_CONFIG['ignore_ext']
+        )
         if ext in ext_ignore:
             logger.info('Ignoring non-media file: %s', filename)
         else:

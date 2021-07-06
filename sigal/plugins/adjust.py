@@ -2,7 +2,8 @@
 
 Based on pilkit's Adjust_ processor.
 
-.. _Adjust: https://github.com/matthewwithanm/pilkit/blob/master/pilkit/processors/base.py#L19
+.. _Adjust: \
+   https://github.com/matthewwithanm/pilkit/blob/master/pilkit/processors/base.py#L19
 
 Settings::
 

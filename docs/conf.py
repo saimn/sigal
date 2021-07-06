@@ -16,11 +16,7 @@ sys.path.append(os.path.abspath('..'))
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.extlinks',
-    'alabaster'
-]
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.extlinks', 'alabaster']
 
 extlinks = {'issue': ('https://github.com/saimn/sigal/issues/%s', '#')}
 
@@ -88,7 +84,10 @@ html_theme_path = [alabaster.get_path()]
 html_theme = 'alabaster'
 html_sidebars = {
     '**': [
-        'about.html', 'navigation.html', 'searchbox.html', 'donate.html',
+        'about.html',
+        'navigation.html',
+        'searchbox.html',
+        'donate.html',
     ]
 }
 html_theme_options = {

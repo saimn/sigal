@@ -18,8 +18,9 @@ def test_plugins(settings, tmpdir, disconnect_signals):
     gal = Gallery(settings)
     gal.build()
 
-    out_html = os.path.join(settings['destination'],
-                            'dir2', 'KeckObservatory20071020.jpg.html')
+    out_html = os.path.join(
+        settings['destination'], 'dir2', 'KeckObservatory20071020.jpg.html'
+    )
     assert os.path.isfile(out_html)
 
     for path, dirs, files in os.walk(os.path.join(str(tmpdir), "nomedia")):
@@ -39,10 +40,10 @@ def test_nonmedia_files(settings, tmpdir, disconnect_signals):
     gal = Gallery(settings)
     gal.build()
 
-    outfile = os.path.join(settings['destination'],
-                           'nonmedia_files', 'dummy.pdf')
+    outfile = os.path.join(settings['destination'], 'nonmedia_files', 'dummy.pdf')
     assert os.path.isfile(outfile)
 
-    outthumb = os.path.join(settings['destination'],
-                            'nonmedia_files', 'thumbnails', 'dummy.tn.jpg')
+    outthumb = os.path.join(
+        settings['destination'], 'nonmedia_files', 'thumbnails', 'dummy.tn.jpg'
+    )
     assert os.path.isfile(outthumb)

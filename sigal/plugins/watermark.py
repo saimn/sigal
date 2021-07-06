@@ -1,4 +1,4 @@
-# Copyright (c) 2005 - Shane Hathaway (http://code.activestate.com/recipes/362879-watermark-with-pil/)
+# Copyright (c) 2005 - Shane Hathaway
 # Copyright (c) 2015 - Abdul Qabiz
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,6 +20,9 @@
 # IN THE SOFTWARE.
 
 """Plugin which adds a watermark to the image.
+
+Based on http://code.activestate.com/recipes/362879-watermark-with-pil/
+(Licensed under the PSF License).
 
 Settings:
 
@@ -69,13 +72,11 @@ def watermark(im, mark, position, opacity=1):
                 layer.paste(mark, (x, y))
     elif position == 'scale':
         # scale, but preserve the aspect ratio
-        ratio = min(
-            float(im.size[0]) / mark.size[0], float(im.size[1]) / mark.size[1])
+        ratio = min(float(im.size[0]) / mark.size[0], float(im.size[1]) / mark.size[1])
         w = int(mark.size[0] * ratio)
         h = int(mark.size[1] * ratio)
         mark = mark.resize((w, h))
-        layer.paste(mark, (int((im.size[0] - w) / 2),
-                           int((im.size[1] - h) / 2)))
+        layer.paste(mark, (int((im.size[0] - w) / 2), int((im.size[1] - h) / 2)))
     else:
         layer.paste(mark, position)
     # composite the watermark with the layer

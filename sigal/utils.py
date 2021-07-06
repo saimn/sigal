@@ -25,9 +25,7 @@ from urllib.parse import quote
 from markdown import Markdown
 from markupsafe import Markup
 
-VIDEO_MIMES = {'.mp4': 'video/mp4',
-               '.webm': 'video/webm',
-               '.ogv': 'video/ogg'}
+VIDEO_MIMES = {'.mp4': 'video/mp4', '.webm': 'video/webm', '.ogv': 'video/ogg'}
 
 MD = None
 
@@ -86,9 +84,10 @@ def read_markdown(filename):
         text = f.read()
 
     if MD is None:
-        MD = Markdown(extensions=['markdown.extensions.meta',
-                                  'markdown.extensions.tables'],
-                      output_format='html5')
+        MD = Markdown(
+            extensions=['markdown.extensions.meta', 'markdown.extensions.tables'],
+            output_format='html5',
+        )
     else:
         MD.reset()
         # When https://github.com/Python-Markdown/markdown/pull/672
@@ -123,7 +122,7 @@ def get_mime(ext):
 
 
 class cached_property:
-    """ A property that is only computed once per instance and then replaces
+    """A property that is only computed once per instance and then replaces
     itself with an ordinary attribute. Deleting the attribute resets the
     property.
     Source:

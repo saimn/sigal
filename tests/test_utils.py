@@ -66,8 +66,7 @@ def test_read_markdown():
     m = utils.read_markdown(src)
     assert m['title'] == "Foo Bar"
     assert m['meta']['location'][0] == "Bavaria"
-    assert m['description'] == \
-        "<p>This is a funny description of this image</p>"
+    assert m['description'] == "<p>This is a funny description of this image</p>"
 
 
 def test_read_markdown_empty_file(tmpdir):
