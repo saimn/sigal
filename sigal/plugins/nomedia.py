@@ -94,7 +94,7 @@ def filter_nomedia(album, settings=None):
             _remove_albums_with_subdirs(album.gallery.albums, [album.path])
             try:
                 os.rmdir(album.dst_path)
-            except OSError as e:
+            except OSError:
                 # directory was created and populated with images in a
                 # previous run => keep it
                 pass

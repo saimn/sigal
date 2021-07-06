@@ -5,7 +5,7 @@ import pytest
 from sigal.gallery import Video
 from sigal.settings import Status, create_settings
 from sigal.video import (generate_thumbnail, generate_video, process_video,
-                         video_size, get_resize_options, generate_video_pass)
+                         video_size)
 from unittest.mock import patch
 
 CURRENT_DIR = os.path.dirname(__file__)

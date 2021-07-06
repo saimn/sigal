@@ -35,6 +35,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 backend = default_backend()
 MAGIC_STRING = b"_e_n_c_r_y_p_t_e_d_"
 
+
 def kdf_gen_key(password: str, salt: str, iters: int) -> bytes:
     password = password.encode("utf-8")
     salt = salt.encode("utf-8")
@@ -47,6 +48,7 @@ def kdf_gen_key(password: str, salt: str, iters: int) -> bytes:
     )
     key = kdf.derive(password)
     return key
+
 
 def dispatchargs(decorated):
     def wrapper(args):
@@ -65,8 +67,9 @@ def dispatchargs(decorated):
 
     return wrapper
 
+
 def encrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
-    if len(key) != 128/8:
+    if len(key) != 128 / 8:
         raise ValueError("Unsupported key length: %d" % len(key))
     aesgcm = AESGCM(key)
     iv = os.urandom(12)
@@ -78,8 +81,9 @@ def encrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
     ciphertext.write(iv)
     ciphertext.write(encrypted)
 
+
 def decrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
-    if len(key) != 128/8:
+    if len(key) != 128 / 8:
         raise ValueError("Unsupported key length: %d" % len(key))
     aesgcm = AESGCM(key)
     ciphertext = infile
@@ -94,6 +98,7 @@ def decrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
     except InvalidTag:
         raise ValueError("Incorrect tag, iv, or corrupted ciphertext")
     plaintext.write(decrypted)
+
 
 if __name__ == "__main__":
     import argparse as ap

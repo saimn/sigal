@@ -28,7 +28,7 @@ import subprocess
 from os.path import splitext
 
 from . import image, utils
-from .settings import Status, get_thumb
+from .settings import Status
 from .utils import is_valid_html5_video
 
 
@@ -76,6 +76,7 @@ def video_size(source, converter='ffmpeg'):
     if rot_match:
         x, y = y, x
     return x, y
+
 
 def get_resize_options(source, converter, output_size):
     """Figure out resize options for video from src and dst sizes.
@@ -152,10 +153,10 @@ def generate_video(source, outname, settings):
     base, dst_ext = splitext(outname)
 
     if dst_ext == src_ext and not resize_opt and not video_always_convert:
-        logger.debug('For %s, the source and destination extension are the " \
-                        "same, there is no resizing to be done, and " \
-                        "video_always_convert is False, so the output is " \
-                        " being copied', outname)
+        logger.debug('For %s, the source and destination extension are the '
+                     'same, there is no resizing to be done, and '
+                     'video_always_convert is False, so the output is '
+                     ' being copied', outname)
         shutil.copy(source, outname)
         return
 
@@ -163,7 +164,7 @@ def generate_video(source, outname, settings):
     if second_pass_options:
         generate_video_pass(converter, source, final_pass_options)
         final_second_pass_options = _get_empty_if_none_else_variable(
-                    second_pass_options) + resize_opt
+            second_pass_options) + resize_opt
         generate_video_pass(converter, source,
                             final_second_pass_options, outname)
     else:

@@ -34,7 +34,7 @@ See :ref:`compatibility with the encrypt plugin <compatibility-with-encrypt>`.
 import logging
 import os
 import zipfile
-from os.path import isfile, join, splitext
+from os.path import isfile, join
 
 from sigal import signals
 from sigal.gallery import Album
@@ -42,10 +42,12 @@ from sigal.utils import cached_property
 
 logger = logging.getLogger(__name__)
 
+
 def _should_generate_album_zip(album):
     """Checks whether a `.nozip_gallery` file exists in the album folder"""
     nozipgallerypath = os.path.join(album.src_path, ".nozip_gallery")
     return not os.path.isfile(nozipgallerypath)
+
 
 def _generate_album_zip(album):
     """Make a ZIP archive with all media files and return its path.
@@ -81,6 +83,7 @@ def _generate_album_zip(album):
 
     return False
 
+
 def generate_album_zip(album):
     """Checks for .nozip_gallery file in album folder.
     If this file exists, no ZIP archive is generated.
@@ -98,9 +101,11 @@ def generate_album_zip(album):
 
     return _generate_album_zip(album)
 
+
 def nozip_gallery_file(album, settings=None):
     """Filesystem based switch to disable ZIP generation for an Album"""
     Album.zip = cached_property(generate_album_zip)
+
 
 def register(settings):
     signals.album_initialized.connect(nozip_gallery_file)

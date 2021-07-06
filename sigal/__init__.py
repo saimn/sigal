@@ -174,7 +174,7 @@ def build(source, destination, debug, verbose, quiet, force, config, theme,
 
     if not quiet:
         stats_str = ''
-        types = sorted(set(t.rsplit('_',1)[0] for t in stats))
+        types = sorted(set(t.rsplit('_', 1)[0] for t in stats))
         for t in types[:-1]:
             stats_str += '{} and '.format(format_stats(t))
         stats_str += '{}'.format(format_stats(types[-1]))

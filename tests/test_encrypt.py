@@ -20,6 +20,7 @@ def get_key_tag(settings):
     tag = options["gcm_tag"].encode("utf-8")
     return (key, tag)
 
+
 def test_encrypt(settings, tmpdir, disconnect_signals):
     settings['destination'] = str(tmpdir)
     if "sigal.plugins.encrypt" not in settings["plugins"]:
@@ -63,7 +64,7 @@ def test_encrypt(settings, tmpdir, disconnect_signals):
         ]
         if settings["keep_orig"]:
             encryptedImages.append(os.path.join(settings["destination"],
-                                    media.path, media.big))
+                                                media.path, media.big))
 
         # check if images are encrypted by trying to decrypt
         for image in encryptedImages:
@@ -79,6 +80,6 @@ def test_encrypt(settings, tmpdir, disconnect_signals):
 
     # check keycheck file
     with open(os.path.join(settings["destination"],
-                            'static', "keycheck.txt"), "rb") as infile:
+                           'static', "keycheck.txt"), "rb") as infile:
         with BytesIO() as outfile:
             endec.decrypt(key, infile, outfile, tag)

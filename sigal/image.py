@@ -46,7 +46,7 @@ from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
 from . import signals, utils
-from .settings import Status, get_thumb
+from .settings import Status
 
 try:
     # Pillow 7.2+

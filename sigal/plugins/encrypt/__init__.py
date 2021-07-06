@@ -39,4 +39,4 @@ Compatibility with other plugins:
 
 """
 
-from .encrypt import register
+from .encrypt import register  # noqa
