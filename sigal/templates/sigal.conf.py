@@ -19,6 +19,10 @@ source = 'pictures'
 # `sigal build` command (default: '_build')
 # destination = '_build'
 
+# Cache file. Can be set here or as an argument to the `sigal build` command.
+# Uses sqlite3 to cache markdown contents for faster re-processing.
+# cache = None
+
 # Theme :
 # - colorbox (default), galleria, photoswipe, or the path to a custom theme
 # directory

@@ -18,6 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+from functools import lru_cache
 import os
 import shutil
 from urllib.parse import quote
@@ -62,6 +63,12 @@ def check_or_create_dir(path):
 
     if not os.path.isdir(path):
         os.makedirs(path)
+
+
+@lru_cache(maxsize=1024)
+def get_mod_date(path):
+    """Get modification date for a path, caching result with LRU cache."""
+    return os.path.getmtime(path)
 
 
 def url_from_path(path):

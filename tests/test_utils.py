@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from time import sleep
 
 from sigal import utils
 
@@ -48,6 +49,20 @@ def test_check_or_create_dir(tmpdir):
     path = str(tmpdir.join('new_directory'))
     utils.check_or_create_dir(path)
     assert os.path.isdir(path)
+
+
+def test_get_mod_date(tmp_path):
+    path = tmp_path / 'foo'
+    path.touch()
+    start = utils.get_mod_date(str(path))
+    sleep(.1)
+    path.touch()
+    end = utils.get_mod_date(str(path))
+    assert start == end  # cache is working
+
+    utils.get_mod_date.cache_clear()
+    end = utils.get_mod_date(str(path))
+    assert start != end
 
 
 def test_url_from_path():

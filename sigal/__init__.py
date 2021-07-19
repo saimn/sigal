@@ -108,13 +108,15 @@ def init(path):
 )
 @option('--title', help="Title of the gallery (overrides the title setting.")
 @option('-n', '--ncpu', help="Number of cpu to use (default: all)")
+@option('--cache', help="Cache file path")
 def build(
-    source, destination, debug, verbose, quiet, force, config, theme, title, ncpu
+    source, destination, debug, verbose, quiet, force, config, theme, title,
+    ncpu, cache
 ):
     """Run sigal to process a directory.
 
-    If provided, 'source', 'destination' and 'theme' will override the
-    corresponding values from the settings file.
+    If provided, 'source', 'destination', 'theme' and 'cache' will override
+    the corresponding values from the settings file.
 
     """
     if sum([debug, verbose, quiet]) > 1:
@@ -139,7 +141,7 @@ def build(
     start_time = time.time()
     settings = read_settings(config)
 
-    for key in ('source', 'destination', 'theme'):
+    for key in ('source', 'destination', 'theme', 'cache'):
         arg = locals()[key]
         if arg is not None:
             settings[key] = os.path.abspath(arg)

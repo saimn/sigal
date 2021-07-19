@@ -41,6 +41,7 @@ from natsort import natsort_keygen, ns
 from PIL import Image as PILImage
 
 from . import image, signals, video
+from .cache import Cache
 from .image import get_exif_tags, get_image_metadata, get_size, process_image
 from .settings import Status, get_thumb
 from .utils import (
@@ -49,12 +50,17 @@ from .utils import (
     check_or_create_dir,
     copy,
     get_mime,
+    get_mod_date,
     is_valid_html5_video,
     read_markdown,
     url_from_path,
 )
 from .video import process_video
 from .writer import AlbumListPageWriter, AlbumPageWriter
+
+
+# metadata cache
+CACHE = None
 
 
 class Media:
@@ -202,13 +208,18 @@ class Media:
 
         descfile = splitext(self.src_path)[0] + '.md'
         if isfile(descfile):
-            meta = read_markdown(descfile)
+            meta = None
+            if CACHE:
+                meta = CACHE.read_dict(descfile)
+            if not meta:
+                meta = read_markdown(descfile)
+                if CACHE:
+                    CACHE.write_dict(descfile, meta)
             for key, val in meta.items():
                 setattr(self, key, val)
 
     def _get_file_date(self):
-        stat = os.stat(self.src_path)
-        return datetime.fromtimestamp(stat.st_mtime)
+        return datetime.fromtimestamp(get_mod_date(self.src_path))
 
 
 class Image(Media):
@@ -247,7 +258,15 @@ class Image(Media):
 
     def _get_metadata(self):
         super()._get_metadata()
-        self.file_metadata = get_image_metadata(self.src_path)
+
+        meta = None
+        if CACHE:
+            meta = CACHE.read_dict(self.src_path)
+        if not meta:
+            meta = get_image_metadata(self.src_path)
+            if CACHE:
+                CACHE.write_dict(self.src_path, meta)
+        self.file_metadata = meta
 
         # If a title or description hasn't been obtained by other means, look
         #  for the information in IPTC fields
@@ -407,7 +426,13 @@ class Album:
         self.title = os.path.basename(self.path if self.path != '.' else self.src_path)
 
         if isfile(descfile):
-            meta = read_markdown(descfile)
+            meta = None
+            if CACHE:
+                meta = CACHE.read_dict(descfile)
+            if not meta:
+                meta = read_markdown(descfile)
+                if CACHE:
+                    CACHE.write_dict(descfile, meta)
             for key, val in meta.items():
                 setattr(self, key, val)
 
@@ -640,6 +665,7 @@ class Album:
 
 class Gallery:
     def __init__(self, settings, ncpu=None, quiet=False):
+        global CACHE
         self.settings = settings
         self.logger = logging.getLogger(__name__)
         self.stats = defaultdict(int)
@@ -664,43 +690,46 @@ class Gallery:
         )
         self.progressbar_target = None if show_progress else Devnull()
 
-        for path, dirs, files in os.walk(src_path, followlinks=True, topdown=False):
-            if show_progress:
-                print("\rCollecting albums " + next(progressChars), end="")
-            relpath = os.path.relpath(path, src_path)
+        with Cache(settings) as cache:
+            CACHE = cache
+            for path, dirs, files in os.walk(src_path, followlinks=True, topdown=False):
+                if show_progress:
+                    print("\rCollecting albums " + next(progressChars), end="")
+                relpath = os.path.relpath(path, src_path)
 
-            # Test if the directory match the ignore_dirs settings
-            if ignore_dirs and any(
-                fnmatch.fnmatch(relpath, ignore) for ignore in ignore_dirs
-            ):
-                self.logger.info('Ignoring %s', relpath)
-                continue
+                # Test if the directory match the ignore_dirs settings
+                if ignore_dirs and any(
+                    fnmatch.fnmatch(relpath, ignore) for ignore in ignore_dirs
+                ):
+                    self.logger.info('Ignoring %s', relpath)
+                    continue
 
-            # Remove files that match the ignore_files settings
-            if ignore_files:
-                files_path = {join(relpath, f) for f in files}
-                for ignore in ignore_files:
-                    files_path -= set(fnmatch.filter(files_path, ignore))
+                # Remove files that match the ignore_files settings
+                if ignore_files:
+                    files_path = {join(relpath, f) for f in files}
+                    for ignore in ignore_files:
+                        files_path -= set(fnmatch.filter(files_path, ignore))
 
-                self.logger.debug('Files before filtering: %r', files)
-                files = [os.path.split(f)[1] for f in files_path]
-                self.logger.debug('Files after filtering: %r', files)
+                    self.logger.debug('Files before filtering: %r', files)
+                    files = [os.path.split(f)[1] for f in files_path]
+                    self.logger.debug('Files after filtering: %r', files)
 
-            # Remove sub-directories that have been ignored in a previous
-            # iteration (as topdown=False, sub-directories are processed before
-            # their parent
-            for d in dirs[:]:
-                path = join(relpath, d) if relpath != '.' else d
-                if path not in albums.keys():
-                    dirs.remove(d)
+                # Remove sub-directories that have been ignored in a previous
+                # iteration (as topdown=False, sub-directories are processed before
+                # their parent
+                for d in dirs[:]:
+                    path = join(relpath, d) if relpath != '.' else d
+                    if path not in albums.keys():
+                        dirs.remove(d)
 
-            album = Album(relpath, settings, dirs, files, self)
+                album = Album(relpath, settings, dirs, files, self)
 
-            if not album.medias and not album.albums:
-                self.logger.info('Skip empty album: %r', album)
-            else:
-                album.create_output_directories()
-                albums[relpath] = album
+                if not album.medias and not album.albums:
+                    self.logger.info('Skip empty album: %r', album)
+                else:
+                    album.create_output_directories()
+                    albums[relpath] = album
+        CACHE = None
 
         if show_progress:
             print("\rCollecting albums, done.")
