@@ -51,6 +51,7 @@ from .utils import (
     check_or_create_dir,
     copy,
     get_mime,
+    get_mod_date,
     is_valid_html5_video,
     read_markdown,
     url_from_path,
@@ -96,12 +97,6 @@ class Media:
 
         self.logger = logging.getLogger(__name__)
 
-        self.file_metadata = None
-        self._get_metadata()
-
-        # default: title is the filename
-        if not self.title:
-            self.title = self.basename
         signals.media_initialized.send(self)
 
     def __repr__(self):
@@ -190,27 +185,45 @@ class Media:
                 return
         return url_from_path(self.thumb_name)
 
-    def _get_metadata(self):
-        """Get image metadata from filename.md: title, description, meta."""
-
-        self.description = ''
+    @cached_property
+    def description(self):
         """Description extracted from the Markdown <imagename>.md file."""
+        return self.raw_metadata.get('description', '')
 
-        self.title = ''
-        """Title extracted from the Markdown <imagename>.md file."""
+    @cached_property
+    def title(self):
+        """Title extracted from the metadata, or defaults to the filename."""
+        title = self.raw_metadata.get('title', '')
+        return title if title else self.basename
 
-        self.meta = {}
+    @cached_property
+    def meta(self):
         """Other metadata extracted from the Markdown <imagename>.md file."""
+        return self.raw_metadata.get('meta', {})
 
-        descfile = splitext(self.src_path)[0] + '.md'
-        if isfile(descfile):
-            meta = read_markdown(descfile)
-            for key, val in meta.items():
-                setattr(self, key, val)
+    @cached_property
+    def raw_metadata(self):
+        """Get metadata from filename.md: title, description, meta."""
+        return self._get_raw_metadata()
+
+    @property
+    def raw_metadata_filepath(self):
+        return splitext(self.src_path)[0] + '.md'
+
+    def _get_raw_metadata(self):
+        """Get metadata from filename.md."""
+        meta = {'title': '', 'description': '', 'meta': {}}
+        if isfile(self.raw_metadata_filepath):
+            meta.update(read_markdown(self.raw_metadata_filepath))
+        return meta
+
+    @cached_property
+    def file_metadata(self):
+        """Type-specific metadata"""
+        return {}
 
     def _get_file_date(self):
-        stat = os.stat(self.src_path)
-        return datetime.fromtimestamp(stat.st_mtime)
+        return datetime.fromtimestamp(get_mod_date(self.src_path))
 
 
 class Image(Media):
@@ -247,21 +260,23 @@ class Image(Media):
             else None
         )
 
-    def _get_metadata(self):
-        super()._get_metadata()
-        self.file_metadata = get_image_metadata(self.src_path)
+    @cached_property
+    def file_metadata(self):
+        """Image file metadata (Exif and IPTC)"""
+        return get_image_metadata(self.src_path)
+
+    def _get_raw_metadata(self):
+        """Get metadata from filename.md."""
+        meta = super()._get_raw_metadata()
 
         # If a title or description hasn't been obtained by other means, look
         #  for the information in IPTC fields
-        if self.title and self.description:
-            # Nothing to do - we already have title and description
-            return
+        if not meta['title']:
+            meta['title'] = self.file_metadata['iptc'].get('title', '')
+        if not meta['description']:
+            meta['description'] = self.file_metadata['iptc'].get('description', '')
 
-        iptc_data = self.file_metadata['iptc']
-        if not self.title and iptc_data.get('title'):
-            self.title = iptc_data['title']
-        if not self.description and iptc_data.get('description'):
-            self.description = iptc_data['description']
+        return meta
 
     @cached_property
     def raw_exif(self):
@@ -358,7 +373,6 @@ class Album:
             self.dst_path = join(settings['destination'], path)
 
         self.logger = logging.getLogger(__name__)
-        self._get_metadata()
 
         # optionally add index.html to the URLs
         self.url_ext = self.output_file if settings['index_in_url'] else ''
@@ -411,27 +425,42 @@ class Album:
     def __iter__(self):
         return iter(self.medias)
 
-    def _get_metadata(self):
-        """Get album metadata from `description_file` (`index.md`):
+    @cached_property
+    def description(self):
+        """Description extracted from the Markdown index.md file."""
+        return self.raw_metadata.get('description', '')
 
-        -> title, thumbnail image, description
+    @cached_property
+    def title(self):
+        """Title extracted from the Markdown index.md file."""
+        title = self.raw_metadata.get('title', '')
+        path = self.path if self.path != '.' else self.src_path
+        return title if title else os.path.basename(path)
 
-        """
-        descfile = join(self.src_path, self.description_file)
-        self.description = ''
-        self.meta = {}
-        # default: get title from directory name
-        self.title = os.path.basename(self.path if self.path != '.' else self.src_path)
+    @cached_property
+    def meta(self):
+        """Other metadata extracted from the Markdown index.md file."""
+        return self.raw_metadata.get('meta', {})
 
-        if isfile(descfile):
-            meta = read_markdown(descfile)
-            for key, val in meta.items():
-                setattr(self, key, val)
-
+    @cached_property
+    def author(self):
+        """Author extracted from the Markdown index.md file or settings."""
         try:
-            self.author = self.meta['author'][0]
+            return self.meta['author'][0]
         except KeyError:
-            self.author = self.settings.get('author')
+            return self.settings.get('author')
+
+    @property
+    def raw_metadata_filepath(self):
+        return join(self.src_path, self.description_file)
+
+    @cached_property
+    def raw_metadata(self):
+        """Get metadata from filename.md: title, description, meta."""
+        meta = {'title': '', 'description': '', 'meta': {}}
+        if isfile(self.raw_metadata_filepath):
+            meta.update(read_markdown(self.raw_metadata_filepath))
+        return meta
 
     def create_output_directories(self):
         """Create output directories for thumbnails and original images."""

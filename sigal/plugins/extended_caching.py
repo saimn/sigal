@@ -22,63 +22,130 @@
 2.5s instead of 30s)
 
 This plugin allows extended caching, which is useful for large galleries. Once
-a gallery has been built it caches the exif-data of the contained images in the
-gallery target folder.  Before the next run it restores them so that the image
-does not have to be parsed again. For large galleries this can speed up the
-creation of index files dramatically.
-
+a gallery has been built it caches all metadata for all media (markdown, exif,
+itpc) in the gallery target folder. Before the next run it restores them so
+that the image and metadata files do not have to be parsed again. For large
+galleries this can speed up the creation of index files dramatically.
 """
 
 import logging
 import os
 import pickle
 
-from sigal import signals
+from .. import signals
+from ..utils import get_mod_date
 
 logger = logging.getLogger(__name__)
 
 
-def load_exif(album):
-    """Loads the exif data of all images in an album from cache"""
-    if not hasattr(album.gallery, "exifCache"):
+def load_metadata(album):
+    """Loads the metadata of all media in an album from cache"""
+    if not hasattr(album.gallery, "metadataCache"):
         _restore_cache(album.gallery)
-    cache = album.gallery.exifCache
+    cache = album.gallery.metadataCache
 
+    # load album metadata
+    key = os.path.join(album.path, '_index')
+    if key in cache:
+        data = cache[key]
+
+        # check if file has changed
+        try:
+            mod_date = int(get_mod_date(album.raw_metadata_filepath))
+        except FileNotFoundError:
+            pass
+        else:
+            if data.get('mod_date', -1) >= mod_date:
+                # cache is good
+                if 'raw_metadata' in data:
+                    album.raw_metadata = data['raw_metadata']
+
+    # load media metadata
     for media in album.medias:
-        if media.type == "image":
-            key = os.path.join(media.path, media.dst_filename)
-            if key in cache:
-                media.exif = cache[key]
+        key = os.path.join(media.path, media.dst_filename)
+        if key in cache:
+            data = cache[key]
+
+            # check if files have changed
+            try:
+                mod_date = int(get_mod_date(media.src_path))
+            except FileNotFoundError:
+                continue
+            if data.get('mod_date', -1) < mod_date:
+                continue  # file_metadata needs updating
+
+            if 'file_metadata' in data:
+                media.file_metadata = data['file_metadata']
+            if 'exif' in data:
+                media.exif = data['exif']
+
+            try:
+                mod_date = int(get_mod_date(media.raw_metadata_filepath))
+            except FileNotFoundError:
+                continue
+            if data.get('meta_mod_date', -1) < mod_date:
+                continue  # raw_metadata needs updating
+
+            if 'raw_metadata' in data:
+                media.raw_metadata = data['raw_metadata']
 
 
 def _restore_cache(gallery):
-    """Restores the exif data cache from the cache file"""
-    cachePath = os.path.join(gallery.settings["destination"], ".exif_cache")
+    """Restores the metadata cache from the cache file"""
+    cachePath = os.path.join(gallery.settings["destination"], ".metadata_cache")
     try:
         if os.path.exists(cachePath):
             with open(cachePath, "rb") as cacheFile:
-                gallery.exifCache = pickle.load(cacheFile)
-                logger.debug("Loaded cache with %d entries", len(gallery.exifCache))
+                gallery.metadataCache = pickle.load(cacheFile)
+                logger.debug("Loaded cache with %d entries", len(gallery.metadataCache))
         else:
-            gallery.exifCache = {}
+            gallery.metadataCache = {}
     except Exception as e:
         logger.warn("Could not load cache: %s", e)
-        gallery.exifCache = {}
+        gallery.metadataCache = {}
 
 
 def save_cache(gallery):
     """Stores the exif data of all images in the gallery"""
 
-    if hasattr(gallery, "exifCache"):
-        cache = gallery.exifCache
+    if hasattr(gallery, "metadataCache"):
+        cache = gallery.metadataCache
     else:
-        cache = gallery.exifCache = {}
+        cache = gallery.metadataCache = {}
 
     for album in gallery.albums.values():
-        for image in album.images:
-            cache[os.path.join(image.path, image.dst_filename)] = image.exif
+        try:
+            data = {
+                'mod_date': int(get_mod_date(album.raw_metadata_filepath)),
+                'raw_metadata': album.raw_metadata,
+            }
+            cache[os.path.join(album.path, '_index')] = data
+        except FileNotFoundError:
+            pass
 
-    cachePath = os.path.join(gallery.settings["destination"], ".exif_cache")
+        for media in album.medias:
+            data = {}
+            try:
+                mod_date = int(get_mod_date(media.src_path))
+            except FileNotFoundError:
+                continue
+            else:
+                data['mod_date'] = mod_date
+                data['file_metadata'] = media.file_metadata
+                if hasattr(media, 'exif'):
+                    data['exif'] = media.exif
+
+            try:
+                meta_mod_date = int(get_mod_date(media.raw_metadata_filepath))
+            except FileNotFoundError:
+                pass
+            else:
+                data['meta_mod_date'] = meta_mod_date
+                data['raw_metadata'] = media.raw_metadata
+
+            cache[os.path.join(media.path, media.dst_filename)] = data
+
+    cachePath = os.path.join(gallery.settings["destination"], ".metadata_cache")
 
     if len(cache) == 0:
         if os.path.exists(cachePath):
@@ -88,7 +155,7 @@ def save_cache(gallery):
     try:
         with open(cachePath, "wb") as cacheFile:
             pickle.dump(cache, cacheFile)
-            logger.debug("Stored cache with %d entries", len(gallery.exifCache))
+            logger.debug("Stored cache with %d entries", len(gallery.metadataCache))
     except Exception as e:
         logger.warn("Could not store cache: %s", e)
         os.remove(cachePath)
@@ -96,4 +163,4 @@ def save_cache(gallery):
 
 def register(settings):
     signals.gallery_build.connect(save_cache)
-    signals.album_initialized.connect(load_exif)
+    signals.album_initialized.connect(load_metadata)

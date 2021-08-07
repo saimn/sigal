@@ -12,16 +12,40 @@ def test_save_cache(settings, tmpdir):
     gal = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal)
 
-    cachePath = os.path.join(settings['destination'], ".exif_cache")
+    cachePath = os.path.join(settings['destination'], ".metadata_cache")
 
     assert os.path.isfile(cachePath)
 
     with open(cachePath, "rb") as cacheFile:
         cache = pickle.load(cacheFile)
 
-    assert cache["exifTest/21.jpg"] == gal.albums["exifTest"].medias[0].exif
-    assert cache["exifTest/22.jpg"] == gal.albums["exifTest"].medias[1].exif
-    assert cache["exifTest/noexif.png"] == gal.albums["exifTest"].medias[2].exif
+    # test exif
+    album = gal.albums["exifTest"]
+    cache_img = cache["exifTest/21.jpg"]
+    assert cache_img["exif"] == album.medias[0].exif
+    assert 'raw_metadata' not in cache_img
+    assert cache_img["file_metadata"] == album.medias[0].file_metadata
+
+    cache_img = cache["exifTest/22.jpg"]
+    assert cache_img["exif"] == album.medias[1].exif
+    assert 'raw_metadata' not in cache_img
+    assert cache_img["file_metadata"] == album.medias[1].file_metadata
+
+    cache_img = cache["exifTest/noexif.png"]
+    assert cache_img["exif"] == album.medias[2].exif
+    assert 'raw_metadata' not in cache_img
+    assert cache_img["file_metadata"] == album.medias[2].file_metadata
+
+    # test iptc and md
+    album = gal.albums["iptcTest"]
+    assert cache["iptcTest/_index"]["raw_metadata"] == album.raw_metadata
+
+    cache_img = cache["iptcTest/1.jpg"]
+    assert cache_img["file_metadata"] == album.medias[0].file_metadata
+    assert 'raw_metadata' not in cache_img
+
+    cache_img = cache["iptcTest/2.jpg"]
+    assert cache_img["raw_metadata"] == album.medias[1].raw_metadata
 
 
 def test_restore_cache(settings, tmpdir):
@@ -30,22 +54,29 @@ def test_restore_cache(settings, tmpdir):
     gal2 = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal1)
     extended_caching._restore_cache(gal2)
-    assert gal1.exifCache == gal2.exifCache
+    assert gal1.metadataCache == gal2.metadataCache
 
 
 def test_load_exif(settings, tmpdir):
     settings['destination'] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal1.albums["exifTest"].medias[2].exif = "blafoo"
-    gal1.exifCache = {"exifTest/21.jpg": "Foo", "exifTest/22.jpg": "Bar"}
+    gal1.metadataCache = {
+        "exifTest/21.jpg": {"exif": "Foo", "mod_date": 100000000000},
+        "exifTest/22.jpg": {"exif": "Bar", "mod_date": 100000000000},
+    }
 
-    extended_caching.load_exif(gal1.albums["exifTest"])
+    extended_caching.load_metadata(gal1.albums["exifTest"])
 
     assert gal1.albums["exifTest"].medias[0].exif == "Foo"
     assert gal1.albums["exifTest"].medias[1].exif == "Bar"
     assert gal1.albums["exifTest"].medias[2].exif == "blafoo"
 
-    # check if setting gallery.exifCache works
+    # check if setting gallery.metadataCache works
     gal2 = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal1)
-    extended_caching.load_exif(gal2.albums["exifTest"])
+    extended_caching.load_metadata(gal2.albums["exifTest"])
+
+    assert gal2.albums["exifTest"].medias[0].exif == "Foo"
+    assert gal2.albums["exifTest"].medias[1].exif == "Bar"
+    assert gal2.albums["exifTest"].medias[2].exif == "blafoo"
