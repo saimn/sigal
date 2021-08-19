@@ -24,10 +24,8 @@
             {% endfor %}
           </ul>
         </div>
+        {% include 'album_items.html' %}
 
-        {% if album.description %}
-        <div id="description">
-          {{ album.description }}
-        </div>
-        {% endif %}
+
+
 {% endblock %}
