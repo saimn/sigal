@@ -23,6 +23,7 @@
         {% endif %}
 
 {% block late_js %}
+  {% if album.medias %}
     {% macro img_description(media) -%}
       {%- if media.big -%}<a href='{{ media.big_url }}'>Full size</a>{%- endif -%}
 	    {# clean up tags and whitespace, including newlines, in the description #}
@@ -228,4 +229,5 @@
     Galleria.run("#gallery", {dataSource: data});
 
     </script>
+  {% endif %}
 {% endblock %}
