@@ -1,7 +1,9 @@
 import os
 from unittest.mock import patch
 
+import PIL
 import pytest
+from packaging.version import Version
 from PIL import Image as PILImage
 
 from sigal import init_logging
@@ -41,8 +43,8 @@ def test_process_image(tmpdir):
     image = Image(TEST_IMAGE, '.', settings)
     status = process_image(image)
     assert status == Status.SUCCESS
-    im = PILImage.open(os.path.join(str(tmpdir), TEST_IMAGE))
-    assert im.size == settings['img_size']
+    with PILImage.open(os.path.join(str(tmpdir), TEST_IMAGE)) as im:
+        assert im.size == settings['img_size']
 
 
 def test_generate_image(tmpdir):
@@ -55,8 +57,8 @@ def test_generate_image(tmpdir):
         )
         options = None if i == 0 else {'quality': 85}
         generate_image(SRCFILE, dstfile, settings, options=options)
-        im = PILImage.open(dstfile)
-        assert im.size == size
+        with PILImage.open(dstfile) as im:
+            assert im.size == size
 
 
 def test_generate_image_imgformat(tmpdir):
@@ -72,8 +74,8 @@ def test_generate_image_imgformat(tmpdir):
         )
         options = {'quality': 85}
         generate_image(SRCFILE, dstfile, settings, options=options)
-        im = PILImage.open(dstfile)
-        assert im.format == outfmt
+        with PILImage.open(dstfile) as im:
+            assert im.format == outfmt
 
 
 def test_resize_image_portrait(tmpdir):
@@ -88,22 +90,21 @@ def test_resize_image_portrait(tmpdir):
     portrait_dst = str(tmpdir.join(portrait_image))
 
     generate_image(portrait_src, portrait_dst, settings)
-    im = PILImage.open(portrait_dst)
+    with PILImage.open(portrait_dst) as im:
+        # In the default mode, PILKit resizes in a way to never make an image
+        # smaller than either of the lengths, the other is scaled accordingly.
+        # Hence we test that the shorter side has the smallest length.
+        assert im.size[0] == 200
 
-    # In the default mode, PILKit resizes in a way to never make an image
-    # smaller than either of the lengths, the other is scaled accordingly.
-    # Hence we test that the shorter side has the smallest length.
-    assert im.size[0] == 200
+        landscape_image = 'KeckObservatory20071020.jpg'
+        landscape_src = os.path.join(
+            CURRENT_DIR, 'sample', 'pictures', 'dir2', landscape_image
+        )
+        landscape_dst = str(tmpdir.join(landscape_image))
 
-    landscape_image = 'KeckObservatory20071020.jpg'
-    landscape_src = os.path.join(
-        CURRENT_DIR, 'sample', 'pictures', 'dir2', landscape_image
-    )
-    landscape_dst = str(tmpdir.join(landscape_image))
-
-    generate_image(landscape_src, landscape_dst, settings)
-    im = PILImage.open(landscape_dst)
-    assert im.size[1] == 200
+        generate_image(landscape_src, landscape_dst, settings)
+        with PILImage.open(landscape_dst) as im:
+            assert im.size[1] == 200
 
 
 @pytest.mark.parametrize(
@@ -157,13 +158,13 @@ def test_generate_thumbnail(tmpdir, image, path, wide_size, high_size):
     dstfile = str(tmpdir.join(image))
     for size in [(200, 150), (150, 200)]:
         generate_thumbnail(path, dstfile, size)
-        im = PILImage.open(dstfile)
-        assert im.size == size
+        with PILImage.open(dstfile) as im:
+            assert im.size == size
 
     for size, thumb_size in [((200, 150), wide_size), ((150, 200), high_size)]:
         generate_thumbnail(path, dstfile, size, fit=False)
-        im = PILImage.open(dstfile)
-        assert im.size == thumb_size
+        with PILImage.open(dstfile) as im:
+            assert im.size == thumb_size
 
 
 def test_get_exif_tags():
@@ -281,6 +282,9 @@ def test_exif_copy(tmpdir):
     assert not simple
 
 
+@pytest.mark.skipif(
+    Version(PIL.__version__) < Version('8.0'), reason='fails with Pillow < 8.0'
+)
 def test_exif_gps(tmpdir):
     """Test reading out correct geo tags"""
 
