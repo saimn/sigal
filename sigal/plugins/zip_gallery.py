@@ -108,6 +108,7 @@ def generate_album_zip(album):
 def nozip_gallery_file(album, settings=None):
     """Filesystem based switch to disable ZIP generation for an Album"""
     Album.zip = cached_property(generate_album_zip)
+    Album.zip.__set_name__(Album, 'zip')
 
 
 def register(settings):
