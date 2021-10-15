@@ -34,11 +34,11 @@ See :ref:`compatibility with the encrypt plugin <compatibility-with-encrypt>`.
 import logging
 import os
 import zipfile
+from functools import cached_property
 from os.path import isfile, join
 
 from sigal import signals
 from sigal.gallery import Album
-from sigal.utils import cached_property
 
 logger = logging.getLogger(__name__)
 
