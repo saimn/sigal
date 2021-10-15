@@ -4,6 +4,7 @@
 # Copyright (c) 2015      - François D.
 # Copyright (c) 2017      - Mate Lakat
 # Copyright (c) 2018      - Edwin Steele
+# Copyright (c) 2021      - Tim AtLee
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -294,7 +295,6 @@ class Video(Media):
 
     def __init__(self, filename, path, settings):
         super().__init__(filename, path, settings)
-        self.date = self._get_file_date()
 
         if not settings['use_orig'] or not is_valid_html5_video(self.src_ext):
             video_format = settings['video_format']
@@ -303,6 +303,20 @@ class Video(Media):
             self.mime = get_mime(ext)
         else:
             self.mime = get_mime(self.src_ext)
+
+    @cached_property
+    def date(self):
+        """The date from the Date metadata if available, or from the file date."""
+        if 'date' in self.meta:
+            try:
+                self.logger.debug("Reading date from image metadata : %s",
+                                  self.src_filename)
+                return datetime.fromisoformat(self.meta['date'][0])
+            except Exception:
+                self.logger.debug("Reading date from image metadata failed : %s",
+                                  self.src_filename)
+        # If no date is found in the metadata, return the file date.
+        return self._get_file_date()
 
 
 class Album:

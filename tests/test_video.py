@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from unittest.mock import patch
 
 import pytest
@@ -46,6 +47,21 @@ def test_process_video(tmpdir):
 
     settings = create_settings(thumb_video_delay=-1)
     assert process_video(video) == Status.FAILURE
+
+
+def test_metadata(tmpdir):
+    base, ext = os.path.splitext(TEST_VIDEO)
+
+    settings = create_settings(
+        video_format='ogv',
+        use_orig=True,
+        orig_link=True,
+        source=os.path.join(SRCDIR, 'video'),
+        destination=str(tmpdir),
+    )
+    video = Video(TEST_VIDEO, '.', settings)
+    assert video.meta == {'date': ['2020-01-01T09:00:00']}
+    assert video.date == datetime(2020, 1, 1, 9, 0)
 
 
 @pytest.mark.parametrize("fmt", ['webm', 'mp4'])
