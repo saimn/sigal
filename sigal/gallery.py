@@ -307,16 +307,16 @@ class Video(Media):
     @cached_property
     def date(self):
         """The date from the Date metadata if available, or from the file date."""
+        if 'date' in self.meta:
+            try:
+                self.logger.debug("Reading date from image metadata : %s",
+                                  self.src_filename)
+                return datetime.fromisoformat(self.meta['date'][0])
+            except Exception:
+                self.logger.debug("Reading date from image metadata failed : %s",
+                                  self.src_filename)
         # If no date is found in the metadata, return the file date.
-        assetdate = datetime.now()
-        try:
-            assetdate = datetime.fromisoformat(self.meta['date'][0])
-        except:
-            self.logger.debug(
-                "Either self.meta.data was not set, or was in an incorrect format : %s",
-                self.src_filename)
-            assetdate = self._get_file_date()
-        return assetdate
+        return self._get_file_date()
 
 
 class Album:
