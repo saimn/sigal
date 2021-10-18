@@ -34,11 +34,11 @@ See :ref:`compatibility with the encrypt plugin <compatibility-with-encrypt>`.
 import logging
 import os
 import zipfile
+from functools import cached_property
 from os.path import isfile, join
 
 from sigal import signals
 from sigal.gallery import Album
-from sigal.utils import cached_property
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +108,7 @@ def generate_album_zip(album):
 def nozip_gallery_file(album, settings=None):
     """Filesystem based switch to disable ZIP generation for an Album"""
     Album.zip = cached_property(generate_album_zip)
+    Album.zip.__set_name__(Album, 'zip')
 
 
 def register(settings):

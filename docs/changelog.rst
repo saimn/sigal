@@ -7,7 +7,7 @@ Version 2.3.dev
 
 Not released yet.
 
-Sigal now requires Python 3.7+.
+Sigal now requires Python 3.8+.
 
 - Add option ``max_img_pixels`` to allow processing huge images (sets
   ``PIL.Image.MAX_IMAGE_PIXELS``) [:issue:`431`].

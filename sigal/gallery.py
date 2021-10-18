@@ -33,6 +33,7 @@ import random
 import sys
 from collections import defaultdict
 from datetime import datetime
+from functools import cached_property
 from itertools import cycle
 from os.path import isfile, join, splitext
 from urllib.parse import quote as url_quote
@@ -46,7 +47,6 @@ from .image import get_exif_tags, get_image_metadata, get_size, process_image
 from .settings import Status, get_thumb
 from .utils import (
     Devnull,
-    cached_property,
     check_or_create_dir,
     copy,
     get_mime,
