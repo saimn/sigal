@@ -1,0 +1,13 @@
+{% if album.zip %}
+  {% if album.settings['zip_media_format'] == "orig" %}
+    <div id="additionnal-infos" class="row">
+      <p><a href="{{ album.zip }}"
+            title="Download a zip archive with all images original size">Download ZIP with original files</a></p>
+    </div>
+  {% else %}
+    <div id="additionnal-infos" class="row">
+      <p><a href="{{ album.zip }}"
+            title="Download a zip archive with all images">Download ZIP</a></p>
+    </div>
+  {% endif %}
+{% endif %}
