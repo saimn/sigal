@@ -15,6 +15,7 @@
     {% if user_css %}
     <link rel="stylesheet" href="{{ theme.url }}/{{ user_css }}">
     {% endif %}
+    {% include 'default_head.html' %}
     {% block extra_head %}{% endblock extra_head %}
     {% include 'analytics.html' %}
   </head>
@@ -33,7 +34,7 @@
       </header>
 
       <div id="main" role="main">
-	      {% block content %}{% endblock content %}
+        {% block content %}{% endblock content %}
       </div>
       {% include 'footer.html' %}
     </div>

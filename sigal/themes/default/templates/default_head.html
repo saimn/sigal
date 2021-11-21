@@ -1,0 +1,11 @@
+{% if settings.show_map and album.show_map %}
+  <link rel="stylesheet" href="{{ theme.url }}/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="{{ theme.url }}/leaflet/Control.FullScreen.css" />
+  <link rel="stylesheet" href="{{ theme.url }}/leaflet/MarkerCluster.css" />
+  <link rel="stylesheet" href="{{ theme.url }}/leaflet/Leaflet.Photo.css" />
+  <script src="{{ theme.url }}/leaflet/leaflet.js"></script>
+  <script src="{{ theme.url }}/leaflet/leaflet-providers.js"></script>
+  <script src="{{ theme.url }}/leaflet/Control.FullScreen.js"></script>
+  <script src="{{ theme.url }}/leaflet/leaflet.markercluster.js"></script>
+  <script src="{{ theme.url }}/leaflet/Leaflet.Photo.js"></script>
+{% endif %}

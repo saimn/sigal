@@ -1,0 +1,35 @@
+{% if settings.show_map and album.show_map %}
+<div id="mapid" style="height: {{ settings.map_height }};"></div>
+<script charset="utf-8">
+  var map = L.map('mapid', {
+    fullscreenControl: true,
+    fullscreenControlOptions: {
+      position: 'topleft'
+    }
+  });
+  L.tileLayer.provider('{{ settings.leaflet_provider }}').addTo(map);
+
+  var photoLayer = L.photo.cluster({ spiderfyDistanceMultiplier: 1.2 })
+                   .on('click', function (evt) {
+    evt.layer.bindPopup(L.Util.template('<img src="{url}"/></a><p>{caption}</p>', evt.layer.photo), {
+      className: 'leaflet-popup-photo',
+      minWidth: 400
+    }).openPopup();
+  });
+
+  var photos = [];
+  {% for media in album.medias %}
+    {% if media.exif and media.exif.gps %}
+    photos.push({
+      lat: {{ media.exif.gps.lat }},
+      lng: {{ media.exif.gps.lon }},
+      url: "{{ media.thumbnail }}",
+      caption: "{{ media.title }}",
+      thumbnail: "{{ media.thumbnail }}",
+    });
+    {% endif %}
+  {% endfor %}
+  photoLayer.add(photos).addTo(map);
+  map.fitBounds(photoLayer.getBounds());
+</script>
+{% endif %}

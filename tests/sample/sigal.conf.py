@@ -43,4 +43,4 @@ atom_feed = {"feed_url": "http://127.0.0.1:8000/feed.atom", "nb_items": 10}
 # theme = 'galleria'
 # thumb_size = (280, 210)
 # galleria_theme = 'folio'
-# show_map = True
+show_map = True

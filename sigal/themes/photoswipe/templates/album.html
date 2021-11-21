@@ -9,20 +9,8 @@
 {% endblock extra_head %}
 
 {% block content %}
-  {% if album.zip %}
-    {% if album.settings['zip_media_format'] == "orig" %}
-      <div class="additionnal-infos">
-        <p><a href="{{ album.zip }}"
-              title="Download a zip archive with all images original size">Download ZIP with original files</a></p>
-      </div>
-    {% else %}
-      <div class="additionnal-infos">
-        <p><a href="{{ album.zip }}"
-              title="Download a zip archive with all images">Download ZIP</a></p>
-      </div>
-    {% endif %}
-  {% endif %}
-
+  {% include 'download_zip.html' %}
+  {% include 'map.html' %}
   <div class="gallery" itemscope itemtype="http://schema.org/ImageGallery">
     {% for media in album.medias %}
       {% if media.type == "image" %}

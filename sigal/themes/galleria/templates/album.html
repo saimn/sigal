@@ -8,13 +8,8 @@
         position:absolute; width:0; height:0; overflow:hidden; z-index:-1;
         content:url({{ album.medias[0].url }});
     }</style>
-    {% if settings.show_map and album.show_map %}
-    <link rel="stylesheet" href="{{ theme.url }}/leaflet/leaflet.css" />
-    {% endif %}
 {% endblock %}
 
 {% block content %}
-        {% include 'album_items.html' %}
-
+  {% include 'album_items.html' %}
 {% endblock %}
-

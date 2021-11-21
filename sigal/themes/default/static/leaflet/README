@@ -1,0 +1,5 @@
+plugins:
+https://github.com/leaflet-extras/leaflet-providers
+https://github.com/brunob/leaflet.fullscreen
+https://github.com/Leaflet/Leaflet.markercluster (for Leaflet.Photo)
+https://github.com/turban/Leaflet.Photo
