@@ -23,6 +23,7 @@
     {% endif %}
   {% endif %}
 
+  {% include 'map.html' %}
   <div class="gallery" itemscope itemtype="http://schema.org/ImageGallery">
     {% for media in album.medias %}
       {% if media.type == "image" %}

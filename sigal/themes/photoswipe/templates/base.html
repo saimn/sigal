@@ -8,6 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="{{ album.author }}">
     <meta name="viewport" content="width=device-width">
+    {% include 'default_head.html' %}
     {% block extra_head %}{% endblock extra_head %}
     <link rel="stylesheet" href="{{ theme.url }}/styles.css">
     {% if user_css %}
