@@ -1,35 +1,35 @@
-        <div class="icons">
-          <a id="fullscreen"><img src="{{ theme.url }}/img/fullscreen.png"
-            title="Fullscreen" alt="Fullscreen (f)" /></a>
-        </div>
-        {% include 'map.html' %}
-        <div id="gallery"></div>
+<div class="icons">
+  <a id="fullscreen"><img src="{{ theme.url }}/img/fullscreen.png"
+                          title="Fullscreen" alt="Fullscreen (f)" /></a>
+</div>
+{% include 'map.html' %}
+<div id="gallery"></div>
 
-        {% if album.zip %}
-          {% if album.settings['zip_media_format'] == "orig" %}
-            <div id="additionnal-infos" class="row">
-              <p><a href="{{ album.zip }}"
-                    title="Download a zip archive with all images original size">Download ZIP with original files</a></p>
-            </div>
-          {% else %}
-            <div id="additionnal-infos" class="row">
-              <p><a href="{{ album.zip }}"
-                    title="Download a zip archive with all images">Download ZIP</a></p>
-            </div>
-          {% endif %}
-        {% endif %}
+{% if album.zip %}
+  {% if album.settings['zip_media_format'] == "orig" %}
+    <div id="additionnal-infos" class="row">
+      <p><a href="{{ album.zip }}"
+            title="Download a zip archive with all images original size">Download ZIP with original files</a></p>
+    </div>
+  {% else %}
+    <div id="additionnal-infos" class="row">
+      <p><a href="{{ album.zip }}"
+            title="Download a zip archive with all images">Download ZIP</a></p>
+    </div>
+  {% endif %}
+{% endif %}
 
-        {% if album.description %}
-        <div id="description">
-          {{ album.description }}
-        </div>
-        {% endif %}
+{% if album.description %}
+<div id="description">
+  {{ album.description }}
+</div>
+{% endif %}
 
 {% block late_js %}
   {% if album.medias %}
     {% macro img_description(media) -%}
       {%- if media.big -%}<a href='{{ media.big_url }}'>Full size</a>{%- endif -%}
-	    {# clean up tags and whitespace, including newlines, in the description #}
+      {# clean up tags and whitespace, including newlines, in the description #}
       {%- if media.description -%}<br>{{ media.description | striptags }}{%- endif -%}
       {%- if media.exif -%}
         <div class='film-meta'>
