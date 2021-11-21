@@ -295,7 +295,7 @@ def test_gallery(settings, tmpdir):
     with open(out_html) as f:
         html = f.read()
 
-    assert '<title>Sigal test gallery</title>' in html
+    assert '<title>Sigal test gallery - Sigal test gallery ☺</title>' in html
     assert '<link rel="stylesheet" href="static/my.css">' in html
 
     logger = logging.getLogger('sigal')
