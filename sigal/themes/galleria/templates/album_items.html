@@ -1,11 +1,8 @@
         <div class="icons">
-          {% if settings.show_map and album.show_map %}
-          <a class="gallery-map-toggle"><img src="{{ theme.url }}/img/map.png"
-            title="Show/Hide map" alt="Show/Hide Map (m)" /></a>
-          {% endif %}
           <a id="fullscreen"><img src="{{ theme.url }}/img/fullscreen.png"
             title="Fullscreen" alt="Fullscreen (f)" /></a>
         </div>
+        {% include 'map.html' %}
         <div id="gallery"></div>
 
         {% if album.zip %}
@@ -54,10 +51,6 @@
     {%- endmacro %}
 
     <script src="{{ theme.url }}/jquery-3.3.1.min.js"></script>
-    {% if settings.show_map and album.show_map %}
-    <script src="{{ theme.url }}/leaflet/leaflet.js"></script>
-    <script src="{{ theme.url }}/leaflet/leaflet-providers.js"></script>
-    {% endif %}
     <script src="{{ theme.url }}/galleria.min.js"></script>
     <script src="{{ theme.url }}/themes/{{ settings.galleria_theme }}/galleria.{{ settings.galleria_theme }}.min.js"></script>
     <script src="{{ theme.url }}/plugins/history/galleria.history.min.js"></script>
@@ -82,109 +75,6 @@
       {% endfor %}
     ]
 
-    {% if settings.show_map and album.show_map %}
-    var selected =-1;
-    /* Init markers */
-    var features = new Array();
-
-    function selectMarker(marker) {
-        if (selected >= 0 && features[selected] != null) {
-            features[selected].setStyle({
-                radius: 7,
-                fillColor: "#888a85",
-                color: "#2e3436",
-                weight: 1,
-                fillOpacity: 1,
-                clickable: true
-            });
-            features[selected].redraw();
-        }
-
-        if (marker != null) {
-          marker.setStyle({
-              radius: 7,
-              fillColor: "#cc0000",
-              color: "#ef2929",
-              weight: 1,
-              fillOpacity: 1,
-              clickable: true
-          });
-          marker.bringToFront();
-          map.panTo(marker.getLatLng());
-        }
-    }
-
-    function onFeatureClick(e) {
-      selectMarker(e.target);
-      var id = features.indexOf(e.target);
-      var galleria = $("#gallery").data("galleria");
-      if (selected != id) {
-          selected = id;
-          galleria.show(id);
-      }
-    }
-
-    function init_map() {
-        /* Make sure we have the map div */
-        if ($("#galleria-map").length == 0) {
-            $(".galleria-stage").after("<div id='galleria-map'></div>");
-            map = L.map('galleria-map');
-            L.tileLayer.provider('{{ settings.leaflet_provider }}').addTo(map);
-            map.setView([51.505, -0.09], 12);
-
-            {% for media in album.medias %}
-              {% if media.exif and media.exif.gps %}
-            var lat = {{ media.exif.gps.lat }};
-            var lon = {{ media.exif.gps.lon }};
-            var marker = L.circleMarker([lat, lon], {
-                radius: 7,
-                fillColor: "#888a85",
-                color: "#2e3436",
-                weight: 1,
-                fillOpacity: 1,
-                clickable: true
-            });
-            marker.on('click', onFeatureClick);
-            features.push(marker);
-            marker.addTo(map);
-              {% else %}
-            features.push(null);
-              {% endif %}
-            {% endfor %}
-
-            selectMarker(features[selected]);
-        }
-    }
-
-    function galleryMapToggle() {
-        /* Make sure the map is loaded */
-        init_map();
-
-        var stage = $(".galleria-stage");
-        var mapdiv = $("#galleria-map");
-        var icons = $(".icons");
-
-        if (stage.attr.hidden == true) {
-            stage.attr.hidden = false;
-            $(".galleria-info-link").show();
-            mapdiv.hide();
-            stage.css("opacity", "1");
-            icons.css("background-color", "inherit");
-            /* Change display of the Map link */
-            $(".gallery-map-toggle img")[0].src = "{{ theme.url }}/img/map.png";
-        } else {
-            stage.attr.hidden = true;
-            $(".galleria-info-link").hide();
-            mapdiv.show();
-            /* Play with the stage opacity otherwise galleria will go mad */
-            stage.css("opacity", "0");
-            icons.css("background-color", "#333");
-            /* Change display of the Map link */
-            $(".gallery-map-toggle img")[0].src = "{{ theme.url }}/img/photo.png";
-        }
-    }
-    {% endif %}
-
     Galleria.ready(function() {
         /*
         load thumbnails after gallery setup, and download has started
@@ -202,10 +92,6 @@
             left: this.prev,
             /* Toggle fullscreen display on press of 'f' key */
             0x46: this.toggleFullscreen,
-            {% if settings.show_map and album.show_map %}
-            /* Toggle map display on press of 'm' key */
-            0x4D: galleryMapToggle,
-            {% endif %}
         });
 
         var gallery = this;
@@ -214,17 +100,6 @@
         });
 
         $('.icons').appendTo(this.$('container'));
-
-        {% if settings.show_map and album.show_map %}
-        $(".gallery-map-toggle").click(galleryMapToggle);
-        this.bind('loadfinish', function(e) {
-            /*  Triggers every time Galleria has finished loading an image.*/
-            if (selected != e.index) {
-                selectMarker(features[e.index]);
-                selected = e.index;
-            }
-        });
-        {% endif %}
     });
 
     Galleria.configure({
