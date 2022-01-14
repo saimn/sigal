@@ -84,10 +84,14 @@ def read_markdown(filename):
         text = f.read()
 
     if MD is None:
-        MD = Markdown(extensions=['markdown.extensions.extra',
-                                  'markdown.extensions.meta',
-                                  'markdown.extensions.tables'],
-                      output_format='html5')
+        MD = Markdown(
+            extensions=[
+                'markdown.extensions.extra',
+                'markdown.extensions.meta',
+                'markdown.extensions.tables',
+            ],
+            output_format='html5',
+        )
     else:
         MD.reset()
         # When https://github.com/Python-Markdown/markdown/pull/672

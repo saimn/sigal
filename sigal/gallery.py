@@ -310,12 +310,14 @@ class Video(Media):
         """The date from the Date metadata if available, or from the file date."""
         if 'date' in self.meta:
             try:
-                self.logger.debug("Reading date from image metadata : %s",
-                                  self.src_filename)
+                self.logger.debug(
+                    "Reading date from image metadata : %s", self.src_filename
+                )
                 return datetime.fromisoformat(self.meta['date'][0])
             except Exception:
-                self.logger.debug("Reading date from image metadata failed : %s",
-                                  self.src_filename)
+                self.logger.debug(
+                    "Reading date from image metadata failed : %s", self.src_filename
+                )
         # If no date is found in the metadata, return the file date.
         return self._get_file_date()
 

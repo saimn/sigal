@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import re
 from os.path import join
 
 import pytest
@@ -273,17 +274,20 @@ def test_medias_sort(settings):
     ]
 
 
-def test_gallery(settings, tmpdir):
+def test_gallery(settings, tmp_path, caplog):
     "Test the Gallery class."
 
-    with open(str(tmpdir.join('my.css')), mode='w') as f:
+    settings['destination'] = str(tmp_path)
+    settings['user_css'] = str(tmp_path / 'my.css')
+    settings['webm_options'] = ['-missing-option', 'foobar']
+    gal = Gallery(settings, ncpu=1)
+
+    gal.build()
+    assert re.match(r'CSS file .* could not be found', caplog.records[3].message)
+
+    with open(tmp_path / 'my.css', mode='w') as f:
         f.write('color: red')
 
-    settings['destination'] = str(tmpdir)
-    settings['user_css'] = str(tmpdir.join('my.css'))
-    settings['webm_options'] = ['-missing-option', 'foobar']
-
-    gal = Gallery(settings, ncpu=1)
     gal.build()
 
     mycss = os.path.join(settings['destination'], 'static', 'my.css')
@@ -308,27 +312,41 @@ def test_gallery(settings, tmpdir):
         logger.setLevel(logging.INFO)
 
 
-def test_custom_theme(settings, tmp_path):
+def test_custom_theme(settings, tmp_path, caplog):
 
     theme_path = tmp_path / 'mytheme'
     tpl_path = theme_path / 'templates'
+
+    settings['destination'] = str(tmp_path / 'build')
+    settings['source'] = os.path.join(settings['source'], 'encryptTest')
+    settings['theme'] = str(theme_path)
+    settings['title'] = 'My gallery'
+
+    gal = Gallery(settings, ncpu=1)
+
+    with pytest.raises(Exception, match='Impossible to find the theme'):
+        gal.build()
+
     tpl_path.mkdir(parents=True)
     (theme_path / 'static').mkdir(parents=True)
+
+    with pytest.raises(SystemExit):
+        gal.build()
+        assert caplog.records[0].message.startswith(
+            'The template album.html was not found in template folder'
+        )
 
     with open(tpl_path / 'album.html', mode='w') as f:
         f.write(""" {{ settings.title|myfilter }} """)
     with open(tpl_path / 'album_list.html', mode='w') as f:
         f.write(""" {{ settings.title|myfilter }} """)
     with open(theme_path / 'filters.py', mode='w') as f:
-        f.write("""
+        f.write(
+            """
 def myfilter(value):
     return f'{value} is very nice'
-""")
-
-    settings['destination'] = str(tmp_path / 'build')
-    settings['source'] = os.path.join(settings['source'], 'encryptTest')
-    settings['theme'] = str(theme_path)
-    settings['title'] = 'My gallery'
+"""
+        )
 
     gal = Gallery(settings, ncpu=1)
     gal.build()

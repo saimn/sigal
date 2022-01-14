@@ -117,8 +117,7 @@ class AbstractWriter:
         if os.path.isdir(self.theme_path):
             shutil.rmtree(self.theme_path)
 
-        copytree(os.path.join(THEMES_PATH, 'default', 'static'),
-                 self.theme_path)
+        copytree(os.path.join(THEMES_PATH, 'default', 'static'), self.theme_path)
         copytree(os.path.join(self.theme, 'static'), self.theme_path)
 
         if self.settings["user_css"]:
