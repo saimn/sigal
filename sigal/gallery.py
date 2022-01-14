@@ -36,9 +36,10 @@ from datetime import datetime
 from functools import cached_property
 from itertools import cycle
 from os.path import isfile, join, splitext
+from shutil import get_terminal_size
 from urllib.parse import quote as url_quote
 
-from click import get_terminal_size, progressbar
+from click import progressbar
 from natsort import natsort_keygen, ns
 from PIL import Image as PILImage
 
