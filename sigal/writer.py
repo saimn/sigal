@@ -27,7 +27,6 @@ import shutil
 import sys
 import types
 
-import jinja2
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
 
@@ -37,18 +36,6 @@ from .utils import url_from_path
 THEMES_PATH = os.path.normpath(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), "themes")
 )
-
-
-def copytree(src, dst, symlinks=False, ignore=None):
-    # FIXME: replace this with shutil.copytree and dirs_exist_ok when
-    # minimum Python is 3.8
-    for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            shutil.copytree(s, d, symlinks, ignore)
-        else:
-            shutil.copy2(s, d)
 
 
 class AbstractWriter:
@@ -112,8 +99,11 @@ class AbstractWriter:
         if os.path.isdir(self.theme_path):
             shutil.rmtree(self.theme_path)
 
-        copytree(os.path.join(THEMES_PATH, 'default', 'static'), self.theme_path)
-        copytree(os.path.join(self.theme, 'static'), self.theme_path)
+        for static_path in (
+            os.path.join(THEMES_PATH, 'default', 'static'),
+            os.path.join(self.theme, 'static'),
+        ):
+            shutil.copytree(static_path, self.theme_path, dirs_exist_ok=True)
 
         if self.settings["user_css"]:
             if not os.path.exists(self.settings["user_css"]):

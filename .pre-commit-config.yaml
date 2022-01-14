@@ -5,9 +5,9 @@ repos:
     - id: check-yaml
     - id: check-added-large-files
     - id: trailing-whitespace
-      exclude: ".*(galleria|photoswipe|jquery).*$"
+      exclude: ".*(galleria|photoswipe|jquery|leaflet).*$"
     - id: end-of-file-fixer
-      exclude: ".*(galleria|photoswipe|jquery).*$"
+      exclude: ".*(galleria|photoswipe|jquery|leaflet).*$"
 -   repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.2
     hooks:
