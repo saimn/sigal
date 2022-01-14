@@ -76,12 +76,7 @@ class AbstractWriter:
         )
 
         # setup jinja env
-        env_options = {"trim_blocks": True, "autoescape": True}
-        try:
-            if tuple(int(x) for x in jinja2.__version__.split(".")) >= (2, 7):
-                env_options["lstrip_blocks"] = True
-        except ValueError:
-            pass
+        env_options = {"trim_blocks": True, "autoescape": True, "lstrip_blocks": True}
 
         loaders = [
             FileSystemLoader(theme_relpath),
