@@ -93,6 +93,7 @@ class AbstractWriter:
         # handle optional filters.py
         filters_py = os.path.join(self.theme, "filters.py")
         if os.path.exists(filters_py):
+            self.logger.info('Loading filters file: %s', filters_py)
             module_spec = importlib.util.spec_from_file_location('filters', filters_py)
             mod = importlib.util.module_from_spec(module_spec)
             sys.modules['filters'] = mod

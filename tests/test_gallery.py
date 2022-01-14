@@ -308,6 +308,40 @@ def test_gallery(settings, tmpdir):
         logger.setLevel(logging.INFO)
 
 
+def test_custom_theme(settings, tmp_path):
+
+    theme_path = tmp_path / 'mytheme'
+    tpl_path = theme_path / 'templates'
+    tpl_path.mkdir(parents=True)
+    (theme_path / 'static').mkdir(parents=True)
+
+    with open(tpl_path / 'album.html', mode='w') as f:
+        f.write(""" {{ settings.title|myfilter }} """)
+    with open(tpl_path / 'album_list.html', mode='w') as f:
+        f.write(""" {{ settings.title|myfilter }} """)
+    with open(theme_path / 'filters.py', mode='w') as f:
+        f.write("""
+def myfilter(value):
+    return f'{value} is very nice'
+""")
+
+    settings['destination'] = str(tmp_path / 'build')
+    settings['source'] = os.path.join(settings['source'], 'encryptTest')
+    settings['theme'] = str(theme_path)
+    settings['title'] = 'My gallery'
+
+    gal = Gallery(settings, ncpu=1)
+    gal.build()
+
+    out_html = os.path.join(settings['destination'], 'index.html')
+    assert os.path.isfile(out_html)
+
+    with open(out_html) as f:
+        html = f.read()
+
+    assert 'My gallery is very nice' in html
+
+
 def test_gallery_max_img_pixels(settings, tmpdir, monkeypatch):
     "Test the Gallery class with the max_img_pixels setting."
     # monkeypatch is used here to reset the value to the PIL default.
