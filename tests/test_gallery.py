@@ -277,6 +277,7 @@ def test_medias_sort(settings):
 def test_gallery(settings, tmp_path, caplog):
     "Test the Gallery class."
 
+    caplog.set_level('ERROR')
     settings['destination'] = str(tmp_path)
     settings['user_css'] = str(tmp_path / 'my.css')
     settings['webm_options'] = ['-missing-option', 'foobar']
