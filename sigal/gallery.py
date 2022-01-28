@@ -188,33 +188,33 @@ class Media:
     @cached_property
     def description(self):
         """Description extracted from the Markdown <imagename>.md file."""
-        return self.raw_metadata.get('description', '')
+        return self.markdown_metadata.get('description', '')
 
     @cached_property
     def title(self):
         """Title extracted from the metadata, or defaults to the filename."""
-        title = self.raw_metadata.get('title', '')
+        title = self.markdown_metadata.get('title', '')
         return title if title else self.basename
 
     @cached_property
     def meta(self):
         """Other metadata extracted from the Markdown <imagename>.md file."""
-        return self.raw_metadata.get('meta', {})
+        return self.markdown_metadata.get('meta', {})
 
     @cached_property
-    def raw_metadata(self):
+    def markdown_metadata(self):
         """Get metadata from filename.md: title, description, meta."""
-        return self._get_raw_metadata()
+        return self._get_markdown_metadata()
 
     @property
-    def raw_metadata_filepath(self):
+    def markdown_metadata_filepath(self):
         return splitext(self.src_path)[0] + '.md'
 
-    def _get_raw_metadata(self):
+    def _get_markdown_metadata(self):
         """Get metadata from filename.md."""
         meta = {'title': '', 'description': '', 'meta': {}}
-        if isfile(self.raw_metadata_filepath):
-            meta.update(read_markdown(self.raw_metadata_filepath))
+        if isfile(self.markdown_metadata_filepath):
+            meta.update(read_markdown(self.markdown_metadata_filepath))
         return meta
 
     @cached_property
@@ -265,9 +265,9 @@ class Image(Media):
         """Image file metadata (Exif and IPTC)"""
         return get_image_metadata(self.src_path)
 
-    def _get_raw_metadata(self):
+    def _get_markdown_metadata(self):
         """Get metadata from filename.md."""
-        meta = super()._get_raw_metadata()
+        meta = super()._get_markdown_metadata()
 
         # If a title or description hasn't been obtained by other means, look
         #  for the information in IPTC fields
@@ -428,19 +428,19 @@ class Album:
     @cached_property
     def description(self):
         """Description extracted from the Markdown index.md file."""
-        return self.raw_metadata.get('description', '')
+        return self.markdown_metadata.get('description', '')
 
     @cached_property
     def title(self):
         """Title extracted from the Markdown index.md file."""
-        title = self.raw_metadata.get('title', '')
+        title = self.markdown_metadata.get('title', '')
         path = self.path if self.path != '.' else self.src_path
         return title if title else os.path.basename(path)
 
     @cached_property
     def meta(self):
         """Other metadata extracted from the Markdown index.md file."""
-        return self.raw_metadata.get('meta', {})
+        return self.markdown_metadata.get('meta', {})
 
     @cached_property
     def author(self):
@@ -451,15 +451,15 @@ class Album:
             return self.settings.get('author')
 
     @property
-    def raw_metadata_filepath(self):
+    def markdown_metadata_filepath(self):
         return join(self.src_path, self.description_file)
 
     @cached_property
-    def raw_metadata(self):
+    def markdown_metadata(self):
         """Get metadata from filename.md: title, description, meta."""
         meta = {'title': '', 'description': '', 'meta': {}}
-        if isfile(self.raw_metadata_filepath):
-            meta.update(read_markdown(self.raw_metadata_filepath))
+        if isfile(self.markdown_metadata_filepath):
+            meta.update(read_markdown(self.markdown_metadata_filepath))
         return meta
 
     def create_output_directories(self):

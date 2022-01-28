@@ -51,14 +51,14 @@ def load_metadata(album):
 
         # check if file has changed
         try:
-            mod_date = int(get_mod_date(album.raw_metadata_filepath))
+            mod_date = int(get_mod_date(album.markdown_metadata_filepath))
         except FileNotFoundError:
             pass
         else:
             if data.get('mod_date', -1) >= mod_date:
                 # cache is good
-                if 'raw_metadata' in data:
-                    album.raw_metadata = data['raw_metadata']
+                if 'markdown_metadata' in data:
+                    album.markdown_metadata = data['markdown_metadata']
 
     # load media metadata
     for media in album.medias:
@@ -80,14 +80,14 @@ def load_metadata(album):
                 media.exif = data['exif']
 
             try:
-                mod_date = int(get_mod_date(media.raw_metadata_filepath))
+                mod_date = int(get_mod_date(media.markdown_metadata_filepath))
             except FileNotFoundError:
                 continue
             if data.get('meta_mod_date', -1) < mod_date:
-                continue  # raw_metadata needs updating
+                continue  # markdown_metadata needs updating
 
-            if 'raw_metadata' in data:
-                media.raw_metadata = data['raw_metadata']
+            if 'markdown_metadata' in data:
+                media.markdown_metadata = data['markdown_metadata']
 
 
 def _restore_cache(gallery):
@@ -116,8 +116,8 @@ def save_cache(gallery):
     for album in gallery.albums.values():
         try:
             data = {
-                'mod_date': int(get_mod_date(album.raw_metadata_filepath)),
-                'raw_metadata': album.raw_metadata,
+                'mod_date': int(get_mod_date(album.markdown_metadata_filepath)),
+                'markdown_metadata': album.markdown_metadata,
             }
             cache[os.path.join(album.path, '_index')] = data
         except FileNotFoundError:
@@ -136,12 +136,12 @@ def save_cache(gallery):
                     data['exif'] = media.exif
 
             try:
-                meta_mod_date = int(get_mod_date(media.raw_metadata_filepath))
+                meta_mod_date = int(get_mod_date(media.markdown_metadata_filepath))
             except FileNotFoundError:
                 pass
             else:
                 data['meta_mod_date'] = meta_mod_date
-                data['raw_metadata'] = media.raw_metadata
+                data['markdown_metadata'] = media.markdown_metadata
 
             cache[os.path.join(media.path, media.dst_filename)] = data
 

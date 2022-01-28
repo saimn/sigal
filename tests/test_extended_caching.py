@@ -8,6 +8,7 @@ CURRENT_DIR = os.path.dirname(__file__)
 
 
 def test_save_cache(settings, tmpdir):
+    settings['plugins'].append('sigal.plugins.extended_caching')
     settings['destination'] = str(tmpdir)
     gal = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal)
@@ -23,32 +24,33 @@ def test_save_cache(settings, tmpdir):
     album = gal.albums["exifTest"]
     cache_img = cache["exifTest/21.jpg"]
     assert cache_img["exif"] == album.medias[0].exif
-    assert 'raw_metadata' not in cache_img
+    assert 'markdown_metadata' not in cache_img
     assert cache_img["file_metadata"] == album.medias[0].file_metadata
 
     cache_img = cache["exifTest/22.jpg"]
     assert cache_img["exif"] == album.medias[1].exif
-    assert 'raw_metadata' not in cache_img
+    assert 'markdown_metadata' not in cache_img
     assert cache_img["file_metadata"] == album.medias[1].file_metadata
 
     cache_img = cache["exifTest/noexif.png"]
     assert cache_img["exif"] == album.medias[2].exif
-    assert 'raw_metadata' not in cache_img
+    assert 'markdown_metadata' not in cache_img
     assert cache_img["file_metadata"] == album.medias[2].file_metadata
 
     # test iptc and md
     album = gal.albums["iptcTest"]
-    assert cache["iptcTest/_index"]["raw_metadata"] == album.raw_metadata
+    assert cache["iptcTest/_index"]["markdown_metadata"] == album.markdown_metadata
 
     cache_img = cache["iptcTest/1.jpg"]
     assert cache_img["file_metadata"] == album.medias[0].file_metadata
-    assert 'raw_metadata' not in cache_img
+    assert 'markdown_metadata' not in cache_img
 
     cache_img = cache["iptcTest/2.jpg"]
-    assert cache_img["raw_metadata"] == album.medias[1].raw_metadata
+    assert cache_img["markdown_metadata"] == album.medias[1].markdown_metadata
 
 
 def test_restore_cache(settings, tmpdir):
+    settings['plugins'].append('sigal.plugins.extended_caching')
     settings['destination'] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal2 = Gallery(settings, ncpu=1)
@@ -58,6 +60,7 @@ def test_restore_cache(settings, tmpdir):
 
 
 def test_load_exif(settings, tmpdir):
+    settings['plugins'].append('sigal.plugins.extended_caching')
     settings['destination'] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal1.albums["exifTest"].medias[2].exif = "blafoo"
