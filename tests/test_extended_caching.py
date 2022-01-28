@@ -8,7 +8,6 @@ CURRENT_DIR = os.path.dirname(__file__)
 
 
 def test_save_cache(settings, tmpdir):
-    settings['plugins'].append('sigal.plugins.extended_caching')
     settings['destination'] = str(tmpdir)
     gal = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal)
@@ -50,7 +49,6 @@ def test_save_cache(settings, tmpdir):
 
 
 def test_restore_cache(settings, tmpdir):
-    settings['plugins'].append('sigal.plugins.extended_caching')
     settings['destination'] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal2 = Gallery(settings, ncpu=1)
@@ -60,7 +58,6 @@ def test_restore_cache(settings, tmpdir):
 
 
 def test_load_exif(settings, tmpdir):
-    settings['plugins'].append('sigal.plugins.extended_caching')
     settings['destination'] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal1.albums["exifTest"].medias[2].exif = "blafoo"

@@ -12,6 +12,7 @@ from sigal.image import (
     get_exif_data,
     get_exif_tags,
     get_iptc_data,
+    get_image_metadata,
     get_size,
     process_image,
 )
@@ -239,6 +240,13 @@ def test_get_iptc_data(caplog):
     with patch('sigal.image.IptcImagePlugin.getiptcinfo', side_effect=SyntaxError):
         get_iptc_data(src_file)
         assert ['IPTC Error in'] == [log.message[:13] for log in caplog.records]
+
+
+def test_get_image_metadata_bad(caplog):
+    test_image = 'bad_image.jpg'
+    src_file = os.path.join(CURRENT_DIR, 'sample', test_image)
+    data = get_image_metadata(src_file)
+    assert data == {'exif': {}, 'iptc': {}, 'size': {}}
 
 
 def test_iso_speed_ratings():
