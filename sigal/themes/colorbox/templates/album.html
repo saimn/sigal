@@ -16,7 +16,7 @@
 
   {% include 'map.html' %}
   <div id="gallery">
-    {% for media in album.medias %}
+    {% for media in album.medias | selectattr("type", "in", ("image", "video")) %}
       {% if loop.index % nb_columns == 1 %}
       <div id="albums" class="row">
       {% endif%}
