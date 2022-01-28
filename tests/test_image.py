@@ -242,7 +242,8 @@ def test_get_iptc_data(caplog):
         assert ['IPTC Error in'] == [log.message[:13] for log in caplog.records]
 
 
-def test_get_image_metadata_bad(caplog):
+def test_get_image_metadata_exceptions():
+    # image does not exist
     test_image = 'bad_image.jpg'
     src_file = os.path.join(CURRENT_DIR, 'sample', test_image)
     data = get_image_metadata(src_file)

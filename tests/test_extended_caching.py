@@ -1,7 +1,7 @@
 import os
 import pickle
 
-from sigal.gallery import Gallery
+from sigal.gallery import Gallery, Image
 from sigal.plugins import extended_caching
 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -47,6 +47,13 @@ def test_save_cache(settings, tmpdir):
     cache_img = cache["iptcTest/2.jpg"]
     assert cache_img["markdown_metadata"] == album.medias[1].markdown_metadata
 
+    # test if file disappears
+    gal.albums["exifTest"].medias.append(Image("foooo.jpg", "exifTest", settings))
+    extended_caching.save_cache(gal)
+    with open(cachePath, "rb") as cacheFile:
+        cache = pickle.load(cacheFile)
+    assert "exifTest/foooo.jpg" not in cache
+
 
 def test_restore_cache(settings, tmpdir):
     settings['destination'] = str(tmpdir)
@@ -56,11 +63,20 @@ def test_restore_cache(settings, tmpdir):
     extended_caching._restore_cache(gal2)
     assert gal1.metadataCache == gal2.metadataCache
 
+    # test bad cache
+    cachePath = os.path.join(settings['destination'], ".metadata_cache")
+    with open(cachePath, 'w') as f:
+        f.write('bad pickle file')
+
+    extended_caching._restore_cache(gal2)
+    assert gal2.metadataCache == {}
+
 
 def test_load_exif(settings, tmpdir):
     settings['destination'] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal1.albums["exifTest"].medias[2].exif = "blafoo"
+    # set mod_date in future, to force these values
     gal1.metadataCache = {
         "exifTest/21.jpg": {"exif": "Foo", "mod_date": 100000000000},
         "exifTest/22.jpg": {"exif": "Bar", "mod_date": 100000000000},
@@ -80,3 +96,29 @@ def test_load_exif(settings, tmpdir):
     assert gal2.albums["exifTest"].medias[0].exif == "Foo"
     assert gal2.albums["exifTest"].medias[1].exif == "Bar"
     assert gal2.albums["exifTest"].medias[2].exif == "blafoo"
+
+
+def test_load_metadata_missing(settings, tmpdir):
+    settings['destination'] = str(tmpdir)
+    gal = Gallery(settings, ncpu=1)
+    extended_caching.save_cache(gal)
+    assert gal.metadataCache
+
+    # test if file disappears
+    gal.albums["exifTest"].medias.append(Image("foooo.jpg", "exifTest", settings))
+
+    # set mod_date to -1 to force cache update
+    gal.metadataCache = {
+        "exifTest/_index": {"mod_date": -1,},
+        "exifTest/21.jpg": {"exif": "Foo", "mod_date": -1},
+        "exifTest/foooo.jpg": {"exif": "Foo"},
+        "dir1/test2/22.jpg": {"exif": "Bar", "mod_date": 100000000000, "meta_mod_date": -1, "markdown_metadata": "Bar"},
+    }
+    # errors should all be caught
+    extended_caching.load_metadata(gal.albums["exifTest"])
+    assert gal.albums["exifTest"].medias[0].exif != "Foo"
+    assert gal.albums["exifTest"].medias[-1].exif != "Foo"
+
+    extended_caching.load_metadata(gal.albums["dir1/test2"])
+    assert gal.albums["dir1/test2"].medias[1].exif == "Bar"
+    assert gal.albums["dir1/test2"].medias[1].markdown_metadata != "Bar"

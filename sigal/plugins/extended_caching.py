@@ -101,7 +101,7 @@ def _restore_cache(gallery):
         else:
             gallery.metadataCache = {}
     except Exception as e:
-        logger.warn("Could not load cache: %s", e)
+        logger.warning("Could not load cache: %s", e)
         gallery.metadataCache = {}
 
 
