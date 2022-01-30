@@ -2,8 +2,7 @@
  Themes
 ========
 
-Gallery pages are created from a `Jinja2`_ template ``index.html`` that must
-be located in ``THEME_DIR/templates``.
+Sigal themes are created using the `Jinja2`_ templating system.
 
 .. _Jinja2: http://jinja.pocoo.org/docs/
 
@@ -29,6 +28,27 @@ Sigal comes with three themes, located in the ``sigal/themes`` folder:
 **photoswipe**:
     `source <http://photoswipe.com/>`__, `demo
     <http://saimon.org/sigal-demo/photoswipe/>`__.
+
+The ``themes`` folder also includes a ``default`` theme. This theme cannot be
+used on its own, instead, it contains Jinja2 templates that are used by the
+bundled themes to enable functionality such as the feeds and ZIP gallery
+plugins, as well as settings such as Google Analytics.
+
+Creating a theme
+~~~~~~~~~~~~~~~~
+
+Sigal requires the following two templates in order to generate a gallery.
+These templates must be located in ``THEME_DIR/templates``:
+
+- ``album_list.html``: Generates the album list, if you have multiple albums
+- ``album.html``: Generates each individual album page
+
+Themes may also include static content such as CSS and JavaScript by placing
+this content in the ``THEME_DIR/static`` folder. You can then access this
+content in your template by using the ``theme.url`` variable.
+
+Custom themes may also include the templates available in the ``default``
+theme.
 
 Variables
 ~~~~~~~~~
