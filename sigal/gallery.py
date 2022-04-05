@@ -793,11 +793,11 @@ class Gallery:
         self.logger.info("Using %s cores", ncpu)
         if ncpu > 1:
 
-            def pool_init():
-                if self.settings['max_img_pixels']:
-                    PILImage.MAX_IMAGE_PIXELS = self.settings['max_img_pixels']
-
-            self.pool = multiprocessing.Pool(processes=ncpu, initializer=pool_init)
+            self.pool = multiprocessing.Pool(
+                processes=ncpu,
+                initializer=pool_init,
+                initargs=(self.settings['max_img_pixels'],),
+            )
         else:
             self.pool = None
 
@@ -929,6 +929,11 @@ class Gallery:
             else:
                 self.stats[f.type] += 1
                 yield f
+
+
+def pool_init(max_img_pixels):
+    if max_img_pixels:
+        PILImage.MAX_IMAGE_PIXELS = max_img_pixels
 
 
 def process_file(media):
