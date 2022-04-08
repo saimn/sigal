@@ -109,10 +109,17 @@ def test_load_metadata_missing(settings, tmpdir):
 
     # set mod_date to -1 to force cache update
     gal.metadataCache = {
-        "exifTest/_index": {"mod_date": -1,},
+        "exifTest/_index": {
+            "mod_date": -1,
+        },
         "exifTest/21.jpg": {"exif": "Foo", "mod_date": -1},
         "exifTest/foooo.jpg": {"exif": "Foo"},
-        "dir1/test2/22.jpg": {"exif": "Bar", "mod_date": 100000000000, "meta_mod_date": -1, "markdown_metadata": "Bar"},
+        "dir1/test2/22.jpg": {
+            "exif": "Bar",
+            "mod_date": 100000000000,
+            "meta_mod_date": -1,
+            "markdown_metadata": "Bar",
+        },
     }
     # errors should all be caught
     extended_caching.load_metadata(gal.albums["exifTest"])

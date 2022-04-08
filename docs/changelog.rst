@@ -23,7 +23,7 @@ Sigal now requires Python 3.8+.
   the galleria theme [:issue:`450`].
 - Fix loading ``filters.py`` [:issue:`452`].
 - Fix compatibility with Click 8.1.
-- colorbox theme: avoiding holes due to non image/video files present in the 
+- colorbox theme: avoiding holes due to non image/video files present in the
   source directory [:issue:`455`].
 - Extend caching plugin to handle markdown and iptc metadata [:issue:`443`].
 

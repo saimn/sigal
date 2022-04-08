@@ -18,9 +18,9 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from functools import lru_cache
 import os
 import shutil
+from functools import lru_cache
 from urllib.parse import quote
 
 from markdown import Markdown

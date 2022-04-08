@@ -11,8 +11,8 @@ from sigal.image import (
     generate_thumbnail,
     get_exif_data,
     get_exif_tags,
-    get_iptc_data,
     get_image_metadata,
+    get_iptc_data,
     get_size,
     process_image,
 )
