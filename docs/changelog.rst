@@ -12,7 +12,20 @@ Sigal now requires Python 3.8+.
 - Add option ``max_img_pixels`` to allow processing huge images (sets
   ``PIL.Image.MAX_IMAGE_PIXELS``) [:issue:`431`].
 - Add webp to the list of images formats supported by default [:issue:`433`].
+- Allow ``video_size = None`` in settings [:issue:`435`].
+- New plugin to handle non-image or video files [:issue:`434`].
+- With the galleria theme, albums can contain both images and sub-albums
+  [:issue:`438`].
+- Add original size information for 'Download ZIP' link in album [:issue:`446`].
 - Allow specifying the file date in the Markdown metadata file [:issue:`447`].
+- Add gallery title to albums' ``<title>`` [:issue:`441`].
+- Add map for all themes. This replaces the map feature that was specific to
+  the galleria theme [:issue:`450`].
+- Fix loading ``filters.py`` [:issue:`452`].
+- Fix compatibility with Click 8.1.
+- colorbox theme: avoiding holes due to non image/video files present in the 
+  source directory [:issue:`455`].
+- Extend caching plugin to handle markdown and iptc metadata [:issue:`443`].
 
 Version 2.2
 ~~~~~~~~~~~
