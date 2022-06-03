@@ -47,3 +47,14 @@ def test_nonmedia_files(settings, tmpdir, disconnect_signals):
         settings['destination'], 'nonmedia_files', 'thumbnails', 'dummy.tn.jpg'
     )
     assert os.path.isfile(outthumb)
+
+def test_titleregexp(settings, tmpdir, disconnect_signals):
+
+    if "sigal.plugins.titleregexp" not in settings["plugins"]:
+        settings['plugins'] += ["sigal.plugins.titleregexp"]
+
+    init_plugins(settings)
+    gal = Gallery(settings)
+    gal.build()
+
+    assert gal.albums.get('dir1').albums[1].title == "titleregexp 2"
