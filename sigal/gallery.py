@@ -488,18 +488,26 @@ class Album:
                     reverse = False
 
             root_path = self.path if self.path != '.' else ''
-            if albums_sort_attr.startswith("meta."):
-                meta_key = albums_sort_attr.split(".", 1)[1]
 
-                def sort_key(s):
-                    album = self.gallery.albums[join(root_path, s)]
-                    return album.meta.get(meta_key, [''])[0]
+            def sort_key(s):
+                sort_attr = albums_sort_attr
+                if not isinstance(sort_attr,list):
+                    sort_attr = [sort_attr] 
 
-            else:
+                album = self.gallery.albums[join(root_path, s)]
 
-                def sort_key(s):
-                    album = self.gallery.albums[join(root_path, s)]
-                    return getattr(album, albums_sort_attr)
+                for k in sort_attr:
+                    try:
+                        if k.startswith("meta."):
+                            meta_key = k.split(".", 1)[1]
+                            return album.meta.get(meta_key)[0]
+                        else:
+                            return getattr(album, k)
+                    except AttributeError:
+                        continue
+                    except TypeError:
+                        continue
+                return ''
 
             key = natsort_keygen(key=sort_key, alg=ns.LOCALE)
             self.subdirs.sort(key=key, reverse=reverse)
