@@ -67,7 +67,7 @@ def titleregexp(album):
 
         if n>0 :
             for s in r.get('substitute', []) :
-                album.title = album.title.replace(r[0],r[1])
+                album.title = album.title.replace(s[0],s[1])
             if r.get('break','') != '' :
                 break
 

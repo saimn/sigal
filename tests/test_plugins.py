@@ -57,4 +57,4 @@ def test_titleregexp(settings, tmpdir, disconnect_signals):
     gal = Gallery(settings)
     gal.build()
 
-    assert gal.albums.get('dir1').albums[1].title == "titleregexp 2"
+    assert gal.albums.get('dir1').albums[1].title == "titleregexp 02"

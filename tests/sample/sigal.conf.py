@@ -42,7 +42,7 @@ atom_feed = {"feed_url": "http://127.0.0.1:8000/feed.atom", "nb_items": 10}
 
 titleregexp = {
     "regexp": [
-        { "search": r"test ?(.*)", "replace": r"titleregexp \1" }
+        { "search": r"test ?(.*)", "replace": r"titleregexp \1", "substitute": [ [ "2", "02" ] ], "break": 1 }
     ]
 }
 
