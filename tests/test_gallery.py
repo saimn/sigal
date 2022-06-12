@@ -247,6 +247,21 @@ def test_albums_sort(settings):
     a.sort_subdirs('meta.order')
     assert [d.meta['order'][0] for d in a.albums] == list(reversed(orders))
 
+    settings['albums_sort_reverse'] = False
+    a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
+    a.sort_subdirs(['meta.partialorder','meta.order'])
+    assert [d.name for d in a.albums] == list(['test1','test2','test3'])
+
+    settings['albums_sort_reverse'] = False
+    a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
+    a.sort_subdirs(['meta.partialorderb','name'])
+    assert [d.name for d in a.albums] == list(['test2','test3','test1'])
+
+    settings['albums_sort_reverse'] = True
+    a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
+    a.sort_subdirs(['meta.partialorderb','name'])
+    assert [d.name for d in a.albums] == list(['test1','test3','test2'])
+
 
 def test_medias_sort(settings):
     gal = Gallery(settings, ncpu=1)
