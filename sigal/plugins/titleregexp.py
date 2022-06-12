@@ -19,23 +19,37 @@
 # IN THE SOFTWARE.
 
 """ This plugin modifies titles of galleries by using regular-expressions and
-simple character replacements.
+simple string or character replacements. It is acting in two phases: First, all
+regular-expression-based modifications are carried out, second, string/character
+replacements are done.
+
+The first phase may be interrupted if a match occurs by the 'break'-setting
+individually per regular-expression part. Additionally, if a match occurs,
+string/character replacements may be added.
+
+The second phase is done even if the first phase had been interrupted.
 
 Settings:
 
 - ``titleregexp`` with the following keys:
-    - ``regexp``, which is an array of dicts with 'search', 'replace' and 
-        'count' keys
+    - ``regexp``, which is an array of dicts with 'search', 'replace', 'break'
+      'substitute' and 'count' keys. All but 'break' and 'substitute' are the
+      arguments for ``re.subn``, without given 'count' all matches are replaced.
+      If 'break' is anything but an empty string, the rest of the
+      ``regexp``-array is being skipped. The 'substitute'-key contains an array
+      following the ``substitute`` format explained in the next sentence and
+      does string-replacement if the regular-expression matched.
     - ``substitute``, which is an array of 2-element-arrays, of which the
-        second element denotes the replacement of occurences of the first 
-        element
+      occurences of the first element will be replaced by the second element by
+      the ``replace``-method of strings.
 
 Example::
 
     titleregexp = {
         'regexp' : [
-            { 'search': r"^([0-9]*)-(.*)$", 'replace': r"\2 (\1)", 'count': 1 },
-            { 'search': r"([a-z][a-z])([A-Z][a-z])", 'replace': r"\1 \2" }
+            { 'search': r"^([0-9]*)-(.*)$", 'replace': r"\\2 (\\1)", 'count': 1,
+              'break': 1, substitute: [ ['ae','ä'] ] },
+            { 'search': r"([a-z][a-z])([A-Z][a-z])", 'replace': r"\\1 \\2" }
             ],
         'substitute' : [ [ '_', ' ' ] ]
     }
@@ -49,7 +63,6 @@ import re
 from sigal import signals
 
 logger = logging.getLogger(__name__)
-cfg = {}
 
 def titleregexp(album):
     """Create a title by regexping name"""
@@ -60,6 +73,7 @@ def titleregexp(album):
 
     n = 0
     total = 0
+    album_title_org = album.title
 
     for r in cfg.get('regexp') :
         album.title, n = re.subn(r.get('search'), r.get('replace'), album.title, r.get('count', 0))
@@ -75,7 +89,7 @@ def titleregexp(album):
         album.title = album.title.replace(r[0],r[1])
 
     if total > 0:
-        logger.info("Fixing title to '%s'", album.title)
+        logger.info("Fixing title '%s' to '%s'", album_title_org, album.title)
 
 
 def register(settings):
