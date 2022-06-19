@@ -23,6 +23,7 @@ plugins = [
     "sigal.plugins.nomedia",
     "sigal.plugins.watermark",
     "sigal.plugins.zip_gallery",
+    "sigal.plugins.titleregexp",
 ]
 copyright = "© An example copyright message"
 adjust_options = {
@@ -40,6 +41,12 @@ thumb_size = (200, 150)
 
 rss_feed = {"feed_url": "http://127.0.0.1:8000/feed.rss", "nb_items": 10}
 atom_feed = {"feed_url": "http://127.0.0.1:8000/feed.atom", "nb_items": 10}
+
+titleregexp = {
+    "regexp": [
+        { "search": r"test ?(.*)", "replace": r"titleregexp \1", "substitute": [ [ "2", "02" ] ], "break": 1 }
+    ]
+}
 
 # theme = 'photoswipe'
 # theme = 'galleria'

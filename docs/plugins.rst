@@ -145,3 +145,8 @@ ZIP Gallery plugin
 ==================
 
 .. automodule:: sigal.plugins.zip_gallery
+
+Titleregexp plugin
+==================
+
+.. automodule:: sigal.plugins.titleregexp
