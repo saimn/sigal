@@ -11,6 +11,8 @@ links = [
     ("Another link", "http://example.org"),
 ]
 
+albums_sort_attr = [ "meta.nokey", "nosuchattribute", "name" ]
+
 files_to_copy = (("../watermark.png", "watermark.png"),)
 
 plugins = [
