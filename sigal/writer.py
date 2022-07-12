@@ -24,6 +24,7 @@ import importlib
 import logging
 import os
 import shutil
+import stat
 import sys
 import types
 
@@ -104,6 +105,15 @@ class AbstractWriter:
             os.path.join(self.theme, 'static'),
         ):
             shutil.copytree(static_path, self.theme_path, dirs_exist_ok=True)
+
+            # Ensure that the theme dir is writeable
+            for root, _, files in os.walk(self.theme_path):
+                st = os.stat(root)
+                os.chmod(root, st.st_mode | stat.S_IWUSR)
+                for name in files:
+                    path = os.path.join(root, name)
+                    st = os.stat(path)
+                    os.chmod(path, st.st_mode | stat.S_IWUSR)
 
         if self.settings["user_css"]:
             if not os.path.exists(self.settings["user_css"]):
