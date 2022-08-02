@@ -162,9 +162,9 @@ def generate_thumbnail(
     original_format = img.format
 
     if fit:
-        img = ImageOps.fit(img, box, PILImage.ANTIALIAS, centering=thumb_fit_centering)
+        img = ImageOps.fit(img, box, PILImage.Resampling.LANCZOS, centering=thumb_fit_centering)
     else:
-        img.thumbnail(box, PILImage.ANTIALIAS)
+        img.thumbnail(box, PILImage.Resampling.LANCZOS)
 
     outformat = img.format or original_format or 'JPEG'
     logger.debug('Save thumnail image: %s (%s)', outname, outformat)
