@@ -235,6 +235,9 @@ class Image(Media):
         super().__init__(filename, path, settings)
         imgformat = settings.get('img_format')
 
+        # Register all formats
+        PILImage.init()
+
         if imgformat and PILImage.EXTENSION[self.src_ext] != imgformat.upper():
             # Find the extension that should match img_format
             extensions = {v: k for k, v in PILImage.EXTENSION.items()}
@@ -492,7 +495,7 @@ class Album:
             def sort_key(s):
                 sort_attr = albums_sort_attr
                 if not isinstance(sort_attr,list):
-                    sort_attr = [sort_attr] 
+                    sort_attr = [sort_attr]
 
                 album = self.gallery.albums[join(root_path, s)]
 

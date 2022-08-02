@@ -161,10 +161,16 @@ def generate_thumbnail(
     img = Transpose().process(img)
     original_format = img.format
 
+    try:
+        method = PILImage.Resampling.LANCZOS
+    except AttributeError:
+        # Deprecated since version 9.1.0
+        method = PILImage.ANTIALIAS
+
     if fit:
-        img = ImageOps.fit(img, box, PILImage.ANTIALIAS, centering=thumb_fit_centering)
+        img = ImageOps.fit(img, box, method, centering=thumb_fit_centering)
     else:
-        img.thumbnail(box, PILImage.ANTIALIAS)
+        img.thumbnail(box, method)
 
     outformat = img.format or original_format or 'JPEG'
     logger.debug('Save thumnail image: %s (%s)', outname, outformat)
