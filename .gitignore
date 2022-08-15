@@ -15,7 +15,7 @@ dist/
 docs/_build
 htmlcov/
 output/
-sigal/version.py
+src/sigal/version.py
 tags
 venv
 ffmpeg2pass-0.log
