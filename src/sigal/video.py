@@ -28,7 +28,6 @@ import subprocess
 from os.path import splitext
 
 from . import image, utils
-from .settings import Status
 from .utils import is_valid_html5_video
 
 
@@ -206,7 +205,7 @@ def process_video(media):
     logger = logging.getLogger(__name__)
     settings = media.settings
 
-    try:
+    with utils.raise_if_debug() as status:
         if settings["use_orig"] and is_valid_html5_video(media.src_ext):
             utils.copy(media.src_path, media.dst_path, symlink=settings["orig_link"])
         else:
@@ -219,14 +218,8 @@ def process_video(media):
                 )
                 raise ValueError
             generate_video(media.src_path, media.dst_path, settings)
-    except Exception:
-        if logger.getEffectiveLevel() == logging.DEBUG:
-            raise
-        else:
-            return Status.FAILURE
 
-    if settings["make_thumbs"]:
-        try:
+        if settings["make_thumbs"]:
             generate_thumbnail(
                 media.dst_path,
                 media.thumb_path,
@@ -236,10 +229,5 @@ def process_video(media):
                 options=settings["jpg_options"],
                 converter=settings["video_converter"],
             )
-        except Exception:
-            if logger.getEffectiveLevel() == logging.DEBUG:
-                raise
-            else:
-                return Status.FAILURE
 
-    return Status.SUCCESS
+    return status.value

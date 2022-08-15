@@ -18,6 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import logging
 import os
 import shutil
 from functools import lru_cache
@@ -26,9 +27,11 @@ from urllib.parse import quote
 from markdown import Markdown
 from markupsafe import Markup
 
-VIDEO_MIMES = {'.mp4': 'video/mp4', '.webm': 'video/webm', '.ogv': 'video/ogg'}
+from sigal.settings import Status
 
+logger = logging.getLogger(__name__)
 MD = None
+VIDEO_MIMES = {'.mp4': 'video/mp4', '.webm': 'video/webm', '.ogv': 'video/ogg'}
 
 
 class Devnull:
@@ -130,3 +133,25 @@ def is_valid_html5_video(ext):
 def get_mime(ext):
     """Returns mime type for extension."""
     return VIDEO_MIMES[ext]
+
+
+class raise_if_debug:
+    def __init__(self):
+        self.value = None
+
+    def __enter__(self, *args):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type:
+            logger.info('Failed to process: %r', exc_value)
+            if logger.getEffectiveLevel() == logging.DEBUG:
+                # propagate the exception
+                return False
+            else:
+                self.value = Status.FAILURE
+        else:
+            self.value = Status.SUCCESS
+
+        # suppress the exception
+        return True

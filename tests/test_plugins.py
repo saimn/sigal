@@ -32,6 +32,7 @@ def test_plugins(settings, tmpdir, disconnect_signals):
 def test_nonmedia_files(settings, tmpdir, disconnect_signals):
     settings['destination'] = str(tmpdir)
     settings['plugins'] += ['sigal.plugins.nonmedia_files']
+    settings['nonmedia_files_options'] = {'thumb_bg_color': 'red'}
 
     init_plugins(settings)
 

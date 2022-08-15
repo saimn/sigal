@@ -45,7 +45,6 @@ from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
 from . import signals, utils
-from .settings import Status
 
 try:
     # Pillow 7.2+
@@ -190,7 +189,7 @@ def process_image(media):
     else:
         options = {}
 
-    try:
+    with utils.raise_if_debug() as status:
         generate_image(media.src_path, media.dst_path, media.settings, options=options)
 
         if media.settings['make_thumbs']:
@@ -202,14 +201,8 @@ def process_image(media):
                 options=options,
                 thumb_fit_centering=media.settings["thumb_fit_centering"],
             )
-    except Exception as e:
-        logger.info('Failed to process: %r', e)
-        if logger.getEffectiveLevel() == logging.DEBUG:
-            raise
-        else:
-            return Status.FAILURE
 
-    return Status.SUCCESS
+    return status.value
 
 
 def get_size(file_path):

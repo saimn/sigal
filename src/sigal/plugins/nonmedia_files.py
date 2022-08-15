@@ -6,10 +6,8 @@ it is up to the theme to provide correct support for downloads.
 
 Settings available as dictionary in ``nonmedia_files_options``:
 
-- ``ext_as_thumb``: Enable simple thumbnail showing ext.
-  Default to ``True``
-- ``ignore_ext``: List of file extensions to ignore.
-  Default to ``[".md"]``
+- ``ext_as_thumb``: Enable simple thumbnail showing ext. Default to ``True``
+- ``ignore_ext``: List of file extensions to ignore. Default to ``[".md"]``
 - ``thumb_bg_color``: Background color for thumbnail. Accepts (r, g, b) tuple.
   Default to white ``(255, 255, 255)``.
 - ``thumb_font``: Name or path to font file.
@@ -34,7 +32,6 @@ from pilkit.utils import save_image
 
 from sigal import signals, utils
 from sigal.gallery import Media
-from sigal.settings import Status
 
 logger = logging.getLogger(__name__)
 
@@ -60,12 +57,6 @@ COMMON_MIME_TYPES = {
 }
 
 
-def get_mime(ext):
-    if ext in COMMON_MIME_TYPES:
-        return COMMON_MIME_TYPES[ext]
-    return 'application/octet-stream'
-
-
 class NonMedia(Media):
     """Gather all informations on a non-media file."""
 
@@ -75,30 +66,14 @@ class NonMedia(Media):
         super().__init__(filename, path, settings)
         self.thumb_name = os.path.splitext(self.thumb_name)[0] + '.jpg'
         self.date = self._get_file_date()
-        self.mime = get_mime(self.src_ext)
+        self.mime = COMMON_MIME_TYPES.get(self.src_ext, 'application/octet-stream')
         logger.debug('mime type %s', self.mime)
 
     @property
     def thumbnail(self):
         """Path to the thumbnail image (relative to the album directory)."""
         if not os.path.isfile(self.thumb_path):
-            kwargs = {}
-            plugin_settings = self.settings.get('nonmedia_files_options', {})
-            if plugin_settings.get('thumb_bg_color', None):
-                kwargs['bg_color'] = plugin_settings['thumb_bg_color']
-            if plugin_settings.get('thumb_font', None):
-                kwargs['font'] = plugin_settings['thumb_font']
-            if plugin_settings.get('thumb_font_color', None):
-                kwargs['font_color'] = plugin_settings['thumb_font_color']
-            if plugin_settings.get('thumb_font_size', None):
-                kwargs['font_size'] = plugin_settings['thumb_font_size']
-            generate_thumbnail(
-                self.src_ext[1:].upper(),
-                self.thumb_path,
-                self.settings['thumb_size'],
-                options=self.settings['jpg_options'],
-                **kwargs,
-            )
+            process_thumb(self)
         return super().thumbnail
 
 
@@ -132,43 +107,34 @@ def generate_thumbnail(
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
-def process_nonmedia(media):
-    """Process a non-media file: copy and create thumbnail."""
-    logger.info('Processing non-media file: %s', media.dst_filename)
+def process_thumb(media):
     settings = media.settings
     plugin_settings = settings.get('nonmedia_files_options', {})
-
-    try:
-        utils.copy(media.src_path, media.dst_path, symlink=settings['orig_link'])
-    except Exception:
-        if logger.getEffectiveLevel() == logging.DEBUG:
-            raise
-        else:
-            return Status.FAILURE
+    utils.copy(media.src_path, media.dst_path, symlink=settings['orig_link'])
 
     if plugin_settings.get('ext_as_thumb', DEFAULT_CONFIG['ext_as_thumb']):
         logger.info('plugin_settings: %r', plugin_settings)
-        try:
-            kwargs = {}
-            if plugin_settings.get('thumb_font', None):
-                kwargs['font'] = plugin_settings['thumb_font']
-            if plugin_settings.get('thumb_bg_color', None):
-                kwargs['bg_color'] = plugin_settings['thumb_bg_color']
-            if plugin_settings.get('thumb_font_color', None):
-                kwargs['font_color'] = plugin_settings['thumb_font_color']
-            generate_thumbnail(
-                media.src_ext[1:].upper(),
-                media.thumb_path,
-                settings['thumb_size'],
-                options=settings['jpg_options'],
-                **kwargs,
-            )
-        except Exception:
-            if logger.getEffectiveLevel() == logging.DEBUG:
-                raise
-            else:
-                return Status.FAILURE
-    return Status.SUCCESS
+        kwargs = {}
+        for key in ('bg_color', 'font', 'font_color', 'font_size'):
+            if f'thumb_{key}' in plugin_settings:
+                kwargs[key] = plugin_settings[f'thumb_{key}']
+        generate_thumbnail(
+            media.src_ext[1:].upper(),
+            media.thumb_path,
+            settings['thumb_size'],
+            options=settings['jpg_options'],
+            **kwargs,
+        )
+
+
+def process_nonmedia(media):
+    """Process a non-media file: copy and create thumbnail."""
+    logger.info('Processing non-media file: %s', media.dst_filename)
+
+    with utils.raise_if_debug() as status:
+        process_thumb(media)
+
+    return status.value
 
 
 def album_file(album, filename, media=None):
