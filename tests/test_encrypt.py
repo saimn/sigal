@@ -2,6 +2,8 @@ import os
 import pickle
 from io import BytesIO
 
+import pytest
+
 from sigal import init_plugins
 from sigal.gallery import Gallery
 from sigal.plugins.encrypt import endec
@@ -19,21 +21,30 @@ def get_key_tag(settings):
     return (key, tag)
 
 
-def test_encrypt(settings, tmpdir, disconnect_signals):
+def test_encrypt(settings, tmpdir, disconnect_signals, caplog):
     settings['destination'] = str(tmpdir)
     if "sigal.plugins.encrypt" not in settings["plugins"]:
         settings['plugins'] += ["sigal.plugins.encrypt"]
 
+    init_plugins(settings)
+    gal = Gallery(settings)
+
+    with pytest.raises(ValueError, match="no encrypt_options in settings"):
+        gal.build()
+
+    settings['encrypt_options'] = {}
+
+    gal = Gallery(settings)
+
+    with pytest.raises(ValueError, match="no password provided"):
+        gal.build()
+
     settings['encrypt_options'] = {
         'password': 'password',
         'ask_password': True,
-        'gcm_tag': 'AuTheNTiCatIoNtAG',
-        'kdf_salt': 'saltysaltsweetysweet',
-        'kdf_iters': 10000,
         'encrypt_symlinked_originals': False,
     }
 
-    init_plugins(settings)
     gal = Gallery(settings)
     gal.build()
 
@@ -80,3 +91,10 @@ def test_encrypt(settings, tmpdir, disconnect_signals):
     ) as infile:
         with BytesIO() as outfile:
             endec.decrypt(key, infile, outfile, tag)
+
+    caplog.clear()
+    caplog.set_level('DEBUG')
+    gal = Gallery(settings)
+    gal.build()
+    assert caplog.messages[1].startswith('Loaded cache with')
+    assert caplog.messages[2].startswith('Loaded encryption cache with')
