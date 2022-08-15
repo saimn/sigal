@@ -61,3 +61,14 @@ def test_no_archive(tmpdir):
 
     assert not os.path.isfile(os.path.join(outpath, 'test1', 'archive.zip'))
     assert not os.path.isfile(os.path.join(outpath, 'test2', 'archive.zip'))
+
+
+def test_correct_filename(tmpdir, caplog):
+    caplog.set_level('ERROR')
+    outpath = str(tmpdir)
+    gallery = make_gallery(destination=outpath, zip_gallery=True)
+    gallery.build()
+
+    assert caplog.records[0].message == "'zip_gallery' should be set to a filename"
+    assert not os.path.isfile(os.path.join(outpath, 'test1', 'archive.zip'))
+    assert not os.path.isfile(os.path.join(outpath, 'test2', 'archive.zip'))

@@ -111,5 +111,12 @@ def nozip_gallery_file(album, settings=None):
     Album.zip.__set_name__(Album, 'zip')
 
 
+def check_settings(gallery):
+    if gallery.settings['zip_gallery'] and not isinstance(gallery.settings['zip_gallery'], str):
+        logger.error("'zip_gallery' should be set to a filename")
+        gallery.settings['zip_gallery'] = False
+
+
 def register(settings):
     signals.album_initialized.connect(nozip_gallery_file)
+    signals.gallery_initialized.connect(check_settings)
