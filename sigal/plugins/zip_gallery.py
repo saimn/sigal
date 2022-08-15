@@ -112,7 +112,9 @@ def nozip_gallery_file(album, settings=None):
 
 
 def check_settings(gallery):
-    if gallery.settings['zip_gallery'] and not isinstance(gallery.settings['zip_gallery'], str):
+    if gallery.settings['zip_gallery'] and not isinstance(
+        gallery.settings['zip_gallery'], str
+    ):
         logger.error("'zip_gallery' should be set to a filename")
         gallery.settings['zip_gallery'] = False
 

@@ -57,36 +57,35 @@ Example::
 """
 
 import logging
-import os
 import re
 
 from sigal import signals
 
 logger = logging.getLogger(__name__)
 
+
 def titleregexp(album):
     """Create a title by regexping name"""
-    #logger.info("DEBUG: name=%s, path=%s, title=%s", album.name, album.path, album.title)
-    #print(dir(album))
 
     cfg = album.settings.get('titleregexp')
-
     n = 0
     total = 0
     album_title_org = album.title
 
-    for r in cfg.get('regexp') :
-        album.title, n = re.subn(r.get('search'), r.get('replace'), album.title, r.get('count', 0))
+    for r in cfg.get('regexp'):
+        album.title, n = re.subn(
+            r.get('search'), r.get('replace'), album.title, r.get('count', 0)
+        )
         total += n
 
-        if n>0 :
-            for s in r.get('substitute', []) :
-                album.title = album.title.replace(s[0],s[1])
-            if r.get('break','') != '' :
+        if n > 0:
+            for s in r.get('substitute', []):
+                album.title = album.title.replace(s[0], s[1])
+            if r.get('break', '') != '':
                 break
 
-    for r in cfg.get('substitute', []) :
-        album.title = album.title.replace(r[0],r[1])
+    for r in cfg.get('substitute', []):
+        album.title = album.title.replace(r[0], r[1])
 
     if total > 0:
         logger.info("Fixing title '%s' to '%s'", album_title_org, album.title)

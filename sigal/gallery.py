@@ -494,7 +494,7 @@ class Album:
 
             def sort_key(s):
                 sort_attr = albums_sort_attr
-                if not isinstance(sort_attr,list):
+                if not isinstance(sort_attr, list):
                     sort_attr = [sort_attr]
 
                 album = self.gallery.albums[join(root_path, s)]
@@ -803,7 +803,6 @@ class Gallery:
 
         self.logger.info("Using %s cores", ncpu)
         if ncpu > 1:
-
             self.pool = multiprocessing.Pool(
                 processes=ncpu,
                 initializer=pool_init,

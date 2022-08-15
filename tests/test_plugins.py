@@ -7,7 +7,6 @@ CURRENT_DIR = os.path.dirname(__file__)
 
 
 def test_plugins(settings, tmpdir, disconnect_signals):
-
     settings['destination'] = str(tmpdir)
     if "sigal.plugins.nomedia" not in settings["plugins"]:
         settings['plugins'] += ["sigal.plugins.nomedia"]
@@ -31,7 +30,6 @@ def test_plugins(settings, tmpdir, disconnect_signals):
 
 
 def test_nonmedia_files(settings, tmpdir, disconnect_signals):
-
     settings['destination'] = str(tmpdir)
     settings['plugins'] += ['sigal.plugins.nonmedia_files']
 
@@ -48,8 +46,8 @@ def test_nonmedia_files(settings, tmpdir, disconnect_signals):
     )
     assert os.path.isfile(outthumb)
 
-def test_titleregexp(settings, tmpdir, disconnect_signals):
 
+def test_titleregexp(settings, tmpdir, disconnect_signals):
     if "sigal.plugins.titleregexp" not in settings["plugins"]:
         settings['plugins'] += ["sigal.plugins.titleregexp"]
 

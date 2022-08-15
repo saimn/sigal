@@ -11,7 +11,7 @@ links = [
     ("Another link", "http://example.org"),
 ]
 
-albums_sort_attr = [ "meta.nokey", "nosuchattribute", "name" ]
+albums_sort_attr = ["meta.nokey", "nosuchattribute", "name"]
 
 files_to_copy = (("../watermark.png", "watermark.png"),)
 
@@ -44,7 +44,12 @@ atom_feed = {"feed_url": "http://127.0.0.1:8000/feed.atom", "nb_items": 10}
 
 titleregexp = {
     "regexp": [
-        { "search": r"test ?(.*)", "replace": r"titleregexp \1", "substitute": [ [ "2", "02" ] ], "break": 1 }
+        {
+            "search": r"test ?(.*)",
+            "replace": r"titleregexp \1",
+            "substitute": [["2", "02"]],
+            "break": 1,
+        }
     ]
 }
 

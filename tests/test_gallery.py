@@ -249,18 +249,18 @@ def test_albums_sort(settings):
 
     settings['albums_sort_reverse'] = False
     a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
-    a.sort_subdirs(['meta.partialorder','meta.order'])
-    assert [d.name for d in a.albums] == list(['test1','test2','test3'])
+    a.sort_subdirs(['meta.partialorder', 'meta.order'])
+    assert [d.name for d in a.albums] == list(['test1', 'test2', 'test3'])
 
     settings['albums_sort_reverse'] = False
     a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
-    a.sort_subdirs(['meta.partialorderb','name'])
-    assert [d.name for d in a.albums] == list(['test2','test3','test1'])
+    a.sort_subdirs(['meta.partialorderb', 'name'])
+    assert [d.name for d in a.albums] == list(['test2', 'test3', 'test1'])
 
     settings['albums_sort_reverse'] = True
     a = Album('dir1', settings, album['subdirs'], album['medias'], gal)
-    a.sort_subdirs(['meta.partialorderb','name'])
-    assert [d.name for d in a.albums] == list(['test1','test3','test2'])
+    a.sort_subdirs(['meta.partialorderb', 'name'])
+    assert [d.name for d in a.albums] == list(['test1', 'test3', 'test2'])
 
 
 def test_medias_sort(settings):
@@ -329,7 +329,6 @@ def test_gallery(settings, tmp_path, caplog):
 
 
 def test_custom_theme(settings, tmp_path, caplog):
-
     theme_path = tmp_path / 'mytheme'
     tpl_path = theme_path / 'templates'
 

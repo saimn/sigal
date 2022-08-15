@@ -105,7 +105,6 @@ def test_serve(tmpdir):
 
 
 def test_set_meta(tmpdir):
-
     testdir = tmpdir.mkdir("test")
 
     testfile = tmpdir.join("test.jpg")

@@ -8,5 +8,5 @@ write_to = "sigal/version.py"
 [tool.black]
 line-length = 88
 target-version = ['py38']
-experimental-string-processing = true
+preview = true
 skip-string-normalization = true
