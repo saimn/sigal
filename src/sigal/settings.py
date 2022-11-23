@@ -80,7 +80,7 @@ _DEFAULT_CONFIG = {
     'use_orig': False,
     'user_css': None,
     'video_converter': 'ffmpeg',
-    'video_extensions': ['.mov', '.avi', '.mp4', '.webm', '.ogv', '.3gp'],
+    'video_extensions': ['.3gp', '.avi', '.mkv', '.mov', '.mp4', '.ogv', '.webm'],
     'video_format': 'webm',
     'video_always_convert': False,
     'video_size': (480, 360),
