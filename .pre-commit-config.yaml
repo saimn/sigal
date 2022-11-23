@@ -1,23 +1,33 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
-    hooks:
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
     - id: check-yaml
     - id: check-added-large-files
     - id: trailing-whitespace
       exclude: ".*(galleria|photoswipe|jquery|leaflet).*$"
     - id: end-of-file-fixer
       exclude: ".*(galleria|photoswipe|jquery|leaflet).*$"
--   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.2
-    hooks:
+
+- repo: https://github.com/asottile/pyupgrade
+  rev: v3.2.2
+  hooks:
+    - id: pyupgrade
+      args: ["--py38-plus"]
+
+- repo: https://github.com/timothycrosley/isort
+  rev: 5.10.1
+  hooks:
+    - id: isort
+
+- repo: https://github.com/psf/black
+  rev: 22.10.0
+  hooks:
+    - id: black
+
+- repo: https://github.com/PyCQA/flake8
+  rev: 6.0.0
+  hooks:
     - id: flake8
       types: [file, python]
--   repo: https://github.com/timothycrosley/isort
-    rev: 5.10.1
-    hooks:
-    - id: isort
--   repo: https://github.com/psf/black
-    rev: 22.6.0
-    hooks:
-    -   id: black
