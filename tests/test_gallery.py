@@ -133,8 +133,7 @@ def test_media_iptc_override(settings):
         == 'Haemostratulus clouds over Canberra - 2005-12-28 at 03-25-07'
     )
     assert (
-        img_no_md.description
-        == '"Haemo" because they look like haemoglobin '
+        img_no_md.description == '"Haemo" because they look like haemoglobin '
         'cells and "stratulus" because I can\'t work out whether '
         'they\'re Stratus or Cumulus clouds.\nWe\'re driving down '
         'the main drag in Canberra so it\'s Parliament House that '
