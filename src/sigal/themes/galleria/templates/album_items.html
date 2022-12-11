@@ -3,7 +3,9 @@
                           title="Fullscreen" alt="Fullscreen (f)" /></a>
 </div>
 {% include 'map.html' %}
+{% if album.medias %}
 <div id="gallery"></div>
+{% endif %}
 
 {% include 'download_zip.html' %}
 
