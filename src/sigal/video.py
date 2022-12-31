@@ -27,6 +27,8 @@ import shutil
 import subprocess
 from os.path import splitext
 
+from PIL import Image as PILImage
+
 from . import image, utils
 from .utils import is_valid_html5_video
 
@@ -172,17 +174,32 @@ def generate_video(source, outname, settings):
 
 
 def generate_thumbnail(
-    source, outname, box, delay, fit=True, options=None, converter="ffmpeg"
+    source, outname, box, delay, fit=True, options=None, converter="ffmpeg", black_retries=0, black_offset=1, black_max_colors=4
 ):
     """Create a thumbnail image for the video source, based on ffmpeg."""
     logger = logging.getLogger(__name__)
     tmpfile = outname + ".tmp.jpg"
 
-    # dump an image of the video
-    cmd = [converter, "-i", source, "-an", "-r", "1"]
-    cmd += ["-ss", str(delay), "-vframes", "1", "-y", tmpfile]
-    logger.debug("Create thumbnail for video: %s", " ".join(cmd))
-    check_subprocess(cmd, source, outname)
+    currentTry = 0
+    iDelay = int(delay)
+    while currentTry <= abs(black_retries):
+        # dump an image of the video
+        cmd = [converter, "-i", source, "-an", "-r", "1"]
+        cmd += ["-ss", str(iDelay), "-vframes", "1", "-y", tmpfile]
+        logger.debug("Create thumbnail for video: %s", " ".join(cmd))
+        check_subprocess(cmd, source, outname)
+        if os.path.isfile(tmpfile) and black_retries > 0:
+            img = PILImage.open(tmpfile)
+            colors = img.getcolors(maxcolors=black_max_colors)
+            if colors is None:
+                # There were more colors than maxcolors in the image, it looks suitable for a valid thumbnail
+                break
+            else:
+                # Only found 'maxcolors' unique colors, looks like a solid color, try again with another seek delay
+                currentTry += 1
+                iDelay += abs(black_offset)
+        else:
+            break
 
     # Sometimes ffmpeg fails with returncode zero but without producing an
     # output file Thus, we need to check if an output file was created. If
@@ -228,6 +245,9 @@ def process_video(media):
                 fit=settings["thumb_fit"],
                 options=settings["jpg_options"],
                 converter=settings["video_converter"],
+                black_retries=s['thumb_video_black_retries'],
+                black_offset=s['thumb_video_black_retry_offset'],
+                black_max_colors=s['thumb_video_black_max_colors']
             )
 
     return status.value
