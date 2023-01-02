@@ -245,9 +245,9 @@ def process_video(media):
                 fit=settings["thumb_fit"],
                 options=settings["jpg_options"],
                 converter=settings["video_converter"],
-                black_retries=s['thumb_video_black_retries'],
-                black_offset=s['thumb_video_black_retry_offset'],
-                black_max_colors=s['thumb_video_black_max_colors']
+                black_retries=settings['thumb_video_black_retries'],
+                black_offset=settings['thumb_video_black_retry_offset'],
+                black_max_colors=settings['thumb_video_black_max_colors']
             )
 
     return status.value
