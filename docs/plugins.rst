@@ -37,7 +37,7 @@ need. See an example with the copyright plugin:
 
 .. _blinker: http://pythonhosted.org/blinker/
 
-.. literalinclude:: ../sigal/plugins/copyright.py
+.. literalinclude:: ../src/sigal/plugins/copyright.py
    :language: python
 
 Signals
