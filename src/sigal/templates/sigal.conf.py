@@ -119,7 +119,13 @@ thumb_size = (280, 210)
 # thumb_fit_centering = (0.5, 0.5)
 
 # Delay in seconds to avoid black thumbnails in videos with fade-in
-# thumb_video_delay = '0'
+# thumb_video_delay = 0
+# Max retries to generate a non-black thumbnail
+# thumb_video_black_retries = 0
+# For each retry, advance another N seconds on top of original delay
+# thumb_video_black_retry_offset = 1
+# A thumbnail with more than max_colors will not be considered "all black"
+# thumb_video_black_max_colors = 4
 
 # Keep original image (default: False)
 # keep_orig = True
