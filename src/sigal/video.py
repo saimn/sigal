@@ -174,7 +174,16 @@ def generate_video(source, outname, settings):
 
 
 def generate_thumbnail(
-    source, outname, box, delay, fit=True, options=None, converter="ffmpeg", black_retries=0, black_offset=1, black_max_colors=4
+    source,
+    outname,
+    box,
+    delay,
+    fit=True,
+    options=None,
+    converter="ffmpeg",
+    black_retries=0,
+    black_offset=1,
+    black_max_colors=4,
 ):
     """Create a thumbnail image for the video source, based on ffmpeg."""
     logger = logging.getLogger(__name__)
@@ -192,10 +201,12 @@ def generate_thumbnail(
             img = PILImage.open(tmpfile)
             colors = img.getcolors(maxcolors=black_max_colors)
             if colors is None:
-                # There were more colors than maxcolors in the image, it looks suitable for a valid thumbnail
+                # There were more colors than maxcolors in the image, it
+                # looks suitable for a valid thumbnail
                 break
             else:
-                # Only found 'maxcolors' unique colors, looks like a solid color, try again with another seek delay
+                # Only found 'maxcolors' unique colors, looks like a solid
+                # color, try again with another seek delay
                 currentTry += 1
                 iDelay += abs(black_offset)
         else:
@@ -247,7 +258,7 @@ def process_video(media):
                 converter=settings["video_converter"],
                 black_retries=settings['thumb_video_black_retries'],
                 black_offset=settings['thumb_video_black_retry_offset'],
-                black_max_colors=settings['thumb_video_black_max_colors']
+                black_max_colors=settings['thumb_video_black_max_colors'],
             )
 
     return status.value

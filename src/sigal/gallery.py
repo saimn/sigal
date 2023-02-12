@@ -181,7 +181,7 @@ class Media:
                         converter=s['video_converter'],
                         black_retries=s['thumb_video_black_retries'],
                         black_offset=s['thumb_video_black_retry_offset'],
-                        black_max_colors=s['thumb_video_black_max_colors']
+                        black_max_colors=s['thumb_video_black_max_colors'],
                     )
             except Exception as e:
                 self.logger.error('Failed to generate thumbnail: %s', e)
