@@ -45,7 +45,7 @@ def load_metadata(album):
     cache = album.gallery.metadataCache
 
     # load album metadata
-    key = os.path.join(album.path, '_index')
+    key = os.path.join(album.path, "_index")
     if key in cache:
         data = cache[key]
 
@@ -55,10 +55,10 @@ def load_metadata(album):
         except FileNotFoundError:
             pass
         else:
-            if data.get('mod_date', -1) >= mod_date:
+            if data.get("mod_date", -1) >= mod_date:
                 # cache is good
-                if 'markdown_metadata' in data:
-                    album.markdown_metadata = data['markdown_metadata']
+                if "markdown_metadata" in data:
+                    album.markdown_metadata = data["markdown_metadata"]
 
     # load media metadata
     for media in album.medias:
@@ -71,23 +71,23 @@ def load_metadata(album):
                 mod_date = int(get_mod_date(media.src_path))
             except FileNotFoundError:
                 continue
-            if data.get('mod_date', -1) < mod_date:
+            if data.get("mod_date", -1) < mod_date:
                 continue  # file_metadata needs updating
 
-            if 'file_metadata' in data:
-                media.file_metadata = data['file_metadata']
-            if 'exif' in data:
-                media.exif = data['exif']
+            if "file_metadata" in data:
+                media.file_metadata = data["file_metadata"]
+            if "exif" in data:
+                media.exif = data["exif"]
 
             try:
                 mod_date = int(get_mod_date(media.markdown_metadata_filepath))
             except FileNotFoundError:
                 continue
-            if data.get('meta_mod_date', -1) < mod_date:
+            if data.get("meta_mod_date", -1) < mod_date:
                 continue  # markdown_metadata needs updating
 
-            if 'markdown_metadata' in data:
-                media.markdown_metadata = data['markdown_metadata']
+            if "markdown_metadata" in data:
+                media.markdown_metadata = data["markdown_metadata"]
 
 
 def _restore_cache(gallery):
@@ -116,10 +116,10 @@ def save_cache(gallery):
     for album in gallery.albums.values():
         try:
             data = {
-                'mod_date': int(get_mod_date(album.markdown_metadata_filepath)),
-                'markdown_metadata': album.markdown_metadata,
+                "mod_date": int(get_mod_date(album.markdown_metadata_filepath)),
+                "markdown_metadata": album.markdown_metadata,
             }
-            cache[os.path.join(album.path, '_index')] = data
+            cache[os.path.join(album.path, "_index")] = data
         except FileNotFoundError:
             pass
 
@@ -130,18 +130,18 @@ def save_cache(gallery):
             except FileNotFoundError:
                 continue
             else:
-                data['mod_date'] = mod_date
-                data['file_metadata'] = media.file_metadata
-                if hasattr(media, 'exif'):
-                    data['exif'] = media.exif
+                data["mod_date"] = mod_date
+                data["file_metadata"] = media.file_metadata
+                if hasattr(media, "exif"):
+                    data["exif"] = media.exif
 
             try:
                 meta_mod_date = int(get_mod_date(media.markdown_metadata_filepath))
             except FileNotFoundError:
                 pass
             else:
-                data['meta_mod_date'] = meta_mod_date
-                data['markdown_metadata'] = media.markdown_metadata
+                data["meta_mod_date"] = meta_mod_date
+                data["markdown_metadata"] = media.markdown_metadata
 
             cache[os.path.join(media.path, media.dst_filename)] = data
 

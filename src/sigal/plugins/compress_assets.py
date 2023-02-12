@@ -39,8 +39,8 @@ from sigal import signals
 logger = logging.getLogger(__name__)
 
 DEFAULT_SETTINGS = {
-    'suffixes': ['htm', 'html', 'css', 'js', 'svg'],
-    'method': 'gzip',
+    "suffixes": ["htm", "html", "css", "js", "svg"],
+    "method": "gzip",
 }
 
 
@@ -49,7 +49,7 @@ class BaseCompressor:
 
     def __init__(self, settings):
         self.suffixes_to_compress = settings.get(
-            'suffixes', DEFAULT_SETTINGS['suffixes']
+            "suffixes", DEFAULT_SETTINGS["suffixes"]
         )
 
     def do_compress(self, filename, compressed_filename):
@@ -85,7 +85,7 @@ class BaseCompressor:
 
         file_stats = None
         compressed_stats = None
-        compressed_filename = f'{filename}.{self.suffix}'
+        compressed_filename = f"{filename}.{self.suffix}"
         try:
             file_stats = os.stat(filename)
             compressed_stats = os.stat(compressed_filename)
@@ -103,63 +103,63 @@ class BaseCompressor:
 
 
 class GZipCompressor(BaseCompressor):
-    suffix = 'gz'
+    suffix = "gz"
 
     def do_compress(self, filename, compressed_filename):
-        with open(filename, 'rb') as f_in, gzip.open(
-            compressed_filename, 'wb'
+        with open(filename, "rb") as f_in, gzip.open(
+            compressed_filename, "wb"
         ) as f_out:
             shutil.copyfileobj(f_in, f_out)
 
 
 class ZopfliCompressor(BaseCompressor):
-    suffix = 'gz'
+    suffix = "gz"
 
     def do_compress(self, filename, compressed_filename):
         import zopfli.gzip
 
-        with open(filename, 'rb') as f_in, open(compressed_filename, 'wb') as f_out:
+        with open(filename, "rb") as f_in, open(compressed_filename, "wb") as f_out:
             f_out.write(zopfli.gzip.compress(f_in.read()))
 
 
 class BrotliCompressor(BaseCompressor):
-    suffix = 'br'
+    suffix = "br"
 
     def do_compress(self, filename, compressed_filename):
         import brotli
 
-        with open(filename, 'rb') as f_in, open(compressed_filename, 'wb') as f_out:
+        with open(filename, "rb") as f_in, open(compressed_filename, "wb") as f_out:
             f_out.write(brotli.compress(f_in.read(), mode=brotli.MODE_TEXT))
 
 
 def get_compressor(settings):
-    name = settings.get('method', DEFAULT_SETTINGS['method'])
-    if name == 'gzip':
+    name = settings.get("method", DEFAULT_SETTINGS["method"])
+    if name == "gzip":
         return GZipCompressor(settings)
-    elif name == 'zopfli':
+    elif name == "zopfli":
         try:
             import zopfli.gzip  # noqa
 
             return ZopfliCompressor(settings)
         except ImportError:
-            logging.error('Unable to import zopfli module')
+            logging.error("Unable to import zopfli module")
 
-    elif name == 'brotli':
+    elif name == "brotli":
         try:
             import brotli  # noqa
 
             return BrotliCompressor(settings)
         except ImportError:
-            logger.error('Unable to import brotli module')
+            logger.error("Unable to import brotli module")
 
     else:
-        logger.error(f'No such compressor {name}')
+        logger.error(f"No such compressor {name}")
 
 
 def compress_gallery(gallery):
-    logging.info('Compressing assets for %s', gallery.title)
+    logging.info("Compressing assets for %s", gallery.title)
     compress_settings = gallery.settings.get(
-        'compress_assets_options', DEFAULT_SETTINGS
+        "compress_assets_options", DEFAULT_SETTINGS
     )
     compressor = get_compressor(compress_settings)
 
@@ -169,13 +169,13 @@ def compress_gallery(gallery):
     # Collecting theme assets
     theme_assets = []
     for current_directory, _, filenames in os.walk(
-        os.path.join(gallery.settings['destination'], 'static')
+        os.path.join(gallery.settings["destination"], "static")
     ):
         for filename in filenames:
             theme_assets.append(os.path.join(current_directory, filename))
 
     with progressbar(
-        length=len(gallery.albums) + len(theme_assets), label='Compressing static files'
+        length=len(gallery.albums) + len(theme_assets), label="Compressing static files"
     ) as bar:
         for album in gallery.albums.values():
             compressor.compress(os.path.join(album.dst_path, album.output_file))
@@ -187,5 +187,5 @@ def compress_gallery(gallery):
 
 
 def register(settings):
-    if settings['write_html']:
+    if settings["write_html"]:
         signals.gallery_build.connect(compress_gallery)

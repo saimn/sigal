@@ -56,18 +56,18 @@ def _generate_album_zip(album):
     archive with all original images of the corresponding directory.
     """
 
-    zip_gallery = album.settings['zip_gallery']
+    zip_gallery = album.settings["zip_gallery"]
 
     if zip_gallery and len(album) > 0:
         zip_gallery = zip_gallery.format(album=album)
         archive_path = join(album.dst_path, zip_gallery)
-        if album.settings.get('zip_skip_if_exists', False) and isfile(archive_path):
+        if album.settings.get("zip_skip_if_exists", False) and isfile(archive_path):
             logger.debug("Archive %s already created, passing", archive_path)
             return zip_gallery
 
-        archive = zipfile.ZipFile(archive_path, 'w', allowZip64=True)
+        archive = zipfile.ZipFile(archive_path, "w", allowZip64=True)
         attr = (
-            'src_path' if album.settings['zip_media_format'] == 'orig' else 'dst_path'
+            "src_path" if album.settings["zip_media_format"] == "orig" else "dst_path"
         )
 
         for p in album:
@@ -75,10 +75,10 @@ def _generate_album_zip(album):
             try:
                 archive.write(path, os.path.split(path)[1])
             except OSError as e:
-                logger.warn('Failed to add %s to the ZIP: %s', p, e)
+                logger.warn("Failed to add %s to the ZIP: %s", p, e)
 
         archive.close()
-        logger.debug('Created ZIP archive %s', archive_path)
+        logger.debug("Created ZIP archive %s", archive_path)
         return zip_gallery
 
     return False
@@ -108,15 +108,15 @@ def generate_album_zip(album):
 def nozip_gallery_file(album, settings=None):
     """Filesystem based switch to disable ZIP generation for an Album"""
     Album.zip = cached_property(generate_album_zip)
-    Album.zip.__set_name__(Album, 'zip')
+    Album.zip.__set_name__(Album, "zip")
 
 
 def check_settings(gallery):
-    if gallery.settings['zip_gallery'] and not isinstance(
-        gallery.settings['zip_gallery'], str
+    if gallery.settings["zip_gallery"] and not isinstance(
+        gallery.settings["zip_gallery"], str
     ):
         logger.error("'zip_gallery' should be set to a filename")
-        gallery.settings['zip_gallery'] = False
+        gallery.settings["zip_gallery"] = False
 
 
 def register(settings):

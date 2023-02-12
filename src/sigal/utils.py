@@ -31,7 +31,7 @@ from sigal.settings import Status
 
 logger = logging.getLogger(__name__)
 MD = None
-VIDEO_MIMES = {'.mp4': 'video/mp4', '.webm': 'video/webm', '.ogv': 'video/ogg'}
+VIDEO_MIMES = {".mp4": "video/mp4", ".webm": "video/webm", ".ogv": "video/ogg"}
 
 
 class Devnull:
@@ -77,8 +77,8 @@ def get_mod_date(path):
 def url_from_path(path):
     """Transform path to url, converting backslashes to slashes if needed."""
 
-    if os.sep != '/':
-        path = '/'.join(path.split(os.sep))
+    if os.sep != "/":
+        path = "/".join(path.split(os.sep))
     return quote(path)
 
 
@@ -90,17 +90,17 @@ def read_markdown(filename):
     # Use utf-8-sig codec to remove BOM if it is present. This is only possible
     # this way prior to feeding the text to the markdown parser (which would
     # also default to pure utf-8)
-    with open(filename, encoding='utf-8-sig') as f:
+    with open(filename, encoding="utf-8-sig") as f:
         text = f.read()
 
     if MD is None:
         MD = Markdown(
             extensions=[
-                'markdown.extensions.extra',
-                'markdown.extensions.meta',
-                'markdown.extensions.tables',
+                "markdown.extensions.extra",
+                "markdown.extensions.meta",
+                "markdown.extensions.tables",
             ],
-            output_format='html5',
+            output_format="html5",
         )
     else:
         MD.reset()
@@ -109,16 +109,16 @@ def read_markdown(filename):
         MD.Meta = {}
 
     # Mark HTML with Markup to prevent jinja2 autoescaping
-    output = {'description': Markup(MD.convert(text))}
+    output = {"description": Markup(MD.convert(text))}
 
     try:
         meta = MD.Meta.copy()
     except AttributeError:
         pass
     else:
-        output['meta'] = meta
+        output["meta"] = meta
         try:
-            output['title'] = MD.Meta['title'][0]
+            output["title"] = MD.Meta["title"][0]
         except KeyError:
             pass
 
@@ -144,7 +144,7 @@ class raise_if_debug:
 
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type:
-            logger.info('Failed to process: %r', exc_value)
+            logger.info("Failed to process: %r", exc_value)
             if logger.getEffectiveLevel() == logging.DEBUG:
                 # propagate the exception
                 return False

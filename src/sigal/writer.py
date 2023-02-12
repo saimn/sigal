@@ -76,10 +76,10 @@ class AbstractWriter:
         # handle optional filters.py
         filters_py = os.path.join(self.theme, "filters.py")
         if os.path.exists(filters_py):
-            self.logger.info('Loading filters file: %s', filters_py)
-            module_spec = importlib.util.spec_from_file_location('filters', filters_py)
+            self.logger.info("Loading filters file: %s", filters_py)
+            module_spec = importlib.util.spec_from_file_location("filters", filters_py)
             mod = importlib.util.module_from_spec(module_spec)
-            sys.modules['filters'] = mod
+            sys.modules["filters"] = mod
             module_spec.loader.exec_module(mod)
             for name in dir(mod):
                 if isinstance(getattr(mod, name), types.FunctionType):
@@ -101,8 +101,8 @@ class AbstractWriter:
             shutil.rmtree(self.theme_path)
 
         for static_path in (
-            os.path.join(THEMES_PATH, 'default', 'static'),
-            os.path.join(self.theme, 'static'),
+            os.path.join(THEMES_PATH, "default", "static"),
+            os.path.join(self.theme, "static"),
         ):
             shutil.copytree(static_path, self.theme_path, dirs_exist_ok=True)
 

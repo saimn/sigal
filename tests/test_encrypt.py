@@ -22,9 +22,9 @@ def get_key_tag(settings):
 
 
 def test_encrypt(settings, tmpdir, disconnect_signals, caplog):
-    settings['destination'] = str(tmpdir)
+    settings["destination"] = str(tmpdir)
     if "sigal.plugins.encrypt" not in settings["plugins"]:
-        settings['plugins'] += ["sigal.plugins.encrypt"]
+        settings["plugins"] += ["sigal.plugins.encrypt"]
 
     init_plugins(settings)
     gal = Gallery(settings)
@@ -32,17 +32,17 @@ def test_encrypt(settings, tmpdir, disconnect_signals, caplog):
     with pytest.raises(ValueError, match="no encrypt_options in settings"):
         gal.build()
 
-    settings['encrypt_options'] = {}
+    settings["encrypt_options"] = {}
 
     gal = Gallery(settings)
 
     with pytest.raises(ValueError, match="no password provided"):
         gal.build()
 
-    settings['encrypt_options'] = {
-        'password': 'password',
-        'ask_password': True,
-        'encrypt_symlinked_originals': False,
+    settings["encrypt_options"] = {
+        "password": "password",
+        "ask_password": True,
+        "encrypt_symlinked_originals": False,
     }
 
     gal = Gallery(settings)
@@ -80,20 +80,20 @@ def test_encrypt(settings, tmpdir, disconnect_signals, caplog):
                     endec.decrypt(key, infile, outfile, tag)
 
     # check static files have been copied
-    static = os.path.join(settings["destination"], 'static')
+    static = os.path.join(settings["destination"], "static")
     assert os.path.isfile(os.path.join(static, "decrypt.js"))
     assert os.path.isfile(os.path.join(static, "keycheck.txt"))
     assert os.path.isfile(os.path.join(settings["destination"], "sw.js"))
 
     # check keycheck file
     with open(
-        os.path.join(settings["destination"], 'static', "keycheck.txt"), "rb"
+        os.path.join(settings["destination"], "static", "keycheck.txt"), "rb"
     ) as infile:
         with BytesIO() as outfile:
             endec.decrypt(key, infile, outfile, tag)
 
     caplog.clear()
-    caplog.set_level('DEBUG')
+    caplog.set_level("DEBUG")
     gal = Gallery(settings)
     gal.build()
     # Doesn't work on Actions ...

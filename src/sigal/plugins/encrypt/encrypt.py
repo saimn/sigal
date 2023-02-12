@@ -37,7 +37,7 @@ from .endec import encrypt, kdf_gen_key
 logger = logging.getLogger(__name__)
 
 ASSETS_PATH = os.path.normpath(
-    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static')
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), "static")
 )
 
 
@@ -62,7 +62,7 @@ def get_options(settings, cache):
     except KeyError:
         options = settings["encrypt_options"]
 
-    table = str.maketrans({'"': r'\"', '\\': r'\\'})
+    table = str.maketrans({'"': r"\"", "\\": r"\\"})
     if (
         "password" not in settings["encrypt_options"]
         or len(settings["encrypt_options"]["password"]) == 0
@@ -227,7 +227,7 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
                     save_cache(settings, cache)
                     raise Abort
 
-    key_check_path = os.path.join(settings["destination"], 'static', 'keycheck.txt')
+    key_check_path = os.path.join(settings["destination"], "static", "keycheck.txt")
     encrypt_file("keycheck.txt", key_check_path, key, gcm_tag)
 
 
@@ -251,7 +251,7 @@ def encrypt_file(filename, full_path, key, gcm_tag):
 
 
 def copy_assets(settings):
-    theme_path = os.path.join(settings["destination"], 'static')
+    theme_path = os.path.join(settings["destination"], "static")
     copy(
         os.path.join(ASSETS_PATH, "decrypt.js"),
         theme_path,
@@ -273,8 +273,8 @@ def copy_assets(settings):
 
 
 def inject_scripts(context):
-    cache = load_cache(context['settings'])
-    context["encrypt_options"] = get_options(context['settings'], cache)
+    cache = load_cache(context["settings"])
+    context["encrypt_options"] = get_options(context["settings"], cache)
 
 
 def register(settings):

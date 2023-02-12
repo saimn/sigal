@@ -27,72 +27,72 @@ from os.path import abspath, isabs, join, normpath
 from pprint import pformat
 
 _DEFAULT_CONFIG = {
-    'albums_sort_attr': 'name',
-    'albums_sort_reverse': False,
-    'autorotate_images': True,
-    'colorbox_column_size': 3,
-    'copy_exif_data': False,
-    'datetime_format': '%c',
-    'destination': '_build',
-    'files_to_copy': (),
-    'galleria_theme': 'classic',
-    'google_analytics': '',
-    'google_tag_manager': '',
-    'ignore_directories': [],
-    'ignore_files': [],
-    'img_extensions': ['.jpg', '.jpeg', '.png', '.gif', '.tif', '.tiff', '.webp'],
-    'img_processor': 'ResizeToFit',
-    'img_size': (640, 480),
-    'img_format': None,
-    'index_in_url': False,
-    'jpg_options': {'quality': 85, 'optimize': True, 'progressive': True},
-    'keep_orig': False,
-    'html_language': 'en',
-    'leaflet_provider': 'OpenStreetMap.Mapnik',
-    'links': '',
-    'locale': '',
-    'make_thumbs': True,
-    'max_img_pixels': None,
-    'map_height': '500px',
-    'medias_sort_attr': 'filename',
-    'medias_sort_reverse': False,
-    'mp4_options': ['-crf', '23', '-strict', '-2'],
-    'mp4_options_second_pass': None,
-    'orig_dir': 'original',
-    'orig_link': False,
-    'rel_link': False,
-    'output_filename': 'index.html',
-    'piwik': {'tracker_url': '', 'site_id': 0},
-    'plugin_paths': [],
-    'plugins': [],
-    'site_logo': '',
-    'show_map': False,
-    'source': '',
-    'theme': 'colorbox',
-    'thumb_dir': 'thumbnails',
-    'thumb_fit': True,
-    'thumb_fit_centering': (0.5, 0.5),
-    'thumb_prefix': '',
-    'thumb_size': (200, 150),
-    'thumb_suffix': '',
-    'thumb_video_delay': 0,
-    'thumb_video_black_retries': 0,
-    'thumb_video_black_retry_offset': 1,
-    'thumb_video_black_max_colors': 4,
-    'title': '',
-    'use_orig': False,
-    'user_css': None,
-    'video_converter': 'ffmpeg',
-    'video_extensions': ['.3gp', '.avi', '.mkv', '.mov', '.mp4', '.ogv', '.webm'],
-    'video_format': 'webm',
-    'video_always_convert': False,
-    'video_size': (480, 360),
-    'watermark': '',
-    'webm_options': ['-crf', '10', '-b:v', '1.6M', '-qmin', '4', '-qmax', '63'],
-    'webm_options_second_pass': None,
-    'write_html': True,
-    'zip_gallery': False,
-    'zip_media_format': 'resized',
+    "albums_sort_attr": "name",
+    "albums_sort_reverse": False,
+    "autorotate_images": True,
+    "colorbox_column_size": 3,
+    "copy_exif_data": False,
+    "datetime_format": "%c",
+    "destination": "_build",
+    "files_to_copy": (),
+    "galleria_theme": "classic",
+    "google_analytics": "",
+    "google_tag_manager": "",
+    "ignore_directories": [],
+    "ignore_files": [],
+    "img_extensions": [".jpg", ".jpeg", ".png", ".gif", ".tif", ".tiff", ".webp"],
+    "img_processor": "ResizeToFit",
+    "img_size": (640, 480),
+    "img_format": None,
+    "index_in_url": False,
+    "jpg_options": {"quality": 85, "optimize": True, "progressive": True},
+    "keep_orig": False,
+    "html_language": "en",
+    "leaflet_provider": "OpenStreetMap.Mapnik",
+    "links": "",
+    "locale": "",
+    "make_thumbs": True,
+    "max_img_pixels": None,
+    "map_height": "500px",
+    "medias_sort_attr": "filename",
+    "medias_sort_reverse": False,
+    "mp4_options": ["-crf", "23", "-strict", "-2"],
+    "mp4_options_second_pass": None,
+    "orig_dir": "original",
+    "orig_link": False,
+    "rel_link": False,
+    "output_filename": "index.html",
+    "piwik": {"tracker_url": "", "site_id": 0},
+    "plugin_paths": [],
+    "plugins": [],
+    "site_logo": "",
+    "show_map": False,
+    "source": "",
+    "theme": "colorbox",
+    "thumb_dir": "thumbnails",
+    "thumb_fit": True,
+    "thumb_fit_centering": (0.5, 0.5),
+    "thumb_prefix": "",
+    "thumb_size": (200, 150),
+    "thumb_suffix": "",
+    "thumb_video_delay": 0,
+    "thumb_video_black_retries": 0,
+    "thumb_video_black_retry_offset": 1,
+    "thumb_video_black_max_colors": 4,
+    "title": "",
+    "use_orig": False,
+    "user_css": None,
+    "video_converter": "ffmpeg",
+    "video_extensions": [".3gp", ".avi", ".mkv", ".mov", ".mp4", ".ogv", ".webm"],
+    "video_format": "webm",
+    "video_always_convert": False,
+    "video_size": (480, 360),
+    "watermark": "",
+    "webm_options": ["-crf", "10", "-b:v", "1.6M", "-qmin", "4", "-qmax", "63"],
+    "webm_options_second_pass": None,
+    "write_html": True,
+    "zip_gallery": False,
+    "zip_media_format": "resized",
 }
 
 
@@ -119,12 +119,12 @@ def get_thumb(settings, filename):
     path, filen = os.path.split(filename)
     name, ext = os.path.splitext(filen)
 
-    if ext.lower() in settings['video_extensions']:
-        ext = '.jpg'
+    if ext.lower() in settings["video_extensions"]:
+        ext = ".jpg"
     return join(
         path,
-        settings['thumb_dir'],
-        settings['thumb_prefix'] + name + settings['thumb_suffix'] + ext,
+        settings["thumb_dir"],
+        settings["thumb_prefix"] + name + settings["thumb_suffix"] + ext,
     )
 
 
@@ -141,20 +141,20 @@ def read_settings(filename=None):
         tempdict = {}
 
         with open(filename) as f:
-            code = compile(f.read(), filename, 'exec')
+            code = compile(f.read(), filename, "exec")
             exec(code, tempdict)
 
         settings.update(
-            (k, v) for k, v in tempdict.items() if k not in ['__builtins__']
+            (k, v) for k, v in tempdict.items() if k not in ["__builtins__"]
         )
 
         # Make the paths relative to the settings file
-        paths = ['source', 'destination', 'watermark']
+        paths = ["source", "destination", "watermark"]
 
-        if os.path.isdir(join(settings_path, settings['theme'])) and os.path.isdir(
-            join(settings_path, settings['theme'], 'templates')
+        if os.path.isdir(join(settings_path, settings["theme"])) and os.path.isdir(
+            join(settings_path, settings["theme"], "templates")
         ):
-            paths.append('theme')
+            paths.append("theme")
 
         for p in paths:
             path = settings[p]
@@ -162,7 +162,7 @@ def read_settings(filename=None):
                 settings[p] = abspath(normpath(join(settings_path, path)))
                 logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
 
-    for key in ('img_size', 'thumb_size', 'video_size'):
+    for key in ("img_size", "thumb_size", "video_size"):
         if settings[key]:
             w, h = settings[key]
             if h > w:
@@ -172,10 +172,10 @@ def read_settings(filename=None):
                     key,
                 )
 
-    if not settings['img_processor']:
-        logger.info('No Processor, images will not be resized')
+    if not settings["img_processor"]:
+        logger.info("No Processor, images will not be resized")
 
-    logger.debug('Settings:\n%s', pformat(settings, width=120))
+    logger.debug("Settings:\n%s", pformat(settings, width=120))
     return settings
 
 

@@ -13,7 +13,7 @@
 
 # Source directory. Can be set here or as the first argument of the `sigal
 # build` command
-source = 'pictures'
+source = "pictures"
 
 # Destination directory. Can be set here or as the second argument of the
 # `sigal build` command (default: '_build')
@@ -22,7 +22,7 @@ source = 'pictures'
 # Theme :
 # - colorbox (default), galleria, photoswipe, or the path to a custom theme
 # directory
-theme = 'galleria'
+theme = "galleria"
 
 # Theme for galleria (https://galleriajs.github.io/themes/)
 # galleria_theme = 'classic'

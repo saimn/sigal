@@ -6,15 +6,15 @@ from click.testing import CliRunner
 
 from sigal import build, init, serve, set_meta
 
-TESTGAL = join(os.path.abspath(os.path.dirname(__file__)), 'sample')
+TESTGAL = join(os.path.abspath(os.path.dirname(__file__)), "sample")
 
 
 def test_init(tmpdir):
-    config_file = str(tmpdir.join('sigal.conf.py'))
+    config_file = str(tmpdir.join("sigal.conf.py"))
     runner = CliRunner()
     result = runner.invoke(init, [config_file])
     assert result.exit_code == 0
-    assert result.output.startswith('Sample config file created:')
+    assert result.output.startswith("Sample config file created:")
     assert os.path.isfile(config_file)
 
     result = runner.invoke(init, [config_file])
@@ -26,29 +26,29 @@ def test_init(tmpdir):
 
 def test_build(tmpdir, disconnect_signals):
     runner = CliRunner()
-    config_file = str(tmpdir.join('sigal.conf.py'))
-    tmpdir.mkdir('pictures')
+    config_file = str(tmpdir.join("sigal.conf.py"))
+    tmpdir.mkdir("pictures")
     tmpdir = str(tmpdir)
     cwd = os.getcwd()
 
     try:
         result = runner.invoke(init, [config_file])
         assert result.exit_code == 0
-        os.symlink(join(TESTGAL, 'watermark.png'), join(tmpdir, 'watermark.png'))
+        os.symlink(join(TESTGAL, "watermark.png"), join(tmpdir, "watermark.png"))
         os.symlink(
-            join(TESTGAL, 'pictures', 'dir2', 'KeckObservatory20071020.jpg'),
-            join(tmpdir, 'pictures', 'KeckObservatory20071020.jpg'),
+            join(TESTGAL, "pictures", "dir2", "KeckObservatory20071020.jpg"),
+            join(tmpdir, "pictures", "KeckObservatory20071020.jpg"),
         )
 
-        result = runner.invoke(build, ['-n', 1, '--debug'])
+        result = runner.invoke(build, ["-n", 1, "--debug"])
         assert result.exit_code == 1
 
         os.chdir(tmpdir)
 
-        result = runner.invoke(build, ['foo', '-n', 1, '--debug'])
+        result = runner.invoke(build, ["foo", "-n", 1, "--debug"])
         assert result.exit_code == 1
 
-        result = runner.invoke(build, ['pictures', 'pictures/out', '-n', 1, '--debug'])
+        result = runner.invoke(build, ["pictures", "pictures/out", "-n", 1, "--debug"])
         assert result.exit_code == 1
 
         with open(config_file) as f:
@@ -70,29 +70,29 @@ rss_feed = {'feed_url': 'http://example.org/feed.rss', 'nb_items': 10}
 atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
 """
 
-        with open(config_file, 'w') as f:
+        with open(config_file, "w") as f:
             f.write(text)
 
         result = runner.invoke(
-            build, ['pictures', 'build', '--title', 'Testing build', '-n', 1, '--debug']
+            build, ["pictures", "build", "--title", "Testing build", "-n", 1, "--debug"]
         )
         assert result.exit_code == 0
         assert os.path.isfile(
-            join(tmpdir, 'build', 'thumbnails', 'KeckObservatory20071020.jpg')
+            join(tmpdir, "build", "thumbnails", "KeckObservatory20071020.jpg")
         )
-        assert os.path.isfile(join(tmpdir, 'build', 'feed.atom'))
-        assert os.path.isfile(join(tmpdir, 'build', 'feed.rss'))
-        assert os.path.isfile(join(tmpdir, 'build', 'watermark.png'))
+        assert os.path.isfile(join(tmpdir, "build", "feed.atom"))
+        assert os.path.isfile(join(tmpdir, "build", "feed.rss"))
+        assert os.path.isfile(join(tmpdir, "build", "watermark.png"))
     finally:
         os.chdir(cwd)
         # Reset logger
-        logger = logging.getLogger('sigal')
+        logger = logging.getLogger("sigal")
         logger.handlers[:] = []
         logger.setLevel(logging.INFO)
 
 
 def test_serve(tmpdir):
-    config_file = str(tmpdir.join('sigal.conf.py'))
+    config_file = str(tmpdir.join("sigal.conf.py"))
     runner = CliRunner()
     result = runner.invoke(init, [config_file])
     assert result.exit_code == 0
@@ -100,7 +100,7 @@ def test_serve(tmpdir):
     result = runner.invoke(serve)
     assert result.exit_code == 2
 
-    result = runner.invoke(serve, ['-c', config_file])
+    result = runner.invoke(serve, ["-c", config_file])
     assert result.exit_code == 1
 
 

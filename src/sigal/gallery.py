@@ -73,7 +73,7 @@ class Media:
 
     """
 
-    type = ''
+    type = ""
     """Type of media, e.g. ``"image"`` or ``"video"``."""
 
     def __init__(self, filename, path, settings):
@@ -91,7 +91,7 @@ class Media:
         self.src_ext = os.path.splitext(filename)[1].lower()
         """Input extension."""
 
-        self.src_path = join(settings['source'], path, self.src_filename)
+        self.src_path = join(settings["source"], path, self.src_filename)
 
         self.thumb_name = get_thumb(self.settings, self.dst_filename)
 
@@ -108,7 +108,7 @@ class Media:
     def __getstate__(self):
         state = self.__dict__.copy()
         # remove un-pickable objects
-        state['logger'] = None
+        state["logger"] = None
         return state
 
     def __setstate__(self, state):
@@ -118,11 +118,11 @@ class Media:
 
     @property
     def dst_path(self):
-        return join(self.settings['destination'], self.path, self.dst_filename)
+        return join(self.settings["destination"], self.path, self.dst_filename)
 
     @property
     def thumb_path(self):
-        return join(self.settings['destination'], self.path, self.thumb_name)
+        return join(self.settings["destination"], self.path, self.thumb_name)
 
     @property
     def url(self):
@@ -134,22 +134,22 @@ class Media:
         """Path to the original image, if ``keep_orig`` is set (relative to the
         album directory). Copy the file if needed.
         """
-        if self.settings['keep_orig']:
+        if self.settings["keep_orig"]:
             s = self.settings
-            if s['use_orig']:
+            if s["use_orig"]:
                 # The image *is* the original, just use it
                 return self.src_filename
-            orig_path = join(s['destination'], self.path, s['orig_dir'])
+            orig_path = join(s["destination"], self.path, s["orig_dir"])
             check_or_create_dir(orig_path)
             big_path = join(orig_path, self.src_filename)
             if not isfile(big_path):
                 copy(
                     self.src_path,
                     big_path,
-                    symlink=s['orig_link'],
-                    rellink=self.settings['rel_link'],
+                    symlink=s["orig_link"],
+                    rellink=self.settings["rel_link"],
                 )
-            return join(s['orig_dir'], self.src_filename)
+            return join(s["orig_dir"], self.src_filename)
 
     @property
     def big_url(self):
@@ -162,47 +162,47 @@ class Media:
         """Path to the thumbnail image (relative to the album directory)."""
 
         if not isfile(self.thumb_path):
-            self.logger.debug('Generating thumbnail for %r', self)
+            self.logger.debug("Generating thumbnail for %r", self)
             path = self.dst_path if os.path.exists(self.dst_path) else self.src_path
             try:
                 # if thumbnail is missing (if settings['make_thumbs'] is False)
                 s = self.settings
-                if self.type == 'image':
+                if self.type == "image":
                     image.generate_thumbnail(
-                        path, self.thumb_path, s['thumb_size'], fit=s['thumb_fit']
+                        path, self.thumb_path, s["thumb_size"], fit=s["thumb_fit"]
                     )
-                elif self.type == 'video':
+                elif self.type == "video":
                     video.generate_thumbnail(
                         path,
                         self.thumb_path,
-                        s['thumb_size'],
-                        s['thumb_video_delay'],
-                        fit=s['thumb_fit'],
-                        converter=s['video_converter'],
-                        black_retries=s['thumb_video_black_retries'],
-                        black_offset=s['thumb_video_black_retry_offset'],
-                        black_max_colors=s['thumb_video_black_max_colors'],
+                        s["thumb_size"],
+                        s["thumb_video_delay"],
+                        fit=s["thumb_fit"],
+                        converter=s["video_converter"],
+                        black_retries=s["thumb_video_black_retries"],
+                        black_offset=s["thumb_video_black_retry_offset"],
+                        black_max_colors=s["thumb_video_black_max_colors"],
                     )
             except Exception as e:
-                self.logger.error('Failed to generate thumbnail: %s', e)
+                self.logger.error("Failed to generate thumbnail: %s", e)
                 return
         return url_from_path(self.thumb_name)
 
     @cached_property
     def description(self):
         """Description extracted from the Markdown <imagename>.md file."""
-        return self.markdown_metadata.get('description', '')
+        return self.markdown_metadata.get("description", "")
 
     @cached_property
     def title(self):
         """Title extracted from the metadata, or defaults to the filename."""
-        title = self.markdown_metadata.get('title', '')
+        title = self.markdown_metadata.get("title", "")
         return title if title else self.basename
 
     @cached_property
     def meta(self):
         """Other metadata extracted from the Markdown <imagename>.md file."""
-        return self.markdown_metadata.get('meta', {})
+        return self.markdown_metadata.get("meta", {})
 
     @cached_property
     def markdown_metadata(self):
@@ -211,11 +211,11 @@ class Media:
 
     @property
     def markdown_metadata_filepath(self):
-        return splitext(self.src_path)[0] + '.md'
+        return splitext(self.src_path)[0] + ".md"
 
     def _get_markdown_metadata(self):
         """Get metadata from filename.md."""
-        meta = {'title': '', 'description': '', 'meta': {}}
+        meta = {"title": "", "description": "", "meta": {}}
         if isfile(self.markdown_metadata_filepath):
             meta.update(read_markdown(self.markdown_metadata_filepath))
         return meta
@@ -232,11 +232,11 @@ class Media:
 class Image(Media):
     """Gather all informations on an image file."""
 
-    type = 'image'
+    type = "image"
 
     def __init__(self, filename, path, settings):
         super().__init__(filename, path, settings)
-        imgformat = settings.get('img_format')
+        imgformat = settings.get("img_format")
 
         # Register all formats
         PILImage.init()
@@ -252,17 +252,17 @@ class Image(Media):
     def date(self):
         """The date from the EXIF DateTimeOriginal metadata if available, or
         from the file date."""
-        return self.exif and self.exif.get('dateobj', None) or self._get_file_date()
+        return self.exif and self.exif.get("dateobj", None) or self._get_file_date()
 
     @cached_property
     def exif(self):
         """If not `None` contains a dict with the most common tags. For more
         information, see :ref:`simple-exif-data`.
         """
-        datetime_format = self.settings['datetime_format']
+        datetime_format = self.settings["datetime_format"]
         return (
             get_exif_tags(self.raw_exif, datetime_format=datetime_format)
-            if self.raw_exif and self.src_ext in ('.jpg', '.jpeg')
+            if self.raw_exif and self.src_ext in (".jpg", ".jpeg")
             else None
         )
 
@@ -277,18 +277,18 @@ class Image(Media):
 
         # If a title or description hasn't been obtained by other means, look
         #  for the information in IPTC fields
-        if not meta['title']:
-            meta['title'] = self.file_metadata['iptc'].get('title', '')
-        if not meta['description']:
-            meta['description'] = self.file_metadata['iptc'].get('description', '')
+        if not meta["title"]:
+            meta["title"] = self.file_metadata["iptc"].get("title", "")
+        if not meta["description"]:
+            meta["description"] = self.file_metadata["iptc"].get("description", "")
 
         return meta
 
     @cached_property
     def raw_exif(self):
         """If not `None`, contains the raw EXIF tags."""
-        if self.src_ext in ('.jpg', '.jpeg'):
-            return self.file_metadata['exif']
+        if self.src_ext in (".jpg", ".jpeg"):
+            return self.file_metadata["exif"]
 
     @cached_property
     def size(self):
@@ -307,20 +307,20 @@ class Image(Media):
 
     def has_location(self):
         """True if location information is available for EXIF GPSInfo."""
-        return self.exif is not None and 'gps' in self.exif
+        return self.exif is not None and "gps" in self.exif
 
 
 class Video(Media):
     """Gather all informations on a video file."""
 
-    type = 'video'
+    type = "video"
 
     def __init__(self, filename, path, settings):
         super().__init__(filename, path, settings)
 
-        if not settings['use_orig'] or not is_valid_html5_video(self.src_ext):
-            video_format = settings['video_format']
-            ext = '.' + video_format
+        if not settings["use_orig"] or not is_valid_html5_video(self.src_ext):
+            video_format = settings["video_format"]
+            ext = "." + video_format
             self.dst_filename = self.basename + ext
             self.mime = get_mime(ext)
         else:
@@ -329,12 +329,12 @@ class Video(Media):
     @cached_property
     def date(self):
         """The date from the Date metadata if available, or from the file date."""
-        if 'date' in self.meta:
+        if "date" in self.meta:
             try:
                 self.logger.debug(
                     "Reading date from image metadata : %s", self.src_filename
                 )
-                return datetime.fromisoformat(self.meta['date'][0])
+                return datetime.fromisoformat(self.meta["date"][0])
             except Exception:
                 self.logger.debug(
                     "Reading date from image metadata failed : %s", self.src_filename
@@ -368,24 +368,24 @@ class Album:
         self.gallery = gallery
         self.settings = settings
         self.subdirs = dirnames
-        self.output_file = settings['output_filename']
+        self.output_file = settings["output_filename"]
         self._thumbnail = None
 
-        if path == '.':
-            self.src_path = settings['source']
-            self.dst_path = settings['destination']
+        if path == ".":
+            self.src_path = settings["source"]
+            self.dst_path = settings["destination"]
         else:
-            self.src_path = join(settings['source'], path)
-            self.dst_path = join(settings['destination'], path)
+            self.src_path = join(settings["source"], path)
+            self.dst_path = join(settings["destination"], path)
 
         self.logger = logging.getLogger(__name__)
 
         # optionally add index.html to the URLs
-        self.url_ext = self.output_file if settings['index_in_url'] else ''
+        self.url_ext = self.output_file if settings["index_in_url"] else ""
 
         self.index_url = (
-            url_from_path(os.path.relpath(settings['destination'], self.dst_path))
-            + '/'
+            url_from_path(os.path.relpath(settings["destination"], self.dst_path))
+            + "/"
             + self.url_ext
         )
 
@@ -397,9 +397,9 @@ class Album:
         for f in filenames:
             ext = splitext(f)[1]
             media = None
-            if ext.lower() in settings['img_extensions']:
+            if ext.lower() in settings["img_extensions"]:
                 media = Image(f, self.path, settings)
-            elif ext.lower() in settings['video_extensions']:
+            elif ext.lower() in settings["video_extensions"]:
                 media = Video(f, self.path, settings)
 
             # Allow modification of the media, including overriding the class
@@ -421,8 +421,8 @@ class Album:
         )
 
     def __str__(self):
-        return f'{self.path} : ' + ', '.join(
-            f'{count} {_type}s' for _type, count in self.medias_count.items()
+        return f"{self.path} : " + ", ".join(
+            f"{count} {_type}s" for _type, count in self.medias_count.items()
         )
 
     def __len__(self):
@@ -434,27 +434,27 @@ class Album:
     @cached_property
     def description(self):
         """Description extracted from the Markdown index.md file."""
-        return self.markdown_metadata.get('description', '')
+        return self.markdown_metadata.get("description", "")
 
     @cached_property
     def title(self):
         """Title extracted from the Markdown index.md file."""
-        title = self.markdown_metadata.get('title', '')
-        path = self.path if self.path != '.' else self.src_path
+        title = self.markdown_metadata.get("title", "")
+        path = self.path if self.path != "." else self.src_path
         return title if title else os.path.basename(path)
 
     @cached_property
     def meta(self):
         """Other metadata extracted from the Markdown index.md file."""
-        return self.markdown_metadata.get('meta', {})
+        return self.markdown_metadata.get("meta", {})
 
     @cached_property
     def author(self):
         """Author extracted from the Markdown index.md file or settings."""
         try:
-            return self.meta['author'][0]
+            return self.meta["author"][0]
         except KeyError:
-            return self.settings.get('author')
+            return self.settings.get("author")
 
     @property
     def markdown_metadata_filepath(self):
@@ -463,7 +463,7 @@ class Album:
     @cached_property
     def markdown_metadata(self):
         """Get metadata from filename.md: title, description, meta."""
-        meta = {'title': '', 'description': '', 'meta': {}}
+        meta = {"title": "", "description": "", "meta": {}}
         if isfile(self.markdown_metadata_filepath):
             meta.update(read_markdown(self.markdown_metadata_filepath))
         return meta
@@ -473,27 +473,27 @@ class Album:
         check_or_create_dir(self.dst_path)
 
         if self.medias:
-            check_or_create_dir(join(self.dst_path, self.settings['thumb_dir']))
+            check_or_create_dir(join(self.dst_path, self.settings["thumb_dir"]))
 
-        if self.medias and self.settings['keep_orig']:
-            self.orig_path = join(self.dst_path, self.settings['orig_dir'])
+        if self.medias and self.settings["keep_orig"]:
+            self.orig_path = join(self.dst_path, self.settings["orig_dir"])
             check_or_create_dir(self.orig_path)
 
     def sort_subdirs(self, albums_sort_attr):
         if self.subdirs:
             if not albums_sort_attr:
-                albums_sort_attr = self.settings['albums_sort_attr']
-            reverse = self.settings['albums_sort_reverse']
+                albums_sort_attr = self.settings["albums_sort_attr"]
+            reverse = self.settings["albums_sort_reverse"]
 
-            if 'sort' in self.meta:
-                albums_sort_attr = self.meta['sort'][0]
-                if albums_sort_attr[0] == '-':
+            if "sort" in self.meta:
+                albums_sort_attr = self.meta["sort"][0]
+                if albums_sort_attr[0] == "-":
                     albums_sort_attr = albums_sort_attr[1:]
                     reverse = True
                 else:
                     reverse = False
 
-            root_path = self.path if self.path != '.' else ''
+            root_path = self.path if self.path != "." else ""
 
             def sort_key(s):
                 sort_attr = albums_sort_attr
@@ -513,7 +513,7 @@ class Album:
                         continue
                     except TypeError:
                         continue
-                return ''
+                return ""
 
             key = natsort_keygen(key=sort_key, alg=ns.LOCALE)
             self.subdirs.sort(key=key, reverse=reverse)
@@ -522,22 +522,22 @@ class Album:
 
     def sort_medias(self, medias_sort_attr):
         if self.medias:
-            if medias_sort_attr == 'filename':
-                medias_sort_attr = 'dst_filename'
+            if medias_sort_attr == "filename":
+                medias_sort_attr = "dst_filename"
 
-            if medias_sort_attr == 'date':
+            if medias_sort_attr == "date":
                 key = lambda s: s.date or datetime.now()
-            elif medias_sort_attr.startswith('meta.'):
+            elif medias_sort_attr.startswith("meta."):
                 meta_key = medias_sort_attr.split(".", 1)[1]
                 key = natsort_keygen(
-                    key=lambda s: s.meta.get(meta_key, [''])[0], alg=ns.LOCALE
+                    key=lambda s: s.meta.get(meta_key, [""])[0], alg=ns.LOCALE
                 )
             else:
                 key = natsort_keygen(
                     key=lambda s: getattr(s, medias_sort_attr), alg=ns.LOCALE
                 )
 
-            self.medias.sort(key=key, reverse=self.settings['medias_sort_reverse'])
+            self.medias.sort(key=key, reverse=self.settings["medias_sort_reverse"])
 
         signals.medias_sorted.send(self)
 
@@ -545,14 +545,14 @@ class Album:
     def images(self):
         """List of images (:class:`~sigal.gallery.Image`)."""
         for media in self.medias:
-            if media.type == 'image':
+            if media.type == "image":
                 yield media
 
     @property
     def videos(self):
         """List of videos (:class:`~sigal.gallery.Video`)."""
         for media in self.medias:
-            if media.type == 'video':
+            if media.type == "video":
                 yield media
 
     @property
@@ -560,7 +560,7 @@ class Album:
         """List of :class:`~sigal.gallery.Album` objects for each
         sub-directory.
         """
-        root_path = self.path if self.path != '.' else ''
+        root_path = self.path if self.path != "." else ""
         return [self.gallery.albums[join(root_path, path)] for path in self.subdirs]
 
     @property
@@ -570,8 +570,8 @@ class Album:
     @property
     def url(self):
         """URL of the album, relative to its parent."""
-        url = self.name.encode('utf-8')
-        return url_quote(url) + '/' + self.url_ext
+        url = self.name.encode("utf-8")
+        return url_quote(url) + "/" + self.url_ext
 
     @property
     def thumbnail(self):
@@ -582,7 +582,7 @@ class Album:
             return self._thumbnail
 
         # Test the thumbnail from the Markdown file.
-        thumbnail = self.meta.get('thumbnail', [''])[0]
+        thumbnail = self.meta.get("thumbnail", [""])[0]
 
         if thumbnail and isfile(join(self.src_path, thumbnail)):
             self._thumbnail = url_from_path(
@@ -594,18 +594,18 @@ class Album:
             # find and return the first landscape image
             for f in self.medias:
                 ext = splitext(f.dst_filename)[1]
-                if ext.lower() not in self.settings['img_extensions']:
+                if ext.lower() not in self.settings["img_extensions"]:
                     continue
 
                 # Use f.size if available as it is quicker (in cache), but
                 # fallback to the size of src_path if dst_path is missing
                 size = f.input_size
                 if size is None:
-                    size = f.file_metadata['size']
+                    size = f.file_metadata["size"]
 
-                if size['width'] > size['height']:
+                if size["width"] > size["height"]:
                     try:
-                        self._thumbnail = url_quote(self.name) + '/' + f.thumbnail
+                        self._thumbnail = url_quote(self.name) + "/" + f.thumbnail
                     except Exception as e:
                         self.logger.info(
                             "Failed to get thumbnail for %s: %s", f.dst_filename, e
@@ -624,7 +624,7 @@ class Album:
                     if media.thumbnail is not None:
                         try:
                             self._thumbnail = (
-                                url_quote(self.name) + '/' + media.thumbnail
+                                url_quote(self.name) + "/" + media.thumbnail
                             )
                         except Exception as e:
                             self.logger.info(
@@ -647,7 +647,7 @@ class Album:
             if not self._thumbnail:
                 for path, album in self.gallery.get_albums(self.path):
                     if album.thumbnail:
-                        self._thumbnail = url_quote(self.name) + '/' + album.thumbnail
+                        self._thumbnail = url_quote(self.name) + "/" + album.thumbnail
                         self.logger.debug(
                             "Using thumbnail from sub-directory for %r : %s",
                             self,
@@ -655,7 +655,7 @@ class Album:
                         )
                         return self._thumbnail
 
-        self.logger.error('Thumbnail not found for %r', self)
+        self.logger.error("Thumbnail not found for %r", self)
 
     @property
     def random_thumbnail(self):
@@ -669,18 +669,18 @@ class Album:
         """List of ``(url, title)`` tuples defining the current breadcrumb
         path.
         """
-        if self.path == '.':
+        if self.path == ".":
             return []
 
         path = self.path
-        breadcrumb = [((self.url_ext or '.'), self.title)]
+        breadcrumb = [((self.url_ext or "."), self.title)]
 
         while True:
-            path = os.path.normpath(os.path.join(path, '..'))
-            if path == '.':
+            path = os.path.normpath(os.path.join(path, ".."))
+            if path == ".":
                 break
 
-            url = url_from_path(os.path.relpath(path, self.path)) + '/' + self.url_ext
+            url = url_from_path(os.path.relpath(path, self.path)) + "/" + self.url_ext
             breadcrumb.append((url, self.gallery.albums[path].title))
 
         breadcrumb.reverse()
@@ -704,17 +704,17 @@ class Gallery:
         self.logger = logging.getLogger(__name__)
         self.stats = defaultdict(int)
         self.init_pool(ncpu)
-        check_or_create_dir(settings['destination'])
+        check_or_create_dir(settings["destination"])
 
-        if settings['max_img_pixels']:
-            PILImage.MAX_IMAGE_PIXELS = settings['max_img_pixels']
+        if settings["max_img_pixels"]:
+            PILImage.MAX_IMAGE_PIXELS = settings["max_img_pixels"]
 
         # Build the list of directories with images
         albums = self.albums = {}
-        src_path = self.settings['source']
+        src_path = self.settings["source"]
 
-        ignore_dirs = settings['ignore_directories']
-        ignore_files = settings['ignore_files']
+        ignore_dirs = settings["ignore_directories"]
+        ignore_files = settings["ignore_files"]
 
         progressChars = cycle(["/", "-", "\\", "|"])
         show_progress = (
@@ -733,7 +733,7 @@ class Gallery:
             if ignore_dirs and any(
                 fnmatch.fnmatch(relpath, ignore) for ignore in ignore_dirs
             ):
-                self.logger.info('Ignoring %s', relpath)
+                self.logger.info("Ignoring %s", relpath)
                 continue
 
             # Remove files that match the ignore_files settings
@@ -742,22 +742,22 @@ class Gallery:
                 for ignore in ignore_files:
                     files_path -= set(fnmatch.filter(files_path, ignore))
 
-                self.logger.debug('Files before filtering: %r', files)
+                self.logger.debug("Files before filtering: %r", files)
                 files = [os.path.split(f)[1] for f in files_path]
-                self.logger.debug('Files after filtering: %r', files)
+                self.logger.debug("Files after filtering: %r", files)
 
             # Remove sub-directories that have been ignored in a previous
             # iteration (as topdown=False, sub-directories are processed before
             # their parent
             for d in dirs[:]:
-                path = join(relpath, d) if relpath != '.' else d
+                path = join(relpath, d) if relpath != "." else d
                 if path not in albums.keys():
                     dirs.remove(d)
 
             album = Album(relpath, settings, dirs, files, self)
 
             if not album.medias and not album.albums:
-                self.logger.info('Skip empty album: %r', album)
+                self.logger.info("Skip empty album: %r", album)
             else:
                 album.create_output_directories()
                 albums[relpath] = album
@@ -771,7 +771,7 @@ class Gallery:
             file=self.progressbar_target,
         ) as progress_albums:
             for album in progress_albums:
-                album.sort_subdirs(settings['albums_sort_attr'])
+                album.sort_subdirs(settings["albums_sort_attr"])
 
         with progressbar(
             albums.values(),
@@ -779,15 +779,15 @@ class Gallery:
             file=self.progressbar_target,
         ) as progress_albums:
             for album in progress_albums:
-                album.sort_medias(settings['medias_sort_attr'])
+                album.sort_medias(settings["medias_sort_attr"])
 
-        self.logger.debug('Albums:\n%r', albums.values())
+        self.logger.debug("Albums:\n%r", albums.values())
         signals.gallery_initialized.send(self)
 
     @property
     def title(self):
         """Title of the gallery."""
-        return self.settings['title'] or self.albums['.'].title
+        return self.settings["title"] or self.albums["."].title
 
     def init_pool(self, ncpu):
         try:
@@ -801,7 +801,7 @@ class Gallery:
             try:
                 ncpu = int(ncpu)
             except ValueError:
-                self.logger.error('ncpu should be an integer value')
+                self.logger.error("ncpu should be an integer value")
                 ncpu = cpu_count
 
         self.logger.info("Using %s cores", ncpu)
@@ -809,7 +809,7 @@ class Gallery:
             self.pool = multiprocessing.Pool(
                 processes=ncpu,
                 initializer=pool_init,
-                initargs=(self.settings['max_img_pixels'],),
+                initargs=(self.settings["max_img_pixels"],),
             )
         else:
             self.pool = None
@@ -850,12 +850,12 @@ class Gallery:
                     f for album in albums for f in self.process_dir(album, force=force)
                 ]
         except KeyboardInterrupt:
-            sys.exit('Interrupted')
+            sys.exit("Interrupted")
 
         bar_opt = {
-            'label': "Processing files",
-            'show_pos': True,
-            'file': self.progressbar_target,
+            "label": "Processing files",
+            "show_pos": True,
+            "file": self.progressbar_target,
         }
 
         if self.pool:
@@ -867,7 +867,7 @@ class Gallery:
                         bar.update(1)
             except KeyboardInterrupt:
                 self.pool.terminate()
-                sys.exit('Interrupted')
+                sys.exit("Interrupted")
             except pickle.PicklingError:
                 self.logger.critical(
                     "Failed to process files with the multiprocessing feature."
@@ -875,7 +875,7 @@ class Gallery:
                     "defined in the settings file, which can't be serialized.",
                     exc_info=True,
                 )
-                sys.exit('Abort')
+                sys.exit("Abort")
             finally:
                 self.pool.close()
                 self.pool.join()
@@ -889,7 +889,7 @@ class Gallery:
             ]
             self.remove_files(failed_files)
 
-        if self.settings['write_html']:
+        if self.settings["write_html"]:
             album_writer = AlbumPageWriter(self.settings, index_title=self.title)
             album_list_writer = AlbumListPageWriter(
                 self.settings, index_title=self.title
@@ -914,23 +914,23 @@ class Gallery:
                         album_list_writer.write(album)
                     else:
                         album_writer.write(album)
-        print('')
+        print("")
 
         signals.gallery_build.send(self)
 
     def remove_files(self, medias):
-        self.logger.error('Some files have failed to be processed:')
+        self.logger.error("Some files have failed to be processed:")
         for media in medias:
-            self.logger.error('  - %s', media.dst_filename)
+            self.logger.error("  - %s", media.dst_filename)
             album = self.albums[media.path]
             for f in album.medias:
                 if f.dst_filename == media.dst_filename:
-                    self.stats[f.type + '_failed'] += 1
+                    self.stats[f.type + "_failed"] += 1
                     album.medias.remove(f)
                     break
         self.logger.error(
             'You can run "sigal build" in verbose (--verbose) or'
-            ' debug (--debug) mode to get more details.'
+            " debug (--debug) mode to get more details."
         )
 
     def process_dir(self, album, force=False):
@@ -938,7 +938,7 @@ class Gallery:
         for f in album:
             if isfile(f.dst_path) and not force:
                 self.logger.info("%s exists - skipping", f.dst_filename)
-                self.stats[f.type + '_skipped'] += 1
+                self.stats[f.type + "_skipped"] += 1
             else:
                 self.stats[f.type] += 1
                 yield f
@@ -951,9 +951,9 @@ def pool_init(max_img_pixels):
 
 def process_file(media):
     processor = None
-    if media.type == 'image':
+    if media.type == "image":
         processor = process_image
-    elif media.type == 'video':
+    elif media.type == "video":
         processor = process_video
 
     # Allow overriding of the processor
@@ -965,7 +965,7 @@ def process_file(media):
     if processor:
         return processor(media)
     else:
-        logging.warning('Processor not found for media %s', media.path)
+        logging.warning("Processor not found for media %s", media.path)
         return Status.FAILURE
 
 

@@ -25,13 +25,13 @@ logger = logging.getLogger(__name__)
 
 
 def add_copyright(img, settings=None):
-    logger.debug('Adding copyright to %r', img)
+    logger.debug("Adding copyright to %r", img)
     draw = ImageDraw.Draw(img)
-    text = settings['copyright']
-    font = settings.get('copyright_text_font', None)
-    font_size = settings.get('copyright_text_font_size', 10)
+    text = settings["copyright"]
+    font = settings.get("copyright_text_font", None)
+    font_size = settings.get("copyright_text_font_size", 10)
     assert font_size >= 0
-    color = settings.get('copyright_text_color', (0, 0, 0))
+    color = settings.get("copyright_text_color", (0, 0, 0))
     bottom_margin = 3  # bottom margin for text
     text_height = bottom_margin + 12  # default text height (of 15)
     if font:
@@ -43,13 +43,13 @@ def add_copyright(img, settings=None):
             font = ImageFont.load_default()
     else:
         font = ImageFont.load_default()
-    left, top = settings.get('copyright_text_position', (5, img.size[1] - text_height))
+    left, top = settings.get("copyright_text_position", (5, img.size[1] - text_height))
     draw.text((left, top), text, fill=color, font=font)
     return img
 
 
 def register(settings):
-    if settings.get('copyright'):
+    if settings.get("copyright"):
         signals.img_resized.connect(add_copyright)
     else:
-        logger.warning('Copyright text is not set')
+        logger.warning("Copyright text is not set")

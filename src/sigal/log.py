@@ -28,11 +28,11 @@ from logging import Formatter
 BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = (30 + i for i in range(8))
 
 COLORS = {
-    'DEBUG': BLUE,
-    'INFO': GREEN,
-    'WARNING': YELLOW,
-    'ERROR': RED,
-    'CRITICAL': MAGENTA,
+    "DEBUG": BLUE,
+    "INFO": GREEN,
+    "WARNING": YELLOW,
+    "ERROR": RED,
+    "CRITICAL": MAGENTA,
 }
 
 # These are the sequences need to get colored ouput
@@ -48,7 +48,7 @@ def colored(text, color):
 class ColoredFormatter(Formatter):
     def format(self, record):
         level = record.levelname
-        return colored(level, COLORS[level]) + ': ' + record.getMessage()
+        return colored(level, COLORS[level]) + ": " + record.getMessage()
 
 
 def init_logging(name, level=logging.INFO):
@@ -61,15 +61,15 @@ def init_logging(name, level=logging.INFO):
     logger.setLevel(level)
 
     try:
-        if os.isatty(sys.stdout.fileno()) and not sys.platform.startswith('win'):
+        if os.isatty(sys.stdout.fileno()) and not sys.platform.startswith("win"):
             formatter = ColoredFormatter()
         elif level == logging.DEBUG:
-            formatter = Formatter('%(levelname)s - %(message)s')
+            formatter = Formatter("%(levelname)s - %(message)s")
         else:
-            formatter = Formatter('%(message)s')
+            formatter = Formatter("%(message)s")
     except Exception:
         # This fails when running tests with click (test_build)
-        formatter = Formatter('%(message)s')
+        formatter = Formatter("%(message)s")
 
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)

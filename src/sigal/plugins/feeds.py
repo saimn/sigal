@@ -38,34 +38,34 @@ def generate_feeds(gallery):
     medias.sort(key=lambda m: m.date, reverse=True)
 
     settings = gallery.settings
-    if settings.get('rss_feed'):
-        generate_feed(gallery, medias, feed_type='rss', **settings['rss_feed'])
-    if settings.get('atom_feed'):
-        generate_feed(gallery, medias, feed_type='atom', **settings['atom_feed'])
+    if settings.get("rss_feed"):
+        generate_feed(gallery, medias, feed_type="rss", **settings["rss_feed"])
+    if settings.get("atom_feed"):
+        generate_feed(gallery, medias, feed_type="atom", **settings["atom_feed"])
 
 
-def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
+def generate_feed(gallery, medias, feed_type=None, feed_url="", nb_items=0):
     from feedgenerator import Atom1Feed, Rss201rev2Feed
 
-    root_album = gallery.albums['.']
-    cls = Rss201rev2Feed if feed_type == 'rss' else Atom1Feed
+    root_album = gallery.albums["."]
+    cls = Rss201rev2Feed if feed_type == "rss" else Atom1Feed
     feed = cls(
         title=Markup.escape(root_album.title),
-        link='/',
+        link="/",
         feed_url=feed_url,
         description=Markup.escape(root_album.description).striptags(),
     )
 
-    theme = gallery.settings['theme']
+    theme = gallery.settings["theme"]
     nb_medias = len(medias)
     nb_items = min(nb_items, nb_medias) if nb_items > 0 else nb_medias
-    base_url = feed_url.rsplit('/', maxsplit=1)[0]
+    base_url = feed_url.rsplit("/", maxsplit=1)[0]
 
     for item in medias[:nb_items]:
-        if theme == 'galleria':
-            link = f'{base_url}/{item.path}/#{item.url}'
+        if theme == "galleria":
+            link = f"{base_url}/{item.path}/#{item.url}"
         else:
-            link = f'{base_url}/{item.path}/'
+            link = f"{base_url}/{item.path}/"
 
         feed.add_item(
             title=Markup.escape(item.title or item.url),
@@ -77,14 +77,14 @@ def generate_feed(gallery, medias, feed_type=None, feed_url='', nb_items=0):
                 base_url, item.path, item.thumbnail
             ),
             # categories=item.tags if hasattr(item, 'tags') else None,
-            author_name=getattr(item, 'author', ''),
+            author_name=getattr(item, "author", ""),
             pubdate=item.date or datetime.now(),
         )
 
-    output_file = os.path.join(root_album.dst_path, feed_url.split('/')[-1])
-    logger.info('Generate %s feeds: %s', feed_type.upper(), output_file)
-    with open(output_file, 'w', encoding='utf8') as f:
-        feed.write(f, 'utf-8')
+    output_file = os.path.join(root_album.dst_path, feed_url.split("/")[-1])
+    logger.info("Generate %s feeds: %s", feed_type.upper(), output_file)
+    with open(output_file, "w", encoding="utf8") as f:
+        feed.write(f, "utf-8")
 
 
 def register(settings):

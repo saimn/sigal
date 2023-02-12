@@ -41,9 +41,9 @@ except ImportError:
     # package is not installed
     __version__ = None
 
-__url__ = 'https://github.com/saimn/sigal'
+__url__ = "https://github.com/saimn/sigal"
 
-_DEFAULT_CONFIG_FILE = 'sigal.conf.py'
+_DEFAULT_CONFIG_FILE = "sigal.conf.py"
 
 
 @click.group()
@@ -59,7 +59,7 @@ def main():
 
 
 @main.command()
-@argument('path', default=_DEFAULT_CONFIG_FILE)
+@argument("path", default=_DEFAULT_CONFIG_FILE)
 def init(path):
     """Copy a sample config file in the current directory (default to
     'sigal.conf.py'), or use the provided 'path'."""
@@ -70,44 +70,44 @@ def init(path):
 
     from pkg_resources import resource_string
 
-    conf = resource_string(__name__, 'templates/sigal.conf.py')
+    conf = resource_string(__name__, "templates/sigal.conf.py")
 
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write(conf.decode('utf8'))
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(conf.decode("utf8"))
     print(f"Sample config file created: {path}")
 
 
 @main.command()
-@argument('source', required=False)
-@argument('destination', required=False)
-@option('-f', '--force', is_flag=True, help="Force the reprocessing of existing images")
-@option('-v', '--verbose', is_flag=True, help="Show all messages")
+@argument("source", required=False)
+@argument("destination", required=False)
+@option("-f", "--force", is_flag=True, help="Force the reprocessing of existing images")
+@option("-v", "--verbose", is_flag=True, help="Show all messages")
 @option(
-    '-d',
-    '--debug',
+    "-d",
+    "--debug",
     is_flag=True,
     help=(
         "Show all messages, including debug messages. Also raise "
         "exception if an error happen when processing files."
     ),
 )
-@option('-q', '--quiet', is_flag=True, help="Show only error messages")
+@option("-q", "--quiet", is_flag=True, help="Show only error messages")
 @option(
-    '-c',
-    '--config',
+    "-c",
+    "--config",
     default=_DEFAULT_CONFIG_FILE,
     show_default=True,
     help="Configuration file",
 )
 @option(
-    '-t',
-    '--theme',
+    "-t",
+    "--theme",
     help=(
         "Specify a theme directory, or a theme name for the themes included with Sigal"
     ),
 )
-@option('--title', help="Title of the gallery (overrides the title setting.")
-@option('-n', '--ncpu', help="Number of cpu to use (default: all)")
+@option("--title", help="Title of the gallery (overrides the title setting.")
+@option("-n", "--ncpu", help="Number of cpu to use (default: all)")
 def build(
     source, destination, debug, verbose, quiet, force, config, theme, title, ncpu
 ):
@@ -118,7 +118,7 @@ def build(
 
     """
     if sum([debug, verbose, quiet]) > 1:
-        sys.exit('Only one option of debug, verbose and quiet should be used')
+        sys.exit("Only one option of debug, verbose and quiet should be used")
 
     if debug:
         level = logging.DEBUG
@@ -139,14 +139,14 @@ def build(
     start_time = time.time()
     settings = read_settings(config)
 
-    for key in ('source', 'destination', 'theme'):
+    for key in ("source", "destination", "theme"):
         arg = locals()[key]
         if arg is not None:
             settings[key] = os.path.abspath(arg)
         logger.info("%12s : %s", key.capitalize(), settings[key])
 
-    if not settings['source'] or not os.path.isdir(settings['source']):
-        logger.error("Input directory not found: %s", settings['source'])
+    if not settings["source"] or not os.path.isdir(settings["source"]):
+        logger.error("Input directory not found: %s", settings["source"])
         sys.exit(1)
 
     # on windows os.path.relpath raises a ValueError if the two paths are on
@@ -155,8 +155,8 @@ def build(
     relative_check = True
     try:
         relative_check = os.path.relpath(
-            settings['destination'], settings['source']
-        ).startswith('..')
+            settings["destination"], settings["source"]
+        ).startswith("..")
     except ValueError:
         pass
 
@@ -165,75 +165,75 @@ def build(
         sys.exit(1)
 
     if title:
-        settings['title'] = title
+        settings["title"] = title
 
-    locale.setlocale(locale.LC_ALL, settings['locale'])
+    locale.setlocale(locale.LC_ALL, settings["locale"])
     init_plugins(settings)
 
     gal = Gallery(settings, ncpu=ncpu, quiet=quiet)
     gal.build(force=force)
 
     # copy extra files
-    for src, dst in settings['files_to_copy']:
-        src = os.path.join(settings['source'], src)
-        dst = os.path.join(settings['destination'], dst)
-        logger.debug('Copy %s to %s', src, dst)
-        copy(src, dst, symlink=settings['orig_link'], rellink=settings['rel_link'])
+    for src, dst in settings["files_to_copy"]:
+        src = os.path.join(settings["source"], src)
+        dst = os.path.join(settings["destination"], dst)
+        logger.debug("Copy %s to %s", src, dst)
+        copy(src, dst, symlink=settings["orig_link"], rellink=settings["rel_link"])
 
     stats = gal.stats
 
     def format_stats(_type):
         opt = [
-            "{} {}".format(stats[_type + '_' + subtype], subtype)
-            for subtype in ('skipped', 'failed')
-            if stats[_type + '_' + subtype] > 0
+            "{} {}".format(stats[_type + "_" + subtype], subtype)
+            for subtype in ("skipped", "failed")
+            if stats[_type + "_" + subtype] > 0
         ]
-        opt = ' ({})'.format(', '.join(opt)) if opt else ''
-        return f'{stats[_type]} {_type}s{opt}'
+        opt = " ({})".format(", ".join(opt)) if opt else ""
+        return f"{stats[_type]} {_type}s{opt}"
 
     if not quiet:
-        stats_str = ''
-        types = sorted({t.rsplit('_', 1)[0] for t in stats})
+        stats_str = ""
+        types = sorted({t.rsplit("_", 1)[0] for t in stats})
         for t in types[:-1]:
-            stats_str += f'{format_stats(t)} and '
-        stats_str += f'{format_stats(types[-1])}'
+            stats_str += f"{format_stats(t)} and "
+        stats_str += f"{format_stats(types[-1])}"
         end_time = time.time() - start_time
-        print(f'Done, processed {stats_str} in {end_time:.2f} seconds.')
+        print(f"Done, processed {stats_str} in {end_time:.2f} seconds.")
 
 
 def init_plugins(settings):
     """Load plugins and call register()."""
 
     logger = logging.getLogger(__name__)
-    logger.debug('Plugin paths: %s', settings['plugin_paths'])
+    logger.debug("Plugin paths: %s", settings["plugin_paths"])
 
-    for path in settings['plugin_paths']:
+    for path in settings["plugin_paths"]:
         sys.path.insert(0, path)
 
-    for plugin in settings['plugins']:
+    for plugin in settings["plugins"]:
         try:
             if isinstance(plugin, str):
                 mod = importlib.import_module(plugin)
                 mod.register(settings)
             else:
                 plugin.register(settings)
-            logger.debug('Registered plugin %s', plugin)
+            logger.debug("Registered plugin %s", plugin)
         except Exception as e:
-            logger.error('Failed to load plugin %s: %r', plugin, e)
+            logger.error("Failed to load plugin %s: %r", plugin, e)
 
-    for path in settings['plugin_paths']:
+    for path in settings["plugin_paths"]:
         sys.path.remove(path)
 
 
 @main.command()
-@argument('destination', default='_build')
-@option('-p', '--port', help="Port to use", default=8000)
+@argument("destination", default="_build")
+@option("-p", "--port", help="Port to use", default=8000)
 @option(
-    '-c',
-    '--config',
+    "-c",
+    "--config",
     default=_DEFAULT_CONFIG_FILE,
     show_default=True,
-    help='Configuration file',
+    help="Configuration file",
 )
 def serve(destination, port, config):
     """Run a simple web server."""
@@ -241,7 +241,7 @@ def serve(destination, port, config):
         pass
     elif os.path.exists(config):
         settings = read_settings(config)
-        destination = settings.get('destination')
+        destination = settings.get("destination")
         if not os.path.exists(destination):
             sys.stderr.write(
                 f"The '{destination}' directory doesn't exist, maybe try building"
@@ -255,7 +255,7 @@ def serve(destination, port, config):
         )
         sys.exit(2)
 
-    print(f'DESTINATION : {destination}')
+    print(f"DESTINATION : {destination}")
     os.chdir(destination)
     Handler = server.SimpleHTTPRequestHandler
     httpd = socketserver.TCPServer(("", port), Handler, False)
@@ -267,14 +267,14 @@ def serve(destination, port, config):
         httpd.server_activate()
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print('\nAll done!')
+        print("\nAll done!")
 
 
 @main.command()
-@argument('target')
-@argument('keys', nargs=-1)
+@argument("target")
+@argument("keys", nargs=-1)
 @option(
-    '-o', '--overwrite', default=False, is_flag=True, help='Overwrite existing .md file'
+    "-o", "--overwrite", default=False, is_flag=True, help="Overwrite existing .md file"
 )
 def set_meta(target, keys, overwrite=False):
     """Write metadata keys to .md file.
@@ -294,9 +294,9 @@ def set_meta(target, keys, overwrite=False):
         sys.exit(1)
 
     if os.path.isdir(target):
-        descfile = os.path.join(target, 'index.md')
+        descfile = os.path.join(target, "index.md")
     else:
-        descfile = os.path.splitext(target)[0] + '.md'
+        descfile = os.path.splitext(target)[0] + ".md"
     if os.path.exists(descfile) and not overwrite:
         sys.stderr.write(
             f"Description file '{descfile}' already exists. "

@@ -8,11 +8,11 @@ CURRENT_DIR = os.path.dirname(__file__)
 
 
 def test_save_cache(settings, tmpdir):
-    settings['destination'] = str(tmpdir)
+    settings["destination"] = str(tmpdir)
     gal = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal)
 
-    cachePath = os.path.join(settings['destination'], ".metadata_cache")
+    cachePath = os.path.join(settings["destination"], ".metadata_cache")
 
     assert os.path.isfile(cachePath)
 
@@ -23,17 +23,17 @@ def test_save_cache(settings, tmpdir):
     album = gal.albums["exifTest"]
     cache_img = cache["exifTest/21.jpg"]
     assert cache_img["exif"] == album.medias[0].exif
-    assert 'markdown_metadata' not in cache_img
+    assert "markdown_metadata" not in cache_img
     assert cache_img["file_metadata"] == album.medias[0].file_metadata
 
     cache_img = cache["exifTest/22.jpg"]
     assert cache_img["exif"] == album.medias[1].exif
-    assert 'markdown_metadata' not in cache_img
+    assert "markdown_metadata" not in cache_img
     assert cache_img["file_metadata"] == album.medias[1].file_metadata
 
     cache_img = cache["exifTest/noexif.png"]
     assert cache_img["exif"] == album.medias[2].exif
-    assert 'markdown_metadata' not in cache_img
+    assert "markdown_metadata" not in cache_img
     assert cache_img["file_metadata"] == album.medias[2].file_metadata
 
     # test iptc and md
@@ -42,7 +42,7 @@ def test_save_cache(settings, tmpdir):
 
     cache_img = cache["iptcTest/1.jpg"]
     assert cache_img["file_metadata"] == album.medias[0].file_metadata
-    assert 'markdown_metadata' not in cache_img
+    assert "markdown_metadata" not in cache_img
 
     cache_img = cache["iptcTest/2.jpg"]
     assert cache_img["markdown_metadata"] == album.medias[1].markdown_metadata
@@ -56,7 +56,7 @@ def test_save_cache(settings, tmpdir):
 
 
 def test_restore_cache(settings, tmpdir):
-    settings['destination'] = str(tmpdir)
+    settings["destination"] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal2 = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal1)
@@ -64,16 +64,16 @@ def test_restore_cache(settings, tmpdir):
     assert gal1.metadataCache == gal2.metadataCache
 
     # test bad cache
-    cachePath = os.path.join(settings['destination'], ".metadata_cache")
-    with open(cachePath, 'w') as f:
-        f.write('bad pickle file')
+    cachePath = os.path.join(settings["destination"], ".metadata_cache")
+    with open(cachePath, "w") as f:
+        f.write("bad pickle file")
 
     extended_caching._restore_cache(gal2)
     assert gal2.metadataCache == {}
 
 
 def test_load_exif(settings, tmpdir):
-    settings['destination'] = str(tmpdir)
+    settings["destination"] = str(tmpdir)
     gal1 = Gallery(settings, ncpu=1)
     gal1.albums["exifTest"].medias[2].exif = "blafoo"
     # set mod_date in future, to force these values
@@ -99,7 +99,7 @@ def test_load_exif(settings, tmpdir):
 
 
 def test_load_metadata_missing(settings, tmpdir):
-    settings['destination'] = str(tmpdir)
+    settings["destination"] = str(tmpdir)
     gal = Gallery(settings, ncpu=1)
     extended_caching.save_cache(gal)
     assert gal.metadataCache

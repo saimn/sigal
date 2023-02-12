@@ -67,24 +67,24 @@ logger = logging.getLogger(__name__)
 def titleregexp(album):
     """Create a title by regexping name"""
 
-    cfg = album.settings.get('titleregexp')
+    cfg = album.settings.get("titleregexp")
     n = 0
     total = 0
     album_title_org = album.title
 
-    for r in cfg.get('regexp'):
+    for r in cfg.get("regexp"):
         album.title, n = re.subn(
-            r.get('search'), r.get('replace'), album.title, r.get('count', 0)
+            r.get("search"), r.get("replace"), album.title, r.get("count", 0)
         )
         total += n
 
         if n > 0:
-            for s in r.get('substitute', []):
+            for s in r.get("substitute", []):
                 album.title = album.title.replace(s[0], s[1])
-            if r.get('break', '') != '':
+            if r.get("break", "") != "":
                 break
 
-    for r in cfg.get('substitute', []):
+    for r in cfg.get("substitute", []):
         album.title = album.title.replace(r[0], r[1])
 
     if total > 0:
@@ -92,7 +92,7 @@ def titleregexp(album):
 
 
 def register(settings):
-    if settings.get('titleregexp'):
+    if settings.get("titleregexp"):
         signals.album_initialized.connect(titleregexp)
     else:
         logger.warning("'titleregexp' setting not available!")

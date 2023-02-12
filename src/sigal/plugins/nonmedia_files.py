@@ -37,37 +37,37 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_CONFIG = {
-    'ext_as_thumb': True,
-    'ignore_ext': ['.md'],
-    'thumb_bg_color': (255, 255, 255),
-    'thumb_font': None,
-    'thumb_font_color': (0, 0, 0),
-    'thumb_font_size': 40,
+    "ext_as_thumb": True,
+    "ignore_ext": [".md"],
+    "thumb_bg_color": (255, 255, 255),
+    "thumb_font": None,
+    "thumb_font_color": (0, 0, 0),
+    "thumb_font_size": 40,
 }
 
 
 COMMON_MIME_TYPES = {
-    '.azw': 'application/vnd.amazon.ebook',
-    '.csv': 'text/csv',
-    '.epub': 'application/epub+zip',
-    '.pdf': 'application/pdf',
-    '.svg': 'image/svg+xml',
-    '.txt': 'text/plain',
-    '.zip': 'application/zip',
+    ".azw": "application/vnd.amazon.ebook",
+    ".csv": "text/csv",
+    ".epub": "application/epub+zip",
+    ".pdf": "application/pdf",
+    ".svg": "image/svg+xml",
+    ".txt": "text/plain",
+    ".zip": "application/zip",
 }
 
 
 class NonMedia(Media):
     """Gather all informations on a non-media file."""
 
-    type = 'nonmedia'
+    type = "nonmedia"
 
     def __init__(self, filename, path, settings):
         super().__init__(filename, path, settings)
-        self.thumb_name = os.path.splitext(self.thumb_name)[0] + '.jpg'
+        self.thumb_name = os.path.splitext(self.thumb_name)[0] + ".jpg"
         self.date = self._get_file_date()
-        self.mime = COMMON_MIME_TYPES.get(self.src_ext, 'application/octet-stream')
-        logger.debug('mime type %s', self.mime)
+        self.mime = COMMON_MIME_TYPES.get(self.src_ext, "application/octet-stream")
+        logger.debug("mime type %s", self.mime)
 
     @property
     def thumbnail(self):
@@ -81,55 +81,55 @@ def generate_thumbnail(
     text,
     outname,
     box,
-    bg_color=DEFAULT_CONFIG['thumb_bg_color'],
-    font=DEFAULT_CONFIG['thumb_font'],
-    font_color=DEFAULT_CONFIG['thumb_font_color'],
-    font_size=DEFAULT_CONFIG['thumb_font_size'],
+    bg_color=DEFAULT_CONFIG["thumb_bg_color"],
+    font=DEFAULT_CONFIG["thumb_font"],
+    font_color=DEFAULT_CONFIG["thumb_font_color"],
+    font_size=DEFAULT_CONFIG["thumb_font_size"],
     options=None,
 ):
     """Create a thumbnail image."""
 
     kwargs = {}
     if font:
-        kwargs['font'] = ImageFont.truetype(font, font_size)
+        kwargs["font"] = ImageFont.truetype(font, font_size)
     if font_color:
-        kwargs['fill'] = font_color
+        kwargs["fill"] = font_color
 
     img = PILImage.new("RGB", box, bg_color)
 
     anchor = (box[0] // 2, box[1] // 2)
     d = ImageDraw.Draw(img)
     logger.info(f"kwargs: {kwargs}")
-    d.text(anchor, text, anchor='mm', **kwargs)
+    d.text(anchor, text, anchor="mm", **kwargs)
 
-    outformat = 'JPEG'
-    logger.info('Save thumnail image: %s (%s)', outname, outformat)
+    outformat = "JPEG"
+    logger.info("Save thumnail image: %s (%s)", outname, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
 def process_thumb(media):
     settings = media.settings
-    plugin_settings = settings.get('nonmedia_files_options', {})
-    utils.copy(media.src_path, media.dst_path, symlink=settings['orig_link'])
+    plugin_settings = settings.get("nonmedia_files_options", {})
+    utils.copy(media.src_path, media.dst_path, symlink=settings["orig_link"])
 
-    if plugin_settings.get('ext_as_thumb', DEFAULT_CONFIG['ext_as_thumb']):
-        logger.info('plugin_settings: %r', plugin_settings)
+    if plugin_settings.get("ext_as_thumb", DEFAULT_CONFIG["ext_as_thumb"]):
+        logger.info("plugin_settings: %r", plugin_settings)
         kwargs = {}
-        for key in ('bg_color', 'font', 'font_color', 'font_size'):
-            if f'thumb_{key}' in plugin_settings:
-                kwargs[key] = plugin_settings[f'thumb_{key}']
+        for key in ("bg_color", "font", "font_color", "font_size"):
+            if f"thumb_{key}" in plugin_settings:
+                kwargs[key] = plugin_settings[f"thumb_{key}"]
         generate_thumbnail(
             media.src_ext[1:].upper(),
             media.thumb_path,
-            settings['thumb_size'],
-            options=settings['jpg_options'],
+            settings["thumb_size"],
+            options=settings["jpg_options"],
             **kwargs,
         )
 
 
 def process_nonmedia(media):
     """Process a non-media file: copy and create thumbnail."""
-    logger.info('Processing non-media file: %s', media.dst_filename)
+    logger.info("Processing non-media file: %s", media.dst_filename)
 
     with utils.raise_if_debug() as status:
         process_thumb(media)
@@ -140,18 +140,18 @@ def process_nonmedia(media):
 def album_file(album, filename, media=None):
     if not media:
         ext = os.path.splitext(filename)[1]
-        ext_ignore = album.settings.get('nonmedia_files_options', {}).get(
-            'ignore_ext', DEFAULT_CONFIG['ignore_ext']
+        ext_ignore = album.settings.get("nonmedia_files_options", {}).get(
+            "ignore_ext", DEFAULT_CONFIG["ignore_ext"]
         )
         if ext in ext_ignore:
-            logger.info('Ignoring non-media file: %s', filename)
+            logger.info("Ignoring non-media file: %s", filename)
         else:
-            logger.info('Registering non-media file: %s', filename)
+            logger.info("Registering non-media file: %s", filename)
             return NonMedia(filename, album.path, album.settings)
 
 
 def process_file(media, processor=None):
-    if media.type == 'nonmedia':
+    if media.type == "nonmedia":
         return process_nonmedia
 
 

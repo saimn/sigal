@@ -26,12 +26,12 @@ logger = logging.getLogger(__name__)
 
 
 def adjust(img, settings=None):
-    logger.debug('Adjust image %r', img)
-    return Adjust(**settings['adjust_options']).process(img)
+    logger.debug("Adjust image %r", img)
+    return Adjust(**settings["adjust_options"]).process(img)
 
 
 def register(settings):
-    if settings.get('adjust_options'):
+    if settings.get("adjust_options"):
         signals.img_resized.connect(adjust)
     else:
-        logger.warning('Adjust options are not set')
+        logger.warning("Adjust options are not set")

@@ -52,15 +52,15 @@ A total of %d pull requests were merged for this release.
 
 
 def get_authors(revision_range):
-    pat = '^.*\\t(.*)$'
-    lst_release, cur_release = (r.strip() for r in revision_range.split('..'))
+    pat = "^.*\\t(.*)$"
+    lst_release, cur_release = (r.strip() for r in revision_range.split(".."))
 
     # authors, in current release and previous to current release.
-    cur = set(re.findall(pat, this_repo.git.shortlog('-s', revision_range), re.M))
-    pre = set(re.findall(pat, this_repo.git.shortlog('-s', lst_release), re.M))
+    cur = set(re.findall(pat, this_repo.git.shortlog("-s", revision_range), re.M))
+    pre = set(re.findall(pat, this_repo.git.shortlog("-s", lst_release), re.M))
 
     # Append '+' to new authors.
-    authors = [s + ' +' for s in cur - pre] + [s for s in cur & pre]
+    authors = [s + " +" for s in cur - pre] + [s for s in cur & pre]
     authors.sort()
     return authors
 
@@ -69,7 +69,7 @@ def get_pull_requests(repo, revision_range):
     prnums = []
 
     # From regular merges
-    merges = this_repo.git.log('--oneline', '--merges', revision_range)
+    merges = this_repo.git.log("--oneline", "--merges", revision_range)
     issues = re.findall("Merge pull request \\#(\\d*)", merges)
     prnums.extend(int(s) for s in issues)
 
@@ -79,9 +79,9 @@ def get_pull_requests(repo, revision_range):
 
     # From fast forward squash-merges
     commits = this_repo.git.log(
-        '--oneline', '--no-merges', '--first-parent', revision_range
+        "--oneline", "--no-merges", "--first-parent", revision_range
     )
-    issues = re.findall('^.*\\(\\#(\\d+)\\)$', commits, re.M)
+    issues = re.findall("^.*\\(\\#(\\d+)\\)$", commits, re.M)
     prnums.extend(int(s) for s in issues)
 
     # get PR data from github repo
@@ -91,10 +91,10 @@ def get_pull_requests(repo, revision_range):
 
 
 def main(token, revision_range):
-    lst_release, cur_release = (r.strip() for r in revision_range.split('..'))
+    lst_release, cur_release = (r.strip() for r in revision_range.split(".."))
 
     github = Github(token)
-    github_repo = github.get_repo('saimn/sigal')
+    github_repo = github.get_repo("saimn/sigal")
 
     # document authors
     authors = get_authors(revision_range)
@@ -105,7 +105,7 @@ def main(token, revision_range):
     print(author_msg % len(authors))
 
     for s in authors:
-        print('* ' + s)
+        print("* " + s)
 
     # document pull requests
     pull_requests = get_pull_requests(github_repo, revision_range)
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     from argparse import ArgumentParser
 
     parser = ArgumentParser(description="Generate author/pr lists for release")
-    parser.add_argument('token', help='github access token')
-    parser.add_argument('revision_range', help='<revision>..<revision>')
+    parser.add_argument("token", help="github access token")
+    parser.add_argument("revision_range", help="<revision>..<revision>")
     args = parser.parse_args()
     main(args.token, args.revision_range)
