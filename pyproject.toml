@@ -45,19 +45,12 @@ docs = ["Sphinx>=4.1.0", "alabaster", "cryptography"]
 sigal = "sigal:main"
 
 [tool.setuptools]
-zip-safe = false
 include-package-data = true
 license-files = ["LICENSE"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 namespaces = true
-
-[tool.setuptools.package-data]
-sigal = [
-    "plugins/**",
-    "themes/**",
-]
 
 [tool.setuptools_scm]
 write_to = "src/sigal/version.py"

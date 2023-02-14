@@ -1,7 +1,7 @@
 *.egg-info
 *~
 *.pyc
-*_flymake
+__pycache__/
 .coverage
 .DS_Store
 .eggs/
