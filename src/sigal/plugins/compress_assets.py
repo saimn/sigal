@@ -80,7 +80,7 @@ class BaseCompressor:
         Otherwise, it returns False.
 
         """
-        if not os.path.splitext(filename)[1][1:] in self.suffixes_to_compress:
+        if os.path.splitext(filename)[1][1:] not in self.suffixes_to_compress:
             return False
 
         file_stats = None
