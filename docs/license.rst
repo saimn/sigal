@@ -50,5 +50,5 @@ tests:
   ``should_be_ignored.jpg`` : from the apollo 7 mission, public domain:
   https://www.flickr.com/photos/projectapolloarchive/21756099278/in/album-72157657129869694/
   (https://github.com/saimn/sigal/pull/233#issuecomment-275430083)
-- ``example video.ogv`` : https://commons.wikimedia.org/wiki/File:I-15bis.ogv
-  (GFDL)
+- ``example video.ogv`` : https://commons.wikimedia.org/wiki/File:Examplevideo.ogv
+  (Public domain)
