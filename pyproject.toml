@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64", "wheel", "setuptools_scm[toml]>=3.4"]
+requires = ["setuptools>=64", "setuptools_scm[toml]>=3.4"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -23,7 +23,6 @@ classifiers = [
     "Topic :: Multimedia :: Graphics :: Viewers",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-urls = {Homepage = "https://github.com/saimn/sigal"}
 requires-python = ">=3.8"
 dependencies = [
     "blinker",
@@ -44,6 +43,10 @@ docs = ["Sphinx>=4.1.0", "alabaster", "cryptography"]
 [project.scripts]
 sigal = "sigal:main"
 
+[project.urls]
+repository = "https://github.com/saimn/sigal"
+documentation = "http://sigal.saimon.org/en/latest/"
+
 [tool.setuptools]
 include-package-data = true
 license-files = ["LICENSE"]
@@ -59,12 +62,20 @@ write_to = "src/sigal/version.py"
 line-length = 88
 target-version = ['py38']
 
-[tool.isort]
-profile = "black"
-
 [tool.ruff]
-select = ["E", "F"]
+target-version = "py38"
+select = [
+  "E", "F", "W", # flake8
+  "I",           # isort
+  "UP",          # pyupgrade
+]
 ignore = ["E731"]
+unfixable = [
+  "F841", # Removes unused variables
+]
+
+[tool.ruff.isort]
+known-first-party = ["sigal"]
 
 [tool.coverage.run]
 source = ["sigal"]
