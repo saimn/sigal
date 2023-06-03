@@ -7,6 +7,20 @@ Version 2.4.dev
 
 Not released yet.
 
+- Update link to Galleria [:issue:`487`].
+- Added support for black detection in video thumbnail generation
+  [:issue:`485`].
+- Don't show the galleria container if there are no medias [:issue:`484`].
+- Force encrypt's password form to be on top [:issue:`483`].
+- Add mkv to video_extensions [:issue:`481`].
+- Make sure zip_gallery is set correctly [:issue:`477`].
+- Updates for recent Pillow changes, requires Pillow>=8.0.0 [:issue:`479`].
+- Make theme dir writable after copying to it [:issue:`471`].
+- New plugin: Titleregexp - modify titles of albums with regular expressions
+  [:issue:`469`].
+- List of sort-properties as fallback instead of zero-length string
+  [:issue:`468`].
+
 Version 2.3
 ~~~~~~~~~~~
 
