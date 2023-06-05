@@ -56,6 +56,7 @@ from .utils import (
     is_valid_html5_video,
     read_markdown,
     url_from_path,
+    should_reprocess_album,
 )
 from .video import process_video
 from .writer import AlbumListPageWriter, AlbumPageWriter
@@ -824,7 +825,7 @@ class Gallery:
             for subname, album in self.get_albums(subdir):
                 yield subname, self.albums[subdir]
 
-    def build(self, force=None):
+    def build(self, force=False):
         "Create the image gallery"
 
         if not self.albums:
@@ -936,23 +937,8 @@ class Gallery:
 
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
-        def forcing(a):
-            if force is None:
-                return False
-            if isinstance(force, bool):
-                return force
-            elif len(force) == 0:
-                return True
-            else:
-                for f in force:
-                    if '*' in f or '?' in f:
-                        if fnmatch(a.path, f):
-                            return True
-                    elif a.name == f:
-                        return True
-
         for f in album:
-            if isfile(f.dst_path) and not forcing(album):
+            if isfile(f.dst_path) and not should_reprocess_album(a.path, a.name, force):
                 self.logger.info("%s exists - skipping", f.dst_filename)
                 self.stats[f.type + "_skipped"] += 1
             else:

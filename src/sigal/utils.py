@@ -81,6 +81,17 @@ def url_from_path(path):
         path = "/".join(path.split(os.sep))
     return quote(path)
 
+def should_reprocess_album(path, name, force=False):
+    if isinstance(force, bool):
+        return force
+    else:
+        for f in force:
+            if '*' in f or '?' in f:
+                if fnmatch(path, f):
+                    return True
+            elif name == f:
+                return True
+    return False
 
 def read_markdown(filename):
     """Reads markdown file, converts output and fetches title and meta-data for
