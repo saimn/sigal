@@ -67,7 +67,7 @@ Optional arguments:
     -a 'My Pictures/*Pics'
             My Pictures/Old Pics => Force
             My Pictures/New Pics => Force
-            My Pictures/My Pics => No Force
+            My Pictures/Pictures => No Force
     -a 'Landscapes'
             My Pictures/Landscapes => Force
             My Other Pictures/Landscapes => Force
