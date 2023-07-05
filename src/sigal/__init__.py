@@ -22,6 +22,7 @@ import importlib
 import locale
 import logging
 import os
+import pathlib
 import socketserver
 import sys
 import time
@@ -55,7 +56,6 @@ def main():
     resize images, create thumbnails with some options, generate html pages.
 
     """
-    pass  # pragma: no cover
 
 
 @main.command()
@@ -64,16 +64,13 @@ def init(path):
     """Copy a sample config file in the current directory (default to
     'sigal.conf.py'), or use the provided 'path'."""
 
-    if os.path.isfile(path):
+    path = pathlib.Path(path)
+    if path.exists():
         print("Found an existing config file, will abort to keep it safe.")
         sys.exit(1)
 
-    from pkg_resources import resource_string
-
-    conf = resource_string(__name__, "templates/sigal.conf.py")
-
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(conf.decode("utf8"))
+    conf = pathlib.Path(__file__).parent / "templates" / "sigal.conf.py"
+    path.write_text(conf.read_text())
     print(f"Sample config file created: {path}")
 
 
