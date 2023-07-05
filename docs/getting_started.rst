@@ -18,7 +18,7 @@ Build
   a sub-directory and run ``sigal build <your images directory>``.
 
   The next time you run ``sigal build``, only the new images will be processed.
-  You can use the ``-f`` flag to force the reprocessing of all the images.
+  You can use the ``-f`` flag to force the reprocessing of all the images or the ``-a`` flag to force only the specified matching albums.
   Images (resp. videos) that are smaller than the size specified by the
   ``img_size`` (resp. ``video_size``) setting will not be resized.
 
@@ -39,7 +39,7 @@ Help on the ``sigal build`` command
 
 ::
 
-    $ sigal build [-h] [-d] [-v] [-f] [-c CONFIG] [-t THEME] [-n NCPU]
+    $ sigal build [-h] [-d] [-v] [-f] [-a PATTERN] [-c CONFIG] [-t THEME] [-n NCPU]
             [source] [destination]
 
 Required arguments:
@@ -57,6 +57,20 @@ Optional arguments:
 
 ``-f, --force``
   Force the reprocessing of existing images and thumbnails
+
+``-a --force-album``
+  Force the reprocessing of existing images matching the given album wildcard pattern.
+  Patterns containing wildcards will be matched against the full album path, while patterns without wildcards will be match against the album name only:
+
+::
+
+    -a 'My Pictures/*Pics'
+            My Pictures/Old Pics => Force
+            My Pictures/New Pics => Force
+            My Pictures/Pictures => No Force
+    -a 'Landscapes'
+            My Pictures/Landscapes => Force
+            My Other Pictures/Landscapes => Force
 
 ``-v, --verbose``
   Show all messages

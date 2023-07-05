@@ -23,6 +23,7 @@ import os
 import shutil
 from functools import lru_cache
 from urllib.parse import quote
+from fnmatch import fnmatch
 
 from markdown import Markdown
 from markupsafe import Markup
@@ -81,6 +82,17 @@ def url_from_path(path):
         path = "/".join(path.split(os.sep))
     return quote(path)
 
+def should_reprocess_album(path, name, force=False):
+    if isinstance(force, bool):
+        return force
+    else:
+        for f in force:
+            if '*' in f or '?' in f:
+                if fnmatch(path, f):
+                    return True
+            elif name == f:
+                return True
+    return False
 
 def read_markdown(filename):
     """Reads markdown file, converts output and fetches title and meta-data for

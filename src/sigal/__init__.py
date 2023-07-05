@@ -78,6 +78,7 @@ def init(path):
 @argument("source", required=False)
 @argument("destination", required=False)
 @option("-f", "--force", is_flag=True, help="Force the reprocessing of existing images")
+@option("-a", "--force-album", multiple=True, help="Force reprocessing of any album that matches the given pattern. Patterns containing no wildcards will be matched against only the album name. (-a 'My Pictures/* Pics' -a 'Festival')")
 @option("-v", "--verbose", is_flag=True, help="Show all messages")
 @option(
     "-d",
@@ -106,7 +107,7 @@ def init(path):
 @option("--title", help="Title of the gallery (overrides the title setting.")
 @option("-n", "--ncpu", help="Number of cpu to use (default: all)")
 def build(
-    source, destination, debug, verbose, quiet, force, config, theme, title, ncpu
+    source, destination, debug, verbose, quiet, force, force_album, config, theme, title, ncpu
 ):
     """Run sigal to process a directory.
 
@@ -168,7 +169,7 @@ def build(
     init_plugins(settings)
 
     gal = Gallery(settings, ncpu=ncpu, quiet=quiet)
-    gal.build(force=force)
+    gal.build(force=force_album if len(force_album) else force)
 
     # copy extra files
     for src, dst in settings["files_to_copy"]:

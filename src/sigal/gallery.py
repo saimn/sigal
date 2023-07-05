@@ -55,6 +55,7 @@ from .utils import (
     is_valid_html5_video,
     read_markdown,
     url_from_path,
+    should_reprocess_album,
 )
 from .video import process_video
 from .writer import AlbumListPageWriter, AlbumPageWriter
@@ -936,7 +937,7 @@ class Gallery:
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
         for f in album:
-            if isfile(f.dst_path) and not force:
+            if isfile(f.dst_path) and not should_reprocess_album(album.path, album.name, force):
                 self.logger.info("%s exists - skipping", f.dst_filename)
                 self.stats[f.type + "_skipped"] += 1
             else:

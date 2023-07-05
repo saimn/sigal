@@ -43,6 +43,16 @@ def test_copy(tmpdir):
     utils.copy(src, dst)
     utils.copy(src, dst)
 
+def test_force(tmpdir):
+    assert utils.should_reprocess_album('Gallery/New Pics', 'New Pics', False) is False
+    assert utils.should_reprocess_album('Gallery/New Pics', 'New Pics', True) is True
+    assert utils.should_reprocess_album('Gallery/New Pics', 'New Pics', ['Gallery/*']) is True
+    assert utils.should_reprocess_album('Gallery/New Pics', 'New Pics', ['Gallery/*Pics']) is True
+    assert utils.should_reprocess_album('Gallery/New Pics', 'New Pics', ['Pictures/*']) is False
+    assert utils.should_reprocess_album('Gallery/New Pics', 'New Pics', ['New Pics']) is True
+    assert utils.should_reprocess_album('Gallery/New Pics', 'New Pics', ['Pictures']) is False
+    assert utils.should_reprocess_album('Gallery/New Pics', 'New Pics', ['Pictures', 'Something']) is False
+    assert utils.should_reprocess_album('Gallery/New Pics', 'New Pics', ['Pictures', 'Gallery', '*Pics']) is True
 
 def test_check_or_create_dir(tmpdir):
     path = str(tmpdir.join("new_directory"))
