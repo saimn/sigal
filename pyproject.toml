@@ -79,16 +79,10 @@ known-first-party = ["sigal"]
 
 [tool.coverage.run]
 source = ["sigal"]
-omit = [
-    "/tmp/*",
-    "tests/*",
-]
+omit = ["/tmp/*", "tests/*"]
 
 [tool.coverage.paths]
-source = [
-    "src/sigal",
-    "*/.tox/*/lib/python*/site-packages/sigal",
-]
+source = ["src", "*/site-packages"]
 
 [tool.coverage.report]
 exclude_lines = [
