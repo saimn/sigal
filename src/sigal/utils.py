@@ -23,6 +23,7 @@ import os
 import shutil
 from functools import lru_cache
 from urllib.parse import quote
+from fnmatch import fnmatch
 
 from markdown import Markdown
 from markupsafe import Markup

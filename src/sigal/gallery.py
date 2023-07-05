@@ -38,7 +38,6 @@ from itertools import cycle
 from os.path import isfile, join, splitext
 from shutil import get_terminal_size
 from urllib.parse import quote as url_quote
-from fnmatch import fnmatch
 
 from click import progressbar
 from natsort import natsort_keygen, ns
@@ -938,7 +937,7 @@ class Gallery:
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
         for f in album:
-            if isfile(f.dst_path) and not should_reprocess_album(a.path, a.name, force):
+            if isfile(f.dst_path) and not should_reprocess_album(album.path, album.name, force):
                 self.logger.info("%s exists - skipping", f.dst_filename)
                 self.stats[f.type + "_skipped"] += 1
             else:
