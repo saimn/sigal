@@ -381,11 +381,8 @@ def test_gallery_max_img_pixels(settings, tmpdir, monkeypatch):
     # to show that settings['max_img_pixels'] works.
     monkeypatch.setattr("PIL.Image.MAX_IMAGE_PIXELS", 100_000_000)
 
-    with open(str(tmpdir.join("my.css")), mode="w") as f:
-        f.write("color: red")
-
+    settings["source"] = os.path.join(settings["source"], "dir2")
     settings["destination"] = str(tmpdir)
-    settings["user_css"] = str(tmpdir.join("my.css"))
     settings["max_img_pixels"] = 5000
 
     logger = logging.getLogger("sigal")
@@ -408,15 +405,14 @@ def test_empty_dirs(settings):
     assert "dir1/empty" not in gal.albums
 
 
-def test_ignores(settings, tmpdir):
-    tmp = str(tmpdir)
-    settings["destination"] = tmp
-    settings["ignore_directories"] = ["*test2", "accentué"]
-    settings["ignore_files"] = ["dir2/Hubble*", "*.png", "*CMB_*"]
+def test_ignores(settings, tmp_path):
+    settings["source"] = os.path.join(settings["source"], "dir1")
+    settings["destination"] = str(tmp_path)
+    settings["ignore_directories"] = ["*test2"]
+    settings["ignore_files"] = ["*.gif", "*CMB_*"]
     gal = Gallery(settings, ncpu=1)
     gal.build()
 
-    assert "test2" not in os.listdir(join(tmp, "dir1"))
-    assert "accentué" not in os.listdir(tmp)
-    assert "CMB_Timeline300_no_WMAP.jpg" not in os.listdir(join(tmp, "dir1", "test1"))
-    assert "Hubble Interacting Galaxy NGC 5257.jpg" not in os.listdir(join(tmp, "dir2"))
+    assert not (tmp_path / "test2").exists()
+    assert not (tmp_path / "test1" / "example.gif").exists()
+    assert not (tmp_path / "test1" / "CMB_Timeline300_no_WMAP.jpg").exists()

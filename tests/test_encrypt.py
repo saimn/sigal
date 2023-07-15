@@ -22,19 +22,19 @@ def get_key_tag(settings):
 
 
 def test_encrypt(settings, tmpdir, disconnect_signals, caplog):
+    settings["source"] = os.path.join(settings["source"], "encryptTest")
     settings["destination"] = str(tmpdir)
-    if "sigal.plugins.encrypt" not in settings["plugins"]:
-        settings["plugins"] += ["sigal.plugins.encrypt"]
+    settings["plugins"] = ["sigal.plugins.encrypt"]
 
     init_plugins(settings)
-    gal = Gallery(settings)
+    gal = Gallery(settings, ncpu=1)
 
     with pytest.raises(ValueError, match="no encrypt_options in settings"):
         gal.build()
 
     settings["encrypt_options"] = {}
 
-    gal = Gallery(settings)
+    gal = Gallery(settings, ncpu=1)
 
     with pytest.raises(ValueError, match="no password provided"):
         gal.build()
@@ -45,7 +45,7 @@ def test_encrypt(settings, tmpdir, disconnect_signals, caplog):
         "encrypt_symlinked_originals": False,
     }
 
-    gal = Gallery(settings)
+    gal = Gallery(settings, ncpu=1)
     gal.build()
 
     # check the encrypt cache exists
@@ -57,7 +57,7 @@ def test_encrypt(settings, tmpdir, disconnect_signals, caplog):
         encryptCache = pickle.load(cacheFile)
     assert isinstance(encryptCache, dict)
 
-    testAlbum = gal.albums["encryptTest"]
+    testAlbum = gal.albums["."]
     key, tag = get_key_tag(settings)
 
     for media in testAlbum:
@@ -94,7 +94,7 @@ def test_encrypt(settings, tmpdir, disconnect_signals, caplog):
 
     caplog.clear()
     caplog.set_level("DEBUG")
-    gal = Gallery(settings)
+    gal = Gallery(settings, ncpu=1)
     gal.build()
     # Doesn't work on Actions ...
     # assert 'Loaded cache with 34 entries' in caplog.messages

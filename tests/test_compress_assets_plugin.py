@@ -12,11 +12,11 @@ CURRENT_DIR = os.path.dirname(__file__)
 
 
 def make_gallery(settings, tmpdir, method):
+    settings["source"] = os.path.join(settings["source"], "dir1")
     settings["destination"] = str(tmpdir)
     # Really speed up testing
     settings["use_orig"] = True
-    if "sigal.plugins.compress_assets" not in settings["plugins"]:
-        settings["plugins"] += ["sigal.plugins.compress_assets"]
+    settings["plugins"] = ["sigal.plugins.compress_assets"]
 
     # Set method
     settings.setdefault("compress_assets_options", {})["method"] = method
