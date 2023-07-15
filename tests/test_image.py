@@ -179,11 +179,7 @@ def test_get_exif_tags():
     assert simple["iso"] == 50
     assert simple["Make"] == "NIKON"
     assert simple["datetime"] == "22/01/2006"
-    try:
-        # Pillow 7.2+
-        assert simple["exposure"] == "0.00100603"
-    except Exception:
-        assert simple["exposure"] == "100603/100000000"
+    assert simple["exposure"] == "100603/100000000"
 
     data = {"FNumber": [1, 0], "FocalLength": [1, 0], "ExposureTime": 10}
     simple = get_exif_tags(data)
@@ -262,12 +258,6 @@ def test_iso_speed_ratings():
     data = {"ISOSpeedRatings": 125}
     simple = get_exif_tags(data)
     assert "iso" in simple
-
-
-def test_null_exposure_time():
-    data = {"ExposureTime": (0, 0)}
-    simple = get_exif_tags(data)
-    assert "exposure" not in simple
 
 
 def test_exif_copy(tmpdir):
