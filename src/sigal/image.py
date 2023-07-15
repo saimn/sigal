@@ -282,6 +282,7 @@ def get_iptc_data(filename):
 def get_image_metadata(filename):
     logger = logging.getLogger(__name__)
     exif, iptc, size = {}, {}, {}
+    img = None
 
     try:
         img = _read_image(filename)
@@ -303,6 +304,9 @@ def get_image_metadata(filename):
             size = get_size(img)
         except Exception as e:
             logger.warning("Could not read size from %s: %s", filename, e)
+    finally:
+        if img is not None:
+            img.close()
 
     return {"exif": exif, "iptc": iptc, "size": size}
 

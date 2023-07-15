@@ -198,8 +198,8 @@ def generate_thumbnail(
         logger.debug("Create thumbnail for video: %s", " ".join(cmd))
         check_subprocess(cmd, source, outname)
         if os.path.isfile(tmpfile) and black_retries > 0:
-            img = PILImage.open(tmpfile)
-            colors = img.getcolors(maxcolors=black_max_colors)
+            with PILImage.open(tmpfile) as img:
+                colors = img.getcolors(maxcolors=black_max_colors)
             if colors is None:
                 # There were more colors than maxcolors in the image, it
                 # looks suitable for a valid thumbnail
