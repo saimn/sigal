@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2020 - Simon Conseil
+# Copyright (c) 2009-2023 - Simon Conseil
 # Copyright (c) 2013      - Christophe-Marie Duquesne
 # Copyright (c) 2017      - Mate Lakat
 # Copyright (c) 2021      - Keith Feldman

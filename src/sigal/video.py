@@ -1,5 +1,5 @@
 # Copyright (c)      2013 - Christophe-Marie Duquesne
-# Copyright (c) 2013-2020 - Simon Conseil
+# Copyright (c) 2013-2023 - Simon Conseil
 # Copyright (c)      2021 - Keith Feldman
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
