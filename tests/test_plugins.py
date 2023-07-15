@@ -6,54 +6,58 @@ from sigal.utils import init_plugins
 CURRENT_DIR = os.path.dirname(__file__)
 
 
-def test_plugins(settings, tmpdir, disconnect_signals):
-    settings["destination"] = str(tmpdir)
-    if "sigal.plugins.nomedia" not in settings["plugins"]:
-        settings["plugins"] += ["sigal.plugins.nomedia"]
-    if "sigal.plugins.media_page" not in settings["plugins"]:
-        settings["plugins"] += ["sigal.plugins.media_page"]
+def _build_with_plugin(
+    settings, input_path, output_path, plugin, **additional_settings
+):
+    settings["source"] = os.path.join(settings["source"], input_path)
+    settings["destination"] = str(output_path)
+    settings["plugins"] = [plugin]
+    settings.update(additional_settings)
 
     init_plugins(settings)
-    gal = Gallery(settings)
+    gal = Gallery(settings, ncpu=1)
     gal.build()
+    return gal
 
-    out_html = os.path.join(
-        settings["destination"], "dir2", "KeckObservatory20071020.jpg.html"
-    )
-    assert os.path.isfile(out_html)
 
-    for path, dirs, files in os.walk(os.path.join(str(tmpdir), "nomedia")):
+def test_media_page(settings, tmp_path, disconnect_signals):
+    _build_with_plugin(settings, "dir2", tmp_path, "sigal.plugins.media_page")
+    assert (tmp_path / "KeckObservatory20071020.jpg.html").is_file()
+
+
+def test_nomedia(settings, tmp_path, disconnect_signals):
+    _build_with_plugin(settings, "nomedia", tmp_path, "sigal.plugins.nomedia")
+
+    for path, dirs, files in os.walk(str(tmp_path)):
         assert "ignore" not in path
-
         for file in files:
             assert "ignore" not in file
 
 
-def test_nonmedia_files(settings, tmpdir, disconnect_signals):
-    settings["destination"] = str(tmpdir)
-    settings["plugins"] += ["sigal.plugins.nonmedia_files"]
-    settings["nonmedia_files_options"] = {"thumb_bg_color": "red"}
-
-    init_plugins(settings)
-
-    gal = Gallery(settings)
-    gal.build()
-
-    outfile = os.path.join(settings["destination"], "nonmedia_files", "dummy.pdf")
-    assert os.path.isfile(outfile)
-
-    outthumb = os.path.join(
-        settings["destination"], "nonmedia_files", "thumbnails", "dummy.tn.jpg"
+def test_nonmedia_files(settings, tmp_path, disconnect_signals):
+    _build_with_plugin(
+        settings,
+        "nonmedia_files",
+        tmp_path,
+        "sigal.plugins.nonmedia_files",
+        nonmedia_files_options={"thumb_bg_color": "red"},
     )
-    assert os.path.isfile(outthumb)
+    assert (tmp_path / "dummy.pdf").is_file()
+    assert (tmp_path / "thumbnails" / "dummy.tn.jpg").is_file()
 
 
-def test_titleregexp(settings, tmpdir, disconnect_signals):
-    if "sigal.plugins.titleregexp" not in settings["plugins"]:
-        settings["plugins"] += ["sigal.plugins.titleregexp"]
-
-    init_plugins(settings)
-    gal = Gallery(settings)
-    gal.build()
-
-    assert gal.albums.get("dir1").albums[1].title == "titleregexp 02"
+def test_titleregexp(settings, tmp_path, disconnect_signals):
+    conf = {
+        "regexp": [
+            {
+                "search": r"test ?(.*)",
+                "replace": r"titleregexp \1",
+                "substitute": [["2", "02"]],
+                "break": 1,
+            }
+        ]
+    }
+    gal = _build_with_plugin(
+        settings, "dir1", tmp_path, "sigal.plugins.titleregexp", titleregexp=conf
+    )
+    assert gal.albums["test2"].title == "titleregexp 02"

@@ -40,13 +40,20 @@ def test_build(tmpdir, disconnect_signals):
             join(tmpdir, "pictures", "KeckObservatory20071020.jpg"),
         )
 
-        result = runner.invoke(build, ["-n", 1, "--debug"])
+        result = runner.invoke(build, ["-n", 1, "--debug", "--verbose"])
+        assert (
+            result.output
+            == "Only one option of debug, verbose and quiet should be used\n"
+        )
+        assert result.exit_code == 1
+
+        result = runner.invoke(build, ["-n", 1, "--verbose"])
         assert result.output == "Settings file not found: sigal.conf.py\n"
         assert result.exit_code == 1
 
         os.chdir(tmpdir)
 
-        result = runner.invoke(build, ["foo", "-n", 1, "--debug"])
+        result = runner.invoke(build, ["foo", "-n", 1, "--quiet"])
         assert result.exit_code == 1
         assert "Input directory not found" in result.output
 
@@ -106,9 +113,11 @@ def test_serve(tmpdir):
 
     result = runner.invoke(serve)
     assert result.exit_code == 2
+    assert result.output.startswith("The _build directory doesn't exist")
 
     result = runner.invoke(serve, ["-c", config_file])
     assert result.exit_code == 1
+    assert result.output.endswith("maybe try building first?\n")
 
 
 def test_set_meta(tmpdir):
