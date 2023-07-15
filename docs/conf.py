@@ -2,6 +2,7 @@ import os
 import sys
 
 import alabaster
+
 from sigal import __version__
 
 # If extensions (or modules to document with autodoc) are in another directory,

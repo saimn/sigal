@@ -25,6 +25,7 @@
 # IN THE SOFTWARE.
 
 import fnmatch
+import io
 import logging
 import multiprocessing
 import os
@@ -54,8 +55,8 @@ from .utils import (
     get_mod_date,
     is_valid_html5_video,
     read_markdown,
-    url_from_path,
     should_reprocess_album,
+    url_from_path,
 )
 from .video import process_video
 from .writer import AlbumListPageWriter, AlbumPageWriter
@@ -718,10 +719,13 @@ class Gallery:
         ignore_files = settings["ignore_files"]
 
         progressChars = cycle(["/", "-", "\\", "|"])
+        try:
+            isatty = os.isatty(sys.stdout.fileno())
+        except io.UnsupportedOperation:
+            isatty = False
+
         show_progress = (
-            not quiet
-            and self.logger.getEffectiveLevel() >= logging.WARNING
-            and os.isatty(sys.stdout.fileno())
+            not quiet and self.logger.getEffectiveLevel() >= logging.WARNING and isatty
         )
         self.progressbar_target = None if show_progress else Devnull()
 
@@ -937,7 +941,9 @@ class Gallery:
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
         for f in album:
-            if isfile(f.dst_path) and not should_reprocess_album(album.path, album.name, force):
+            if isfile(f.dst_path) and not should_reprocess_album(
+                album.path, album.name, force
+            ):
                 self.logger.info("%s exists - skipping", f.dst_filename)
                 self.stats[f.type + "_skipped"] += 1
             else:

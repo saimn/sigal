@@ -4,9 +4,9 @@ from unittest import mock
 
 import pytest
 
-from sigal import init_plugins
 from sigal.gallery import Gallery
 from sigal.plugins import compress_assets
+from sigal.utils import init_plugins
 
 CURRENT_DIR = os.path.dirname(__file__)
 

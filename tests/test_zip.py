@@ -1,9 +1,9 @@
 import os
 import zipfile
 
-from sigal import init_plugins
 from sigal.gallery import Gallery
 from sigal.settings import read_settings
+from sigal.utils import init_plugins
 
 CURRENT_DIR = os.path.dirname(__file__)
 SAMPLE_DIR = os.path.join(CURRENT_DIR, "sample")

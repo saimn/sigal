@@ -4,7 +4,6 @@ from unittest.mock import patch
 import pytest
 from PIL import Image as PILImage
 
-from sigal import init_logging
 from sigal.gallery import Image
 from sigal.image import (
     generate_image,
@@ -16,6 +15,7 @@ from sigal.image import (
     get_size,
     process_image,
 )
+from sigal.log import init_logging
 from sigal.settings import Status, create_settings
 
 CURRENT_DIR = os.path.dirname(__file__)

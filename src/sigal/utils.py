@@ -18,12 +18,14 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import importlib
 import logging
 import os
 import shutil
+import sys
+from fnmatch import fnmatch
 from functools import lru_cache
 from urllib.parse import quote
-from fnmatch import fnmatch
 
 from markdown import Markdown
 from markupsafe import Markup
@@ -82,17 +84,19 @@ def url_from_path(path):
         path = "/".join(path.split(os.sep))
     return quote(path)
 
+
 def should_reprocess_album(path, name, force=False):
     if isinstance(force, bool):
         return force
     else:
         for f in force:
-            if '*' in f or '?' in f:
+            if "*" in f or "?" in f:
                 if fnmatch(path, f):
                     return True
             elif name == f:
                 return True
     return False
+
 
 def read_markdown(filename):
     """Reads markdown file, converts output and fetches title and meta-data for
@@ -145,6 +149,30 @@ def is_valid_html5_video(ext):
 def get_mime(ext):
     """Returns mime type for extension."""
     return VIDEO_MIMES[ext]
+
+
+def init_plugins(settings):
+    """Load plugins and call register()."""
+
+    logger = logging.getLogger(__name__)
+    logger.debug("Plugin paths: %s", settings["plugin_paths"])
+
+    for path in settings["plugin_paths"]:
+        sys.path.insert(0, path)
+
+    for plugin in settings["plugins"]:
+        try:
+            if isinstance(plugin, str):
+                mod = importlib.import_module(plugin)
+                mod.register(settings)
+            else:
+                plugin.register(settings)
+            logger.debug("Registered plugin %s", plugin)
+        except Exception as e:
+            logger.error("Failed to load plugin %s: %r", plugin, e)
+
+    for path in settings["plugin_paths"]:
+        sys.path.remove(path)
 
 
 class raise_if_debug:

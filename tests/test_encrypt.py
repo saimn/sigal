@@ -4,10 +4,10 @@ from io import BytesIO
 
 import pytest
 
-from sigal import init_plugins
 from sigal.gallery import Gallery
 from sigal.plugins.encrypt import endec
 from sigal.plugins.encrypt.encrypt import cache_key
+from sigal.utils import init_plugins
 
 CURRENT_DIR = os.path.dirname(__file__)
 

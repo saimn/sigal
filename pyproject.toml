@@ -41,7 +41,7 @@ tests = ["pytest", "pytest-cov"]
 docs = ["Sphinx>=4.1.0", "alabaster", "cryptography"]
 
 [project.scripts]
-sigal = "sigal:main"
+sigal = "sigal.__main__:main"
 
 [project.urls]
 repository = "https://github.com/saimn/sigal"

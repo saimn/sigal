@@ -4,7 +4,7 @@ from os.path import join
 
 from click.testing import CliRunner
 
-from sigal import build, init, serve, set_meta
+from sigal.__main__ import build, init, serve, set_meta
 
 TESTGAL = join(os.path.abspath(os.path.dirname(__file__)), "sample")
 
@@ -41,15 +41,20 @@ def test_build(tmpdir, disconnect_signals):
         )
 
         result = runner.invoke(build, ["-n", 1, "--debug"])
+        assert result.output == "Settings file not found: sigal.conf.py\n"
         assert result.exit_code == 1
 
         os.chdir(tmpdir)
 
         result = runner.invoke(build, ["foo", "-n", 1, "--debug"])
         assert result.exit_code == 1
+        assert "Input directory not found" in result.output
 
         result = runner.invoke(build, ["pictures", "pictures/out", "-n", 1, "--debug"])
         assert result.exit_code == 1
+        assert (
+            "Output directory should be outside of the input directory" in result.output
+        )
 
         with open(config_file) as f:
             text = f.read()
@@ -59,7 +64,7 @@ theme = 'colorbox'
 files_to_copy = (('../watermark.png', 'watermark.png'),)
 plugins = ['sigal.plugins.adjust', 'sigal.plugins.copyright',
            'sigal.plugins.watermark', 'sigal.plugins.feeds',
-           'sigal.plugins.media_page' 'sigal.plugins.nomedia',
+           'sigal.plugins.media_page', 'sigal.plugins.nomedia',
            'sigal.plugins.extended_caching']
 copyright = "An example copyright message"
 copyright_text_font = "foobar"
@@ -74,7 +79,9 @@ atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
             f.write(text)
 
         result = runner.invoke(
-            build, ["pictures", "build", "--title", "Testing build", "-n", 1, "--debug"]
+            build,
+            ["pictures", "build", "--title", "Testing build", "-n", 1, "--debug"],
+            catch_exceptions=False,
         )
         assert result.exit_code == 0
         assert os.path.isfile(
