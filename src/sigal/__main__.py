@@ -145,7 +145,7 @@ def build(
         level = logging.WARNING
         show_progress = True
 
-    init_logging(__name__, level=level)
+    init_logging("sigal", level=level)
     logger = logging.getLogger(__name__)
 
     if not os.path.isfile(config):
