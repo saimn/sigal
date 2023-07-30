@@ -701,7 +701,7 @@ class Album:
 
 
 class Gallery:
-    def __init__(self, settings, ncpu=None, quiet=False):
+    def __init__(self, settings, ncpu=None, show_progress=False):
         self.settings = settings
         self.logger = logging.getLogger(__name__)
         self.stats = defaultdict(int)
@@ -724,10 +724,7 @@ class Gallery:
         except io.UnsupportedOperation:
             isatty = False
 
-        show_progress = (
-            not quiet and self.logger.getEffectiveLevel() >= logging.WARNING and isatty
-        )
-        self.progressbar_target = None if show_progress else Devnull()
+        self.progressbar_target = None if show_progress and isatty else Devnull()
 
         for path, dirs, files in os.walk(src_path, followlinks=True, topdown=False):
             if show_progress:
@@ -910,7 +907,7 @@ class Gallery:
                     if album.albums:
                         if album.medias:
                             self.logger.warning(
-                                "Album %s contains sub-albums and images. "
+                                "Album '%s' contains sub-albums and images. "
                                 "Please move images to their own sub-album. "
                                 "Images in album %s will not be visible.",
                                 album.title,

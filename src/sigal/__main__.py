@@ -134,6 +134,7 @@ def build(
     if sum([debug, verbose, quiet]) > 1:
         sys.exit("Only one option of debug, verbose and quiet should be used")
 
+    show_progress = False
     if debug:
         level = logging.DEBUG
     elif verbose:
@@ -142,6 +143,7 @@ def build(
         level = logging.ERROR
     else:
         level = logging.WARNING
+        show_progress = True
 
     init_logging(__name__, level=level)
     logger = logging.getLogger(__name__)
@@ -184,7 +186,7 @@ def build(
     locale.setlocale(locale.LC_ALL, settings["locale"])
     init_plugins(settings)
 
-    gal = Gallery(settings, ncpu=ncpu, quiet=quiet)
+    gal = Gallery(settings, ncpu=ncpu, show_progress=show_progress)
     gal.build(force=force_album if len(force_album) else force)
 
     # copy extra files
