@@ -207,7 +207,7 @@ def build(
         opt = " ({})".format(", ".join(opt)) if opt else ""
         return f"{stats[_type]} {_type}s{opt}"
 
-    if not quiet:
+    if not quiet and len(stats) > 0:
         stats_str = ""
         types = sorted({t.rsplit("_", 1)[0] for t in stats})
         for t in types[:-1]:
