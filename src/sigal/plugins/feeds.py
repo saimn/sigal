@@ -73,9 +73,7 @@ def generate_feed(gallery, medias, feed_type=None, feed_url="", nb_items=0):
             # unique_id='tag:%s,%s:%s' % (urlparse(link).netloc,
             #                             item.date.date(),
             #                             urlparse(link).path.lstrip('/')),
-            description='<img src="{}/{}/{}" />'.format(
-                base_url, item.path, item.thumbnail
-            ),
+            description=f'<img src="{base_url}/{item.path}/{item.thumbnail}" />',
             # categories=item.tags if hasattr(item, 'tags') else None,
             author_name=getattr(item, "author", ""),
             pubdate=item.date or datetime.now(),
