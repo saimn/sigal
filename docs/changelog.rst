@@ -2,18 +2,22 @@
  Changelog
 ===========
 
-Version 2.4.dev
-~~~~~~~~~~~~~~~
+Version 2.4
+~~~~~~~~~~~
 
-Not released yet.
+Released on 2023-09-29.
 
-- Update link to Galleria [:issue:`487`].
+Sigal now requires Pillow>=8.0.0
+
+- Avoid IndexError with empty source dir [:issue:`498`].
+- New cli option ``--force-album`` to reprocess only specific albums
+  [:issue:`491`].
 - Added support for black detection in video thumbnail generation
   [:issue:`485`].
 - Don't show the galleria container if there are no medias [:issue:`484`].
 - Force encrypt's password form to be on top [:issue:`483`].
-- Add mkv to video_extensions [:issue:`481`].
-- Make sure zip_gallery is set correctly [:issue:`477`].
+- Add mkv to ``video_extensions`` [:issue:`481`].
+- Make sure ``zip_gallery`` is set correctly [:issue:`477`].
 - Updates for recent Pillow changes, requires Pillow>=8.0.0 [:issue:`479`].
 - Make theme dir writable after copying to it [:issue:`471`].
 - New plugin: Titleregexp - modify titles of albums with regular expressions
