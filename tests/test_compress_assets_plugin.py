@@ -36,9 +36,7 @@ def walk_destination(destination, suffixes, compress_suffix):
     for path, dirs, files in os.walk(destination):
         for file in files:
             original_filename = os.path.join(path, file)
-            compressed_filename = "{}.{}".format(
-                os.path.join(path, file), compress_suffix
-            )
+            compressed_filename = f"{os.path.join(path, file)}.{compress_suffix}"
             path_exists = os.path.exists(compressed_filename)
             file_ext = os.path.splitext(file)[1][1:]
             if file_ext in suffixes:

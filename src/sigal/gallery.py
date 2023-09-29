@@ -418,9 +418,7 @@ class Album:
         signals.album_initialized.send(self)
 
     def __repr__(self):
-        return "<{}>(path={!r}, title={!r})".format(
-            self.__class__.__name__, self.path, self.title
-        )
+        return f"<{self.__class__.__name__}>(path={self.path!r}, title={self.title!r})"
 
     def __str__(self):
         return f"{self.path} : " + ", ".join(
