@@ -2,6 +2,11 @@
  Changelog
 ===========
 
+Version 2.5dev
+~~~~~~~~~~~~~~
+
+Not released yet.
+
 Version 2.4
 ~~~~~~~~~~~
 
