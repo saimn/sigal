@@ -55,6 +55,12 @@ license-files = ["LICENSE"]
 where = ["src"]
 namespaces = true
 
+[tool.setuptools.package-data]
+sigal = [
+    "plugins/encrypt/static/*",
+    "themes/**",
+]
+
 [tool.setuptools_scm]
 write_to = "src/sigal/version.py"
 
