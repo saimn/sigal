@@ -23,7 +23,7 @@ The idea behind Sigal is to ease the use of the javascript libraries like
 galleria_. These libraries do a great job to display the images, Sigal does
 what is missing: resize images, create thumbnails, generate HTML pages.
 
-Sigal requires Python 3.8+.
+Sigal requires Python 3.9+.
 
 Links
 -----
