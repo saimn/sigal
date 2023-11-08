@@ -7,6 +7,8 @@ Version 2.5dev
 
 Not released yet.
 
+Sigal now requires Python 3.9+.
+
 Version 2.4
 ~~~~~~~~~~~
 
