@@ -2,8 +2,6 @@
  Frequently Asked Questions (FAQ)
 ==================================
 
-.. contents::
-
 How do I protect the gallery with a password?
 ---------------------------------------------
 

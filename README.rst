@@ -25,12 +25,12 @@ what is missing: resize images, create thumbnails, generate HTML pages.
 
 Sigal requires Python 3.8+.
 
-Links :
+Links
+-----
 
 * Latest documentation on the website_
 * Source, issues and pull requests on GitHub_
 * Releases on PyPI_
-* ``#sigal`` on Freenode, or with the webchat_ interface.
 
 Themes & Demo
 -------------
@@ -51,5 +51,4 @@ Javascript libraries:
 .. _galleria demo: http://saimon.org/sigal-demo/galleria/
 .. _colorbox demo: http://saimon.org/sigal-demo/colorbox/
 .. _photoswipe demo: http://saimon.org/sigal-demo/photoswipe/
-.. _webchat: http://webchat.freenode.net/?channels=sigal
 .. _Jinja2: https://palletsprojects.com/p/jinja/

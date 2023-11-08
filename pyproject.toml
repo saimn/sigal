@@ -38,7 +38,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 all = ["boto", "brotli", "feedgenerator", "zopfli", "cryptography"]
 tests = ["pytest", "pytest-cov"]
-docs = ["Sphinx>=4.1.0", "alabaster", "cryptography"]
+docs = ["Sphinx>=4.1.0", "furo", "cryptography"]
 
 [project.scripts]
 sigal = "sigal.__main__:main"

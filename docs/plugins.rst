@@ -2,8 +2,6 @@
  Plugins
 =========
 
-.. contents::
-
 How to use plugins
 ------------------
 
