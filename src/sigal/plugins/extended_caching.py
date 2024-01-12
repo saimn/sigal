@@ -78,6 +78,8 @@ def load_metadata(album):
                 media.file_metadata = data["file_metadata"]
             if "exif" in data:
                 media.exif = data["exif"]
+            if "input_size" in data:
+                media.input_size = data["input_size"]
 
             try:
                 mod_date = int(get_mod_date(media.markdown_metadata_filepath))
@@ -134,6 +136,8 @@ def save_cache(gallery):
                 data["file_metadata"] = media.file_metadata
                 if hasattr(media, "exif"):
                     data["exif"] = media.exif
+                if hasattr(media, "input_size"):
+                    data["input_size"] = media.input_size
 
             try:
                 meta_mod_date = int(get_mod_date(media.markdown_metadata_filepath))
