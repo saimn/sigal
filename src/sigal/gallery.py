@@ -515,7 +515,7 @@ class Album:
                         continue
                 return ""
 
-            key = natsort_keygen(key=sort_key, alg=ns.LOCALE)
+            key = natsort_keygen(key=sort_key, alg=ns.SIGNED|ns.LOCALE)
             self.subdirs.sort(key=key, reverse=reverse)
 
         signals.albums_sorted.send(self)
