@@ -128,7 +128,7 @@ thumb_size = (280, 210)
 # thumb_video_black_max_colors = 4
 
 # Keep original image (default: False)
-# keep_orig = True
+# keep_orig = False
 
 # Subdirectory for original images
 # orig_dir = 'original'
