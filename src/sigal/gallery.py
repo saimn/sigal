@@ -515,7 +515,7 @@ class Album:
                         continue
                 return ""
 
-            key = natsort_keygen(key=sort_key, alg=ns.LOCALE)
+            key = natsort_keygen(key=sort_key, alg=ns.SIGNED|ns.LOCALE)
             self.subdirs.sort(key=key, reverse=reverse)
 
         signals.albums_sorted.send(self)
@@ -530,11 +530,11 @@ class Album:
             elif medias_sort_attr.startswith("meta."):
                 meta_key = medias_sort_attr.split(".", 1)[1]
                 key = natsort_keygen(
-                    key=lambda s: s.meta.get(meta_key, [""])[0], alg=ns.LOCALE
+                    key=lambda s: s.meta.get(meta_key, [""])[0], alg=ns.SIGNED|ns.LOCALE
                 )
             else:
                 key = natsort_keygen(
-                    key=lambda s: getattr(s, medias_sort_attr), alg=ns.LOCALE
+                    key=lambda s: getattr(s, medias_sort_attr), alg=ns.SIGNED|ns.LOCALE
                 )
 
             self.medias.sort(key=key, reverse=self.settings["medias_sort_reverse"])

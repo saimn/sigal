@@ -234,8 +234,7 @@ def test_albums_sort(settings):
     a.sort_subdirs("title")
     assert [im.title for im in a.albums] == list(reversed(titles))
 
-    orders = ["01", "02", "03"]
-    orders.sort()
+    orders = ["-10", "02", "03"]
     settings["albums_sort_reverse"] = False
     a = Album("dir1", settings, album["subdirs"], album["medias"], gal)
     a.sort_subdirs("meta.order")
