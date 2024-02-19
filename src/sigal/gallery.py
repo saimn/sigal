@@ -892,7 +892,7 @@ class Gallery:
         if self.settings["write_html"]:
             album_writer = AlbumPageWriter(self.settings, index_title=self.title)
             album_list_writer = AlbumListPageWriter(
-                self.settings, index_title=self.title
+                self.settings, index_title=self.title, copy_files=False
             )
             with progressbar(
                 self.albums.values(),
