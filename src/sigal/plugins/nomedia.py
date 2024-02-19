@@ -54,31 +54,6 @@ from sigal import signals
 logger = logging.getLogger(__name__)
 
 
-def _remove_albums_with_subdirs(albums, keystoremove, prefix=""):
-    for keytoremove in keystoremove:
-        for key in list(albums.keys()):
-            if key.startswith(prefix + keytoremove):
-                # subdirs' target directories have already been created,
-                # remove them first
-                try:
-                    album = albums[key]
-                    settings = album.settings
-                    if album.medias:
-                        os.rmdir(os.path.join(album.dst_path, settings["thumb_dir"]))
-
-                    if album.medias and settings["keep_orig"]:
-                        os.rmdir(os.path.join(album.dst_path, settings["orig_dir"]))
-
-                    os.rmdir(album.dst_path)
-                except OSError:
-                    # directory was created and populated with images in a
-                    # previous run => keep it
-                    pass
-
-                # now remove the album from the surrounding album/gallery
-                del albums[key]
-
-
 def filter_nomedia(album, settings=None):
     """Removes all filtered Media and subdirs from an Album"""
     nomediapath = os.path.join(album.src_path, ".nomedia")
@@ -90,39 +65,20 @@ def filter_nomedia(album, settings=None):
         logger.info(
             "Ignoring album '%s' because of present 0-byte .nomedia file", album.name
         )
-
-        # subdirs have been added to the gallery already, remove them
-        # there, too
-        _remove_albums_with_subdirs(album.gallery.albums, [album.path])
-        try:
-            os.rmdir(album.dst_path)
-        except OSError:
-            # directory was created and populated with images in a
-            # previous run => keep it
-            pass
-
-        # cannot set albums => empty subdirs so that no albums are
-        # generated
-        album.subdirs = []
-        album.medias = []
+        album.subdirs.clear()
+        album.medias.clear()
 
     else:
         with open(nomediapath) as nomediaFile:
             logger.info("Found a .nomedia file in %s, ignoring its entries", album.name)
             ignored = nomediaFile.read().split("\n")
 
-            album.medias = [
-                media for media in album.medias if media.src_filename not in ignored
-            ]
-            album.subdirs = [
-                dirname for dirname in album.subdirs if dirname not in ignored
-            ]
-
-            # subdirs have been added to the gallery already, remove
-            # them there, too
-            _remove_albums_with_subdirs(
-                album.gallery.albums, ignored, album.path + os.path.sep
-            )
+            for media in album.medias[:]:
+                if media.src_filename in ignored:
+                    album.medias.remove(media)
+            for dirname in album.subdirs[:]:
+                if dirname in ignored:
+                    album.subdirs.remove(dirname)
 
 
 def register(settings):

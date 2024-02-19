@@ -326,6 +326,21 @@ def test_gallery(settings, tmp_path, caplog):
         logger.setLevel(logging.INFO)
 
 
+def test_gallery_only_album(settings, tmp_path, caplog):
+    "Test the Gallery class updating a single album."
+
+    caplog.set_level("ERROR")
+    settings["destination"] = str(tmp_path)
+    gal = Gallery(settings, ncpu=1, only_album="dir1")
+    gal.build()
+
+    out_html = os.path.join(settings["destination"], "dir1", "index.html")
+    assert os.path.isfile(out_html)
+
+    out_html2 = os.path.join(settings["destination"], "dir2", "index.html")
+    assert not os.path.isfile(out_html2)
+
+
 def test_custom_theme(settings, tmp_path, caplog):
     theme_path = tmp_path / "mytheme"
     tpl_path = theme_path / "templates"

@@ -85,6 +85,15 @@ def init(path):
         "the album name. (-a 'My Pictures/* Pics' -a 'Festival')"
     ),
 )
+@option(
+    "--only-album",
+    default=None,
+    help=(
+        "Only write a specific album path. Other albums will be ignored "
+        "as if you had set the `ignore_directories` setting to all of "
+        "their names. (--only-album 'My Pictures/Pics')"
+    ),
+)
 @option("-v", "--verbose", is_flag=True, help="Show all messages")
 @option(
     "-d",
@@ -120,6 +129,7 @@ def build(
     quiet,
     force,
     force_album,
+    only_album,
     config,
     theme,
     title,
@@ -186,7 +196,7 @@ def build(
     locale.setlocale(locale.LC_ALL, settings["locale"])
     init_plugins(settings)
 
-    gal = Gallery(settings, ncpu=ncpu, show_progress=show_progress)
+    gal = Gallery(settings, ncpu=ncpu, show_progress=show_progress, only_album=only_album)
     gal.build(force=force_album if len(force_album) else force)
 
     # copy extra files
