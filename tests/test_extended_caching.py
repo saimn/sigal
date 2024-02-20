@@ -12,11 +12,11 @@ def test_store_metadata(settings, tmpdir):
     gal = Gallery(settings, ncpu=1)
     extended_caching.store_metadata(gal)
 
-    cachePath = os.path.join(settings["destination"], ".metadata_cache")
+    cache_path = os.path.join(settings["destination"], ".metadata_cache")
 
-    assert os.path.isfile(cachePath)
+    assert os.path.isfile(cache_path)
 
-    with open(cachePath, "rb") as cacheFile:
+    with open(cache_path, "rb") as cacheFile:
         cache = pickle.load(cacheFile)
 
     # test exif
@@ -50,9 +50,20 @@ def test_store_metadata(settings, tmpdir):
     # test if file disappears
     gal.albums["exifTest"].medias.append(Image("foooo.jpg", "exifTest", settings))
     extended_caching.store_metadata(gal)
-    with open(cachePath, "rb") as cacheFile:
+    with open(cache_path, "rb") as cacheFile:
         cache = pickle.load(cacheFile)
     assert "exifTest/foooo.jpg" not in cache
+
+
+def test_load_metadata(settings, tmpdir):
+    settings["destination"] = str(tmpdir)
+    gal1 = Gallery(settings, ncpu=1)
+    gal2 = Gallery(settings, ncpu=1)
+    extended_caching.store_metadata(gal1)
+    for album in gal2.albums.values():
+        extended_caching.load_metadata(album)
+        break  # only need to load one
+    assert gal1.metadata_cache == gal2.metadata_cache
 
 
 def test_restore_cache(settings, tmpdir):
@@ -60,15 +71,15 @@ def test_restore_cache(settings, tmpdir):
     gal1 = Gallery(settings, ncpu=1)
     gal2 = Gallery(settings, ncpu=1)
     extended_caching.store_metadata(gal1)
-    cachePath = os.path.join(settings["destination"], ".metadata_cache")
-    extended_caching._restore_cache(cachePath, gal2)
+    cache_path = os.path.join(settings["destination"], ".metadata_cache")
+    extended_caching._restore_cache(cache_path, gal2)
     assert gal1.metadata_cache == gal2.metadata_cache
 
     # test bad cache
-    with open(cachePath, "w") as f:
+    with open(cache_path, "w") as f:
         f.write("bad pickle file")
 
-    extended_caching._restore_cache(cachePath, gal2)
+    extended_caching._restore_cache(cache_path, gal2)
     assert gal2.metadata_cache == {}
 
 
@@ -80,15 +91,15 @@ def test_store_metadata_local(settings, tmpdir):
 
     for album in gal.albums.values():
         if album.metadata_cache:
-            cachePath = os.path.join(album.dst_path, ".metadata_cache")
-            assert os.path.isfile(cachePath)
-            with open(cachePath, "rb") as cacheFile:
+            cache_path = os.path.join(album.dst_path, ".metadata_cache")
+            assert os.path.isfile(cache_path)
+            with open(cache_path, "rb") as cacheFile:
                 cache = pickle.load(cacheFile)
 
     # test exif
-    cachePath = os.path.join(settings["destination"], "exifTest", ".metadata_cache")
-    assert os.path.isfile(cachePath)
-    with open(cachePath, "rb") as cacheFile:
+    cache_path = os.path.join(settings["destination"], "exifTest", ".metadata_cache")
+    assert os.path.isfile(cache_path)
+    with open(cache_path, "rb") as cacheFile:
         cache = pickle.load(cacheFile)
 
     album = gal.albums["exifTest"]
@@ -108,9 +119,9 @@ def test_store_metadata_local(settings, tmpdir):
     assert cache_img["file_metadata"] == album.medias[2].file_metadata
 
     # test iptc and md
-    cachePath = os.path.join(settings["destination"], "iptcTest", ".metadata_cache")
-    assert os.path.isfile(cachePath)
-    with open(cachePath, "rb") as cacheFile:
+    cache_path = os.path.join(settings["destination"], "iptcTest", ".metadata_cache")
+    assert os.path.isfile(cache_path)
+    with open(cache_path, "rb") as cacheFile:
         cache = pickle.load(cacheFile)
 
     album = gal.albums["iptcTest"]
@@ -126,8 +137,8 @@ def test_store_metadata_local(settings, tmpdir):
     # test if file disappears
     gal.albums["exifTest"].medias.append(Image("foooo.jpg", "exifTest", settings))
     extended_caching.store_metadata(gal)
-    cachePath = os.path.join(settings["destination"], "exifTest", ".metadata_cache")
-    with open(cachePath, "rb") as cacheFile:
+    cache_path = os.path.join(settings["destination"], "exifTest", ".metadata_cache")
+    with open(cache_path, "rb") as cacheFile:
         cache = pickle.load(cacheFile)
     assert "foooo.jpg" not in cache
 
@@ -138,18 +149,32 @@ def test_restore_cache_local(settings, tmpdir):
     gal1 = Gallery(settings, ncpu=1)
     gal2 = Gallery(settings, ncpu=1)
     extended_caching.store_metadata(gal1)
-    cachePath = os.path.join(settings["destination"], "exifTest", ".metadata_cache")
-    extended_caching._restore_cache(cachePath, gal2.albums["exifTest"])
+    cache_path = os.path.join(settings["destination"], "exifTest", ".metadata_cache")
+    extended_caching._restore_cache(cache_path, gal2.albums["exifTest"])
     assert not hasattr(gal1, "metadata_cache")
     assert not hasattr(gal2, "metadata_cache")
     assert gal1.albums["exifTest"].metadata_cache == gal2.albums["exifTest"].metadata_cache
 
     # test bad cache
-    with open(cachePath, "w") as f:
+    with open(cache_path, "w") as f:
         f.write("bad pickle file")
 
-    extended_caching._restore_cache(cachePath, gal2.albums["exifTest"])
+    extended_caching._restore_cache(cache_path, gal2.albums["exifTest"])
     assert gal2.albums["exifTest"].metadata_cache == {}
+
+
+def test_load_metadata_local(settings, tmpdir):
+    settings["destination"] = str(tmpdir)
+    settings['extended_caching_options'] = {'global_cache': False}
+    gal1 = Gallery(settings, ncpu=1)
+    gal2 = Gallery(settings, ncpu=1)
+    extended_caching.store_metadata(gal1)
+    for album in gal2.albums.values():
+        extended_caching.load_metadata(album)
+    assert not hasattr(gal1, "metadata_cache")
+    assert not hasattr(gal2, "metadata_cache")
+    for al1, al2 in zip(gal1.albums.values(), gal2.albums.values()):
+        assert al1.metadata_cache == al2.metadata_cache
 
 
 def test_load_exif(settings, tmpdir):
@@ -209,3 +234,19 @@ def test_load_metadata_missing(settings, tmpdir):
     extended_caching.load_metadata(gal.albums["dir1/test2"])
     assert gal.albums["dir1/test2"].medias[1].exif == "Bar"
     assert gal.albums["dir1/test2"].medias[1].markdown_metadata != "Bar"
+
+
+def test_empty_cache(settings, tmpdir):
+    cache_path = os.path.join(tmpdir, ".metadata_cache")
+    with open(cache_path, 'w') as f:
+        f.write("bad pickle file")
+    extended_caching._save_cache(cache_path, {})
+    assert not os.path.exists(cache_path)
+
+
+def test_uncachable(settings, tmpdir):
+    cache_path = os.path.join(tmpdir, ".metadata_cache")
+    with open(cache_path, 'w') as f:
+        f.write("bad pickle file")
+    extended_caching._save_cache(cache_path, {'func': lambda x: x+1})
+    assert not os.path.exists(cache_path)

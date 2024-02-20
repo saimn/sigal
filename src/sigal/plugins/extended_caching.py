@@ -202,7 +202,7 @@ def _save_cache(cache_path, cache):
             pickle.dump(cache, cache_file)
             logger.debug("Stored cache with %d entries", len(cache))
     except Exception as e:
-        logger.warn("Could not store cache: %s", e)
+        logger.warning("Could not store cache: %s", e)
         os.remove(cache_path)
 
 
