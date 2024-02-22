@@ -71,7 +71,7 @@ class PageWriter(AbstractWriter):
 def generate_media_pages(gallery):
     """Generates and writes the media pages for all media in the gallery"""
 
-    writer = PageWriter(gallery.settings, index_title=gallery.title, copy_files=False)
+    writer = PageWriter(gallery.settings, index_title=gallery.title)
 
     for album in gallery.albums.values():
         medias = album.medias

@@ -42,7 +42,7 @@ THEMES_PATH = os.path.normpath(
 class AbstractWriter:
     template_file = None
 
-    def __init__(self, settings, index_title="", copy_files=True):
+    def __init__(self, settings, index_title=""):
         self.settings = settings
         self.output_dir = settings["destination"]
         self.theme = settings["theme"]
@@ -96,33 +96,36 @@ class AbstractWriter:
             sys.exit(1)
 
         self.theme_path = os.path.join(self.output_dir, "static")
-        if copy_files:
-            # Copy the theme files in the output dir
-            if os.path.isdir(self.theme_path):
-                shutil.rmtree(self.theme_path)
 
-            for static_path in (
-                os.path.join(THEMES_PATH, "default", "static"),
-                os.path.join(self.theme, "static"),
-            ):
-                shutil.copytree(static_path, self.theme_path, dirs_exist_ok=True)
+    def copy_theme_files(self):
+        """Copy the theme files to the destination"""
+        self.logger.info("Copying the theme files to the output dir")
 
-                # Ensure that the theme dir is writeable
-                for root, _, files in os.walk(self.theme_path):
-                    st = os.stat(root)
-                    os.chmod(root, st.st_mode | stat.S_IWUSR)
-                    for name in files:
-                        path = os.path.join(root, name)
-                        st = os.stat(path)
-                        os.chmod(path, st.st_mode | stat.S_IWUSR)
+        if os.path.isdir(self.theme_path):
+            shutil.rmtree(self.theme_path)
 
-            if self.settings["user_css"]:
-                if not os.path.exists(self.settings["user_css"]):
-                    self.logger.error(
-                        "CSS file %s could not be found", self.settings["user_css"]
-                    )
-                else:
-                    shutil.copy(self.settings["user_css"], self.theme_path)
+        for static_path in (
+            os.path.join(THEMES_PATH, "default", "static"),
+            os.path.join(self.theme, "static"),
+        ):
+            shutil.copytree(static_path, self.theme_path, dirs_exist_ok=True)
+
+            # Ensure that the theme dir is writeable
+            for root, _, files in os.walk(self.theme_path):
+                st = os.stat(root)
+                os.chmod(root, st.st_mode | stat.S_IWUSR)
+                for name in files:
+                    path = os.path.join(root, name)
+                    st = os.stat(path)
+                    os.chmod(path, st.st_mode | stat.S_IWUSR)
+
+        if self.settings["user_css"]:
+            if not os.path.exists(self.settings["user_css"]):
+                self.logger.error(
+                    "CSS file %s could not be found", self.settings["user_css"]
+                )
+            else:
+                shutil.copy(self.settings["user_css"], self.theme_path)
 
     def generate_context(self, album):
         """Generate the context dict for the given path."""

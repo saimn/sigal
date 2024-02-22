@@ -891,8 +891,9 @@ class Gallery:
 
         if self.settings["write_html"]:
             album_writer = AlbumPageWriter(self.settings, index_title=self.title)
+            album_writer.copy_theme_files()
             album_list_writer = AlbumListPageWriter(
-                self.settings, index_title=self.title, copy_files=False
+                self.settings, index_title=self.title
             )
             with progressbar(
                 self.albums.values(),
