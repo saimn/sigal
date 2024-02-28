@@ -72,6 +72,17 @@ Optional arguments:
             My Pictures/Landscapes => Force
             My Other Pictures/Landscapes => Force
 
+``--only-album``
+  Only write a specific album path. Other albums will be ignored as if you
+  had set the ``ignore_directories`` setting to all of their names.
+
+::
+
+    --only-album 'My Pictures/Pics'
+            My Pictures/Pics   => Write
+            My Pictures/Pics/* => Ignore
+            *                  => Ignore
+
 ``-v, --verbose``
   Show all messages
 

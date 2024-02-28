@@ -105,6 +105,55 @@ atom_feed = {'feed_url': 'http://example.org/feed.atom', 'nb_items': 10}
         logger.setLevel(logging.INFO)
 
 
+def test_build_only_album(tmpdir, disconnect_signals):
+    runner = CliRunner()
+    config_file = str(tmpdir.join("sigal.conf.py"))
+    tmpdir.mkdir("pictures")
+    tmpdir = str(tmpdir)
+    cwd = os.getcwd()
+
+    try:
+        result = runner.invoke(init, [config_file])
+        assert result.exit_code == 0
+        os.symlink(
+            join(TESTGAL, "pictures", "dir2"),
+            join(tmpdir, "pictures", "dir1"),
+        )
+
+        os.chdir(tmpdir)
+
+        with open(config_file) as f:
+            text = f.read()
+
+        text += """
+theme = 'colorbox'
+plugins = ['sigal.plugins.media_page', 'sigal.plugins.nomedia',
+           'sigal.plugins.extended_caching']
+"""
+
+        with open(config_file, "w") as f:
+            f.write(text)
+
+        result = runner.invoke(
+            build,
+            ["pictures", "build", "--title", "Testing build", "-n", 1, "--debug", "--only-album", "dir1"],
+            catch_exceptions=False,
+        )
+        assert result.exit_code == 0
+        assert os.path.isfile(
+            join(tmpdir, "build", "dir1", "index.html")
+        )
+        assert not os.path.isfile(
+            join(tmpdir, "build", "dir2", "index.html")
+        )
+    finally:
+        os.chdir(cwd)
+        # Reset logger
+        logger = logging.getLogger("sigal")
+        logger.handlers[:] = []
+        logger.setLevel(logging.INFO)
+
+
 def test_serve(tmpdir):
     config_file = str(tmpdir.join("sigal.conf.py"))
     runner = CliRunner()

@@ -699,7 +699,7 @@ class Album:
 
 
 class Gallery:
-    def __init__(self, settings, ncpu=None, show_progress=False):
+    def __init__(self, settings, ncpu=None, show_progress=False, only_album=None):
         self.settings = settings
         self.logger = logging.getLogger(__name__)
         self.stats = defaultdict(int)
@@ -711,6 +711,7 @@ class Gallery:
 
         # Build the list of directories with images
         albums = self.albums = {}
+        self.only_album = only_album
         src_path = self.settings["source"]
 
         ignore_dirs = settings["ignore_directories"]
@@ -724,17 +725,26 @@ class Gallery:
 
         self.progressbar_target = None if show_progress and isatty else Devnull()
 
-        for path, dirs, files in os.walk(src_path, followlinks=True, topdown=False):
+        for path, dirs, files in os.walk(src_path, followlinks=True, topdown=True):
             if show_progress:
                 print("\rCollecting albums " + next(progressChars), end="")
             relpath = os.path.relpath(path, src_path)
 
-            # Test if the directory match the ignore_dirs settings
-            if ignore_dirs and any(
-                fnmatch.fnmatch(relpath, ignore) for ignore in ignore_dirs
-            ):
-                self.logger.info("Ignoring %s", relpath)
-                continue
+            for d in dirs[:]:
+                dir_relpath = join(relpath, d) if relpath != "." else d
+
+                # Test if the directory matches the only_album settings
+                if only_album and dir_relpath not in only_album and relpath != only_album:
+                    self.logger.info("Skipping %s", dir_relpath)
+                    dirs.remove(d)
+                    continue
+
+                # Test if the directory matches the ignore_dirs settings
+                if ignore_dirs and any(
+                    fnmatch.fnmatch(dir_relpath, ignore) for ignore in ignore_dirs
+                ):
+                    self.logger.info("Ignoring %s", dir_relpath)
+                    dirs.remove(d)
 
             # Remove files that match the ignore_files settings
             if ignore_files:
@@ -746,21 +756,29 @@ class Gallery:
                 files = [os.path.split(f)[1] for f in files_path]
                 self.logger.debug("Files after filtering: %r", files)
 
-            # Remove sub-directories that have been ignored in a previous
-            # iteration (as topdown=False, sub-directories are processed before
-            # their parent
-            for d in dirs[:]:
-                path = join(relpath, d) if relpath != "." else d
-                if path not in albums.keys():
-                    dirs.remove(d)
-
             album = Album(relpath, settings, dirs, files, self)
 
-            if not album.medias and not album.albums:
-                self.logger.info("Skip empty album: %r", album)
-            else:
-                album.create_output_directories()
-                albums[relpath] = album
+            self.logger.debug("Processing subdirs: %r", dirs)
+
+            self.stats["album"] += 1
+            albums[relpath] = album
+
+        # Remove empty albums
+        for relpath in sorted(albums.keys(), key=lambda x: len(x), reverse=True):
+            album = albums[relpath]
+            keep_only_album_children = only_album and os.path.relpath(os.path.dirname(album.src_path), src_path) == only_album
+            if not album.medias and not album.subdirs and not keep_only_album_children:
+                self.logger.info("Skip empty album: %r", album.path)
+                del albums[relpath]
+                if relpath != '.':
+                    super_album = os.path.relpath(os.path.dirname(album.src_path), src_path)
+                    self.logger.debug("Deleting album from super album %s", super_album)
+                    albums[super_album].subdirs.remove(os.path.basename(album.path))
+                self.stats["album_skipped"] += 1
+        self.stats["album"] -= self.stats["album_skipped"]
+
+        for album in albums.values():
+            album.create_output_directories()
 
         if show_progress:
             print("\rCollecting albums, done.")
@@ -771,6 +789,8 @@ class Gallery:
             file=self.progressbar_target,
         ) as progress_albums:
             for album in progress_albums:
+                if only_album and album.path != only_album:
+                    continue
                 album.sort_subdirs(settings["albums_sort_attr"])
 
         with progressbar(
@@ -779,6 +799,8 @@ class Gallery:
             file=self.progressbar_target,
         ) as progress_albums:
             for album in progress_albums:
+                if only_album and album.path != only_album:
+                    continue
                 album.sort_medias(settings["medias_sort_attr"])
 
         self.logger.debug("Albums:\n%r", albums.values())
@@ -846,9 +868,11 @@ class Gallery:
                 show_eta=False,
                 file=self.progressbar_target,
             ) as albums:
-                media_list = [
-                    f for album in albums for f in self.process_dir(album, force=force)
-                ]
+                media_list = []
+                for album in albums:
+                    if self.only_album and album.path != self.only_album:
+                        continue
+                    media_list.extend(self.process_dir(album, force=force))
         except KeyboardInterrupt:
             sys.exit("Interrupted")
 
@@ -903,6 +927,8 @@ class Gallery:
                 file=self.progressbar_target,
             ) as albums:
                 for album in albums:
+                    if self.only_album and album.path != self.only_album:
+                        continue
                     if album.albums:
                         if album.medias:
                             self.logger.warning(
