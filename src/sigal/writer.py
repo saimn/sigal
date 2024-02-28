@@ -95,8 +95,12 @@ class AbstractWriter:
             )
             sys.exit(1)
 
-        # Copy the theme files in the output dir
         self.theme_path = os.path.join(self.output_dir, "static")
+
+    def copy_theme_files(self):
+        """Copy the theme files to the destination"""
+        self.logger.info("Copying the theme files to the output dir")
+
         if os.path.isdir(self.theme_path):
             shutil.rmtree(self.theme_path)
 
