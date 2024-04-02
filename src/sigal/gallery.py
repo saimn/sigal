@@ -734,6 +734,11 @@ class Gallery:
                 fnmatch.fnmatch(relpath, ignore) for ignore in ignore_dirs
             ):
                 self.logger.info("Ignoring %s", relpath)
+                # Remove sub-directories
+                for d in dirs[:]:
+                    path = join(relpath, d) if relpath != "." else d
+                    if path in albums.keys():
+                        del albums[path]
                 continue
 
             # Remove files that match the ignore_files settings
