@@ -486,6 +486,7 @@ class Album:
             reverse = self.settings["albums_sort_reverse"]
 
             if "sort" in self.meta:
+                # override default sort order from settings
                 albums_sort_attr = self.meta["sort"][0]
                 if albums_sort_attr[0] == "-":
                     albums_sort_attr = albums_sort_attr[1:]

@@ -22,8 +22,8 @@ gallery:
   represent the gallery.
 - *Author*: the author of the gallery, if present it is used instead of the
   author setting.
-- *Sort*: the sort order for this album. If prefixed with a '-' it will be in
-  reversed order.
+- *Sort*: the sort order for the sub-albums of this album. If prefixed with
+  a '-' it will be in reversed order. Not supported to sort medias.
 
 Any additional meta-data is available in the templates. For instance::
 
