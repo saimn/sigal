@@ -25,6 +25,7 @@ import pathlib
 import socketserver
 import sys
 import time
+import webbrowser
 from http import server
 
 import click
@@ -227,7 +228,8 @@ def build(
     show_default=True,
     help="Configuration file",
 )
-def serve(destination, port, config):
+@option("-b", "--browser", is_flag=True, help="Open in your default browser")
+def serve(destination, port, config, browser):
     """Run a simple web server."""
     if os.path.exists(destination):
         pass
@@ -252,6 +254,9 @@ def serve(destination, port, config):
     Handler = server.SimpleHTTPRequestHandler
     httpd = socketserver.TCPServer(("", port), Handler, False)
     print(f" * Running on http://127.0.0.1:{port}/")
+
+    if browser:
+        webbrowser.open(f"http://127.0.0.1:{port}/")
 
     try:
         httpd.allow_reuse_address = True
