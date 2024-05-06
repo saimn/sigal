@@ -307,6 +307,11 @@ ignore_files = []
 #    'ask_password': False
 # }
 
+# Settings for extended caching plugin
+# extended_caching_options = {
+#     'global_cache': True # a single gallery cache, vs caching per album
+# }
+
 # Settings for nonmedia_files plugin.
 # nonmedia_files_options = {
 #     'ext_as_thumb': True,
