@@ -87,6 +87,7 @@ _DEFAULT_CONFIG = {
     "video_format": "webm",
     "video_always_convert": False,
     "video_size": (480, 360),
+    "audio_extensions": [".m4a", ".mp3", ".ogg", ".wav"],
     "watermark": "",
     "webm_options": ["-crf", "10", "-b:v", "1.6M", "-qmin", "4", "-qmax", "63"],
     "webm_options_second_pass": None,
@@ -121,6 +122,8 @@ def get_thumb(settings, filename):
 
     if ext.lower() in settings["video_extensions"]:
         ext = ".jpg"
+    if ext.lower() in settings["audio_extensions"]:
+        ext = ".png"  # extension of sigal.audio.AUDIO_THUMB_FILE
     return join(
         path,
         settings["thumb_dir"],
