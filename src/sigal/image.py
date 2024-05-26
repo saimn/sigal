@@ -225,7 +225,10 @@ def get_exif_data(filename):
 
     try:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            exif = img._getexif() or {}
+            exif = {}
+            exifdata = img.getexif()
+            if exifdata:
+                exif = exifdata._get_merged_dict()
     except ZeroDivisionError:
         logger.warning("Failed to read EXIF data.")
         return None
@@ -295,7 +298,7 @@ def get_image_metadata(filename):
         logger.error("Could not open image %s metadata: %s", filename, e)
     else:
         try:
-            if os.path.splitext(filename)[1].lower() in (".jpg", ".jpeg"):
+            if os.path.splitext(filename)[1].lower() in (".jpg", ".jpeg", ".heic"):
                 exif = get_exif_data(img)
         except Exception as e:
             logger.warning("Could not read EXIF data from %s: %s", filename, e)
