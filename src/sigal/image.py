@@ -44,6 +44,11 @@ from PIL.TiffImagePlugin import IFDRational
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
+try:
+    from pillow_heif import HeifImagePlugin
+except:
+    pass
+
 from . import signals, utils
 
 # Force loading of truncated files
