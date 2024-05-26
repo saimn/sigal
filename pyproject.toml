@@ -32,7 +32,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-all = ["brotli", "feedgenerator", "zopfli", "cryptography"]
+all = ["brotli", "feedgenerator", "zopfli", "cryptography", "pillow-heif"]
 tests = ["pytest", "pytest-cov"]
 docs = ["Sphinx>=4.1.0", "furo", "cryptography"]
 
