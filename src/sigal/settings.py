@@ -30,6 +30,7 @@ _DEFAULT_CONFIG = {
     "albums_sort_attr": "name",
     "albums_sort_reverse": False,
     "autorotate_images": True,
+    "autoplay": False,
     "colorbox_column_size": 3,
     "copy_exif_data": False,
     "datetime_format": "%c",

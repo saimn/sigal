@@ -39,6 +39,9 @@ theme = "galleria"
 # Path to a CSS file that can be used to customize themes
 # user_css =
 
+# Enable autoplay (galleria only)
+# autoplay = False
+
 # ----------------
 # Image processing (ignored if use_orig = True)
 # ----------------
