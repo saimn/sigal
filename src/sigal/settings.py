@@ -59,6 +59,7 @@ _DEFAULT_CONFIG = {
     "medias_sort_reverse": False,
     "mp4_options": ["-crf", "23", "-strict", "-2"],
     "mp4_options_second_pass": None,
+    "nosleep": False,
     "orig_dir": "original",
     "orig_link": False,
     "rel_link": False,

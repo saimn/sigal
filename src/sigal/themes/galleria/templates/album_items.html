@@ -44,6 +44,9 @@
     <script src="{{ theme.url }}/galleria.min.js"></script>
     <script src="{{ theme.url }}/themes/{{ settings.galleria_theme }}/galleria.{{ settings.galleria_theme }}.min.js"></script>
     <script src="{{ theme.url }}/plugins/history/galleria.history.min.js"></script>
+    {% if settings.nosleep %}
+    <script src="{{ theme.url }}/NoSleep.min.js"></script>
+    {% endif %}
     <script>
     var data = [
       {% for media in album.medias -%}
@@ -90,6 +93,15 @@
         });
 
         $('.icons').appendTo(this.$('container'));
+
+        {% if settings.nosleep %}
+        var nosleep = new NoSleep();
+        document.addEventListener('click', function enableNoSleep() {
+          document.removeEventListener('click', enableNoSleep, false);
+          nosleep.enable();
+        }, false);
+        {% endif %}
+
     });
 
     Galleria.configure({

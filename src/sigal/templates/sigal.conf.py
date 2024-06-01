@@ -231,6 +231,11 @@ ignore_files = []
 # links = [('Example link', 'http://example.org'),
 #          ('Another link', 'http://example.org')]
 
+# Include NoSleep.js to prevent devices like tablets from
+# falling asleep during slideshows.
+# This option only has an effect on the galleria theme for now.
+# nosleep = False
+
 # Google Analytics tracking code (UA-xxxx-x)
 # google_analytics = ''
 
