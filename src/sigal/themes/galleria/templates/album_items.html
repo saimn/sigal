@@ -93,6 +93,7 @@
     });
 
     Galleria.configure({
+        {% if settings.autoplay %}autoplay: true,{% endif %}
         imageCrop: false,
         transition: "fade",
         thumbnails: "lazy"
