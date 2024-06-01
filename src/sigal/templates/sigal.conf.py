@@ -39,6 +39,10 @@ theme = "galleria"
 # Path to a CSS file that can be used to customize themes
 # user_css =
 
+# Enable autoplay in galleries.
+# This option only has an effect on the galleria theme for now.
+# autoplay = False
+
 # ----------------
 # Image processing (ignored if use_orig = True)
 # ----------------
@@ -226,6 +230,11 @@ ignore_files = []
 # A list of links (tuples (title, URL))
 # links = [('Example link', 'http://example.org'),
 #          ('Another link', 'http://example.org')]
+
+# Include NoSleep.js to prevent devices like tablets from
+# falling asleep during slideshows.
+# This option only has an effect on the galleria theme for now.
+# nosleep = False
 
 # Google Analytics tracking code (UA-xxxx-x)
 # google_analytics = ''
