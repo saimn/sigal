@@ -124,8 +124,11 @@ def read_markdown(filename):
         # will be available, this can be removed.
         MD.Meta = {}
 
+    html = MD.convert(text)
+    # remove remaining linebreaks
+    html = "".join(html.splitlines())
     # Mark HTML with Markup to prevent jinja2 autoescaping
-    output = {"description": Markup(MD.convert(text))}
+    output = {"description": Markup(html)}
 
     try:
         meta = MD.Meta.copy()

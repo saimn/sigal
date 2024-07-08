@@ -20,7 +20,7 @@
     {% macro img_description(media) -%}
       {%- if media.big -%}<a href='{{ media.big_url }}'>Full size</a>{%- endif -%}
       {# clean up tags and whitespace, including newlines, in the description #}
-      {%- if media.description -%}<br>{{ media.description | striptags }}{%- endif -%}
+      {%- if media.description -%}<br>{{ media.description }}{%- endif -%}
       {%- if media.exif -%}
         <div class='film-meta'>
         {%- if media.exif.iso -%}<abbr title='film speed'>{{ media.exif.iso }}</abbr> {%- endif -%}
