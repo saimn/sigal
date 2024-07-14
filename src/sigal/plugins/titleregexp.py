@@ -18,7 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-""" This plugin modifies titles of galleries by using regular-expressions and
+"""This plugin modifies titles of galleries by using regular-expressions and
 simple string or character replacements. It is acting in two phases: First, all
 regular-expression-based modifications are carried out, second, string/character
 replacements are done.

@@ -75,9 +75,9 @@ def generate_cache_metadata(gallery, f):
 
     proposed_cache_control = None
     if "media_max_age" in options and ext in [".jpg", ".png", ".webm", ".mp4"]:
-        proposed_cache_control = "max-age=%s" % options["media_max_age"]
+        proposed_cache_control = f"max-age={options['media_max_age']}"
     elif "max_age" in options:
-        proposed_cache_control = "max-age=%s" % options["max_age"]
+        proposed_cache_control = f"max-age={options['max_age']}"
     return proposed_cache_control
 
 

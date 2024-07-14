@@ -55,7 +55,7 @@ class AbstractWriter:
         ):
             self.theme = os.path.join(THEMES_PATH, self.theme)
             if not os.path.exists(self.theme):
-                raise Exception("Impossible to find the theme %s" % self.theme)
+                raise Exception(f"Impossible to find the theme {self.theme}")
 
         self.logger.info("Theme  : %s", self.theme)
         theme_relpath = os.path.join(self.theme, "templates")

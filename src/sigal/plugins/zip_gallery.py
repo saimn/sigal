@@ -18,7 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-""" This plugin controls the generation of a ZIP archive for a gallery
+"""This plugin controls the generation of a ZIP archive for a gallery
 
 If the ``zip_gallery`` setting is set, it contains the location of a zip
 archive with all original images of the corresponding directory.

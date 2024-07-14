@@ -18,7 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-""" This plugin offers more fine-grained control over exluded images and
+"""This plugin offers more fine-grained control over exluded images and
 folders, similarly to how it's handled on Android.
 
 To ignore a folder or image put a ``.nomedia`` file next to it in its parent

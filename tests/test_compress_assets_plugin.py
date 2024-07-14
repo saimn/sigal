@@ -82,5 +82,7 @@ def test_failed_compress(
     with mock.patch.dict(sys.modules, {mask: None}):
         make_gallery(settings, tmpdir, method)
         walk_destination(
-            settings["destination"], [], compress_suffix  # No file should be compressed
+            settings["destination"],
+            [],
+            compress_suffix,  # No file should be compressed
         )

@@ -106,9 +106,10 @@ class GZipCompressor(BaseCompressor):
     suffix = "gz"
 
     def do_compress(self, filename, compressed_filename):
-        with open(filename, "rb") as f_in, gzip.open(
-            compressed_filename, "wb"
-        ) as f_out:
+        with (
+            open(filename, "rb") as f_in,
+            gzip.open(compressed_filename, "wb") as f_out,
+        ):
             shutil.copyfileobj(f_in, f_out)
 
 

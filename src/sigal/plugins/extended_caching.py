@@ -18,7 +18,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-""" Decreases the time needed to build large galleries (e.g.: 25k images in
+"""Decreases the time needed to build large galleries (e.g.: 25k images in
 2.5s instead of 30s)
 
 This plugin allows extended caching, which is useful for large galleries. Once

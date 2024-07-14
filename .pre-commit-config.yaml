@@ -1,7 +1,7 @@
 repos:
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.5.0
+  rev: v4.6.0
   hooks:
     - id: check-added-large-files
     - id: check-merge-conflict
@@ -11,13 +11,9 @@ repos:
     - id: trailing-whitespace
       exclude: ".*(galleria|photoswipe|jquery|leaflet).*$"
 
-- repo: https://github.com/psf/black
-  rev: 23.11.0
-  hooks:
-    - id: black
-
 - repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: v0.1.4
+  rev: v0.5.2
   hooks:
     - id: ruff
       args: [ --fix, --show-fixes, --exit-non-zero-on-fix ]
+    - id: ruff-format

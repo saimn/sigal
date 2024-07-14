@@ -60,12 +60,7 @@ sigal = [
 [tool.setuptools_scm]
 write_to = "src/sigal/version.py"
 
-[tool.black]
-line-length = 88
-target-version = ['py39']
-
-[tool.ruff]
-target-version = "py39"
+[tool.ruff.lint]
 select = [
   "E", "F", "W", # flake8
   "I",           # isort
@@ -76,7 +71,7 @@ unfixable = [
   "F841", # Removes unused variables
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["sigal"]
 
 [tool.coverage.run]
