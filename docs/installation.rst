@@ -33,7 +33,6 @@ There are also a number of optional dependencies for the :doc:`plugins`,
 installable with the ``[all]`` marker:
 
 - Brotli, zopfli (compress assets plugin)
-- Boto (upload to S3 plugin)
 - feedgenerator (feeds plugin)
 
 Packages

@@ -281,7 +281,6 @@ ignore_files = []
 #     'sigal.plugins.media_page',
 #     'sigal.plugins.nomedia',
 #     'sigal.plugins.nonmedia_files',
-#     'sigal.plugins.upload_s3',
 #     'sigal.plugins.watermark',
 #     'sigal.plugins.zip_gallery',
 # ]
@@ -315,13 +314,6 @@ ignore_files = []
 #     'thumb_font': None, # name/path of font file
 #     'thumb_font_color': (0, 0, 0),
 #     'thumb_font_size': 40, # only applies when a font is selected
-# }
-
-# Settings for upload to s3 plugin
-# upload_s3_options = {
-# 	'bucket': 'my-bucket',
-# 	'policy': 'public-read',
-# 	'overwrite': False
 # }
 
 # Set zip_gallery to either False or a file name. The file name can

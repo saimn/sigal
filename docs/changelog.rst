@@ -9,6 +9,9 @@ Not released yet.
 
 Sigal now requires Python 3.9+.
 
+- Remove s3 plugin since it relied on boto which is no longer maintained. Help
+  is welcome to update the plugin with the new boto3 library. [:issue:`513`]
+
 Version 2.4
 ~~~~~~~~~~~
 

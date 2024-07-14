@@ -129,11 +129,6 @@ Non-media Files plugin
 
 .. automodule:: sigal.plugins.nonmedia_files
 
-Upload to S3 plugin
-===================
-
-.. automodule:: sigal.plugins.upload_s3
-
 Watermark plugin
 ================
 
