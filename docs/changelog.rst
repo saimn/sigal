@@ -11,6 +11,14 @@ Sigal now requires Python 3.9+.
 
 - Remove s3 plugin since it relied on boto which is no longer maintained. Help
   is welcome to update the plugin with the new boto3 library. [:issue:`513`]
+- Cache input size to make updating faster [:issue:`506`].
+- Allow sorting albums with negative numbers [:issue:`507`].
+- Write the static files only once [:issue:`510`].
+- Remove subdirectories for the ones skipped with ``ignore_dirs``
+  [:issue:`515`].
+- New cli flag ``sigal serve --browser`` to open in default browser
+  [:issue:`516`].
+- Show HTML in media description (with galleria) [:issue:`521`].
 
 Version 2.4
 ~~~~~~~~~~~
