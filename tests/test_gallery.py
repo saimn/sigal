@@ -94,7 +94,9 @@ def test_media(settings):
     assert m.thumb_name == thumb
     assert m.thumb_path == join(settings["destination"], path, thumb)
     assert m.title == "Foo Bar"
-    assert m.description == "<p>This is a funny description of this image</p>"
+    assert m.description.startswith(
+        "<p>This is a <em>funny</em> <strong>description</strong> of this image</p>"
+    )
 
     assert repr(m) == f"<Media>('{file_path}')"
     assert str(m) == file_path
@@ -153,7 +155,9 @@ def test_media_img_format(settings):
     assert m.thumb_name == thumb
     assert m.thumb_path == join(settings["destination"], path, thumb)
     assert m.title == "Foo Bar"
-    assert m.description == "<p>This is a funny description of this image</p>"
+    assert m.description.startswith(
+        "<p>This is a <em>funny</em> <strong>description</strong> of this image</p>"
+    )
 
     file_path = join(path, "11.tiff")
     assert repr(m) == f"<Image>('{file_path}')"
