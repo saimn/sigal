@@ -1,12 +1,6 @@
-# import os
-# import sys
+import os
 
 from sigal import __version__
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-# sys.path.append(os.path.abspath(".."))
 
 # -- General configuration ----------------------------------------------------
 
@@ -75,6 +69,12 @@ pygments_dark_style = "monokai"
 
 
 # -- Options for HTML output --------------------------------------------------
+
+# Define the canonical URL if you are using a custom domain on Read the Docs
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "")
+
+# Tell Jinja2 templates the build is running on Read the Docs
+html_context = {"READTHEDOCS": os.environ.get("READTHEDOCS", "") == "True"}
 
 html_theme = "furo"
 

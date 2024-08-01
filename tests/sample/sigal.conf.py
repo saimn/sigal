@@ -34,14 +34,14 @@ watermark = "watermark.png"
 watermark_position = (10, 10)
 watermark_opacity = 0.3
 
-theme = "colorbox"
+theme = "photoswipe"
 thumb_size = (200, 150)
 
 rss_feed = {"feed_url": "http://127.0.0.1:8000/feed.rss", "nb_items": 10}
 atom_feed = {"feed_url": "http://127.0.0.1:8000/feed.atom", "nb_items": 10}
 
-# theme = 'photoswipe'
+# theme = 'colorbox'
 # theme = 'galleria'
 # thumb_size = (280, 210)
 # galleria_theme = 'folio'
-show_map = True
+# show_map = True
