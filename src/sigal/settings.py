@@ -33,6 +33,7 @@ _DEFAULT_CONFIG = {
     "colorbox_column_size": 3,
     "copy_exif_data": False,
     "datetime_format": "%c",
+    "display_timestamp": False,
     "destination": "_build",
     "files_to_copy": (),
     "galleria_theme": "classic",

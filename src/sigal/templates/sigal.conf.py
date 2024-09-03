@@ -86,6 +86,9 @@ img_size = (800, 600)
 # https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior
 # datetime_format = '%c'
 
+# Display generated datetime in the resulting output
+# display_timestamp = False
+
 # Jpeg options
 # jpg_options = {'quality': 85,
 #                'optimize': True,
