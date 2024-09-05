@@ -12,5 +12,8 @@
         <span><a href={{ settings.atom_feed.feed_url }}>Atom Feed</a></span>
       {% endif %}
     {% endif %}
+    {% if settings.display_timestamp %}
+        @ {{ generated_timestamp }}
+    {% endif %}
   </p>
 </footer>

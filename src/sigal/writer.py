@@ -27,6 +27,7 @@ import shutil
 import stat
 import sys
 import types
+from datetime import datetime
 
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PrefixLoader
 from jinja2.exceptions import TemplateNotFound
@@ -138,6 +139,7 @@ class AbstractWriter:
             "index_title": self.index_title,
             "settings": self.settings,
             "sigal_link": sigal_link,
+            "generated_timestamp": datetime.now().strftime(self.settings['datetime_format']),
             "theme": {
                 "name": os.path.basename(self.theme),
                 "url": url_from_path(os.path.relpath(self.theme_path, album.dst_path)),
