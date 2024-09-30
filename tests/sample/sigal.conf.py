@@ -13,6 +13,7 @@ links = [
 
 albums_sort_attr = ["meta.nokey", "nosuchattribute", "name"]
 
+ignore_directories = [".venv*"]
 files_to_copy = (("../watermark.png", "watermark.png"),)
 
 plugins = [
