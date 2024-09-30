@@ -12,7 +12,7 @@ repos:
       exclude: ".*(galleria|photoswipe|jquery|leaflet).*$"
 
 - repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: v0.5.2
+  rev: v0.6.8
   hooks:
     - id: ruff
       args: [ --fix, --show-fixes, --exit-non-zero-on-fix ]
