@@ -161,7 +161,7 @@ thumb_size = (280, 210)
 # Filter directories and files.
 # The settings take a list of patterns matched with the fnmatch module on the
 # path relative to the source directory:
-# http://docs.python.org/2/library/fnmatch.html
+# http://docs.python.org/3/library/fnmatch.html
 ignore_directories = []
 ignore_files = []
 
