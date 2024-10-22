@@ -137,18 +137,12 @@ def read_markdown(filename):
         pass
     else:
         output["meta"] = meta
-        try:
-            output["title"] = MD.Meta["title"][0]
-        except KeyError:
-            pass
-        try:
-            output["lat"] = MD.Meta["lat"][0]
-        except KeyError:
-            pass
-        try:
-            output["lon"] = MD.Meta["lon"][0]
-        except KeyError:
-            pass
+        l = MD.Meta.get("title", [])
+        if l: output["title"] = l[0]
+        l = MD.Meta.get("lat", [])
+        if l: output["lat"] = l[0]
+        l = MD.Meta.get("lon", [])
+        if l: output["lon"] = l[0]
 
     return output
 
