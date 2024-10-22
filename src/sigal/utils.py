@@ -1,4 +1,5 @@
 # Copyright (c) 2011-2023 - Simon Conseil
+# Copyright (c) 2024 - Stasinos Konstantopoulos
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -138,6 +139,14 @@ def read_markdown(filename):
         output["meta"] = meta
         try:
             output["title"] = MD.Meta["title"][0]
+        except KeyError:
+            pass
+        try:
+            output["lat"] = MD.Meta["lat"][0]
+        except KeyError:
+            pass
+        try:
+            output["lon"] = MD.Meta["lon"][0]
         except KeyError:
             pass
 
