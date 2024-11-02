@@ -201,6 +201,15 @@ def test_get_exif_tags():
     assert "datetime" not in simple
     assert "gps" not in simple
 
+def test_get_heic_exif_tags():
+    test_image = "outdoor.heic"
+    src_file = os.path.join(
+        CURRENT_DIR, "sample", "pictures", "dir1", "test1", test_image
+    )
+    data = get_exif_data(src_file)
+    simple = get_exif_tags(data, datetime_format="%d/%m/%Y")
+    assert simple["Make"] == "samsung"
+    assert simple["datetime"] == "01/09/2024"
 
 def test_get_iptc_data(caplog):
     test_image = "1.jpg"
