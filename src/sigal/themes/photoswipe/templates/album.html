@@ -6,15 +6,15 @@
   import PhotoSwipeLightbox from '/static/photoswipe-lightbox.esm.min.js';
   import PhotoSwipe from '/static/photoswipe.esm.min.js';
   import PhotoSwipeVideoPlugin from '/static/photoswipe-video-plugin.esm.min.js';
+  import PhotoSwipeFullscreen from '/static/photoswipe-fullscreen.esm.min.js';
 
   const lightbox = new PhotoSwipeLightbox({
     gallery: '.gallery',
     children: 'a',
     pswpModule: PhotoSwipe
   });
-  const videoPlugin = new PhotoSwipeVideoPlugin(lightbox, {
-    autoplay: true,
-  });
+  const fullscreenPlugin = new PhotoSwipeFullscreen(lightbox);
+  const videoPlugin = new PhotoSwipeVideoPlugin(lightbox, {autoplay: true});
   lightbox.init();
   </script>
 {% endblock extra_head %}
