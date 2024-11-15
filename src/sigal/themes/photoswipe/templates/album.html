@@ -22,33 +22,27 @@
 {% block content %}
   {% include 'download_zip.html' %}
   {% include 'map.html' %}
-  <div class="gallery" itemscope itemtype="http://schema.org/ImageGallery">
+  <div class="gallery">
     {% for media in album.medias %}
       {% if media.type == "image" %}
-        <figure class="gallery__img--{{ "main" if loop.first else "secondary" }} thumbnail"
-                itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+        <figure class="gallery__img--{{ "main" if loop.first else "secondary" }} thumbnail">
           <a href="{{ media.url }}"
-             itemprop="contentUrl"
              data-pswp-width="{{media.size.width}}"
-             data-pswp-height="{{media.size.height}}" >
-            <img src="{{ media.thumbnail }}"
-                 alt="{{ media.url }}" itemprop="thumbnail" title="{{ media.exif.datetime }}" />
+             data-pswp-height="{{media.size.height}}">
+             <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
           </a>
-          <figcaption itemprop="caption description">{{ media.title }} - {{ media.exif.datetime }}</figcaption>
+          <figcaption>{{ media.title }} - {{ media.exif.datetime }}</figcaption>
         </figure>
       {% endif %}
       {% if media.type == "video" %}
-        <figure class="gallery__img--secondary thumbnail"
-                itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+        <figure class="gallery__img--secondary thumbnail" >
           <a href="{{ media.url }}"
-             itemprop="contentUrl"
+             data-pswp-type="video"
              data-pswp-width="800"
-             data-pswp-height="600"
-             data-pswp-type="video">
-          <img src="{{ media.thumbnail }}"
-               alt="{{ media.thumbnail }}" itemprop="thumbnail" title="" />
+             data-pswp-height="600">
+            <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
           </a>
-          <figcaption itemprop="caption description">{{ media_title }}</figcaption>
+          <figcaption>{{ media_title }}</figcaption>
         </figure>
       {% endif %}
     {% endfor %}
