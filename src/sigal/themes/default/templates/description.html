@@ -1,5 +1,5 @@
-{% macro img_description(media) -%}
-  {%- if media.big -%}
+{% macro img_description(media, with_big=True) -%}
+  {%- if with_big and media.big -%}
     <a href='{{ media.big_url }}'>Full size</a>
   {%- endif -%}
   {%- if media.description -%}

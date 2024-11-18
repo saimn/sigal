@@ -18,6 +18,33 @@
   const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {type: 'auto'});
   const fullscreenPlugin = new PhotoSwipeFullscreen(lightbox);
   const videoPlugin = new PhotoSwipeVideoPlugin(lightbox, {autoplay: true});
+
+  lightbox.on('uiRegister', function() {
+    lightbox.pswp.ui.registerElement({
+      name: 'download-button',
+      order: 8,
+      isButton: true,
+      tagName: 'a',
+      html: {
+        isCustomSVG: true,
+        inner: '<path d="M20.5 14.3 17.1 18V10h-2.2v7.9l-3.4-3.6L10 16l6 6.1 6-6.1ZM23 23H9v2h14Z" id="pswp__icn-download"/>',
+        outlineID: 'pswp__icn-download'
+      },
+      onInit: (el, pswp) => {
+        el.setAttribute('download', '');
+        el.setAttribute('target', '_blank');
+        el.setAttribute('rel', 'noopener');
+        pswp.on('change', () => {
+          if (pswp.currSlide.data.element.children[0].dataset.big) {
+            el.href = pswp.currSlide.data.element.children[0].dataset.big;
+          } else {
+            el.href = pswp.currSlide.data.src;
+          }
+        });
+      }
+    });
+  });
+
   lightbox.init();
   </script>
 {% endblock extra_head %}
@@ -31,10 +58,16 @@
         <figure class="gallery__img--{{ "main" if loop.first else "secondary" }} thumbnail">
           <a href="{{ media.url }}"
              data-pswp-width="{{media.size.width}}"
-             data-pswp-height="{{media.size.height}}">
+             data-pswp-height="{{media.size.height}}"
+             {%- if media.big -%}
+             data-big="{{ media.big_url }}"
+             {%- endif -%}
+             >
              <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
           </a>
-          <div class="pswp-caption-content">{{ img_description(media) }}</div>
+          <div class="pswp-caption-content">
+            {{ img_description(media, with_big=False) }}
+          </div>
           <figcaption>{{ media.title }} - {{ media.exif.datetime }}</figcaption>
         </figure>
       {% endif %}
@@ -46,7 +79,9 @@
              data-pswp-height="600">
             <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
           </a>
-          <div class="pswp-caption-content">{{ img_description(media) }}</div>
+          <div class="pswp-caption-content">
+            {{ img_description(media, with_big=False) }}
+          </div>
           <figcaption>{{ media_title }}</figcaption>
         </figure>
       {% endif %}
