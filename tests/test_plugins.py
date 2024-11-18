@@ -21,7 +21,9 @@ def _build_with_plugin(
 
 
 def test_media_page(settings, tmp_path, disconnect_signals):
-    _build_with_plugin(settings, "dir2", tmp_path, "sigal.plugins.media_page")
+    _build_with_plugin(
+        settings, "dir2", tmp_path, "sigal.plugins.media_page", theme="colorbox"
+    )
     assert (tmp_path / "KeckObservatory20071020.jpg.html").is_file()
 
 

@@ -1,0 +1,29 @@
+{% macro img_description(media, with_big=True) -%}
+  {%- if with_big and media.big -%}
+    <a href='{{ media.big_url }}'>Full size</a>
+  {%- endif -%}
+  {%- if media.description -%}
+    <br>{{ media.description }}
+  {%- endif -%}
+  {%- if media.exif -%}
+    <div class='film-meta'>
+      {%- if media.exif.iso -%}
+        <abbr title='film speed'>{{ media.exif.iso }}</abbr> {%- endif -%}
+      {%- if media.exif.exposure -%}
+        <abbr title='exposure'>{{ media.exif.exposure }}</abbr> {%- endif -%}
+      {%- if media.exif.fstop -%}
+        <abbr title='aperture'>{{ media.exif.fstop }}</abbr> {%- endif -%}
+      {%- if media.exif.focal -%}
+        <abbr title='focal length'>{{ media.exif.focal }}</abbr> {%- endif -%}
+    </div>
+    {%- if media.exif.gps -%}
+      <a title='location' href='https://www.openstreetmap.org/?mlat={{ media.exif.gps.lat }}&amp;mlon={{ media.exif.gps.lon}}&amp;zoom=12&amp;layers=M' target='_blank' class='map' >{{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}{{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}</a>
+    {%- endif -%}
+    {%- if media.exif.Make or media.exif.Model -%}
+      <abbr title='camera make and model'>{{ media.exif.Make }} {{ media.exif.Model }}</abbr>
+    {%- endif -%}
+    {%- if media.exif.datetime -%}
+      <abbr title='date'>{{ media.exif.datetime }}</abbr>
+    {%- endif -%}
+  {% endif %}
+{%- endmacro %}

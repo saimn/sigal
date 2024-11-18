@@ -1,98 +1,93 @@
+{% from 'description.html' import img_description %}
 {% extends "base.html" %}
 
 {% block extra_head %}
-  <script src="{{ theme.url }}/photoswipe.min.js"></script>
-  <script src="{{ theme.url }}/photoswipe-ui-default.min.js"></script>
-  <script src="{{ theme.url }}/echo/echo.min.js"></script>
   <link rel="stylesheet" href="{{ theme.url }}/photoswipe.css">
-  <link rel="stylesheet" href="{{ theme.url }}/default-skin/default-skin.css">
+  <script type="module">
+  import PhotoSwipeLightbox from '/static/photoswipe-lightbox.esm.min.js';
+  import PhotoSwipe from '/static/photoswipe.esm.min.js';
+  import PhotoSwipeDynamicCaption from '/static/photoswipe-dynamic-caption-plugin.esm.min.js';
+  import PhotoSwipeFullscreen from '/static/photoswipe-fullscreen.esm.min.js';
+  import PhotoSwipeVideoPlugin from '/static/photoswipe-video-plugin.esm.min.js';
+
+  const lightbox = new PhotoSwipeLightbox({
+    gallery: '.gallery',
+    children: '.thumbnail',
+    pswpModule: PhotoSwipe
+  });
+  const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {type: 'auto'});
+  const fullscreenPlugin = new PhotoSwipeFullscreen(lightbox);
+  const videoPlugin = new PhotoSwipeVideoPlugin(lightbox, {autoplay: true});
+
+  lightbox.on('uiRegister', function() {
+    lightbox.pswp.ui.registerElement({
+      name: 'download-button',
+      order: 8,
+      isButton: true,
+      tagName: 'a',
+      html: {
+        isCustomSVG: true,
+        inner: '<path d="M20.5 14.3 17.1 18V10h-2.2v7.9l-3.4-3.6L10 16l6 6.1 6-6.1ZM23 23H9v2h14Z" id="pswp__icn-download"/>',
+        outlineID: 'pswp__icn-download'
+      },
+      onInit: (el, pswp) => {
+        el.setAttribute('download', '');
+        el.setAttribute('target', '_blank');
+        el.setAttribute('rel', 'noopener');
+        pswp.on('change', () => {
+          if (pswp.currSlide.data.element.children[0].dataset.big) {
+            el.href = pswp.currSlide.data.element.children[0].dataset.big;
+          } else {
+            el.href = pswp.currSlide.data.src;
+          }
+        });
+      }
+    });
+  });
+
+  lightbox.init();
+  </script>
 {% endblock extra_head %}
 
 {% block content %}
   {% include 'download_zip.html' %}
   {% include 'map.html' %}
-  <div class="gallery" itemscope itemtype="http://schema.org/ImageGallery">
+  <div class="gallery">
     {% for media in album.medias %}
       {% if media.type == "image" %}
-        <figure class="gallery__img--{{ "main" if loop.first else "secondary" }} thumbnail"
-                itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
-          <a href="{{ media.url }}" itemprop="contentUrl" data-size="{{media.size.width}}x{{media.size.height}}">
-            <img src="{{ theme.url }}/echo/blank.gif"
-                 data-echo="{{ media.url if loop.first else media.thumbnail }}"
-                 alt="{{ media.url }}" itemprop="thumbnail" title="{{ media.exif.datetime }}" />
+        <figure class="gallery__img--{{ "main" if loop.first else "secondary" }} thumbnail">
+          <a href="{{ media.url }}"
+             data-pswp-width="{{media.size.width}}"
+             data-pswp-height="{{media.size.height}}"
+             {%- if media.big -%}
+             data-big="{{ media.big_url }}"
+             {%- endif -%}
+             >
+             <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
           </a>
-          <figcaption itemprop="caption description">{{ media.title }} - {{ media.exif.datetime }}</figcaption>
+          <div class="pswp-caption-content">
+            {{ img_description(media, with_big=False) }}
+          </div>
+          <figcaption>{{ media.title }} - {{ media.exif.datetime }}</figcaption>
         </figure>
       {% endif %}
       {% if media.type == "video" %}
-        <figure class="gallery__img--secondary thumbnail"
-                itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
-          <a href="{{ media.url }}" itemprop="contentUrl" data-type="video"
-             data-video='<div class="video"><div class="video__container"><video controls><source src="{{ media.url }}" type="{{ media.mime }}" /></video></div></div>'>
-          <img src="{{ theme.url }}/echo/blank.gif"
-               data-echo="{{ media.thumbnail }}"
-               alt="{{ media.thumbnail }}" itemprop="thumbnail" title="" />
+        <figure class="gallery__img--secondary thumbnail" >
+          <a href="{{ media.url }}"
+             data-pswp-type="video"
+             data-pswp-width="800"
+             data-pswp-height="600">
+            <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
           </a>
-          <figcaption itemprop="caption description">{{ media_title }}</figcaption>
+          <div class="pswp-caption-content">
+            {{ img_description(media, with_big=False) }}
+          </div>
+          <figcaption>{{ media_title }}</figcaption>
         </figure>
       {% endif %}
     {% endfor %}
   </div>
-
 {% endblock %}
 
 {% block extra_footer %}
-  <!-- Root element of PhotoSwipe. Must have class pswp. -->
-  <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-    <!-- Background of PhotoSwipe.
-      It's a separate element as animating opacity is faster than rgba(). -->
-      <div class="pswp__bg"></div>
-
-      <!-- Slides wrapper with overflow:hidden. -->
-      <div class="pswp__scroll-wrap">
-        <!-- Container that holds slides.
-          PhotoSwipe keeps only 3 of them in the DOM to save memory.
-          Don't modify these 3 pswp__item elements, data is added later on. -->
-          <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-          </div>
-
-          <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-          <div class="pswp__ui pswp__ui--hidden">
-            <div class="pswp__top-bar">
-              <!--  Controls are self-explanatory. Order can be changed. -->
-              <div class="pswp__counter"></div>
-              <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-              <button class="pswp__button pswp__button--share" title="Share"></button>
-              <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-              <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-              <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-              <!-- element will get class pswp__preloader-active when preloader is running -->
-              <div class="pswp__preloader">
-                <div class="pswp__preloader__icn">
-                  <div class="pswp__preloader__cut">
-                    <div class="pswp__preloader__donut"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-              <div class="pswp__share-tooltip"></div>
-            </div>
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-            <div class="pswp__caption">
-              <div class="pswp__caption__center"></div>
-            </div>
-          </div>
-      </div>
-  </div>
-  <script src="{{ theme.url }}/app.js"></script>
-
 {% endblock %}
