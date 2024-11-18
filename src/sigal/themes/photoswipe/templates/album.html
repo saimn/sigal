@@ -1,3 +1,4 @@
+{% from 'description.html' import img_description %}
 {% extends "base.html" %}
 
 {% block extra_head %}
@@ -5,14 +6,16 @@
   <script type="module">
   import PhotoSwipeLightbox from '/static/photoswipe-lightbox.esm.min.js';
   import PhotoSwipe from '/static/photoswipe.esm.min.js';
-  import PhotoSwipeVideoPlugin from '/static/photoswipe-video-plugin.esm.min.js';
+  import PhotoSwipeDynamicCaption from '/static/photoswipe-dynamic-caption-plugin.esm.min.js';
   import PhotoSwipeFullscreen from '/static/photoswipe-fullscreen.esm.min.js';
+  import PhotoSwipeVideoPlugin from '/static/photoswipe-video-plugin.esm.min.js';
 
   const lightbox = new PhotoSwipeLightbox({
     gallery: '.gallery',
-    children: 'a',
+    children: '.thumbnail',
     pswpModule: PhotoSwipe
   });
+  const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {type: 'auto'});
   const fullscreenPlugin = new PhotoSwipeFullscreen(lightbox);
   const videoPlugin = new PhotoSwipeVideoPlugin(lightbox, {autoplay: true});
   lightbox.init();
@@ -31,6 +34,7 @@
              data-pswp-height="{{media.size.height}}">
              <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
           </a>
+          <div class="pswp-caption-content">{{ img_description(media) }}</div>
           <figcaption>{{ media.title }} - {{ media.exif.datetime }}</figcaption>
         </figure>
       {% endif %}
@@ -42,6 +46,7 @@
              data-pswp-height="600">
             <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
           </a>
+          <div class="pswp-caption-content">{{ img_description(media) }}</div>
           <figcaption>{{ media_title }}</figcaption>
         </figure>
       {% endif %}
