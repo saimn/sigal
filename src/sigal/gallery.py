@@ -289,12 +289,13 @@ class Image(Media):
 
     @cached_property
     def lat(self):
-        return self.markdown_metadata.get("lat", {})
+        """If not `None`, latitude extracted from the Markdown index.md file."""
+        return self.markdown_metadata.get("lat")
 
     @cached_property
     def lon(self):
-        """Other metadata extracted from the Markdown index.md file."""
-        return self.markdown_metadata.get("lon", {})
+        """If not `None`, longitude extracted from the Markdown index.md file."""
+        return self.markdown_metadata.get("lon")
 
     @cached_property
     def raw_exif(self):
