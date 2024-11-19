@@ -18,7 +18,7 @@ keys are used by Sigal to get the useful informations on the gallery:
   e.g. for videos and some image formats.
 - *Lat* and *Lon*: geo-location for positioning the image on map galleries.
   Note that this overrides EXIF coordinates, so except for localizing when
-  EXIF cooredinates are missing it can also be used to localize the image
+  EXIF coordinates are missing it can also be used to localize the image
   based on what is depicted instead of where the camera was standing.
 
 Any additional meta-data is available in the templates. For instance::
