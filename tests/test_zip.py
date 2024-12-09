@@ -24,16 +24,11 @@ def test_zipped_correctly(tmpdir):
     gallery = make_gallery(destination=outpath, zip_gallery="archive.zip")
     gallery.build()
 
-    zipf = os.path.join(outpath, "test1", "archive.zip")
+    zipf = os.path.join(outpath, "test2", "archive.zip")
     assert os.path.isfile(zipf)
 
     zip_file = zipfile.ZipFile(zipf, "r")
-    expected = (
-        "11.jpg",
-        "CMB_Timeline300_no_WMAP.jpg",
-        "flickr_jerquiaga_2394751088_cc-by-nc.jpg",
-        "example.gif",
-    )
+    expected = ("21.tiff", "22.jpg", "CMB_Timeline300_no_WMAP.jpg")
 
     for filename in zip_file.namelist():
         assert filename in expected

@@ -10,6 +10,13 @@ from PIL import Image as PILImage
 from sigal.gallery import Album, Gallery, Image, Media, Video
 from sigal.video import SubprocessException
 
+try:
+    from pillow_heif import HeifImagePlugin  # noqa: F401
+
+    HAS_HEIF = True
+except ImportError:
+    HAS_HEIF = False
+
 CURRENT_DIR = os.path.dirname(__file__)
 
 REF = {
@@ -301,7 +308,11 @@ def test_gallery(settings, tmp_path, caplog):
     gal = Gallery(settings, ncpu=1)
 
     gal.build()
-    assert re.match(r"CSS file .* could not be found", caplog.records[3].message)
+
+    if HAS_HEIF:
+        assert re.match(r"CSS file .* could not be found", caplog.records[3].message)
+    else:
+        assert re.match(r"CSS file .* could not be found", caplog.records[4].message)
 
     with open(tmp_path / "my.css", mode="w") as f:
         f.write("color: red")
