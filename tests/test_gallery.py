@@ -301,7 +301,7 @@ def test_gallery(settings, tmp_path, caplog):
     gal = Gallery(settings, ncpu=1)
 
     gal.build()
-    assert re.match(r"CSS file .* could not be found", caplog.records[3].message)
+    assert re.match(r"CSS file .* could not be found", caplog.records[4].message)
 
     with open(tmp_path / "my.css", mode="w") as f:
         f.write("color: red")

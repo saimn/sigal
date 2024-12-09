@@ -45,7 +45,13 @@ from natsort import natsort_keygen, ns
 from PIL import Image as PILImage
 
 from . import image, signals, video
-from .image import get_exif_tags, get_image_metadata, get_size, process_image
+from .image import (
+    EXIF_EXTENSIONS,
+    get_exif_tags,
+    get_image_metadata,
+    get_size,
+    process_image,
+)
 from .settings import Status, get_thumb
 from .utils import (
     Devnull,
@@ -264,7 +270,7 @@ class Image(Media):
         datetime_format = self.settings["datetime_format"]
         return (
             get_exif_tags(self.raw_exif, datetime_format=datetime_format)
-            if self.raw_exif and self.src_ext in (".jpg", ".jpeg", ".heic")
+            if self.raw_exif and self.src_ext in EXIF_EXTENSIONS
             else None
         )
 
@@ -289,7 +295,7 @@ class Image(Media):
     @cached_property
     def raw_exif(self):
         """If not `None`, contains the raw EXIF tags."""
-        if self.src_ext in (".jpg", ".jpeg", ".heic"):
+        if self.src_ext in EXIF_EXTENSIONS:
             return self.file_metadata["exif"]
 
     @cached_property

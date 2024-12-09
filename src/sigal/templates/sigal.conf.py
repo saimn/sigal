@@ -66,7 +66,7 @@ img_size = (800, 600)
 # map_height = '500px'
 
 # File extensions that should be treated as images
-# img_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+# img_extensions = [".jpg", ".jpeg", ".png", ".gif", ".heic", ".tif", ".tiff", ".webp"]
 
 # Pilkit processor used to resize the image
 # (see http://pilkit.readthedocs.org/en/latest/#processors)

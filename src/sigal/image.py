@@ -45,14 +45,19 @@ from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
 try:
-    from pillow_heif import HeifImagePlugin
-except:
-    pass
+    from pillow_heif import HeifImagePlugin  # noqa: F401
+
+    HAS_HEIF = True
+except ImportError:
+    HAS_HEIF = False
 
 from . import signals, utils
+from .settings import Status
 
 # Force loading of truncated files
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+EXIF_EXTENSIONS = (".jpg", ".jpeg", ".heic")
 
 
 def _has_exif_tags(img):
@@ -71,7 +76,7 @@ def _read_image(file_path):
 
     for w in caught_warnings:
         logger.warning(
-            f"PILImage reported a warning for file {file_path}\n"
+            f"Pillow reported a warning for file {file_path}\n"
             f"{w.category}: {w.message}"
         )
     return im
@@ -185,6 +190,11 @@ def process_image(media):
         options = media.settings["jpg_options"]
     elif media.src_ext == ".png":
         options = {"optimize": True}
+    elif media.src_ext == ".heic" and not HAS_HEIF:
+        logger.warning(
+            f"cannot open {media.src_path}, pillow-heif is needed to open .heic files"
+        )
+        return Status.FAILURE
     else:
         options = {}
 
@@ -298,7 +308,7 @@ def get_image_metadata(filename):
         logger.error("Could not open image %s metadata: %s", filename, e)
     else:
         try:
-            if os.path.splitext(filename)[1].lower() in (".jpg", ".jpeg", ".heic"):
+            if os.path.splitext(filename)[1].lower() in EXIF_EXTENSIONS:
                 exif = get_exif_data(img)
         except Exception as e:
             logger.warning("Could not read EXIF data from %s: %s", filename, e)
