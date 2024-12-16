@@ -74,7 +74,7 @@ def titleregexp(album):
 
     for r in cfg.get("regexp"):
         album.title, n = re.subn(
-            r.get("search"), r.get("replace"), album.title, r.get("count", 0)
+            r.get("search"), r.get("replace"), album.title, count=r.get("count", 0)
         )
         total += n
 
