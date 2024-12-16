@@ -18,7 +18,13 @@ Sigal now requires Python 3.9+.
   [:issue:`515`].
 - New cli flag ``sigal serve --browser`` to open in default browser
   [:issue:`516`].
+- Add support for ``.heic`` files (requires the optional pillow-heif package)
+  [:issue:`519`].
+- Add autoplay setting for galleria [:issue:`520`].
 - Show HTML in media description (with galleria) [:issue:`521`].
+- New ``display_timestamp`` setting to show the generation timestamp
+  [:issue:`524`].
+- Update photoswipe to v5.4.4 [:issue:`528`].
 
 Version 2.4
 ~~~~~~~~~~~
