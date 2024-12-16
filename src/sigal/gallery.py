@@ -59,11 +59,13 @@ from .utils import (
     copy,
     get_mime,
     get_mod_date,
+    is_valid_html5_audio,
     is_valid_html5_video,
     read_markdown,
     should_reprocess_album,
     url_from_path,
 )
+from .audio import process_audio
 from .video import process_video
 from .writer import AlbumListPageWriter, AlbumPageWriter
 
@@ -351,6 +353,32 @@ class Video(Media):
         return self._get_file_date()
 
 
+class Audio(Media):
+    """Gather all informations on an audio file."""
+
+    type = "audio"
+
+    def __init__(self, filename, path, settings):
+        super().__init__(filename, path, settings)
+        self.mime = get_mime(self.src_ext)
+
+    @cached_property
+    def date(self):
+        """The date from the Date metadata if available, or from the file date."""
+        if "date" in self.meta:
+            try:
+                self.logger.debug(
+                    "Reading date from image metadata : %s", self.src_filename
+                )
+                return datetime.fromisoformat(self.meta["date"][0])
+            except Exception:
+                self.logger.debug(
+                    "Reading date from image metadata failed : %s", self.src_filename
+                )
+        # If no date is found in the metadata, return the file date.
+        return self._get_file_date()
+
+
 class Album:
     """Gather all informations on an album.
 
@@ -409,6 +437,8 @@ class Album:
                 media = Image(f, self.path, settings)
             elif ext.lower() in settings["video_extensions"]:
                 media = Video(f, self.path, settings)
+            elif ext.lower() in settings["audio_extensions"]:
+                media = Audio(f, self.path, settings)
 
             # Allow modification of the media, including overriding the class
             # type for the media.
@@ -972,6 +1002,8 @@ def process_file(media):
         processor = process_image
     elif media.type == "video":
         processor = process_video
+    elif media.type == "audio":
+        processor = process_audio
 
     # Allow overriding of the processor
     result = signals.process_file.send(media, processor=processor)

@@ -35,6 +35,7 @@ from sigal.settings import Status
 logger = logging.getLogger(__name__)
 MD = None
 VIDEO_MIMES = {".mp4": "video/mp4", ".webm": "video/webm", ".ogv": "video/ogg"}
+AUDIO_MIMES = {".m4a": "audio/m4a", ".mp3": "audio/mpeg", ".ogg": "audio/ogg", ".wav": "audio/x-wav"}
 
 
 class Devnull:
@@ -149,9 +150,17 @@ def is_valid_html5_video(ext):
     return ext in VIDEO_MIMES.keys()
 
 
+def is_valid_html5_audio(ext):
+    """Checks if ext is a supported HTML5 video."""
+    return ext in AUDIO_MIMES.keys()
+
+
 def get_mime(ext):
     """Returns mime type for extension."""
-    return VIDEO_MIMES[ext]
+    mime_type = VIDEO_MIMES.get(ext) or AUDIO_MIMES.get(ext)
+    if not mime_type:
+        raise RuntimeError(f"Could not figure mime type, unknown file extension: {ext}")
+    return mime_type
 
 
 def init_plugins(settings):
