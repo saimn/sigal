@@ -781,7 +781,7 @@ class Gallery:
 
         with progressbar(
             albums.values(),
-            label="%16s" % "Sorting albums",
+            label="{:>16s}".format("Sorting albums"),
             file=self.progressbar_target,
         ) as progress_albums:
             for album in progress_albums:
@@ -789,7 +789,7 @@ class Gallery:
 
         with progressbar(
             albums.values(),
-            label="%16s" % "Sorting media",
+            label="{:>16s}".format("Sorting medias"),
             file=self.progressbar_target,
         ) as progress_albums:
             for album in progress_albums:
@@ -911,7 +911,7 @@ class Gallery:
             )
             with progressbar(
                 self.albums.values(),
-                label="%16s" % "Writing files",
+                label="{:>16s}".format("Writing files"),
                 item_show_func=log_func,
                 show_eta=False,
                 file=self.progressbar_target,

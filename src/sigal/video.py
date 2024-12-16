@@ -98,10 +98,10 @@ def get_resize_options(source, converter, output_size):
     # + I made a drawing on paper to figure this out
     if h_dst * w_src < h_src * w_dst:
         # biggest fitting dimension is height
-        resize_opt = ["-vf", "scale=trunc(oh*a/2)*2:%i" % h_dst]
+        resize_opt = ["-vf", f"scale=trunc(oh*a/2)*2:{h_dst:d}"]
     else:
         # biggest fitting dimension is width
-        resize_opt = ["-vf", "scale=%i:trunc(ow/a/2)*2" % w_dst]
+        resize_opt = ["-vf", f"scale={w_dst:d}:trunc(ow/a/2)*2"]
 
     return resize_opt
 

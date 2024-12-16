@@ -66,7 +66,7 @@ def dispatchargs(decorated):
 
 def encrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
     if len(key) != 128 / 8:
-        raise ValueError("Unsupported key length: %d" % len(key))
+        raise ValueError(f"Unsupported key length: {len(key)}")
     aesgcm = AESGCM(key)
     iv = os.urandom(12)
     plaintext = infile
@@ -80,7 +80,7 @@ def encrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
 
 def decrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
     if len(key) != 128 / 8:
-        raise ValueError("Unsupported key length: %d" % len(key))
+        raise ValueError(f"Unsupported key length: {len(key)}")
     aesgcm = AESGCM(key)
     ciphertext = infile
     plaintext = outfile

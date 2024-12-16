@@ -200,7 +200,7 @@ def encrypt_files(settings, config, cache, albums, progressbar_target):
     medias = list(chain.from_iterable(albums.values()))
     with progressbar(
         medias,
-        label="%16s" % "Encrypting files",
+        label="{:>16s}".format("Encrypting files"),
         file=progressbar_target,
         show_eta=True,
     ) as medias:
