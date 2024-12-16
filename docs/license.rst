@@ -52,3 +52,6 @@ tests:
   (https://github.com/saimn/sigal/pull/233#issuecomment-275430083)
 - ``example video.ogv`` : https://commons.wikimedia.org/wiki/File:Examplevideo.ogv
   (Public domain)
+- ``outdoor.heic``: From @ususdei,
+  https://github.com/saimn/sigal/pull/519#issuecomment-2543310727
+  (Public domain)

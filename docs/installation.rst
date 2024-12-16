@@ -25,6 +25,7 @@ The mandatory dependencies are:
 - Blinker
 - Click
 - Jinja2
+- natsort
 - Pilkit
 - Pillow
 - Python Markdown
@@ -34,6 +35,8 @@ installable with the ``[all]`` marker:
 
 - Brotli, zopfli (compress assets plugin)
 - feedgenerator (feeds plugin)
+- cryptography (encrypt plugin)
+- pillow-heif (HEIF/HEIC support)
 
 Packages
 ~~~~~~~~

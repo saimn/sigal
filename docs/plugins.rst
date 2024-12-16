@@ -129,6 +129,11 @@ Non-media Files plugin
 
 .. automodule:: sigal.plugins.nonmedia_files
 
+Titleregexp plugin
+==================
+
+.. automodule:: sigal.plugins.titleregexp
+
 Watermark plugin
 ================
 
@@ -138,8 +143,3 @@ ZIP Gallery plugin
 ==================
 
 .. automodule:: sigal.plugins.zip_gallery
-
-Titleregexp plugin
-==================
-
-.. automodule:: sigal.plugins.titleregexp

@@ -85,7 +85,7 @@ This script will then be imported and all defined functions will be available as
 with the same names in your templates.
 
 Documentation of sigal's main classes
--------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: sigal.gallery.Album
    :members:
