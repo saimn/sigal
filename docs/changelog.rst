@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 2.5dev
-~~~~~~~~~~~~~~
+Version 2.5
+~~~~~~~~~~~
 
-Not released yet.
+Released on 2025-02-25.
 
 Sigal now requires Python 3.9+.
 
