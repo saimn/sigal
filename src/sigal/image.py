@@ -76,8 +76,7 @@ def _read_image(file_path):
 
     for w in caught_warnings:
         logger.warning(
-            f"Pillow reported a warning for file {file_path}\n"
-            f"{w.category}: {w.message}"
+            f"Pillow reported a warning for file {file_path}\n{w.category}: {w.message}"
         )
     return im
 
