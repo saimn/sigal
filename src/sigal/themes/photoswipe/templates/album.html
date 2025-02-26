@@ -4,11 +4,11 @@
 {% block extra_head %}
   <link rel="stylesheet" href="{{ theme.url }}/photoswipe.css">
   <script type="module">
-  import PhotoSwipeLightbox from '/static/photoswipe-lightbox.esm.min.js';
-  import PhotoSwipe from '/static/photoswipe.esm.min.js';
-  import PhotoSwipeDynamicCaption from '/static/photoswipe-dynamic-caption-plugin.esm.min.js';
-  import PhotoSwipeFullscreen from '/static/photoswipe-fullscreen.esm.min.js';
-  import PhotoSwipeVideoPlugin from '/static/photoswipe-video-plugin.esm.min.js';
+  import PhotoSwipeLightbox from '{{ theme.url }}/photoswipe-lightbox.esm.min.js';
+  import PhotoSwipe from '{{ theme.url }}/photoswipe.esm.min.js';
+  import PhotoSwipeDynamicCaption from '{{ theme.url }}/photoswipe-dynamic-caption-plugin.esm.min.js';
+  import PhotoSwipeFullscreen from '{{ theme.url }}/photoswipe-fullscreen.esm.min.js';
+  import PhotoSwipeVideoPlugin from '{{ theme.url }}/photoswipe-video-plugin.esm.min.js';
 
   const lightbox = new PhotoSwipeLightbox({
     gallery: '.gallery',
