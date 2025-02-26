@@ -175,12 +175,8 @@ figcaption {
   line-height: 0;
 }
 
-.gallery__img--main a{
-  width: auto;
-  height: auto;
-}
-
 .menu-img,
+.gallery__img--main,
 .gallery__img--secondary {
   width: 25%;
   float:left;
@@ -213,6 +209,7 @@ footer span:not(:last-child):after {
     font-size: 40px;
   }
   .menu-img,
+  .gallery__img--main,
   .gallery__img--secondary {
     width: 33%;
   }
@@ -221,6 +218,7 @@ footer span:not(:last-child):after {
 
 @media screen and (max-width: 500px) {
   .menu-img,
+  .gallery__img--main,
   .gallery__img--secondary {
     width: 50%;
   }
@@ -229,6 +227,7 @@ footer span:not(:last-child):after {
 
 @media screen and (max-width: 300px) {
   .menu-img,
+  .gallery__img--main,
   .gallery__img--secondary {
     width: 100%;
   }
