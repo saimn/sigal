@@ -27,7 +27,7 @@
       {% for media in album.medias -%}
       {
         title: "{{ media.title }}",
-        description: "{{ img_description(media) | e }}",
+        description: {{ img_description(media) | tojson }},
         thumb: "{{ media.thumbnail }}",
         {% if media.big %}
         big: "{{ media.big_url }}",
