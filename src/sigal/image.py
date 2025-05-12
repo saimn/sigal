@@ -99,6 +99,7 @@ def generate_image(source, outname, settings, options=None):
 
     img = _read_image(source)
     original_format = img.format
+    logger.debug("Read %s: %dx%d (%s)", source, *img.size, original_format)
 
     if settings["copy_exif_data"] and settings["autorotate_images"]:
         logger.warning(
@@ -149,7 +150,7 @@ def generate_image(source, outname, settings, options=None):
     # format, or fall back to JPEG
     outformat = settings.get("img_format") or img.format or original_format or "JPEG"
 
-    logger.debug("Save resized image to %s (%s)", outname, outformat)
+    logger.debug("Save resized image: %s, %dx%d (%s)", outname, *img.size, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
@@ -162,6 +163,7 @@ def generate_thumbnail(
     img = _read_image(source)
     img = Transpose().process(img)
     original_format = img.format
+    logger.debug("Read %s: %dx%d (%s)", source, *img.size, original_format)
 
     try:
         method = PILImage.Resampling.LANCZOS
@@ -175,7 +177,7 @@ def generate_thumbnail(
         img.thumbnail(box, method)
 
     outformat = img.format or original_format or "JPEG"
-    logger.debug("Save thumnail image: %s (%s)", outname, outformat)
+    logger.debug("Save thumbnail image: %s, %dx%d (%s)", outname, *img.size, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
