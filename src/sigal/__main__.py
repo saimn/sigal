@@ -237,15 +237,17 @@ def serve(destination, port, config, browser):
         settings = read_settings(config)
         destination = settings.get("destination")
         if not os.path.exists(destination):
-            sys.stderr.write(
+            click.echo(
                 f"The '{destination}' directory doesn't exist, maybe try building"
-                " first?\n"
+                " first?",
+                err=True,
             )
             sys.exit(1)
     else:
-        sys.stderr.write(
+        click.echo(
             f"The {destination} directory doesn't exist "
-            f"and the config file ({config}) could not be read.\n"
+            f"and the config file ({config}) could not be read.",
+            err=True,
         )
         sys.exit(2)
 
@@ -284,10 +286,10 @@ def set_meta(target, keys, overwrite=False):
     """
 
     if not os.path.exists(target):
-        sys.stderr.write(f"The target {target} does not exist.\n")
+        click.echo(f"The target {target} does not exist.", err=True)
         sys.exit(1)
     if len(keys) < 2 or len(keys) % 2 > 0:
-        sys.stderr.write("Need an even number of arguments.\n")
+        click.echo("Need an even number of arguments.", err=True)
         sys.exit(1)
 
     if os.path.isdir(target):
@@ -295,9 +297,10 @@ def set_meta(target, keys, overwrite=False):
     else:
         descfile = os.path.splitext(target)[0] + ".md"
     if os.path.exists(descfile) and not overwrite:
-        sys.stderr.write(
+        click.echo(
             f"Description file '{descfile}' already exists. "
-            "Use --overwrite to overwrite it.\n"
+            "Use --overwrite to overwrite it.",
+            err=True,
         )
         sys.exit(2)
 
