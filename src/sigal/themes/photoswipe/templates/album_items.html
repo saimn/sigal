@@ -1,0 +1,39 @@
+{% from 'description.html' import img_description %}
+
+  {% include 'download_zip.html' %}
+  {% include 'map.html' %}
+  <div class="gallery">
+    {% for media in album.medias %}
+      {% if media.type == "image" %}
+        <figure class="gallery__img--{{ "main" if loop.first else "secondary" }} thumbnail">
+          <a href="{{ media.url }}"
+             data-pswp-width="{{media.size.width}}"
+             data-pswp-height="{{media.size.height}}"
+             {%- if media.big -%}
+             data-big="{{ media.big_url }}"
+             {%- endif -%}
+             >
+             <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
+          </a>
+          <div class="pswp-caption-content">
+            {{ img_description(media, with_big=False) }}
+          </div>
+          <figcaption>{{ media.title }} - {{ media.exif.datetime }}</figcaption>
+        </figure>
+      {% endif %}
+      {% if media.type == "video" %}
+        <figure class="gallery__img--secondary thumbnail" >
+          <a href="{{ media.url }}"
+             data-pswp-type="video"
+             data-pswp-width="800"
+             data-pswp-height="600">
+            <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
+          </a>
+          <div class="pswp-caption-content">
+            {{ img_description(media, with_big=False) }}
+          </div>
+          <figcaption>{{ media_title }}</figcaption>
+        </figure>
+      {% endif %}
+    {% endfor %}
+  </div>
