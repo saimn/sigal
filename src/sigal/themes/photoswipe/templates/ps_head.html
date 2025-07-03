@@ -1,0 +1,51 @@
+{% block extra_head %}
+  <!--
+    FIXME: When this is imported into "album_list.html",
+    {{ theme.url }} is empty
+  -->
+  <link rel="stylesheet" href="{{ theme.url }}/photoswipe.css">
+  <script type="module">
+  import PhotoSwipeLightbox from '{{ theme.url }}/photoswipe-lightbox.esm.min.js';
+  import PhotoSwipe from '{{ theme.url }}/photoswipe.esm.min.js';
+  import PhotoSwipeDynamicCaption from '{{ theme.url }}/photoswipe-dynamic-caption-plugin.esm.min.js';
+  import PhotoSwipeFullscreen from '{{ theme.url }}/photoswipe-fullscreen.esm.min.js';
+  import PhotoSwipeVideoPlugin from '{{ theme.url }}/photoswipe-video-plugin.esm.min.js';
+
+  const lightbox = new PhotoSwipeLightbox({
+    gallery: '.gallery',
+    children: '.thumbnail',
+    pswpModule: PhotoSwipe
+  });
+  const captionPlugin = new PhotoSwipeDynamicCaption(lightbox, {type: 'auto'});
+  const fullscreenPlugin = new PhotoSwipeFullscreen(lightbox);
+  const videoPlugin = new PhotoSwipeVideoPlugin(lightbox, {autoplay: true});
+
+  lightbox.on('uiRegister', function() {
+    lightbox.pswp.ui.registerElement({
+      name: 'download-button',
+      order: 8,
+      isButton: true,
+      tagName: 'a',
+      html: {
+        isCustomSVG: true,
+        inner: '<path d="M20.5 14.3 17.1 18V10h-2.2v7.9l-3.4-3.6L10 16l6 6.1 6-6.1ZM23 23H9v2h14Z" id="pswp__icn-download"/>',
+        outlineID: 'pswp__icn-download'
+      },
+      onInit: (el, pswp) => {
+        el.setAttribute('download', '');
+        el.setAttribute('target', '_blank');
+        el.setAttribute('rel', 'noopener');
+        pswp.on('change', () => {
+          if (pswp.currSlide.data.element.children[0].dataset.big) {
+            el.href = pswp.currSlide.data.element.children[0].dataset.big;
+          } else {
+            el.href = pswp.currSlide.data.src;
+          }
+        });
+      }
+    });
+  });
+
+  lightbox.init();
+  </script>
+{% endblock extra_head %}
