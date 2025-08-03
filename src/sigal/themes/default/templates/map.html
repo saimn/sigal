@@ -19,7 +19,15 @@
 
   var photos = [];
   {% for media in album.medias %}
-    {% if media.exif and media.exif.gps %}
+    {% if media.lat and media.lon %}
+    photos.push({
+      lat: {{ media.lat }},
+      lng: {{ media.lon }},
+      url: "{{ media.thumbnail }}",
+      caption: "{{ media.title }}",
+      thumbnail: "{{ media.thumbnail }}",
+    });
+    {% elif media.exif and media.exif.gps %}
     photos.push({
       lat: {{ media.exif.gps.lat }},
       lng: {{ media.exif.gps.lon }},
