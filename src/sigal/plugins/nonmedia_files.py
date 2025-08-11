@@ -26,6 +26,10 @@ Settings available as dictionary in ``nonmedia_files_options``:
 import logging
 import os
 
+try:  # Optional dependency:
+    from pdf2image import convert_from_path as pdf2img
+except ImportError:
+    pdf2img = None
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageFont
 from pilkit.utils import save_image
@@ -102,9 +106,7 @@ def generate_thumbnail(
     logger.info(f"kwargs: {kwargs}")
     d.text(anchor, text, anchor="mm", **kwargs)
 
-    outformat = "JPEG"
-    logger.info("Save thumnail image: %s (%s)", outname, outformat)
-    save_image(img, outname, outformat, options=options, autoconvert=True)
+    save_image(img, outname, "JPEG", options=options, autoconvert=True)
 
 
 def process_thumb(media):
@@ -113,18 +115,22 @@ def process_thumb(media):
     utils.copy(media.src_path, media.dst_path, symlink=settings["orig_link"])
 
     if plugin_settings.get("ext_as_thumb", DEFAULT_CONFIG["ext_as_thumb"]):
-        logger.info("plugin_settings: %r", plugin_settings)
-        kwargs = {}
-        for key in ("bg_color", "font", "font_color", "font_size"):
-            if f"thumb_{key}" in plugin_settings:
-                kwargs[key] = plugin_settings[f"thumb_{key}"]
-        generate_thumbnail(
-            media.src_ext[1:].upper(),
-            media.thumb_path,
-            settings["thumb_size"],
-            options=settings["jpg_options"],
-            **kwargs,
-        )
+        if pdf2img and media.src_ext.lower() == ".pdf":
+            images = pdf2img(media.src_path, single_file=True, size=settings["thumb_size"])
+            images[0].save(media.thumb_path)
+        else:
+            kwargs = {}
+            for key in ("bg_color", "font", "font_color", "font_size"):
+                if f"thumb_{key}" in plugin_settings:
+                    kwargs[key] = plugin_settings[f"thumb_{key}"]
+            generate_thumbnail(
+                media.src_ext[1:].upper(),
+                media.thumb_path,
+                settings["thumb_size"],
+                options=settings["jpg_options"],
+                **kwargs,
+            )
+        logger.info("Saved thumbnail image: %s", media.thumb_path)
 
 
 def process_nonmedia(media):
