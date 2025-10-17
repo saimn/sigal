@@ -1,7 +1,7 @@
 repos:
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
+  rev: v6.0.0
   hooks:
     - id: check-added-large-files
     - id: check-merge-conflict
@@ -12,7 +12,7 @@ repos:
       exclude: ".*(galleria|photoswipe|jquery|leaflet).*$"
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.12.4
+  rev: v0.14.1
   hooks:
     - id: ruff-check
       args: [ --fix, --show-fixes, --exit-non-zero-on-fix ]
