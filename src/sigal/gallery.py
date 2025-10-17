@@ -918,14 +918,6 @@ class Gallery:
             ) as albums:
                 for album in albums:
                     if album.albums:
-                        if album.medias:
-                            self.logger.warning(
-                                "Album '%s' contains sub-albums and images. "
-                                "Please move images to their own sub-album. "
-                                "Images in album %s will not be visible.",
-                                album.title,
-                                album.title,
-                            )
                         album_list_writer.write(album)
                     else:
                         album_writer.write(album)
