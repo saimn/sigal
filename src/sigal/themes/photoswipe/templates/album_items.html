@@ -9,7 +9,7 @@
           <a href="{{ media.url }}"
              data-pswp-width="{{media.size.width}}"
              data-pswp-height="{{media.size.height}}"
-             {%- if media.big -%}
+             {% if media.big %}
              data-big="{{ media.big_url }}"
              {%- endif -%}
              >

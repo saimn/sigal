@@ -1,9 +1,5 @@
 {% extends "base.html" %}
 
-{% if album.medias %}
-  {% include "ps_head.html" %}
-{% endif %}
-
 {% block content %}
   <div class="album-list">
   {% for alb in album.albums %}
@@ -16,5 +12,7 @@
   {% endfor %}
   </div>
 
-  {% include "album_items.html" %}
+  {% if album.medias %}
+    {% include "album_items.html" %}
+  {% endif %}
 {% endblock %}
