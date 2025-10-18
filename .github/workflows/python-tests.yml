@@ -26,10 +26,10 @@ jobs:
       uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install FFmpeg
+    - name: Install FFmpeg & Poppler 
       run: |
         sudo apt update
-        sudo apt install ffmpeg
+        sudo apt install ffmpeg poppler-utils
         ffmpeg -version
     - name: Install Tox
       run: python -m pip install tox tox-gh-actions coverage
