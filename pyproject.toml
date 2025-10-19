@@ -19,7 +19,7 @@ classifiers = [
     "Topic :: Multimedia :: Graphics :: Viewers",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "blinker",
     "click",
