@@ -25,7 +25,7 @@ dependencies = [
     "click",
     "Jinja2>=2.7",
     "Markdown",
-    "Pillow>=8.0.0",
+    "Pillow>=10.0.0",
     "pilkit",
     "natsort",
 ]
