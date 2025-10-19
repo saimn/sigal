@@ -42,7 +42,7 @@ Javascript libraries:
 - `galleria demo`_
 - `photoswipe demo`_
 
-.. _website: http://sigal.saimon.org/
+.. _website: https://sigal.readthedocs.io/en/latest/
 .. _GitHub: https://github.com/saimn/sigal/
 .. _PyPI: https://pypi.org/project/sigal/
 .. _galleria: https://github.com/GalleriaJS/galleria

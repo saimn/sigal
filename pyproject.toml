@@ -41,7 +41,7 @@ sigal = "sigal.__main__:main"
 
 [project.urls]
 repository = "https://github.com/saimn/sigal"
-documentation = "http://sigal.saimon.org/en/latest/"
+documentation = "https://sigal.readthedocs.io/en/latest/"
 
 [tool.setuptools]
 include-package-data = true
