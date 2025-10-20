@@ -7,6 +7,14 @@ Version 2.6dev
 
 Not released yet.
 
+Sigal now requires Python 3.11+.
+
+- With the photoswipe theme, albums can contain both images and sub-albums
+  [:issue:`535`].
+- Fix issue with latest version of feedgenerator.
+- Fix compat with click 8.2.0.
+- Fix theme URL for photoswipe.
+
 Version 2.5
 ~~~~~~~~~~~
 
