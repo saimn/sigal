@@ -194,7 +194,7 @@ def read_settings(filename=None):
                 settings[p] = abspath(normpath(join(settings_path, path)))
                 logger.debug("Rewrite %s : %s -> %s", p, path, settings[p])
 
-    for key in ("img_size", "thumb_size", "video_size"):
+    for key in ("img_size", "video_size"):
         if settings[key]:
             w, h = settings[key]
             if h > w:

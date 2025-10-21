@@ -16,6 +16,7 @@ Sigal now requires Python 3.11+.
 - Fix theme URL for photoswipe.
 - Thumbnail can now be set in ``index.md`` either with the original filename or
   with the thumbnail name after format conversion [:issue:`476`].
+- Allow portrait orientation for thumbnails [:issue:`531`].
 
 Version 2.5
 ~~~~~~~~~~~
