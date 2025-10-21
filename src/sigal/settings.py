@@ -26,6 +26,8 @@ import os
 from os.path import abspath, isabs, join, normpath
 from pprint import pformat
 
+from PIL import Image as PILImage
+
 _DEFAULT_CONFIG = {
     "albums_sort_attr": "name",
     "albums_sort_reverse": False,
@@ -112,6 +114,20 @@ class Status:
     FAILURE = 1
 
 
+class _ImgExtensions:
+    def __init__(self):
+        # Register all formats
+        PILImage.init()
+
+        self.ext2format = PILImage.EXTENSION
+        self.format2ext = {v: k for k, v in PILImage.EXTENSION.items()}
+        self.format2ext["JPEG"] = ".jpg"  # prefered ext for jpg
+        self.format2ext["PNG"] = ".png"  # prefered ext for png
+
+
+IMG_EXTENSIONS = _ImgExtensions()
+
+
 def get_thumb(settings, filename):
     """Return the path to the thumb.
 
@@ -132,6 +148,11 @@ def get_thumb(settings, filename):
 
     if ext.lower() in settings["video_extensions"]:
         ext = ".jpg"
+
+    imgformat = settings.get("img_format")
+    if imgformat:
+        ext = IMG_EXTENSIONS.format2ext[imgformat]
+
     return join(
         path,
         settings["thumb_dir"],

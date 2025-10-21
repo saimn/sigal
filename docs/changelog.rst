@@ -14,6 +14,8 @@ Sigal now requires Python 3.11+.
 - Fix issue with latest version of feedgenerator.
 - Fix compat with click 8.2.0.
 - Fix theme URL for photoswipe.
+- Thumbnail can now be set in ``index.md`` either with the original filename or
+  with the thumbnail name after format conversion [:issue:`476`].
 
 Version 2.5
 ~~~~~~~~~~~

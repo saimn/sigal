@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import re
+import shutil
 from os.path import join
 
 import pytest
@@ -151,14 +152,14 @@ def test_media_iptc_override(settings):
 
 
 def test_media_img_format(settings):
-    settings["img_format"] = "jpeg"
+    settings["img_format"] = "JPEG"
     m = Image("11.tiff", "dir1/test1", settings)
     path = join("dir1", "test1")
-    thumb = join("thumbnails", "11.tn.jpeg")
+    thumb = join("thumbnails", "11.tn.jpg")
 
-    assert m.dst_filename == "11.jpeg"
+    assert m.dst_filename == "11.jpg"
     assert m.src_path == join(settings["source"], path, "11.tiff")
-    assert m.dst_path == join(settings["destination"], path, "11.jpeg")
+    assert m.dst_path == join(settings["destination"], path, "11.jpg")
     assert m.thumb_name == thumb
     assert m.thumb_path == join(settings["destination"], path, thumb)
     assert m.title == "Foo Bar"
@@ -430,3 +431,27 @@ def test_ignores(settings, tmp_path):
     assert not (tmp_path / "test2").exists()
     assert not (tmp_path / "test1" / "example.gif").exists()
     assert not (tmp_path / "test1" / "CMB_Timeline300_no_WMAP.jpg").exists()
+
+
+@pytest.mark.parametrize("thumbnail", ["outdoor.heic", "outdoor.tn.jpg"])
+def test_thumbnail_with_img_format(settings, tmp_path, thumbnail):
+    """Test that outdoor.heic is correctly converted as jpg and used as thumbnail"""
+    src_path = tmp_path / "pictures"
+    src_path.mkdir()
+    shutil.copytree(
+        os.path.join(settings["source"], "dir1", "test1"), src_path / "test1"
+    )
+    desc = (src_path / "test1" / "index.md").read_text()
+    desc = desc.replace("Thumbnail: 11.jpg", f"Thumbnail: {thumbnail}")
+    (src_path / "test1" / "index.md").write_text(desc)
+
+    settings["img_format"] = "JPEG"
+    settings["thumb_dir"] = ""
+    settings["source"] = str(src_path)
+    settings["destination"] = str(tmp_path / "build")
+    gal = Gallery(settings, ncpu=1)
+    gal.build()
+
+    assert (tmp_path / "build" / "test1" / "outdoor.tn.jpg").is_file()
+    index = (tmp_path / "build" / "index.html").read_text()
+    assert 'src="test1/outdoor.tn.jpg" class="album_thumb"' in index

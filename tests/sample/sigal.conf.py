@@ -4,7 +4,7 @@ source = "pictures"
 thumb_suffix = ".tn"
 keep_orig = True
 thumb_video_delay = 5
-# img_format = 'jpeg'
+# img_format = "JPEG"
 
 links = [
     ("Example link", "http://example.org"),
