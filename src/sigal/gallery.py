@@ -5,6 +5,7 @@
 # Copyright (c) 2017      - Mate Lakat
 # Copyright (c) 2018      - Edwin Steele
 # Copyright (c) 2021      - Tim AtLee
+# Copyright (c) 2024      - Stasinos Konstantopoulos
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -223,7 +224,7 @@ class Media:
 
     def _get_markdown_metadata(self):
         """Get metadata from filename.md."""
-        meta = {"title": "", "description": "", "meta": {}}
+        meta = {"title": "", "description": "", "lat": "", "lon": "", "meta": {}}
         if isfile(self.markdown_metadata_filepath):
             meta.update(read_markdown(self.markdown_metadata_filepath))
         return meta
@@ -286,6 +287,16 @@ class Image(Media):
             meta["description"] = self.file_metadata["iptc"].get("description", "")
 
         return meta
+
+    @cached_property
+    def lat(self):
+        """If not `None`, latitude extracted from the Markdown index.md file."""
+        return self.markdown_metadata.get("lat")
+
+    @cached_property
+    def lon(self):
+        """If not `None`, longitude extracted from the Markdown index.md file."""
+        return self.markdown_metadata.get("lon")
 
     @cached_property
     def raw_exif(self):
