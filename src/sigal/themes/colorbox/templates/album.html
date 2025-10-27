@@ -16,47 +16,49 @@
 
   {% include 'map.html' %}
   <div id="gallery">
-    {% for media in album.medias | selectattr("type", "in", ("image", "video")) %}
+    {% for media in album.medias %}
       {% if loop.index % nb_columns == 1 %}
-      <div id="albums" class="row">
+    <div id="albums" class="row">
       {% endif%}
-      {% if media.type == "image" %}
+      {% if media.thumbnail %}
       <div class="{{ column_size_t }} columns thumbnail">
+      {% if media.type == "image" %}
+        <a class="gallery" title="{{ media.title }}" {{ img_description(media) }}
         {% if 'sigal.plugins.media_page' in settings.plugins %}
-        <a href="{{ media.url}}.html" class="gallery"
-          title="{{ media.title }}"
-          data-href="{{ media.url }}" {{ img_description(media) }}>
+           href="{{ media.url }}.html" data-href="{{ media.url }}"
         {% else %}
-        <a href="{{ media.url }}" class="gallery" title="{{ media.title }}"
-          {{ img_description(media) }}>
+           href="{{ media.url }}"
         {% endif %}
+      {% elif media.type == "video" %}
+        {% set mhash = media.url|replace('.', '')|replace(' ', '') %}
+        {% if 'sigal.plugins.media_page' in settings.plugins %}
+        <a href="{{ media.url }}.html" data-href="#{{ mhash }}"
+        {% else %}
+        <a href="#{{ mhash }}" class="gallery" inline='yes' title="{{ media.url }}"
+        {% endif %}
+        {% if media.big %} data-big="{{ media.big_url }}"{% endif %}
+      {% else %}
+        <a href="{{ media.url }}" title="{{ media.title }}"
+      {% endif %}
+        >
           <img src="{{ media.thumbnail }}" alt="{{ media.url }}"
-              title="{{ media.title }}" /></a>
+               title="{{ media.title }}">
+        </a>
       </div>
       {% endif %}
+
       {% if media.type == "video" %}
-        {% set mhash = media.url|replace('.', '')|replace(' ', '') %}
-        <div class="{{ column_size_t }} columns thumbnail">
-          {% if 'sigal.plugins.media_page' in settings.plugins %}
-          <a href="{{ media.url }}.html" data-href="#{{ mhash }}"
-          {% else %}
-          <a href="#{{ mhash }}" class="gallery" inline='yes' title="{{ media.url }}"
-          {% endif %}
-            {% if media.big %} data-big="{{ media.big_url }}"{% endif %}>
-            <img src="{{ media.thumbnail }}" alt="{{ media.url }}"
-                title="{{ media.title }}" /></a>
+      <!-- This contains the hidden content for the video -->
+      <div style='display:none'>
+        <div id="{{ mhash }}">
+          <video controls>
+          <source src='{{ media.url }}' type='{{ media.mime }}' />
+          </video>
         </div>
-        <!-- This contains the hidden content for the video -->
-        <div style='display:none'>
-          <div id="{{ mhash }}">
-            <video controls>
-            <source src='{{ media.url }}' type='{{ media.mime }}' />
-            </video>
-          </div>
-        </div>
+      </div>
       {% endif %}
       {% if loop.last or loop.index % nb_columns == 0 %}
-      </div>
+    </div>
       {% endif%}
     {% endfor %}
   </div>

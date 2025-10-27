@@ -4,35 +4,27 @@
   {% include 'map.html' %}
   <div class="gallery">
     {% for media in album.medias %}
-      {% if media.type == "image" %}
+      {% if media.thumbnail %}
         <figure class="gallery__img--{{ "main" if loop.first else "secondary" }} thumbnail">
           <a href="{{ media.url }}"
+          {% if media.type == "image" %}
              data-pswp-width="{{media.size.width}}"
              data-pswp-height="{{media.size.height}}"
              {% if media.big %}
              data-big="{{ media.big_url }}"
              {%- endif -%}
-             >
-             <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
-          </a>
-          <div class="pswp-caption-content">
-            {{ img_description(media, with_big=False) }}
-          </div>
-          <figcaption>{{ media.title }} - {{ media.exif.datetime }}</figcaption>
-        </figure>
-      {% endif %}
-      {% if media.type == "video" %}
-        <figure class="gallery__img--secondary thumbnail" >
-          <a href="{{ media.url }}"
+          {% elif media.type == "video" %}
              data-pswp-type="video"
              data-pswp-width="800"
-             data-pswp-height="600">
+             data-pswp-height="600"
+          {% endif %}
+          >
             <img src="{{ media.thumbnail }}" alt="{{ media.url }}" />
           </a>
           <div class="pswp-caption-content">
             {{ img_description(media, with_big=False) }}
           </div>
-          <figcaption>{{ media_title }}</figcaption>
+          <figcaption>{{ media.title }}{{ (" - " + media.exif.datetime) if media.exif else "" }}</figcaption>
         </figure>
       {% endif %}
     {% endfor %}
