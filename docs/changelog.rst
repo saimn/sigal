@@ -2,10 +2,10 @@
  Changelog
 ===========
 
-Version 2.6dev
+Version 2.6
 ~~~~~~~~~~~~~~
 
-Not released yet.
+Released on 2026-02-06.
 
 Sigal now requires Python 3.11+.
 
@@ -17,6 +17,7 @@ Sigal now requires Python 3.11+.
 - Thumbnail can now be set in ``index.md`` either with the original filename or
   with the thumbnail name after format conversion [:issue:`476`].
 - Allow portrait orientation for thumbnails [:issue:`531`].
+- nonmedia_files plugin: adding support for PDF thumbnails [:issue:`536`].
 
 Version 2.5
 ~~~~~~~~~~~
