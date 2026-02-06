@@ -8,11 +8,11 @@ description = "Simple static gallery generator"
 readme = "README.rst"
 authors = [{name = "Simon Conseil", email = "contact@saimon.org"}]
 keywords = ["gallery", "static", "generator", "image", "video", "galleria"]
-license = {text = "MIT License"}
+license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Topic :: Internet :: WWW/HTTP",
@@ -45,7 +45,6 @@ documentation = "https://sigal.readthedocs.io/en/latest/"
 
 [tool.setuptools]
 include-package-data = true
-license-files = ["LICENSE"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

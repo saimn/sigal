@@ -27,7 +27,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Sigal"
-copyright = "2012-2023, Simon Conseil"
+copyright = "2012-2026, Simon Conseil"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
