@@ -24,7 +24,7 @@
           <div class="pswp-caption-content">
             {{ img_description(media, with_big=False) }}
           </div>
-          <figcaption>{{ media.title }}{{ (" - " + media.exif.datetime) if media.exif else "" }}</figcaption>
+          <figcaption>{{ media.title }}{{ (" - " + media.exif.datetime) if media.exif and media.exif.datetime else "" }}</figcaption>
         </figure>
       {% endif %}
     {% endfor %}
