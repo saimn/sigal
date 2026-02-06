@@ -28,7 +28,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
         cache-dependency-path: pyproject.toml
-    - name: Install FFmpeg & Poppler 
+    - name: Install FFmpeg & Poppler
       run: |
         sudo apt update
         sudo apt install ffmpeg poppler-utils

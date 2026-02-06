@@ -119,7 +119,9 @@ def process_thumb(media):
 
     if plugin_settings.get("ext_as_thumb", DEFAULT_CONFIG["ext_as_thumb"]):
         if pdf2img and media.src_ext.lower() == ".pdf":
-            images = pdf2img(media.src_path, single_file=True, size=settings["thumb_size"])
+            images = pdf2img(
+                media.src_path, single_file=True, size=settings["thumb_size"]
+            )
             images[0].save(media.thumb_path)
         else:
             kwargs = {}

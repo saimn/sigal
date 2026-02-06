@@ -36,10 +36,7 @@ def test_img_sizes(tmpdir):
     """Test that image size is swaped if needed."""
 
     conf = tmpdir.join("sigal.conf.py")
-    conf.write(
-        "img_size = (600, 800)\n"
-        "thumb_size = (150, 200)"
-    )
+    conf.write("img_size = (600, 800)\nthumb_size = (150, 200)")
 
     settings = read_settings(str(conf))
     assert settings["img_size"] == (800, 600)
