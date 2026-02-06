@@ -4,8 +4,8 @@ This plugin will copy the files into the build tree and generate generic
 thumbnails for the files.  In-browser previews will likely fail, and
 it is up to the theme to provide correct support for downloads.
 
-If the `pdf2image <https://pypi.org/project/pdf2image/>`_ optional dependency is installed,
-it will be used to generate thumbnails for PDF files.
+If the `pdf2image <https://pypi.org/project/pdf2image/>`_ optional dependency
+is installed, it will be used to generate thumbnails for PDF files.
 
 Settings available as dictionary in ``nonmedia_files_options``:
 

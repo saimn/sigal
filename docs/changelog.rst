@@ -2,10 +2,11 @@
  Changelog
 ===========
 
-Version 2.7dev
-~~~~~~~~~~~~~~
+Version 2.6.1
+~~~~~~~~~~~~~
 
-Not released yet.
+- Fix a bug in photoswipe when some EXIF data does not contain the date
+  information [:issue:`544`].
 
 Version 2.6
 ~~~~~~~~~~~~~~
