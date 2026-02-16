@@ -82,6 +82,8 @@ def url_from_path(path):
 
     if os.sep != "/":
         path = "/".join(path.split(os.sep))
+    if path[0] != ".":
+        path = f"./{path}"
     return quote(path)
 
 
