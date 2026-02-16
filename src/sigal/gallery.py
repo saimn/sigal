@@ -597,6 +597,9 @@ class Album:
             self.logger.debug("Thumbnail for %r : %s", self, self._thumbnail)
             return self._thumbnail
 
+        def _join_url(a, b):
+            return "./" + os.path.normpath(url_quote(a) + "/" + b)
+
         # find and return the first landscape image
         for f in self.medias:
             ext = splitext(f.dst_filename)[1]
@@ -611,7 +614,7 @@ class Album:
 
             if size["width"] > size["height"]:
                 try:
-                    self._thumbnail = url_quote(self.name) + "/" + f.thumbnail
+                    self._thumbnail = _join_url(self.name, f.thumbnail)
                 except Exception as e:
                     self.logger.info(
                         "Failed to get thumbnail for %s: %s", f.dst_filename, e
@@ -629,7 +632,7 @@ class Album:
             for media in self.medias:
                 if media.thumbnail is not None:
                     try:
-                        self._thumbnail = url_quote(self.name) + "/" + media.thumbnail
+                        self._thumbnail = _join_url(self.name, media.thumbnail)
                     except Exception as e:
                         self.logger.info(
                             "Failed to get thumbnail for %s: %s",
@@ -651,7 +654,7 @@ class Album:
         if not self._thumbnail:
             for path, album in self.gallery.get_albums(self.path):
                 if album.thumbnail:
-                    self._thumbnail = url_quote(self.name) + "/" + album.thumbnail
+                    self._thumbnail = _join_url(self.name, album.thumbnail)
                     self.logger.debug(
                         "Using thumbnail from sub-directory for %r : %s",
                         self,

@@ -88,14 +88,14 @@ def test_check_or_create_dir(tmpdir):
 
 
 def test_url_from_path():
-    assert utils.url_from_path(os.sep.join(["foo", "bar"])) == "foo/bar"
+    assert utils.url_from_path(os.sep.join(["foo", "bar"])) == "./foo/bar"
 
 
 def test_url_from_windows_path(monkeypatch):
     monkeypatch.setattr("os.sep", "\\")
     path = os.sep.join(["foo", "bar"])
     assert path == r"foo\bar"
-    assert utils.url_from_path(path) == "foo/bar"
+    assert utils.url_from_path(path) == "./foo/bar"
 
 
 def test_read_markdown():

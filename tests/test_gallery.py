@@ -24,14 +24,14 @@ REF = {
     "dir1": {
         "title": "An example gallery",
         "name": "dir1",
-        "thumbnail": "dir1/test1/thumbnails/11.tn.jpg",
+        "thumbnail": "./dir1/test1/thumbnails/11.tn.jpg",
         "subdirs": ["test1", "test2", "test3"],
         "medias": [],
     },
     "dir1/test1": {
         "title": "An example sub-category",
         "name": "test1",
-        "thumbnail": "test1/thumbnails/11.tn.jpg",
+        "thumbnail": "./test1/thumbnails/11.tn.jpg",
         "subdirs": [],
         "medias": [
             "11.jpg",
@@ -43,21 +43,21 @@ REF = {
     "dir1/test2": {
         "title": "test2",
         "name": "test2",
-        "thumbnail": "test2/thumbnails/21.tn.tiff",
+        "thumbnail": "./test2/thumbnails/21.tn.tiff",
         "subdirs": [],
         "medias": ["21.tiff", "22.jpg", "CMB_Timeline300_no_WMAP.jpg"],
     },
     "dir1/test3": {
         "title": "01 First title alphabetically",
         "name": "test3",
-        "thumbnail": "test3/thumbnails/3.tn.jpg",
+        "thumbnail": "./test3/thumbnails/3.tn.jpg",
         "subdirs": [],
         "medias": ["3.jpg"],
     },
     "dir2": {
         "title": "Another example gallery with a very long name",
         "name": "dir2",
-        "thumbnail": "dir2/thumbnails/m57_the_ring_nebula-587px.tn.jpg",
+        "thumbnail": "./dir2/thumbnails/m57_the_ring_nebula-587px.tn.jpg",
         "subdirs": [],
         "medias": [
             "KeckObservatory20071020.jpg",
@@ -69,21 +69,21 @@ REF = {
     "accentué": {
         "title": "accentué",
         "name": "accentué",
-        "thumbnail": "accentu%C3%A9/thumbnails/h%C3%A9lico%C3%AFde.tn.jpg",
+        "thumbnail": "./accentu%C3%A9/thumbnails/h%C3%A9lico%C3%AFde.tn.jpg",
         "subdirs": [],
         "medias": ["hélicoïde.jpg", "11.jpg"],
     },
     "video": {
         "title": "video",
         "name": "video",
-        "thumbnail": "video/thumbnails/example%20video.tn.jpg",
+        "thumbnail": "./video/thumbnails/example%20video.tn.jpg",
         "subdirs": [],
         "medias": ["example video.ogv"],
     },
     "webp": {
         "title": "webp",
         "name": "webp",
-        "thumbnail": "webp/thumbnails/_MG_7805_lossy80.tn.webp",
+        "thumbnail": "./webp/thumbnails/_MG_7805_lossy80.tn.webp",
         "subdirs": [],
         "medias": ["_MG_7805_lossy80.webp", "_MG_7808_lossy80.webp"],
     },
@@ -123,7 +123,7 @@ def test_media_orig(settings, tmpdir):
 
     m = Video("example video.ogv", "video", settings)
     assert m.dst_filename == "example video.webm"
-    assert m.big_url == "original/example%20video.ogv"
+    assert m.big_url == "./original/example%20video.ogv"
     assert os.path.isfile(join(settings["destination"], m.path, m.big))
 
     settings["use_orig"] = True
@@ -180,7 +180,7 @@ def test_image(settings, tmpdir):
     assert m.exif["datetime"] == "22/01/2006"
 
     os.makedirs(join(settings["destination"], "dir1", "test1", "thumbnails"))
-    assert m.thumbnail == join("thumbnails", "11.tn.jpg")
+    assert m.thumbnail == join(".", "thumbnails", "11.tn.jpg")
     assert os.path.isfile(m.thumb_path)
 
 
@@ -195,7 +195,7 @@ def test_video(settings, tmpdir):
     assert m.dst_path == join(settings["destination"], file_path)
 
     os.makedirs(join(settings["destination"], "video", "thumbnails"))
-    assert m.thumbnail == join("thumbnails", "example%20video.tn.jpg")
+    assert m.thumbnail == join(".", "thumbnails", "example%20video.tn.jpg")
     assert os.path.isfile(m.thumb_path)
 
 
@@ -330,7 +330,7 @@ def test_gallery(settings, tmp_path, caplog):
         html = f.read()
 
     assert "<title>Sigal test gallery - Sigal test gallery ☺</title>" in html
-    assert '<link rel="stylesheet" href="static/my.css">' in html
+    assert '<link rel="stylesheet" href="./static/my.css">' in html
 
     logger = logging.getLogger("sigal")
     logger.setLevel(logging.DEBUG)
@@ -454,4 +454,4 @@ def test_thumbnail_with_img_format(settings, tmp_path, thumbnail):
 
     assert (tmp_path / "build" / "test1" / "outdoor.tn.jpg").is_file()
     index = (tmp_path / "build" / "index.html").read_text()
-    assert 'src="test1/outdoor.tn.jpg" class="album_thumb"' in index
+    assert 'src="./test1/outdoor.tn.jpg" class="album_thumb"' in index
