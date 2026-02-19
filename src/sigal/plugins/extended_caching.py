@@ -38,14 +38,35 @@ from ..utils import get_mod_date
 logger = logging.getLogger(__name__)
 
 
+def _cache_key_global(path, name):
+    """Global (gallery) cache key function"""
+    return os.path.join(path, name)
+
+
+def _cache_key_local(_, name):
+    """Local (album) cache key function"""
+    return name
+
+
 def load_metadata(album):
     """Loads the metadata of all media in an album from cache"""
-    if not hasattr(album.gallery, "metadataCache"):
-        _restore_cache(album.gallery)
-    cache = album.gallery.metadataCache
+    plugin_settings = album.gallery.settings.get("extended_caching_options", {})
+    if plugin_settings.get("global_cache", True):
+        if not hasattr(album.gallery, "metadata_cache"):
+            logger.debug("Loading from global gallery cache")
+            cache_path = os.path.join(album.gallery.settings["destination"], ".metadata_cache")
+            _restore_cache(cache_path, album.gallery)
+        cache = album.gallery.metadata_cache
+        cache_key = _cache_key_global
+    else:
+        if not hasattr(album, "metadata_cache"):
+            logger.debug("Loading from local album cache %s", album.name)
+            _restore_cache(os.path.join(album.dst_path, ".metadata_cache"), album)
+        cache = album.metadata_cache
+        cache_key = _cache_key_local
 
     # load album metadata
-    key = os.path.join(album.path, "_index")
+    key = cache_key(album.path, "_index")
     if key in cache:
         data = cache[key]
 
@@ -62,7 +83,7 @@ def load_metadata(album):
 
     # load media metadata
     for media in album.medias:
-        key = os.path.join(media.path, media.dst_filename)
+        key = cache_key(media.path, media.dst_filename)
         if key in cache:
             data = cache[key]
 
@@ -92,36 +113,47 @@ def load_metadata(album):
                 media.markdown_metadata = data["markdown_metadata"]
 
 
-def _restore_cache(gallery):
+def _restore_cache(cache_path, cache_object):
     """Restores the metadata cache from the cache file"""
-    cachePath = os.path.join(gallery.settings["destination"], ".metadata_cache")
     try:
-        if os.path.exists(cachePath):
-            with open(cachePath, "rb") as cacheFile:
-                gallery.metadataCache = pickle.load(cacheFile)
-                logger.debug("Loaded cache with %d entries", len(gallery.metadataCache))
+        if os.path.exists(cache_path):
+            with open(cache_path, "rb") as cache_file:
+                cache_object.metadata_cache = pickle.load(cache_file)
+                logger.debug("Loaded cache with %d entries", len(cache_object.metadata_cache))
         else:
-            gallery.metadataCache = {}
+            cache_object.metadata_cache = {}
     except Exception as e:
         logger.warning("Could not load cache: %s", e)
-        gallery.metadataCache = {}
+        cache_object.metadata_cache = {}
 
 
-def save_cache(gallery):
+def store_metadata(gallery):
     """Stores the exif data of all images in the gallery"""
-
-    if hasattr(gallery, "metadataCache"):
-        cache = gallery.metadataCache
+    plugin_settings = gallery.settings.get("extended_caching_options", {})
+    global_cache = plugin_settings.get("global_cache", True)
+    if global_cache:
+        logger.debug("Using global gallery cache")
+        if not hasattr(gallery, "metadata_cache"):
+            gallery.metadata_cache = {}
+        cache_key = _cache_key_global
     else:
-        cache = gallery.metadataCache = {}
+        logger.debug("Using local album caches")
+        cache_key = _cache_key_local
 
     for album in gallery.albums.values():
+        if global_cache:
+            cache = gallery.metadata_cache
+        else:
+            if not hasattr(album, "metadata_cache"):
+                album.metadata_cache = {}
+            cache = album.metadata_cache
+
         try:
             data = {
                 "mod_date": int(get_mod_date(album.markdown_metadata_filepath)),
                 "markdown_metadata": album.markdown_metadata,
             }
-            cache[os.path.join(album.path, "_index")] = data
+            cache[cache_key(album.path, "_index")] = data
         except FileNotFoundError:
             pass
 
@@ -147,24 +179,33 @@ def save_cache(gallery):
                 data["meta_mod_date"] = meta_mod_date
                 data["markdown_metadata"] = media.markdown_metadata
 
-            cache[os.path.join(media.path, media.dst_filename)] = data
+            cache[cache_key(media.path, media.dst_filename)] = data
 
-    cachePath = os.path.join(gallery.settings["destination"], ".metadata_cache")
+        if not global_cache:
+            cache_path = os.path.join(album.dst_path, ".metadata_cache")
+            _save_cache(cache_path, cache)
 
+    if global_cache:
+        cache_path = os.path.join(gallery.settings["destination"], ".metadata_cache")
+        _save_cache(cache_path, gallery.metadata_cache)
+
+
+def _save_cache(cache_path, cache):
+    """Stores the metadata cache to the cache file"""
     if len(cache) == 0:
-        if os.path.exists(cachePath):
-            os.remove(cachePath)
+        if os.path.exists(cache_path):
+            os.remove(cache_path)
         return
 
     try:
-        with open(cachePath, "wb") as cacheFile:
-            pickle.dump(cache, cacheFile)
-            logger.debug("Stored cache with %d entries", len(gallery.metadataCache))
+        with open(cache_path, "wb") as cache_file:
+            pickle.dump(cache, cache_file)
+            logger.debug("Stored cache with %d entries", len(cache))
     except Exception as e:
-        logger.warn("Could not store cache: %s", e)
-        os.remove(cachePath)
+        logger.warning("Could not store cache: %s", e)
+        os.remove(cache_path)
 
 
 def register(settings):
-    signals.gallery_build.connect(save_cache)
+    signals.gallery_build.connect(store_metadata)
     signals.album_initialized.connect(load_metadata)
