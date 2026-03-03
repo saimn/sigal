@@ -121,6 +121,7 @@ class _ImgExtensions:
 
         self.ext2format = PILImage.EXTENSION
         self.format2ext = {v: k for k, v in PILImage.EXTENSION.items()}
+        self.format2ext["AVIF"] = ".avif"  # prefered ext for avif
         self.format2ext["JPEG"] = ".jpg"  # prefered ext for jpg
         self.format2ext["PNG"] = ".png"  # prefered ext for png
 
