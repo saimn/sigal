@@ -89,9 +89,10 @@
                 mediaUrl = getAbsoluteUrl(mediaUrl);
 
                 const title = captionDiv ? (captionDiv.querySelector('h2')?.textContent.trim() || 'Photo ' + (index + 1)) : 'Photo ' + (index + 1);
-                const description = captionDiv ? (captionDiv.querySelector('.book-description')?.innerHTML || '') : '';
+                // Extract text content, not HTML, to avoid XML encoding issues
+                const description = captionDiv ? (captionDiv.querySelector('.book-description')?.textContent || '') : '';
                 const filename = captionDiv ? (captionDiv.querySelector('.book-filename')?.textContent || '') : '';
-                const exifHtml = captionDiv ? (captionDiv.querySelector('.book-exif')?.innerHTML || '') : '';
+                const exifText = captionDiv ? (captionDiv.querySelector('.book-exif')?.textContent || '') : '';
 
                 mediaList.push({
                     index: index,
@@ -99,7 +100,7 @@
                     title: title,
                     description: description,
                     filename: filename,
-                    exif: exifHtml,
+                    exif: exifText,
                     isImage: !!img,
                     isVideo: !!video
                 });
@@ -377,20 +378,16 @@
         manifestItems += '    <item id="style" href="style/style.css" media-type="text/css"/>\n';
 
         const nowDate = new Date().toISOString();
-        const isoDate = nowDate.split('T')[0]; // YYYY-MM-DD format
 
         return `<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" version="3.0" unique-identifier="uuid" xml:lang="en">
+<package xmlns="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/" version="3.0" unique-identifier="uuid" xml:lang="en">
   <metadata>
     <dc:identifier id="uuid">urn:uuid:${uuid}</dc:identifier>
     <dc:title>${escapeXml(title)}</dc:title>
     <dc:creator>Sigal Photo Gallery</dc:creator>
-    <dc:publisher>Sigal</dc:publisher>
     <dc:language>en</dc:language>
-    <dc:rights>© Photo Gallery. All rights reserved.</dc:rights>
-    <dcterms:issued>${isoDate}</dcterms:issued>
-    <dcterms:modified>${nowDate}</dcterms:modified>
-    <meta property="dcterms:modified">${nowDate}</meta>
+    <dc:issued>${nowDate}</dc:issued>
+    <meta property="dcterms:modified" xmlns:dcterms="http://purl.org/dc/terms/">${nowDate}</meta>
   </metadata>
   <manifest>
 ${manifestItems}  </manifest>
@@ -411,11 +408,11 @@ ${spineItems}  </spine>
         });
 
         return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
   <head>
-    <title>${escapeXml(title)}</title>
     <meta charset="UTF-8"/>
+    <title>${escapeXml(title)}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" type="text/css" href="style/style.css"/>
   </head>
@@ -560,8 +557,8 @@ body {
         }
 
         let descriptionHtml = '';
-        if (media.description) {
-            descriptionHtml = `    <div class="page-description">${media.description}</div>`;
+        if (media.description && media.description.trim()) {
+            descriptionHtml = `    <div class="page-description">${escapeXml(media.description)}</div>`;
         }
 
         let filenameHtml = '';
@@ -571,15 +568,15 @@ body {
 
         let exifHtml = '';
         if (media.exif && media.exif.trim()) {
-            exifHtml = `    <div class="page-exif">${media.exif}</div>`;
+            exifHtml = `    <div class="page-exif">${escapeXml(media.exif)}</div>`;
         }
 
         return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
   <head>
-    <title>${escapeXml(media.title)}</title>
     <meta charset="UTF-8"/>
+    <title>${escapeXml(media.title)}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   </head>
