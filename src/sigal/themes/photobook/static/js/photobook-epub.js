@@ -438,11 +438,11 @@ ${navItems}      </ol>
     margin: 0;
     padding: 0;
     border: 0;
-    box-sizing: border-box;
 }
 
-html {
-    font-size: 100%;
+html, body {
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -451,70 +451,89 @@ body {
     line-height: 1.5;
     color: #000;
     background-color: #fff;
-    text-align: left;
 }
 
 .page {
-    page-break-after: always;
-    break-after: page;
+    display: block;
+    clear: both;
     margin: 0;
     padding: 1em;
-    width: 100%;
+    page-break-after: always;
+    page-break-inside: avoid;
 }
 
 .page-media {
+    display: block;
+    clear: both;
     text-align: center;
-    margin-bottom: 1.5em;
+    margin: 0 0 2em 0;
+    padding: 0;
 }
 
 .page-media img {
-    max-width: 100%;
-    height: auto;
     display: block;
+    max-width: 100%;
+    max-height: 70%;
+    height: auto;
+    width: auto;
     margin: 0 auto;
+    padding: 0;
+    border: none;
 }
 
 .page-caption {
-    margin-top: 1.5em;
+    display: block;
+    clear: both;
+    margin: 2em 0 0 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
 }
 
 .page-title {
-    font-size: 1.5em;
+    display: block;
+    font-size: 1.3em;
     font-weight: bold;
     margin: 0 0 1em 0;
+    padding: 0;
     color: #000;
-    line-height: 1.3;
 }
 
 .page-description {
+    display: block;
     margin: 1em 0;
+    padding: 0.5em;
     font-size: 0.95em;
     line-height: 1.5;
     color: #333;
     border-left: 0.2em solid #ccc;
-    padding-left: 1em;
 }
 
 .page-filename {
+    display: block;
     margin: 1em 0;
+    padding: 0.5em;
     font-size: 0.9em;
     color: #666;
-    padding: 0.5em;
-    background-color: #f5f5f5;
-    border-left: 0.2em solid #ccc;
+    background-color: #f9f9f9;
+    border-left: 0.2em solid #ddd;
     word-break: break-word;
+    clear: both;
 }
 
 .page-exif {
+    display: block;
     margin: 1em 0;
+    padding: 0;
     font-size: 0.9em;
+    clear: both;
 }
 
 .exif-item {
+    display: block;
     margin: 0.5em 0;
     padding: 0.5em;
-    background-color: #f5f5f5;
-    border-left: 0.2em solid #ccc;
+    background-color: #f9f9f9;
+    border-left: 0.2em solid #ddd;
 }
 
 .exif-label {
@@ -524,7 +543,6 @@ body {
 
 .exif-value {
     color: #666;
-    margin-left: 0.5em;
 }`;
     }
 
