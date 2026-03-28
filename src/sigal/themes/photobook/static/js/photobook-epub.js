@@ -130,8 +130,11 @@
 
             // Check if this is a file:// URL (local file)
             if (url.startsWith('file://')) {
-                console.log('Detected file:// protocol, using Image API');
-                loadImageViaImage(url).then(resolve).catch(reject);
+                console.log('Detected file:// protocol, using XMLHttpRequest');
+                loadImageViaXhr(url).then(resolve).catch(function(err) {
+                    console.warn('XHR failed, fallback to Image API:', err.message);
+                    loadImageViaImage(url).then(resolve).catch(reject);
+                });
                 return;
             }
 
@@ -171,7 +174,7 @@
                     reader.readAsArrayBuffer(blob);
                 } else {
                     // For other formats (PNG, WebP, etc.), convert to JPEG
-                    convertImageToJpeg(blob).then(resolve).catch(reject);
+                    convertBlobToJpeg(blob).then(resolve).catch(reject);
                 }
             })
             .catch(function(err) {
@@ -182,19 +185,136 @@
     }
 
     /**
-     * Load image via Image API and convert to JPEG (works for file:// URLs)
+     * Load image via XMLHttpRequest (works for file:// URLs)
+     */
+    function loadImageViaXhr(url) {
+        return new Promise(function(resolve, reject) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'blob';
+            
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const blob = xhr.response;
+                    console.log('Loaded via XHR, blob size:', blob.size, 'type:', blob.type);
+                    
+                    // If it's already a JPEG, use as-is
+                    if (blob.type === 'image/jpeg' || url.toLowerCase().endsWith('.jpg')) {
+                        const reader = new FileReader();
+                        reader.onload = function() {
+                            resolve(new Uint8Array(reader.result));
+                        };
+                        reader.onerror = function() {
+                            reject(new Error('Failed to read blob'));
+                        };
+                        reader.readAsArrayBuffer(blob);
+                    } else {
+                        // For PNG/WebP, convert to JPEG using canvas
+                        convertBlobToJpeg(blob).then(resolve).catch(reject);
+                    }
+                } else {
+                    reject(new Error('XHR failed with status ' + xhr.status));
+                }
+            };
+            
+            xhr.onerror = function() {
+                reject(new Error('XHR request failed'));
+            };
+            
+            xhr.ontimeout = function() {
+                reject(new Error('XHR request timeout'));
+            };
+            
+            xhr.send();
+        });
+    }
+
+    /**
+     * Convert blob to JPEG safely
+     */
+    function convertBlobToJpeg(blob) {
+        return new Promise(function(resolve, reject) {
+            // Create an object URL for the blob (safe, no tainting)
+            const objectUrl = URL.createObjectURL(blob);
+            const img = new Image();
+            
+            img.onload = function() {
+                console.log('Image loaded, size:', img.width, 'x', img.height);
+                
+                // Create an offscreen canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    URL.revokeObjectURL(objectUrl);
+                    reject(new Error('Failed to get canvas context'));
+                    return;
+                }
+                
+                // Draw to canvas
+                ctx.drawImage(img, 0, 0);
+                
+                // Convert to JPEG blob
+                canvas.toBlob(function(jpegBlob) {
+                    URL.revokeObjectURL(objectUrl);
+                    
+                    if (!jpegBlob) {
+                        reject(new Error('Failed to convert to JPEG'));
+                        return;
+                    }
+                    
+                    console.log('Converted to JPEG, size:', jpegBlob.size);
+                    const jpegReader = new FileReader();
+                    jpegReader.onload = function() {
+                        resolve(new Uint8Array(jpegReader.result));
+                    };
+                    jpegReader.onerror = function() {
+                        reject(new Error('Failed to read JPEG'));
+                    };
+                    jpegReader.readAsArrayBuffer(jpegBlob);
+                }, 'image/jpeg', 0.9);
+            };
+            
+            img.onerror = function() {
+                URL.revokeObjectURL(objectUrl);
+                reject(new Error('Failed to load image for conversion'));
+            };
+            
+            img.src = objectUrl;
+        });
+    }
+
+    /**
+     * Load image via Image API and convert to JPEG (fallback for cross-origin)
      */
     function loadImageViaImage(url) {
         return new Promise(function(resolve, reject) {
             const img = new Image();
+            img.crossOrigin = 'Anonymous';
             
             img.onload = function() {
                 console.log('Image loaded via Image API, size:', img.width, 'x', img.height);
+                
+                // Create a canvas with offscreen context
                 const canvas = document.createElement('canvas');
                 canvas.width = img.width;
                 canvas.height = img.height;
+                
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
+                if (!ctx) {
+                    reject(new Error('Failed to get canvas context'));
+                    return;
+                }
+                
+                try {
+                    ctx.drawImage(img, 0, 0);
+                } catch (e) {
+                    console.warn('Canvas drawing failed (canvas tainted):', e.message);
+                    reject(new Error('Canvas became tainted'));
+                    return;
+                }
                 
                 canvas.toBlob(function(jpegBlob) {
                     if (!jpegBlob) {
@@ -208,14 +328,13 @@
                         resolve(new Uint8Array(jpegReader.result));
                     };
                     jpegReader.onerror = function() {
-                        reject(new Error('Failed to read JPEG data'));
+                        reject(new Error('Failed to read JPEG'));
                     };
                     jpegReader.readAsArrayBuffer(jpegBlob);
                 }, 'image/jpeg', 0.9);
             };
             
             img.onerror = function() {
-                console.error('Failed to load image via Image API:', url);
                 reject(new Error('Failed to load image'));
             };
             
