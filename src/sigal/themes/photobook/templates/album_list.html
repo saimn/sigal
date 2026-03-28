@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="photobook-index">
+  <h2>Albums</h2>
+  <div class="album-outline">
+    {% for alb in album.albums %}
+    <div class="album-item">
+      <a href="{{ alb.url }}" class="album-link">
+        {% if alb.thumbnail %}
+        <img src="{{ alb.thumbnail }}" class="album-thumbnail" alt="{{ alb.name }}" title="{{ alb.name }}" />
+        {% endif %}
+        <div class="album-info">
+          <span class="album-title">{{ alb.title }}</span>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

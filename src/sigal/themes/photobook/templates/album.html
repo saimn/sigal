@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="photobook-controls">
+  <div class="photobook-nav">
+    <button id="outline-btn" class="outline-button active">Outline</button>
+    <button id="slides-btn" class="slides-button">Slides</button>
+    <button id="book-btn" class="book-button">Photo Book</button>
+  </div>
+</div>
+
+<!-- Outline/Index View -->
+<div id="outline-view" class="photobook-view active">
+  <h2>{{ album.title }}</h2>
+  {% if album.description %}
+  <div class="album-description">
+    {{ album.description }}
+  </div>
+  {% endif %}
+  
+  <div class="outline-grid">
+    {% for media in album.medias %}
+    <div class="outline-item" data-media-index="{{ loop.index0 }}">
+      {% if media.thumbnail %}
+      <img src="{{ media.thumbnail }}" alt="{{ media.title }}" class="outline-thumb" />
+      {% endif %}
+      <div class="outline-caption">{{ media.title }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Slides View (Paginated) -->
+<div id="slides-view" class="photobook-view">
+  <div class="photobook-pages" id="photobook-container">
+    {% for media in album.medias %}
+    <div class="photobook-page" data-media-index="{{ loop.index0 }}" data-media-url="{{ media.url }}" data-media-type="{{ media.type }}" data-media-mime="{{ media.mime }}" data-media-title="{{ media.title }}" data-media-filename="{{ media.src_filename }}">
+      <div class="photobook-page-content">
+        <div class="photobook-media clickable-media" role="button" tabindex="0" aria-label="Click to open full size image">
+          {% if media.type == "image" %}
+            <img src="{{ media.url }}" alt="{{ media.title }}" class="photobook-image" />
+          {% elif media.type == "video" %}
+            <video controls class="photobook-video">
+              <source src="{{ media.url }}" type="{{ media.mime }}" />
+              Your browser does not support the video tag.
+            </video>
+          {% endif %}
+          <div class="viewer-hint">Click to view full size</div>
+        </div>
+        
+        <!-- Hidden metadata for viewer -->
+        <div class="media-metadata" style="display: none;">
+          {% if media.description %}<div class="media-description-data">{{ media.description }}</div>{% endif %}
+          {% if media.exif %}<div class="media-exif-data">
+            {% if media.exif.datetime %}<div class="exif-datetime">{{ media.exif.datetime }}</div>{% endif %}
+            {% if media.exif.Make or media.exif.Model %}<div class="exif-camera">{{ media.exif.Make }} {{ media.exif.Model }}</div>{% endif %}
+            {% if media.exif.iso or media.exif.exposure or media.exif.fstop or media.exif.focal %}
+            <div class="exif-settings">
+              {% if media.exif.iso %}<span class="exif-iso">{{ media.exif.iso }}</span>{% endif %}
+              {% if media.exif.exposure %}<span class="exif-exposure">{{ media.exif.exposure }}</span>{% endif %}
+              {% if media.exif.fstop %}<span class="exif-fstop">{{ media.exif.fstop }}</span>{% endif %}
+              {% if media.exif.focal %}<span class="exif-focal">{{ media.exif.focal }}</span>{% endif %}
+            </div>
+            {% endif %}
+            {% if media.exif.gps %}<div class="exif-gps" data-lat="{{ media.exif.gps.lat }}" data-lon="{{ media.exif.gps.lon }}">
+              {{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}
+              {{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}
+            </div>{% endif %}
+          </div>{% endif %}
+        </div>
+        
+        <div class="photobook-caption">
+          <h3>{{ media.title }}</h3>
+          
+          {% if media.description %}
+          <div class="media-description">
+            {{ media.description }}
+          </div>
+          {% endif %}
+          
+          <div class="media-filename">
+            <strong>File:</strong> {{ media.src_filename }}
+          </div>
+          
+          {% if media.exif %}
+          <div class="media-exif">
+            {% if media.exif.datetime %}
+            <div class="exif-item">
+              <strong>Date:</strong> {{ media.exif.datetime }}
+            </div>
+            {% endif %}
+            
+            {% if media.exif.Make or media.exif.Model %}
+            <div class="exif-item">
+              <strong>Camera:</strong> {{ media.exif.Make }} {{ media.exif.Model }}
+            </div>
+            {% endif %}
+            
+            {% if media.exif.iso or media.exif.exposure or media.exif.fstop or media.exif.focal %}
+            <div class="exif-item">
+              <strong>Settings:</strong>
+              {% if media.exif.iso %}<span>ISO {{ media.exif.iso }}</span>{% endif %}
+              {% if media.exif.exposure %}<span>{{ media.exif.exposure }}</span>{% endif %}
+              {% if media.exif.fstop %}<span>{{ media.exif.fstop }}</span>{% endif %}
+              {% if media.exif.focal %}<span>{{ media.exif.focal }}</span>{% endif %}
+            </div>
+            {% endif %}
+            
+            {% if media.exif.gps %}
+            <div class="exif-item">
+              <strong>Location:</strong>
+              <a href="#" data-gps-lat="{{ media.exif.gps.lat }}" data-gps-lon="{{ media.exif.gps.lon }}" class="gps-link" onclick="return false;">
+                {{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}
+                {{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}
+              </a>
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Navigation Controls for Slides -->
+  <div class="photobook-nav-controls">
+    <button id="prev-btn" class="nav-button prev-button">← Previous</button>
+    <div class="page-counter">
+      <span id="current-page">1</span> / <span id="total-pages">{{ album.medias|length }}</span>
+    </div>
+    <button id="next-btn" class="nav-button next-button">Next →</button>
+  </div>
+</div>
+
+<!-- Photo Book View (Continuous) -->
+<div id="book-view" class="photobook-view">
+  <div class="continuous-book" id="continuous-book-container">
+    {% for media in album.medias %}
+    <div class="book-entry">
+      <div class="book-media">
+        {% if media.type == "image" %}
+          <img src="{{ media.url }}" alt="{{ media.title }}" class="book-image" />
+        {% elif media.type == "video" %}
+          <video controls class="book-video">
+            <source src="{{ media.url }}" type="{{ media.mime }}" />
+            Your browser does not support the video tag.
+          </video>
+        {% endif %}
+      </div>
+      
+      <div class="book-caption">
+        <h2>{{ media.title }}</h2>
+        
+        {% if media.description %}
+        <div class="book-description">
+          {{ media.description }}
+        </div>
+        {% endif %}
+        
+        <div class="book-filename">
+          <strong>File:</strong> {{ media.src_filename }}
+        </div>
+        
+        {% if media.exif %}
+        <div class="book-exif">
+          {% if media.exif.datetime %}
+          <div class="book-exif-item">
+            <strong>Date:</strong> {{ media.exif.datetime }}
+          </div>
+          {% endif %}
+          
+          {% if media.exif.Make or media.exif.Model %}
+          <div class="book-exif-item">
+            <strong>Camera:</strong> {{ media.exif.Make }} {{ media.exif.Model }}
+          </div>
+          {% endif %}
+          
+          {% if media.exif.iso or media.exif.exposure or media.exif.fstop or media.exif.focal %}
+          <div class="book-exif-item">
+            <strong>Settings:</strong>
+            {% if media.exif.iso %}<span>ISO {{ media.exif.iso }}</span>{% endif %}
+            {% if media.exif.exposure %}<span>{{ media.exif.exposure }}</span>{% endif %}
+            {% if media.exif.fstop %}<span>{{ media.exif.fstop }}</span>{% endif %}
+            {% if media.exif.focal %}<span>{{ media.exif.focal }}</span>{% endif %}
+          </div>
+          {% endif %}
+          
+          {% if media.exif.gps %}
+          <div class="book-exif-item">
+            <strong>Location:</strong>
+            <a href="#" data-gps-lat="{{ media.exif.gps.lat }}" data-gps-lon="{{ media.exif.gps.lon }}" class="gps-link" onclick="return false;">
+              {{ 'N{:.6f}'.format(media.exif.gps.lat) if media.exif.gps.lat > 0 else 'S{:.6f}'.format(-media.exif.gps.lat) }}
+              {{ 'E{:.6f}'.format(media.exif.gps.lon) if media.exif.gps.lon > 0 else 'W{:.6f}'.format(-media.exif.gps.lon) }}
+            </a>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Media Viewer Modal -->
+<div id="media-viewer" class="media-viewer">
+  <div class="viewer-container">
+    <button id="viewer-close" class="viewer-close" aria-label="Close viewer" title="Close (ESC)">&times;</button>
+    
+    <div class="viewer-content">
+      <img id="viewer-image" class="viewer-image" style="display: none;" alt="Full size image" />
+      <video id="viewer-video" class="viewer-video" controls style="display: none;">
+        <source id="viewer-video-source" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    
+    <div class="viewer-nav">
+      <button id="viewer-prev" class="viewer-nav-btn viewer-prev-btn" title="Previous (←)">‹</button>
+      <button id="viewer-next" class="viewer-nav-btn viewer-next-btn" title="Next (→)">›</button>
+    </div>
+    
+    <div class="viewer-info">
+      <div id="viewer-title" class="viewer-title"></div>
+      <div id="viewer-counter" class="viewer-counter"></div>
+      
+      <!-- Description Section -->
+      <div id="viewer-description-section" class="viewer-section viewer-description-section" style="display: none;">
+        <div id="viewer-description" class="viewer-description"></div>
+      </div>
+      
+      <!-- Filename Section -->
+      <div id="viewer-filename-section" class="viewer-section viewer-filename-section" style="display: none;">
+        <strong>File:</strong> <span id="viewer-filename"></span>
+      </div>
+      
+      <!-- EXIF Section -->
+      <div id="viewer-exif-section" class="viewer-section viewer-exif-section" style="display: none;">
+        <div id="viewer-exif-items" class="viewer-exif-items"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'download_zip.html' %}
+
+{% endblock %}
+
+{% block late_js %}
+<script src="{{ theme.url }}/js/photobook.js"></script>
+<script>
+// Configure map provider if specified in settings
+document.addEventListener('DOMContentLoaded', function() {
+    {% if settings.get('photobook_map_provider') %}
+    if (window.Photobook && window.Photobook.setMapProvider) {
+        window.Photobook.setMapProvider('{{ settings.photobook_map_provider }}');
+    }
+    {% endif %}
+});
+</script>
+
+{% endblock %}
