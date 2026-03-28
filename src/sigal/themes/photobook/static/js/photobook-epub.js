@@ -34,11 +34,36 @@
     }
 
     /**
+     * Convert relative URL to absolute URL
+     */
+    function getAbsoluteUrl(url) {
+        if (!url) return null;
+        if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+            return url;
+        }
+        // Create absolute URL from relative path
+        try {
+            const baseUrl = new URL('.', window.location.href).href;
+            const absoluteUrl = new URL(url, baseUrl).href;
+            console.log('Converted URL:', url, '→', absoluteUrl);
+            return absoluteUrl;
+        } catch (e) {
+            console.warn('Failed to parse URL:', url, e.message);
+            // Fallback: try simple concatenation
+            const baseUrl = window.location.protocol + '//' + window.location.host;
+            const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+            return baseUrl + basePath + (url.startsWith('/') ? url : '/' + url);
+        }
+    }
+
+    /**
      * Get media data from the continuous book container
      */
     function collectMediaData() {
         const mediaList = [];
         const mediaElements = document.querySelectorAll('.book-entry');
+
+        console.log('Found', mediaElements.length, 'book entries');
 
         mediaElements.forEach(function(entry, index) {
             const mediaDiv = entry.querySelector('.book-media');
@@ -47,12 +72,26 @@
             if (mediaDiv) {
                 const img = mediaDiv.querySelector('.book-image');
                 const video = mediaDiv.querySelector('.book-video');
-                const mediaUrl = img ? img.src : (video ? video.querySelector('source')?.src : null);
+                let mediaUrl = null;
+                
+                if (img) {
+                    mediaUrl = img.src;
+                    console.log('Entry', index, ': Found image:', mediaUrl);
+                } else if (video) {
+                    const source = video.querySelector('source');
+                    if (source) {
+                        mediaUrl = source.src;
+                        console.log('Entry', index, ': Found video:', mediaUrl);
+                    }
+                }
 
-                const title = captionDiv ? captionDiv.querySelector('h2')?.textContent.trim() : 'Photo ' + (index + 1);
-                const description = captionDiv ? captionDiv.querySelector('.book-description')?.innerHTML : '';
-                const filename = captionDiv ? captionDiv.querySelector('.book-filename')?.textContent : '';
-                const exifHtml = captionDiv ? captionDiv.querySelector('.book-exif')?.innerHTML : '';
+                // Convert to absolute URL
+                mediaUrl = getAbsoluteUrl(mediaUrl);
+
+                const title = captionDiv ? (captionDiv.querySelector('h2')?.textContent.trim() || 'Photo ' + (index + 1)) : 'Photo ' + (index + 1);
+                const description = captionDiv ? (captionDiv.querySelector('.book-description')?.innerHTML || '') : '';
+                const filename = captionDiv ? (captionDiv.querySelector('.book-filename')?.textContent || '') : '';
+                const exifHtml = captionDiv ? (captionDiv.querySelector('.book-exif')?.innerHTML || '') : '';
 
                 mediaList.push({
                     index: index,
@@ -67,33 +106,119 @@
             }
         });
 
+        console.log('Collected media:', mediaList.length, 'items');
+        console.log('  Images:', mediaList.filter(m => m.isImage).length);
+        console.log('  Videos:', mediaList.filter(m => m.isVideo).length);
+        mediaList.forEach(function(m, idx) {
+            console.log('  [' + idx + ']', 'Type: ' + (m.isImage ? 'IMAGE' : 'VIDEO'), 'URL:', m.url);
+        });
+        
         return mediaList;
     }
 
     /**
-     * Convert image URL to base64 (for local images)
+     * Fetch image as blob with fallback
      */
-    function imageToBase64(url) {
+    function fetchImageAsBlob(url) {
         return new Promise(function(resolve, reject) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
+            if (!url) {
+                reject(new Error('No URL provided'));
+                return;
+            }
 
-            img.crossOrigin = 'Anonymous';
-            img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-                const base64 = dataUrl.split(',')[1];
-                resolve(base64);
+            console.log('Fetching image:', url);
+
+            // Try direct fetch first
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'image/*'
+                },
+                mode: 'cors',
+                credentials: 'same-origin'
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    console.warn('HTTP ' + response.status + ' for image:', url);
+                    throw new Error('HTTP ' + response.status);
+                }
+                console.log('Response headers:', response.headers.get('content-type'), 'size:', response.headers.get('content-length'));
+                return response.blob();
+            })
+            .then(function(blob) {
+                console.log('Got blob, size:', blob.size, 'type:', blob.type);
+                
+                if (blob.size === 0) {
+                    throw new Error('Empty blob received');
+                }
+
+                // If it's a JPEG, use as-is
+                if (blob.type === 'image/jpeg' || url.toLowerCase().endsWith('.jpg')) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        resolve(new Uint8Array(reader.result));
+                    };
+                    reader.onerror = function() {
+                        reject(new Error('Failed to read JPEG blob'));
+                    };
+                    reader.readAsArrayBuffer(blob);
+                } else {
+                    // For other formats (PNG, WebP, etc.), convert to JPEG
+                    convertImageToJpeg(blob).then(resolve).catch(reject);
+                }
+            })
+            .catch(function(err) {
+                console.error('Fetch failed for image:', url, 'error:', err.message);
+                reject(err);
+            });
+        });
+    }
+
+    /**
+     * Convert image blob to JPEG using canvas
+     */
+    function convertImageToJpeg(blob) {
+        return new Promise(function(resolve, reject) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    canvas.toBlob(function(jpegBlob) {
+                        if (!jpegBlob) {
+                            reject(new Error('Failed to convert to JPEG'));
+                            return;
+                        }
+                        
+                        const jpegReader = new FileReader();
+                        jpegReader.onload = function() {
+                            resolve(new Uint8Array(jpegReader.result));
+                        };
+                        jpegReader.onerror = function() {
+                            reject(new Error('Failed to read JPEG data'));
+                        };
+                        jpegReader.readAsArrayBuffer(jpegBlob);
+                    }, 'image/jpeg', 0.9);
+                };
+                
+                img.onerror = function() {
+                    reject(new Error('Failed to load image for conversion'));
+                };
+                
+                img.src = e.target.result;
             };
-
-            img.onerror = function() {
-                reject(new Error('Failed to load image: ' + url));
+            
+            reader.onerror = function() {
+                reject(new Error('Failed to read image blob'));
             };
-
-            img.src = url;
+            
+            reader.readAsDataURL(blob);
         });
     }
 
@@ -374,13 +499,18 @@ ${exifHtml}
         const exportBtn = document.getElementById('epub-export-btn');
         if (!exportBtn) return;
 
+        console.log('Starting EPUB export...');
+
         // Disable button during export
         exportBtn.disabled = true;
         exportBtn.textContent = '⏳ Generating EPUB...';
 
         loadJsZip().then(function() {
+            console.log('JSZip loaded successfully');
             const title = getAlbumTitle();
             const uuid = generateUUID();
+            console.log('Album title:', title);
+            
             const mediaList = collectMediaData();
 
             if (mediaList.length === 0) {
@@ -390,6 +520,10 @@ ${exifHtml}
                 return;
             }
 
+            console.log('Total media items:', mediaList.length);
+            console.log('Images:', mediaList.filter(m => m.isImage).length);
+            console.log('Videos:', mediaList.filter(m => m.isVideo).length);
+
             const zip = new JSZip();
 
             // Add mimetype (must be first and uncompressed)
@@ -398,7 +532,7 @@ ${exifHtml}
             // Create META-INF directory and container.xml
             zip.folder('META-INF').file('container.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-  <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>
+  <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
 </container>`);
 
             // Create OEBPS directory structure
@@ -420,23 +554,39 @@ ${exifHtml}
 
                 // Process image if available
                 if (media.isImage && media.url) {
-                    return imageToBase64(media.url).then(function(base64Data) {
-                        const binaryString = atob(base64Data);
-                        const bytes = new Uint8Array(binaryString.length);
-                        for (let i = 0; i < binaryString.length; i++) {
-                            bytes[i] = binaryString.charCodeAt(i);
-                        }
-                        imagesFolder.file('image_' + idx + '.jpg', bytes);
+                    return fetchImageAsBlob(media.url).then(function(imageBytes) {
+                        console.log('Successfully loaded image', idx, 'size:', imageBytes.length);
+                        imagesFolder.file('image_' + idx + '.jpg', imageBytes);
                     }).catch(function(err) {
-                        console.warn('Failed to load image ' + idx + ':', err);
+                        console.warn('Failed to load image ' + idx + ':', err.message);
+                        // Continue without this image
                     });
                 }
                 return Promise.resolve();
             });
 
+            console.log('Starting image download, total images:', mediaList.filter(m => m.isImage).length);
+
             Promise.all(imagePromises).then(function() {
+                console.log('All images processed, generating EPUB...');
+                
+                // Validate structure
+                const structure = validateZipStructure(zip);
+                console.log('EPUB will contain:');
+                console.log('  - Metadata files: mimetype=' + structure.mimetype + ', container=' + structure.container + ', opf=' + structure.opf);
+                console.log('  - Navigation: ncx=' + structure.ncx + ', css=' + structure.css);
+                console.log('  - Content: images=' + structure.images + ', xhtml pages=' + structure.xhtml);
+
                 // Generate EPUB file
                 zip.generateAsync({ type: 'blob', streamFiles: true }).then(function(blob) {
+                    console.log('EPUB generated successfully');
+                    console.log('  File size:', blob.size, 'bytes', '(' + Math.round(blob.size / 1024) + ' KB)');
+                    console.log('  MIME type:', blob.type);
+                    
+                    if (blob.size < 1000) {
+                        console.warn('WARNING: Generated file is very small. This might indicate a problem with image inclusion.');
+                    }
+                    
                     // Create download link
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
@@ -450,7 +600,13 @@ ${exifHtml}
                     // Re-enable button
                     exportBtn.disabled = false;
                     exportBtn.textContent = '📕 Export EPUB';
-                    alert('EPUB exported successfully!');
+                    
+                    const msg = 'EPUB exported successfully!\n' +
+                                'Size: ' + Math.round(blob.size / 1024) + ' KB\n' +
+                                'Images included: ' + structure.images + '\n' +
+                                'Pages: ' + structure.xhtml;
+                    alert(msg);
+                    console.log(msg.replace(/\n/g, ' | '));
                 }).catch(function(err) {
                     console.error('Error generating EPUB:', err);
                     alert('Error generating EPUB: ' + err.message);
@@ -483,6 +639,36 @@ ${exifHtml}
                 exportToEpub();
             });
         }
+    }
+
+    /**
+     * Validate and log ZIP content structure
+     */
+    function validateZipStructure(zip) {
+        const structure = {
+            mimetype: false,
+            container: false,
+            opf: false,
+            ncx: false,
+            css: false,
+            images: 0,
+            xhtml: 0
+        };
+
+        zip.forEach(function(relativePath, file) {
+            console.log('ZIP contains:', relativePath, '(' + file.dir + ')');
+            
+            if (relativePath === 'mimetype') structure.mimetype = true;
+            if (relativePath === 'META-INF/container.xml') structure.container = true;
+            if (relativePath === 'OEBPS/content.opf') structure.opf = true;
+            if (relativePath === 'OEBPS/toc.ncx') structure.ncx = true;
+            if (relativePath === 'OEBPS/style/style.css') structure.css = true;
+            if (relativePath.startsWith('OEBPS/images/')) structure.images++;
+            if (relativePath.startsWith('OEBPS/xhtml/')) structure.xhtml++;
+        });
+
+        console.log('ZIP Structure validation:', structure);
+        return structure;
     }
 
     // Initialize when DOM is ready
