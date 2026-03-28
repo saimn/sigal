@@ -111,6 +111,12 @@ body {
     cursor: pointer;
     border-radius: 4px;
     transition: all 0.3s ease;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
 }
 
 .outline-button:hover,
@@ -159,12 +165,22 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 20px;
     margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .outline-item {
     text-align: center;
     cursor: pointer;
     transition: transform 0.2s ease;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.outline-item:active {
+    transform: scale(0.98);
 }
 
 .outline-item:hover {
@@ -492,6 +508,7 @@ body {
     background-color: #f5f5f5;
     border-radius: 4px;
     margin-top: 30px;
+    flex-wrap: wrap;
 }
 
 .nav-button {
@@ -505,6 +522,13 @@ body {
     border-radius: 4px;
     transition: all 0.3s ease;
     font-weight: 500;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    min-height: 44px;
 }
 
 .nav-button:hover {
@@ -689,12 +713,12 @@ body {
     }
 
     .outline-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 8px;
     }
 
     .outline-thumb {
-        height: 100px;
+        height: 80px;
     }
 
     .photobook-page-content {
@@ -730,6 +754,21 @@ body {
 
     .book-caption h2 {
         font-size: 18px;
+    }
+
+    .nav-button {
+        padding: 10px 12px;
+        font-size: 13px;
+        min-height: 44px;
+    }
+
+    .page-counter {
+        min-width: 80px;
+        font-size: 13px;
+    }
+
+    .photobook-nav-controls {
+        gap: 10px;
     }
 }
 
@@ -805,10 +844,22 @@ body {
     padding: 0;
     transition: background 0.3s ease;
     z-index: 10001;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    min-height: 44px;
+    min-width: 44px;
 }
 
 .viewer-close:hover {
     background: rgba(255, 255, 255, 0.5);
+}
+
+.viewer-close:active {
+    background: rgba(255, 255, 255, 0.6);
 }
 
 .viewer-nav {
@@ -839,10 +890,22 @@ body {
     pointer-events: all;
     padding: 0;
     line-height: 1;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    min-height: 44px;
+    min-width: 44px;
 }
 
 .viewer-nav-btn:hover {
     background: rgba(255, 255, 255, 0.5);
+}
+
+.viewer-nav-btn:active {
+    background: rgba(255, 255, 255, 0.6);
 }
 
 .viewer-prev-btn {
@@ -962,6 +1025,10 @@ body {
     cursor: pointer;
     position: relative;
     transition: opacity 0.2s ease;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .clickable-media:hover {

@@ -23,6 +23,19 @@
     let viewerMediaData = [];
 
     /**
+     * Add both click and touch handlers to ensure mobile compatibility
+     */
+    function addClickHandler(element, callback) {
+        if (!element) return;
+        element.addEventListener('click', callback);
+        // Also handle touch events for better Android Chrome compatibility
+        element.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            callback.call(this);
+        });
+    }
+
+    /**
      * Initialize the photobook on page load
      */
     function init() {
@@ -49,27 +62,31 @@
             }
         }
 
-        // Event listeners for view switching
-        if (outlineBtn && slidesBtn && bookBtn && outlineView && slidesView && bookView) {
-            outlineBtn.addEventListener('click', function() {
+        // Event listeners for view switching - using separate if blocks for robustness
+        if (outlineBtn) {
+            addClickHandler(outlineBtn, function() {
                 switchView('outline', outlineBtn, slidesBtn, bookBtn, outlineView, slidesView, bookView);
             });
+        }
 
-            slidesBtn.addEventListener('click', function() {
+        if (slidesBtn) {
+            addClickHandler(slidesBtn, function() {
                 switchView('slides', outlineBtn, slidesBtn, bookBtn, outlineView, slidesView, bookView);
             });
+        }
 
-            bookBtn.addEventListener('click', function() {
+        if (bookBtn) {
+            addClickHandler(bookBtn, function() {
                 switchView('book', outlineBtn, slidesBtn, bookBtn, outlineView, slidesView, bookView);
             });
         }
 
         // Event listeners for navigation (slides view only)
         if (prevBtn) {
-            prevBtn.addEventListener('click', previousPage);
+            addClickHandler(prevBtn, previousPage);
         }
         if (nextBtn) {
-            nextBtn.addEventListener('click', nextPage);
+            addClickHandler(nextBtn, nextPage);
         }
 
         // Keyboard navigation
@@ -242,7 +259,7 @@
         const slidesBtn = document.getElementById('slides-btn');
 
         outlineItems.forEach(function(item, index) {
-            item.addEventListener('click', function() {
+            addClickHandler(item, function() {
                 // Switch to slides view
                 if (slidesBtn) {
                     slidesBtn.click();
@@ -262,8 +279,10 @@
         // Handle GPS links in page captions
         const gpsLinks = document.querySelectorAll('.gps-link');
         gpsLinks.forEach(function(link) {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
+            addClickHandler(link, function(e) {
+                if (e) {
+                    e.preventDefault();
+                }
                 const lat = parseFloat(this.getAttribute('data-gps-lat'));
                 const lon = parseFloat(this.getAttribute('data-gps-lon'));
                 
@@ -352,7 +371,7 @@
         // Setup click handlers for clickable media
         const clickableMedia = document.querySelectorAll('.clickable-media');
         clickableMedia.forEach(function(media, index) {
-            media.addEventListener('click', function() {
+            addClickHandler(media, function() {
                 openMediaViewerAtIndex(index);
             });
 
@@ -372,21 +391,28 @@
         const mediaViewer = document.getElementById('media-viewer');
 
         if (viewerClose) {
-            viewerClose.addEventListener('click', closeMediaViewer);
+            addClickHandler(viewerClose, closeMediaViewer);
         }
 
         if (viewerPrevBtn) {
-            viewerPrevBtn.addEventListener('click', viewerPrevious);
+            addClickHandler(viewerPrevBtn, viewerPrevious);
         }
 
         if (viewerNextBtn) {
-            viewerNextBtn.addEventListener('click', viewerNext);
+            addClickHandler(viewerNextBtn, viewerNext);
         }
 
         // Close viewer when clicking on overlay
         if (mediaViewer) {
             mediaViewer.addEventListener('click', function(e) {
                 if (e.target === mediaViewer) {
+                    closeMediaViewer();
+                }
+            });
+            // Also handle touch on overlay
+            mediaViewer.addEventListener('touchend', function(e) {
+                if (e.target === mediaViewer) {
+                    e.preventDefault();
                     closeMediaViewer();
                 }
             });
@@ -623,14 +649,31 @@
     };
 
     // Initialize when DOM is ready
+    // Use multiple approaches to ensure init() runs on all browsers including Android
     if (document.readyState === 'loading') {
+        // DOM is still loading
         document.addEventListener('DOMContentLoaded', function() {
             init();
             setupResizeObserver();
         });
+    } else if (document.readyState === 'interactive') {
+        // DOM is interactive but resources might still be loading
+        // Schedule immediately
+        setTimeout(function() {
+            init();
+            setupResizeObserver();
+        }, 0);
     } else {
+        // DOM is complete
         init();
         setupResizeObserver();
     }
+
+    // Fallback: ensure init runs even if above conditions don't
+    document.addEventListener('DOMContentLoaded', function() {
+        // Re-run setup to catch any elements that might have been missed
+        setupMediaViewer();
+        setupOutlineNavigation();
+    });
 
 })();
