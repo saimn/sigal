@@ -117,7 +117,7 @@
     }
 
     /**
-     * Fetch image as blob with fallback
+     * Fetch image as blob with fallback for file:// protocol
      */
     function fetchImageAsBlob(url) {
         return new Promise(function(resolve, reject) {
@@ -128,7 +128,14 @@
 
             console.log('Fetching image:', url);
 
-            // Try direct fetch first
+            // Check if this is a file:// URL (local file)
+            if (url.startsWith('file://')) {
+                console.log('Detected file:// protocol, using Image API');
+                loadImageViaImage(url).then(resolve).catch(reject);
+                return;
+            }
+
+            // Try direct fetch for http/https URLs
             fetch(url, {
                 method: 'GET',
                 headers: {
@@ -175,59 +182,56 @@
     }
 
     /**
-     * Convert image blob to JPEG using canvas
+     * Load image via Image API and convert to JPEG (works for file:// URLs)
      */
-    function convertImageToJpeg(blob) {
+    function loadImageViaImage(url) {
         return new Promise(function(resolve, reject) {
-            const reader = new FileReader();
+            const img = new Image();
             
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
+            img.onload = function() {
+                console.log('Image loaded via Image API, size:', img.width, 'x', img.height);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                
+                canvas.toBlob(function(jpegBlob) {
+                    if (!jpegBlob) {
+                        reject(new Error('Failed to convert to JPEG'));
+                        return;
+                    }
                     
-                    canvas.toBlob(function(jpegBlob) {
-                        if (!jpegBlob) {
-                            reject(new Error('Failed to convert to JPEG'));
-                            return;
-                        }
-                        
-                        const jpegReader = new FileReader();
-                        jpegReader.onload = function() {
-                            resolve(new Uint8Array(jpegReader.result));
-                        };
-                        jpegReader.onerror = function() {
-                            reject(new Error('Failed to read JPEG data'));
-                        };
-                        jpegReader.readAsArrayBuffer(jpegBlob);
-                    }, 'image/jpeg', 0.9);
-                };
-                
-                img.onerror = function() {
-                    reject(new Error('Failed to load image for conversion'));
-                };
-                
-                img.src = e.target.result;
+                    console.log('Converted to JPEG, size:', jpegBlob.size);
+                    const jpegReader = new FileReader();
+                    jpegReader.onload = function() {
+                        resolve(new Uint8Array(jpegReader.result));
+                    };
+                    jpegReader.onerror = function() {
+                        reject(new Error('Failed to read JPEG data'));
+                    };
+                    jpegReader.readAsArrayBuffer(jpegBlob);
+                }, 'image/jpeg', 0.9);
             };
             
-            reader.onerror = function() {
-                reject(new Error('Failed to read image blob'));
+            img.onerror = function() {
+                console.error('Failed to load image via Image API:', url);
+                reject(new Error('Failed to load image'));
             };
             
-            reader.readAsDataURL(blob);
+            img.src = url;
         });
     }
 
     /**
-     * Create EPUB package.opf metadata file
+     * Create EPUB 3.0 package.opf metadata file
      */
     function createPackageOpf(title, uuid, mediaList) {
         let manifestItems = '';
         let spineItems = '';
+
+        // Add nav.xhtml to manifest
+        manifestItems += '    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>\n';
 
         mediaList.forEach(function(media, idx) {
             if (media.isImage) {
@@ -239,58 +243,53 @@
             spineItems += '    <itemref idref="' + pageId + '"/>\n';
         });
 
-        manifestItems += '    <item id="ncx" href="toc.ncx" media-type="application/x-dtbook+xml"/>\n';
         manifestItems += '    <item id="style" href="style/style.css" media-type="text/css"/>\n';
 
         const nowDate = new Date().toISOString();
 
         return `<?xml version="1.0" encoding="UTF-8"?>
-<package version="2.0" unique-identifier="uuid" xmlns="http://www.idpf.org/2007/opf">
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uuid" xml:lang="en">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:title>${escapeXml(title)}</dc:title>
     <dc:creator>Sigal Photo Gallery</dc:creator>
     <dc:language>en</dc:language>
-    <dc:date>${nowDate}</dc:date>
+    <dc:issued>${nowDate}</dc:issued>
     <dc:identifier id="uuid">${uuid}</dc:identifier>
   </metadata>
   <manifest>
 ${manifestItems}  </manifest>
-  <spine toc="ncx">
+  <spine>
 ${spineItems}  </spine>
 </package>`;
     }
 
     /**
-     * Create EPUB table of contents (toc.ncx)
+     * Create EPUB 3.0 navigation document (nav.xhtml)
      */
-    function createTocNcx(title, mediaList) {
-        let navPoints = '';
+    function createNavXhtml(title, mediaList) {
+        let navItems = '';
 
         mediaList.forEach(function(media, idx) {
             const pageNum = idx + 1;
-            navPoints += `    <navPoint id="navpoint_${idx}" playOrder="${pageNum}">
-      <navLabel>
-        <text>${escapeXml(media.title)}</text>
-      </navLabel>
-      <content src="xhtml/page_${idx}.xhtml"/>
-    </navPoint>\n`;
+            navItems += `    <li><a href="xhtml/page_${idx}.xhtml">${escapeXml(media.title)}</a></li>\n`;
         });
 
         return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
-<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
   <head>
-    <meta name="dtb:uid" content="${generateUUID()}"/>
-    <meta name="dtb:depth" content="1"/>
-    <meta name="dtb:totalPageCount" content="0"/>
-    <meta name="dtb:maxPageNumber" content="0"/>
+    <title>${escapeXml(title)}</title>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="style/style.css"/>
   </head>
-  <docTitle>
-    <text>${escapeXml(title)}</text>
-  </docTitle>
-  <navMap>
-${navPoints}  </navMap>
-</ncx>`;
+  <body>
+    <nav epub:type="toc" id="toc">
+      <h1>Table of Contents</h1>
+      <ol>
+${navItems}      </ol>
+    </nav>
+  </body>
+</html>`;
     }
 
     /**
@@ -428,10 +427,11 @@ body {
         }
 
         return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
   <head>
     <title>${escapeXml(media.title)}</title>
+    <meta charset="UTF-8"/>
     <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   </head>
   <body>
@@ -439,7 +439,7 @@ body {
       <div class="page-content">
 ${mediaHtml}
         <div class="page-caption">
-          <div class="page-title">${escapeXml(media.title)}</div>
+          <h1 class="page-title">${escapeXml(media.title)}</h1>
 ${descriptionHtml}
 ${filenameHtml}
 ${exifHtml}
@@ -532,13 +532,13 @@ ${exifHtml}
             // Create META-INF directory and container.xml
             zip.folder('META-INF').file('container.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-  <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+  <rootfile full-path="OEBPS/package.opf" media-type="application/oebps-package+xml"/>
 </container>`);
 
             // Create OEBPS directory structure
             const oebps = zip.folder('OEBPS');
-            oebps.file('content.opf', createPackageOpf(title, uuid, mediaList));
-            oebps.file('toc.ncx', createTocNcx(title, mediaList));
+            oebps.file('package.opf', createPackageOpf(title, uuid, mediaList));
+            oebps.file('nav.xhtml', createNavXhtml(title, mediaList));
 
             // Create style directory
             oebps.folder('style').file('style.css', createCss());
@@ -572,9 +572,9 @@ ${exifHtml}
                 
                 // Validate structure
                 const structure = validateZipStructure(zip);
-                console.log('EPUB will contain:');
+                console.log('EPUB 3.0 will contain:');
                 console.log('  - Metadata files: mimetype=' + structure.mimetype + ', container=' + structure.container + ', opf=' + structure.opf);
-                console.log('  - Navigation: ncx=' + structure.ncx + ', css=' + structure.css);
+                console.log('  - Navigation: nav=' + structure.nav + ', css=' + structure.css);
                 console.log('  - Content: images=' + structure.images + ', xhtml pages=' + structure.xhtml);
 
                 // Generate EPUB file
@@ -649,7 +649,7 @@ ${exifHtml}
             mimetype: false,
             container: false,
             opf: false,
-            ncx: false,
+            nav: false,
             css: false,
             images: 0,
             xhtml: 0
@@ -660,8 +660,8 @@ ${exifHtml}
             
             if (relativePath === 'mimetype') structure.mimetype = true;
             if (relativePath === 'META-INF/container.xml') structure.container = true;
-            if (relativePath === 'OEBPS/content.opf') structure.opf = true;
-            if (relativePath === 'OEBPS/toc.ncx') structure.ncx = true;
+            if (relativePath === 'OEBPS/package.opf') structure.opf = true;
+            if (relativePath === 'OEBPS/nav.xhtml') structure.nav = true;
             if (relativePath === 'OEBPS/style/style.css') structure.css = true;
             if (relativePath.startsWith('OEBPS/images/')) structure.images++;
             if (relativePath.startsWith('OEBPS/xhtml/')) structure.xhtml++;
