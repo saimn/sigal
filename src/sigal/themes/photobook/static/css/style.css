@@ -403,6 +403,50 @@ body {
     padding: 20px 0;
 }
 
+.book-controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.export-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    color: #333333;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    min-height: 44px;
+}
+
+.export-button:hover {
+    background-color: #eeeeee;
+    border-color: #999999;
+    color: #222222;
+}
+
+.export-button:active {
+    background-color: #dddddd;
+}
+
+.export-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .book-entry {
     page-break-after: always;
     break-after: always;
@@ -630,6 +674,16 @@ body {
         font-size: 15px;
     }
 
+    .book-controls {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+
+    .export-button {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
     .outline-grid {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         gap: 15px;
@@ -710,6 +764,16 @@ body {
 
     body {
         font-size: 14px;
+    }
+
+    .book-controls {
+        padding: 8px;
+        margin-bottom: 12px;
+    }
+
+    .export-button {
+        padding: 8px 12px;
+        font-size: 12px;
     }
 
     .outline-grid {

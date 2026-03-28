@@ -135,6 +135,9 @@
 
 <!-- Photo Book View (Continuous) -->
 <div id="book-view" class="photobook-view">
+  <div class="book-controls">
+    <button id="epub-export-btn" class="export-button" title="Export as EPUB">📕 Export EPUB</button>
+  </div>
   <div class="continuous-book" id="continuous-book-container">
     {% for media in album.medias %}
     <div class="book-entry">
@@ -202,6 +205,7 @@
     {% endfor %}
   </div>
 </div>
+</div>
 
 <!-- Media Viewer Modal -->
 <div id="media-viewer" class="media-viewer">
@@ -249,6 +253,7 @@
 
 {% block late_js %}
 <script src="{{ theme.url }}/js/photobook.js"></script>
+<script src="{{ theme.url }}/js/photobook-epub.js"></script>
 <script>
 // Configure map provider if specified in settings
 document.addEventListener('DOMContentLoaded', function() {
