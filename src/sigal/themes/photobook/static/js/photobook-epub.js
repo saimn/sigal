@@ -194,7 +194,7 @@
             xhr.responseType = 'blob';
             
             xhr.onload = function() {
-                if (xhr.status === 200) {
+                if (xhr.status === 200 || xhr.status === 0) {  // status 0 is OK for file:// URLs
                     const blob = xhr.response;
                     console.log('Loaded via XHR, blob size:', blob.size, 'type:', blob.type);
                     
@@ -218,6 +218,7 @@
             };
             
             xhr.onerror = function() {
+                console.error('XHR request failed for:', url);
                 reject(new Error('XHR request failed'));
             };
             
@@ -230,16 +231,18 @@
     }
 
     /**
-     * Convert blob to JPEG safely
+     * Convert blob to JPEG safely using object URL
      */
     function convertBlobToJpeg(blob) {
         return new Promise(function(resolve, reject) {
-            // Create an object URL for the blob (safe, no tainting)
+            // Create an object URL for the blob (safe, no CORS issues)
             const objectUrl = URL.createObjectURL(blob);
+            console.log('Created object URL, loading image...');
+            
             const img = new Image();
             
             img.onload = function() {
-                console.log('Image loaded, size:', img.width, 'x', img.height);
+                console.log('Image loaded from object URL, size:', img.width, 'x', img.height);
                 
                 // Create an offscreen canvas
                 const canvas = document.createElement('canvas');
@@ -253,8 +256,15 @@
                     return;
                 }
                 
-                // Draw to canvas
-                ctx.drawImage(img, 0, 0);
+                try {
+                    // Draw to canvas
+                    ctx.drawImage(img, 0, 0);
+                } catch (e) {
+                    console.error('Canvas drawing error:', e.message);
+                    URL.revokeObjectURL(objectUrl);
+                    reject(new Error('Canvas drawing failed: ' + e.message));
+                    return;
+                }
                 
                 // Convert to JPEG blob
                 canvas.toBlob(function(jpegBlob) {
@@ -279,9 +289,11 @@
             
             img.onerror = function() {
                 URL.revokeObjectURL(objectUrl);
-                reject(new Error('Failed to load image for conversion'));
+                console.error('Image load error from object URL');
+                reject(new Error('Failed to load image from object URL'));
             };
             
+            // Use object URL instead of file:// directly
             img.src = objectUrl;
         });
     }
