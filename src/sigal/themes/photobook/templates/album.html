@@ -6,6 +6,7 @@
     <button id="outline-btn" class="outline-button active">Outline</button>
     <button id="slides-btn" class="slides-button">Slides</button>
     <button id="book-btn" class="book-button">Photo Book</button>
+    <button id="epub-export-btn" class="export-button" title="Export as EPUB">📕 Export EPUB</button>
   </div>
 </div>
 
@@ -135,9 +136,6 @@
 
 <!-- Photo Book View (Continuous) -->
 <div id="book-view" class="photobook-view">
-  <div class="book-controls">
-    <button id="epub-export-btn" class="export-button" title="Export as EPUB">📕 Export EPUB</button>
-  </div>
   <div class="continuous-book" id="continuous-book-container">
     {% for media in album.medias %}
     <div class="book-entry">

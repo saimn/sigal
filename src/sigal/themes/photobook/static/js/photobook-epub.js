@@ -23,6 +23,21 @@
     }
 
     /**
+     * Sanitize filename for UTF-8 safe export
+     */
+    function sanitizeFilename(filename) {
+        if (!filename) return 'photobook';
+        // Keep alphanumeric, spaces, hyphens, underscores
+        // Replace other special characters with underscore
+        return filename
+            .replace(/[\/:?*"<>|]/g, '_')  // Replace problematic characters
+            .replace(/\s+/g, '_')           // Replace spaces with underscore
+            .replace(/_+/g, '_')            // Collapse multiple underscores
+            .replace(/^_+|_+$/g, '')        // Remove leading/trailing underscores
+            .substring(0, 200);             // Limit filename length
+    }
+
+    /**
      * Get the album title from the page
      */
     function getAlbumTitle() {
@@ -735,7 +750,9 @@ ${exifHtml}
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = title.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '') + '.epub';
+                    // Use UTF-8 safe filename with special character replacement
+                    const sanitizedTitle = sanitizeFilename(title);
+                    link.download = sanitizedTitle + '.epub';
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
