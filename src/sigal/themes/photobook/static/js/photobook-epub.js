@@ -377,15 +377,20 @@
         manifestItems += '    <item id="style" href="style/style.css" media-type="text/css"/>\n';
 
         const nowDate = new Date().toISOString();
+        const isoDate = nowDate.split('T')[0]; // YYYY-MM-DD format
 
         return `<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uuid" xml:lang="en">
-  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<package xmlns="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" version="3.0" unique-identifier="uuid" xml:lang="en">
+  <metadata>
+    <dc:identifier id="uuid">urn:uuid:${uuid}</dc:identifier>
     <dc:title>${escapeXml(title)}</dc:title>
     <dc:creator>Sigal Photo Gallery</dc:creator>
+    <dc:publisher>Sigal</dc:publisher>
     <dc:language>en</dc:language>
-    <dc:issued>${nowDate}</dc:issued>
-    <dc:identifier id="uuid">${uuid}</dc:identifier>
+    <dc:rights>© Photo Gallery. All rights reserved.</dc:rights>
+    <dcterms:issued>${isoDate}</dcterms:issued>
+    <dcterms:modified>${nowDate}</dcterms:modified>
+    <meta property="dcterms:modified">${nowDate}</meta>
   </metadata>
   <manifest>
 ${manifestItems}  </manifest>
@@ -411,6 +416,7 @@ ${spineItems}  </spine>
   <head>
     <title>${escapeXml(title)}</title>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" type="text/css" href="style/style.css"/>
   </head>
   <body>
@@ -427,105 +433,98 @@ ${navItems}      </ol>
      * Create CSS for EPUB pages
      */
     function createCss() {
-        return `/* Photobook EPUB Styles */
+        return `/* Photobook EPUB Styles - Compatible with all readers */
 * {
+    margin: 0;
+    padding: 0;
+    border: 0;
     box-sizing: border-box;
 }
 
-html, body {
-    margin: 0;
-    padding: 0;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background-color: #ffffff;
-    color: #333333;
-    line-height: 1.6;
+html {
+    font-size: 100%;
 }
 
 body {
-    font-size: 14px;
+    font-family: Georgia, serif;
+    font-size: 1em;
+    line-height: 1.5;
+    color: #000;
+    background-color: #fff;
+    text-align: left;
 }
 
 .page {
     page-break-after: always;
     break-after: page;
-    padding: 20px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.page-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    margin: 0;
+    padding: 1em;
+    width: 100%;
 }
 
 .page-media {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    max-height: 60vh;
+    text-align: center;
+    margin-bottom: 1.5em;
 }
 
 .page-media img {
     max-width: 100%;
-    max-height: 100%;
-    width: auto;
     height: auto;
-    object-fit: contain;
+    display: block;
+    margin: 0 auto;
 }
 
 .page-caption {
-    flex: 1;
+    margin-top: 1.5em;
 }
 
 .page-title {
-    font-size: 20px;
-    font-weight: 700;
-    margin: 10px 0 15px 0;
-    color: #222222;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 0 0 1em 0;
+    color: #000;
+    line-height: 1.3;
 }
 
 .page-description {
-    margin: 10px 0;
-    font-size: 14px;
-    line-height: 1.6;
-    color: #444444;
-    background-color: #f9f9f9;
-    padding: 10px;
-    border-left: 3px solid #cccccc;
+    margin: 1em 0;
+    font-size: 0.95em;
+    line-height: 1.5;
+    color: #333;
+    border-left: 0.2em solid #ccc;
+    padding-left: 1em;
 }
 
 .page-filename {
-    margin: 10px 0;
-    padding: 8px;
+    margin: 1em 0;
+    font-size: 0.9em;
+    color: #666;
+    padding: 0.5em;
     background-color: #f5f5f5;
-    border-radius: 3px;
-    font-size: 12px;
-    border-left: 2px solid #cccccc;
-    word-break: break-all;
+    border-left: 0.2em solid #ccc;
+    word-break: break-word;
 }
 
 .page-exif {
-    margin: 10px 0;
-    font-size: 13px;
+    margin: 1em 0;
+    font-size: 0.9em;
 }
 
 .exif-item {
-    margin: 5px 0;
-    padding: 5px;
+    margin: 0.5em 0;
+    padding: 0.5em;
     background-color: #f5f5f5;
-    border-radius: 2px;
-    border-left: 2px solid #cccccc;
+    border-left: 0.2em solid #ccc;
 }
 
 .exif-label {
-    font-weight: 500;
-    color: #333333;
+    font-weight: bold;
+    color: #333;
 }
 
 .exif-value {
-    color: #666666;
+    color: #666;
+    margin-left: 0.5em;
 }`;
     }
 
@@ -537,7 +536,7 @@ body {
         let mediaHtml = '';
 
         if (media.isImage) {
-            mediaHtml = `    <div class="page-media">
+            mediaHtml = `    <div class="page-media" role="figure">
       <img src="../images/image_${idx}.jpg" alt="${escapeXml(media.title)}"/>
     </div>`;
         }
@@ -563,20 +562,19 @@ body {
   <head>
     <title>${escapeXml(media.title)}</title>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   </head>
   <body>
-    <div class="page" epub:type="bodymatter chapter">
-      <div class="page-content">
+    <article class="page" epub:type="bodymatter chapter">
 ${mediaHtml}
-        <div class="page-caption">
-          <h1 class="page-title">${escapeXml(media.title)}</h1>
+      <section class="page-caption">
+        <h1 class="page-title">${escapeXml(media.title)}</h1>
 ${descriptionHtml}
 ${filenameHtml}
 ${exifHtml}
-        </div>
-      </div>
-    </div>
+      </section>
+    </article>
   </body>
 </html>`;
     }
