@@ -35,6 +35,7 @@ from .gallery import Gallery
 from .log import init_logging
 from .settings import read_settings
 from .utils import copy, init_plugins
+from .epub_exporter import EPUBBuilder, MediaFile, VideoThumbnailGenerator
 
 try:
     from .version import __version__
@@ -309,6 +310,101 @@ def set_meta(target, keys, overwrite=False):
             k, v = keys[i * 2 : (i + 1) * 2]
             fp.write(f"{k.capitalize()}: {v}\n")
     print(f"{len(keys) // 2} metadata key(s) written to {descfile}")
+
+
+@main.command()
+@argument("source", type=click.Path(exists=True, file_okay=False, dir_okay=True))
+@option("-o", "--output", type=click.Path(), default=None,
+        help="Output EPUB file path (defaults to album_name.epub in source directory)")
+@option("-t", "--title", default=None,
+        help="EPUB title (defaults to album folder name)")
+@option("-v", "--verbose", is_flag=True,
+        help="Verbose output")
+def export_epub(source, output, title, verbose):
+    """Export photo album as EPUB ebook.
+
+    SOURCE is the directory containing photos/videos.
+
+    Examples:
+
+        sigal export-epub ./my-album
+        sigal export-epub ./my-album -o ~/Books/album.epub -t "My Vacation"
+        sigal export-epub ./photos -v
+    """
+    source_path = pathlib.Path(source).resolve()
+
+    if not source_path.exists():
+        click.echo(f"Error: Source directory not found: {source_path}", err=True)
+        sys.exit(1)
+
+    # Determine output path
+    if output:
+        output_path = pathlib.Path(output).resolve()
+    else:
+        output_path = source_path.parent / f"{source_path.name}.epub"
+
+    if output_path.exists():
+        if not click.confirm(f"Output file exists: {output_path}\nOverwrite?"):
+            click.echo("Aborted.")
+            sys.exit(0)
+
+    # Set title
+    if not title:
+        title = source_path.name
+
+    # Set logging
+    if verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
+    logger = logging.getLogger(__name__)
+
+    try:
+        # Build EPUB
+        builder = EPUBBuilder(title=title, album_path=source_path)
+
+        # Collect media
+        image_exts = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+        video_exts = {'.mp4', '.webm', '.mv', '.avi', '.mov'}
+
+        media_files = sorted([f for f in source_path.iterdir() if f.is_file()])
+
+        for media_file in media_files:
+            suffix = media_file.suffix.lower()
+            if suffix in image_exts:
+                builder.add_media(MediaFile(
+                    path=media_file,
+                    title=media_file.stem,
+                    is_video=False
+                ))
+            elif suffix in video_exts:
+                builder.add_media(MediaFile(
+                    path=media_file,
+                    title=media_file.stem,
+                    is_video=True
+                ))
+
+        if not builder.media_list:
+            click.echo("Error: No media files found in source directory", err=True)
+            sys.exit(1)
+
+        click.echo(f"Found {len(builder.media_list)} media file(s)")
+
+        # Build EPUB
+        if builder.build(output_path):
+            click.echo(f"✓ EPUB created: {output_path}")
+            click.echo(f"  Title: {title}")
+            click.echo(f"  Media: {len(builder.media_list)} items")
+            click.echo(f"  Size: {output_path.stat().st_size / (1024*1024):.1f} MB")
+        else:
+            click.echo("Error: Failed to create EPUB", err=True)
+            sys.exit(1)
+
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        logger.exception("EPUB export failed")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
