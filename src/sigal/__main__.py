@@ -368,11 +368,9 @@ def export_epub(source, output, title, config, verbose):
         if output:
             epub_output_path = pathlib.Path(output).resolve()
         else:
-            # Default to destination/album.epub
-            dest_dir = pathlib.Path(settings['destination']).resolve()
-            dest_dir.mkdir(parents=True, exist_ok=True)
+            # Default to current folder
             album_name = pathlib.Path(settings['source']).name
-            epub_output_path = dest_dir / f"{album_name}.epub"
+            epub_output_path = pathlib.Path.cwd() / f"{album_name}.epub"
         
         if epub_output_path.exists():
             if not click.confirm(f"Output file exists: {epub_output_path}\nOverwrite?"):

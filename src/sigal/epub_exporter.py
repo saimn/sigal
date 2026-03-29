@@ -153,9 +153,21 @@ class EPUBBuilder:
                 .replace("'", '&apos;'))
     
     def _format_description(self, text: str) -> str:
-        """Format description with HTML markup"""
+        """Format description with HTML markup
+        
+        Preserves HTML tags from markdown rendering, only escapes plain text.
+        """
         if not text:
             return ''
+        
+        # Don't escape - description may contain HTML from markdown conversion
+        text = text.strip()
+        
+        # If text already contains HTML tags, it's already formatted - return as-is
+        if '<p>' in text or '<div>' in text or '<h' in text or '<ul>' in text or '<ol>' in text:
+            return text
+        
+        # Otherwise, treat as plain text and convert to HTML
         text = self._escape_xml(text)
         # Convert double newlines to paragraphs
         html = text.replace('\n\n', '</p><p>')
@@ -256,7 +268,7 @@ class EPUBBuilder:
       <div class="video-container">
         <img src="../images/image_{idx}.jpg" alt="{self._escape_xml(media.title)}" class="video-poster"/>
         <div class="video-link-overlay">
-          <a href="../videos/video_{idx}.mp4" class="video-link-btn" epub:type="link">Download Video</a>
+          <p class="video-note">⚠ Video content cannot be played in EPUB readers</p>
         </div>
       </div>
     </div>'''
@@ -386,6 +398,15 @@ html, body {
 
 .video-link-btn:visited {
     color: #ffffff;
+}
+
+.video-note {
+    text-align: center;
+    margin-top: 1em;
+    padding: 0.75em 1.5em;
+    color: #666666;
+    font-size: 0.9em;
+    font-style: italic;
 }
 
 .page-caption {
@@ -530,6 +551,15 @@ body {
 
 .video-link-btn:visited {
     color: #fff;
+}
+
+.video-note {
+    text-align: center;
+    margin-top: 0.75em;
+    padding: 0.5em 1em;
+    color: #666;
+    font-size: 0.85em;
+    font-style: italic;
 }
 
 .page-caption {
@@ -834,6 +864,12 @@ def build_photobook_epub(album, title: str, output_path: pathlib.Path) -> bool:
                     exif_parts.append(f"F-stop: {exif_dict['fstop']}")
                 if exif_dict.get('focal'):
                     exif_parts.append(f"Focal: {exif_dict['focal']}")
+                # Add GPS location if available
+                if exif_dict.get('gps'):
+                    gps = exif_dict['gps']
+                    lat_str = f"N{gps['lat']:.6f}" if gps.get('lat', 0) >= 0 else f"S{-gps['lat']:.6f}"
+                    lon_str = f"E{gps['lon']:.6f}" if gps.get('lon', 0) >= 0 else f"W{-gps['lon']:.6f}"
+                    exif_parts.append(f"Location: {lat_str}, {lon_str}")
                 exif_text = '\n'.join(exif_parts)
             
             # Create media file entry
