@@ -179,14 +179,14 @@ class EPUBBuilder:
         return f'<p>{html}</p>'
     
     def _format_exif(self, exif_text: str, source_file: Optional[str] = None) -> str:
-        """Format EXIF data as structured HTML matching photobook theme book-exif structure
+        """Format EXIF data as structured HTML for multi-column layout
         
         Args:
             exif_text: Newline-separated EXIF data in "Label: Value" format
             source_file: Unused (kept for compatibility)
             
         Returns:
-            HTML formatted EXIF data using book-exif-item structure
+            HTML formatted EXIF data as individual metadata items (no wrapper div)
         """
         if not exif_text:
             return ''
@@ -233,15 +233,15 @@ class EPUBBuilder:
                                 # Default to OpenStreetMap
                                 map_url = f"https://www.openstreetmap.org/?mlat={lat_val}&mlon={lon_val}&zoom=14"
                             
-                            lines.append(f'      <div class="book-exif-item"><strong>{label}:</strong> <a href="{map_url}" class="gps-link">{value}</a></div>')
+                            lines.append(f'      <div class="book-metadata-item"><strong>{label}:</strong> <a href="{map_url}" class="gps-link">{value}</a></div>')
                             continue
                     except (ValueError, IndexError):
                         pass  # Fall through to default formatting
                 
                 # Default formatting for non-GPS lines
-                lines.append(f'      <div class="book-exif-item"><strong>{label}:</strong> <span>{value}</span></div>')
+                lines.append(f'      <div class="book-metadata-item"><strong>{label}:</strong> <span>{value}</span></div>')
             else:
-                lines.append(f'      <div class="book-exif-item">{line}</div>')
+                lines.append(f'      <div class="book-metadata-item">{line}</div>')
         
         if not lines:
             return ''
@@ -332,7 +332,10 @@ class EPUBBuilder:
       <img src="../images/image_{idx}.jpg" alt="{self._escape_xml(media.title)}" class="book-image" />
     </div>'''
         
-        # Description section
+        # Title section
+        title_html = f'    <h2 class="book-title">{self._escape_xml(media.title)}</h2>'
+        
+        # Description section - full width
         description_html = ''
         if media.description:
             description_html = f'''    <div class="book-description">
@@ -340,21 +343,25 @@ class EPUBBuilder:
     </div>
 '''
         
-        # Filename section - display as plain text (no link to avoid Calibre issues)
-        filename_html = ''
-        if media.source_file or media.filename:
-            filename_html = f'''    <div class="book-filename">
-      <strong>File:</strong> {self._escape_xml(media.filename)}
-    </div>
-'''
+        # Filename and EXIF section - multi-column layout
+        metadata_html = ''
+        metadata_parts = []
         
-        # EXIF section using book-exif structure
-        exif_html = ''
-        if media.exif or media.source_file:
+        # Filename section
+        if media.filename:
+            metadata_parts.append(f'''      <div class="book-metadata-item">
+        <strong>File:</strong> {self._escape_xml(media.filename)}
+      </div>''')
+        
+        # EXIF section - individual items in columns
+        if media.exif:
             exif_content = self._format_exif(media.exif, media.source_file)
             if exif_content:
-                exif_html = f'''    <div class="book-exif">
-{exif_content}
+                metadata_parts.append(exif_content)
+        
+        if metadata_parts:
+            metadata_html = f'''    <div class="book-metadata">
+{chr(10).join(metadata_parts)}
     </div>
 '''
         
@@ -371,8 +378,8 @@ class EPUBBuilder:
     <div class="book-entry">
 {book_media_html}
       <div class="book-caption">
-        <h2>{self._escape_xml(media.title)}</h2>
-{description_html}{filename_html}{exif_html}      </div>
+{title_html}
+{description_html}{metadata_html}      </div>
     </div>
   </body>
 </html>'''
@@ -442,6 +449,61 @@ class EPUBBuilder:
     color: #0066cc;
     text-decoration: underline;
     cursor: pointer;
+}
+
+/* Multi-column layout for metadata */
+.book-metadata {
+    display: block;
+    margin: 1.5em 0;
+    padding: 0;
+    font-size: 0.85em;
+    clear: both;
+    column-count: 2;
+    column-gap: 2em;
+}
+
+.book-metadata-item {
+    display: block;
+    margin: 0.5em 0;
+    padding: 0.25em 0;
+    word-break: break-word;
+    line-height: 1.4;
+    break-inside: avoid;
+}
+
+.book-metadata-item strong {
+    font-weight: bold;
+    color: #333;
+}
+
+.book-metadata-item span {
+    color: #666;
+}
+
+/* Full-width description to prevent column breaking */
+.book-description {
+    display: block;
+    margin: 1em 0;
+    padding: 1em;
+    font-size: 0.95em;
+    line-height: 1.6;
+    color: #333;
+    border-left: 3px solid #cccccc;
+    column-count: 1;
+}
+
+.book-description p {
+    margin: 0.5em 0;
+    padding: 0;
+}
+
+.book-title {
+    display: block;
+    font-size: 1.5em;
+    font-weight: 700;
+    margin: 0 0 1em 0;
+    padding: 0;
+    color: #222;
 }
 '''
                         return css_content + epub_overrides
@@ -787,6 +849,61 @@ body {
 
 .gps-link:hover {
     text-decoration: underline;
+}
+
+/* Multi-column layout for metadata */
+.book-metadata {
+    display: block;
+    margin: 1.5em 0;
+    padding: 0;
+    font-size: 0.85em;
+    clear: both;
+    column-count: 2;
+    column-gap: 2em;
+}
+
+.book-metadata-item {
+    display: block;
+    margin: 0.5em 0;
+    padding: 0.25em 0;
+    word-break: break-word;
+    line-height: 1.4;
+    break-inside: avoid;
+}
+
+.book-metadata-item strong {
+    font-weight: bold;
+    color: #333;
+}
+
+.book-metadata-item span {
+    color: #666;
+}
+
+/* Full-width description to prevent column breaking */
+.book-description {
+    display: block;
+    margin: 1em 0;
+    padding: 0.5em;
+    font-size: 0.95em;
+    line-height: 1.5;
+    color: #333;
+    border-left: 0.2em solid #ccc;
+    column-count: 1;
+}
+
+.book-description p {
+    margin: 0.5em 0;
+    padding: 0;
+}
+
+.book-title {
+    display: block;
+    font-size: 1.3em;
+    font-weight: bold;
+    margin: 0 0 1em 0;
+    padding: 0;
+    color: #000;
 }
 '''
     
