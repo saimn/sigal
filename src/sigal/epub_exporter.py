@@ -33,6 +33,7 @@ class MediaFile:
     exif: str = ""
     is_video: bool = False
     filename: str = ""  # Original filename for display
+    source_file: Optional[str] = None  # Path to source file for extraction
     
     def exists(self) -> bool:
         return self.path.exists()
@@ -177,63 +178,81 @@ class EPUBBuilder:
         html = html.replace('\n', '<br/>')
         return f'<p>{html}</p>'
     
-    def _format_exif(self, exif_text: str) -> str:
-        """Format EXIF data as structured HTML"""
-        if not exif_text:
+    def _format_exif(self, exif_text: str, source_file: Optional[str] = None) -> str:
+        """Format EXIF data as structured HTML matching photobook theme
+        
+        Args:
+            exif_text: Newline-separated EXIF data in "Label: Value" format
+            source_file: Optional source file path for download link
+            
+        Returns:
+            HTML formatted EXIF data
+        """
+        if not exif_text and not source_file:
             return ''
         
-        exif_escaped = self._escape_xml(exif_text)
-        lines = [x.strip() for x in exif_escaped.split('\n') if x.strip()]
+        lines = []
         
-        html = '<div class="exif-list">'
-        for line in lines:
-            # Try to parse "Label: Value" format
-            if ':' in line:
-                parts = line.split(':', 1)
-                label = parts[0].strip()
-                value = parts[1].strip()
-                
-                # Check if this is a Location (GPS) line
-                if label.lower() == 'location':
-                    # Parse GPS coordinates: "N37.770000, W122.410000"
-                    try:
-                        coords = value.split(',')
-                        if len(coords) == 2:
-                            lat_str = coords[0].strip()
-                            lon_str = coords[1].strip()
-                            
-                            # Parse latitude (N/S prefix)
-                            lat_dir = lat_str[0]
-                            lat_val = float(lat_str[1:])
-                            if lat_dir == 'S':
-                                lat_val = -lat_val
-                            
-                            # Parse longitude (E/W prefix)
-                            lon_dir = lon_str[0]
-                            lon_val = float(lon_str[1:])
-                            if lon_dir == 'W':
-                                lon_val = -lon_val
-                            
-                            # Create map link based on leaflet provider
-                            if 'Mapbox' in self.leaflet_provider:
-                                map_url = f"https://www.mapbox.com/maps?q={lat_val},{lon_val}&z=14"
-                            elif 'Google' in self.leaflet_provider:
-                                map_url = f"https://maps.google.com/?q={lat_val},{lon_val}"
-                            else:
-                                # Default to OpenStreetMap
-                                map_url = f"https://www.openstreetmap.org/?mlat={lat_val}&mlon={lon_val}&zoom=14"
-                            
-                            html += f'<div class="exif-item"><strong>{label}:</strong> <a href="{map_url}">{value}</a></div>'
-                            continue
-                    except (ValueError, IndexError):
-                        pass  # Fall through to default formatting
-                
-                # Default formatting for non-GPS lines
-                html += f'<div class="exif-item"><strong>{label}:</strong> {value}</div>'
-            else:
-                html += f'<div class="exif-item">{line}</div>'
-        html += '</div>'
-        return html
+        # Add source file link first if available
+        if source_file:
+            lines.append(f'<div class="exif-item"><strong>Source:</strong> <a href="{source_file}" class="source-link">{pathlib.Path(source_file).name}</a></div>')
+        
+        # Parse EXIF lines
+        if exif_text:
+            exif_escaped = self._escape_xml(exif_text)
+            exif_lines = [x.strip() for x in exif_escaped.split('\n') if x.strip()]
+            
+            for line in exif_lines:
+                # Try to parse "Label: Value" format
+                if ':' in line:
+                    parts = line.split(':', 1)
+                    label = parts[0].strip()
+                    value = parts[1].strip()
+                    
+                    # Check if this is a Location (GPS) line
+                    if label.lower() == 'location':
+                        # Parse GPS coordinates: "N37.770000, W122.410000"
+                        try:
+                            coords = value.split(',')
+                            if len(coords) == 2:
+                                lat_str = coords[0].strip()
+                                lon_str = coords[1].strip()
+                                
+                                # Parse latitude (N/S prefix)
+                                lat_dir = lat_str[0]
+                                lat_val = float(lat_str[1:])
+                                if lat_dir == 'S':
+                                    lat_val = -lat_val
+                                
+                                # Parse longitude (E/W prefix)
+                                lon_dir = lon_str[0]
+                                lon_val = float(lon_str[1:])
+                                if lon_dir == 'W':
+                                    lon_val = -lon_val
+                                
+                                # Create map link based on leaflet provider
+                                if 'Mapbox' in self.leaflet_provider:
+                                    map_url = f"https://www.mapbox.com/maps?q={lat_val},{lon_val}&z=14"
+                                elif 'Google' in self.leaflet_provider:
+                                    map_url = f"https://maps.google.com/?q={lat_val},{lon_val}"
+                                else:
+                                    # Default to OpenStreetMap
+                                    map_url = f"https://www.openstreetmap.org/?mlat={lat_val}&mlon={lon_val}&zoom=14"
+                                
+                                lines.append(f'<div class="exif-item"><strong>{label}:</strong> <a href="{map_url}" class="gps-link">{value}</a></div>')
+                                continue
+                        except (ValueError, IndexError):
+                            pass  # Fall through to default formatting
+                    
+                    # Default formatting for non-GPS lines
+                    lines.append(f'<div class="exif-item"><strong>{label}:</strong> <span>{value}</span></div>')
+                else:
+                    lines.append(f'<div class="exif-item">{line}</div>')
+        
+        if not lines:
+            return ''
+        
+        return '<div class="exif-list">' + ''.join(lines) + '</div>'
     
     def _create_container_xml(self) -> str:
         """Create META-INF/container.xml"""
@@ -324,15 +343,10 @@ class EPUBBuilder:
         if media.description:
             description_html = f'    <div class="page-description">{self._format_description(media.description)}</div>'
         
-        # EXIF
+        # EXIF - now includes filename as a clickable source link
         exif_html = ''
-        if media.exif:
-            exif_html = f'    <div class="page-exif">{self._format_exif(media.exif)}</div>'
-        
-        # Filename
-        filename_html = ''
-        if media.filename:
-            filename_html = f'    <div class="page-filename"><em>File: {self._escape_xml(media.filename)}</em></div>'
+        if media.exif or media.source_file:
+            exif_html = f'    <div class="page-exif">{self._format_exif(media.exif, media.source_file)}</div>'
         
         return f'''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -348,7 +362,6 @@ class EPUBBuilder:
 {media_html}
       <section class="page-caption">
         <h1 class="page-title">{self._escape_xml(media.title)}</h1>
-{filename_html}
 {description_html}
 {exif_html}
       </section>
@@ -518,18 +531,20 @@ html, body {
     color: #222222;
 }
 
-.page-filename {
-    display: block;
-    margin: 1em 0;
-    padding: 0;
-    font-size: 0.90em;
+.exif-item span {
     color: #666666;
-    clear: both;
 }
 
-.page-filename em {
-    font-style: italic;
-    color: #555555;
+.source-link,
+.gps-link {
+    color: #0066cc;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.source-link:hover,
+.gps-link:hover {
+    text-decoration: underline;
 }
 '''
         else:
@@ -683,34 +698,53 @@ body {
     color: #333;
 }
 
-.page-filename {
-    display: block;
-    margin: 1em 0;
-    padding: 0;
-    font-size: 0.90em;
+.exif-item span {
     color: #666;
 }
 
-.page-filename em {
-    font-style: italic;
-    color: #555;
+.source-link,
+.gps-link {
+    color: #0066cc;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.source-link:hover,
+.gps-link:hover {
+    text-decoration: underline;
 }
 '''
     
     def _prepare_media(self, output_dir: pathlib.Path) -> bool:
-        """Process media files and generate thumbnails
+        """Process media files and generate thumbnails/images, include source files for extraction
         
         Returns:
             True if successful
         """
         images_dir = output_dir / 'OEBPS' / 'images'
-        videos_dir = output_dir / 'OEBPS' / 'videos'
+        sources_dir = output_dir / 'OEBPS' / 'sources'
         images_dir.mkdir(parents=True, exist_ok=True)
-        videos_dir.mkdir(parents=True, exist_ok=True)
+        sources_dir.mkdir(parents=True, exist_ok=True)
         
         try:
             for idx, media in enumerate(self.media_list):
                 image_path = images_dir / f'image_{idx}.jpg'
+                
+                # Copy source file to sources directory for extraction
+                try:
+                    if media.path.exists():
+                        source_dest = sources_dir / media.path.name
+                        # Avoid name collisions by adding index if needed
+                        if source_dest.exists():
+                            stem = source_dest.stem
+                            suffix = source_dest.suffix
+                            source_dest = sources_dir / f'{stem}_{idx}{suffix}'
+                        shutil.copy2(media.path, source_dest)
+                        # Set the media's source_file to the relative path for linking
+                        media.source_file = f'../sources/{source_dest.name}'
+                        logger.info(f"Copied source file: {source_dest}")
+                except Exception as e:
+                    logger.warning(f"Failed to copy source file {media.path}: {e}")
                 
                 if media.is_video:
                     # Generate thumbnail from video
@@ -721,15 +755,6 @@ body {
                         logger.warning(f"Failed to generate thumbnail for {media.path}")
                         # Create a placeholder if thumbnail generation fails
                         self._create_placeholder_image(image_path)
-                    
-                    # Copy video file to videos directory
-                    try:
-                        video_dest = videos_dir / f'video_{idx}{media.path.suffix}'
-                        if media.path.exists():
-                            shutil.copy2(media.path, video_dest)
-                            logger.info(f"Copied video: {video_dest}")
-                    except Exception as e:
-                        logger.error(f"Failed to copy video: {e}")
                 else:
                     # For images, convert to JPEG
                     if Image:
@@ -918,11 +943,6 @@ def build_photobook_epub(album, title: str, output_path: pathlib.Path,
     # Extract media from album with all metadata
     for media in album.medias:
         try:
-            # Skip videos - they cannot be played in EPUB readers
-            if media.type == 'video':
-                logger.info(f"Skipping video: {media.src_filename}")
-                continue
-            
             # Get media file path (src_path already includes filename)
             media_path = pathlib.Path(media.src_path)
             
@@ -954,14 +974,15 @@ def build_photobook_epub(album, title: str, output_path: pathlib.Path,
                     exif_parts.append(f"Location: {lat_str}, {lon_str}")
                 exif_text = '\n'.join(exif_parts)
             
-            # Create media file entry
+            # Create media file entry (keeps videos for page creation)
             mf = MediaFile(
                 path=media_path,
                 title=getattr(media, 'title', media.src_filename),
                 description=description,
                 exif=exif_text,
-                is_video=False,  # Videos are skipped above
+                is_video=(media.type == 'video'),
                 filename=media.src_filename
+                # source_file will be set during _prepare_media()
             )
             
             if mf.path.exists():
