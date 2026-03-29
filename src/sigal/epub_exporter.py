@@ -1176,6 +1176,50 @@ def build_photobook_epub(album, title: str, output_path: pathlib.Path,
     return builder.build(output_path)
 
 
+def get_album_title(settings: Dict) -> Optional[str]:
+    """Extract album title from settings without building
+    
+    Gets the album title that will be used in the generated index.html
+    by scanning the album structure, without fully building it.
+    
+    Args:
+        settings: Settings dictionary from read_settings()
+        
+    Returns:
+        Album title string, or None if unable to determine
+    """
+    from .gallery import Gallery
+    from .utils import init_plugins
+    
+    source_path = pathlib.Path(settings['source'])
+    
+    if not source_path.exists():
+        logger.error(f"Source directory not found: {source_path}")
+        return None
+    
+    try:
+        # Initialize plugins to get album metadata
+        logger.debug(f"Extracting album title from: {source_path}")
+        init_plugins(settings)
+        gallery = Gallery(settings, show_progress=False)
+        
+        # Get album from gallery without building
+        # The gallery scans the directory structure but doesn't build HTML yet
+        if not gallery.albums:
+            logger.warning("No albums found - using source folder name")
+            return source_path.name
+        
+        # Get first album and return its title
+        album = next(iter(gallery.albums.values()))
+        title = album.title or source_path.name
+        logger.debug(f"Album title for EPUB: {title}")
+        return title
+        
+    except Exception as e:
+        logger.warning(f"Could not extract album title: {e} - using source folder name")
+        return source_path.name
+
+
 def build_album_and_export_epub(settings: Dict,
                                 output_path: pathlib.Path,
                                 title: Optional[str] = None) -> bool:

@@ -8,7 +8,7 @@ import pathlib
 import logging
 import tempfile
 import click
-from sigal.epub_exporter import build_album_and_export_epub
+from sigal.epub_exporter import build_album_and_export_epub, get_album_title
 from sigal.settings import read_settings
 
 logger = logging.getLogger(__name__)
@@ -70,9 +70,13 @@ def export_epub_command(source: str, output: str, title: str, config: str, verbo
         if output:
             epub_output_path = pathlib.Path(output).resolve()
         else:
-            # Default to current folder
-            album_name = pathlib.Path(settings['source']).name
-            epub_output_path = pathlib.Path.cwd() / f"{album_name}.epub"
+            # Get album title from built index.html for default filename
+            album_title = get_album_title(settings)
+            # Sanitize title for use as filename (remove/replace problematic characters)
+            safe_filename = "".join(c if c.isalnum() or c in (' ', '-', '_') else '_' for c in album_title).rstrip()
+            if not safe_filename:
+                safe_filename = pathlib.Path(settings['source']).name
+            epub_output_path = pathlib.Path.cwd() / f"{safe_filename}.epub"
         
         if epub_output_path.exists():
             if not click.confirm(f"Output file exists: {epub_output_path}\nOverwrite?"):
