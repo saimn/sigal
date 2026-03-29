@@ -110,9 +110,11 @@ class EPUBBuilder:
     MIMETYPE_CONTENT = "application/epub+zip"
     
     def __init__(self, title: str = "Photo Gallery", 
-                 album_path: Optional[pathlib.Path] = None):
+                 album_path: Optional[pathlib.Path] = None,
+                 theme: str = "default"):
         self.title = title
         self.album_path = album_path or pathlib.Path.cwd()
+        self.theme = theme
         self.uuid = str(uuid_module.uuid4())
         self.media_list: List[MediaFile] = []
         self.temp_dir = None
@@ -295,8 +297,161 @@ class EPUBBuilder:
 </html>'''
     
     def _create_style_css(self) -> str:
-        """Create OEBPS/style/style.css"""
-        return '''/* Photobook EPUB Styles - Compatible with all readers */
+        """Create OEBPS/style/style.css with theme-specific styling"""
+        if self.theme == 'photobook':
+            return '''/* Photobook Theme EPUB Styles */
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1em;
+    line-height: 1.6;
+    color: #333333;
+    background-color: #ffffff;
+}
+
+.page {
+    display: block;
+    clear: both;
+    margin: 0;
+    padding: 2em 1.5em;
+    page-break-after: always;
+    page-break-inside: avoid;
+    background-color: #ffffff;
+}
+
+.page-media {
+    display: block;
+    clear: both;
+    text-align: center;
+    margin: 0 0 2.5em 0;
+    padding: 0;
+}
+
+.page-media img {
+    display: block;
+    max-width: 100%;
+    max-height: 65%;
+    height: auto;
+    width: auto;
+    margin: 0 auto;
+    padding: 0;
+    border: none;
+    object-fit: contain;
+}
+
+.video-container {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+
+.video-poster {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid #ddd;
+}
+
+.video-link-overlay {
+    text-align: center;
+    margin-top: 1em;
+}
+
+.video-link-btn {
+    display: inline-block;
+    padding: 0.75em 1.5em;
+    background-color: #222222;
+    color: #ffffff;
+    text-decoration: none;
+    border: 1px solid #222222;
+    font-weight: 500;
+    font-size: 0.95em;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.video-link-btn:hover {
+    background-color: #444444;
+    border-color: #444444;
+}
+
+.video-link-btn:visited {
+    color: #ffffff;
+}
+
+.page-caption {
+    display: block;
+    clear: both;
+    margin: 2.5em 0 0 0;
+    padding: 1.5em 0;
+    border-top: 2px solid #e0e0e0;
+}
+
+.page-title {
+    display: block;
+    font-size: 1.5em;
+    font-weight: 700;
+    margin: 0 0 1em 0;
+    padding: 0;
+    color: #222222;
+}
+
+.page-description {
+    display: block;
+    margin: 1em 0;
+    padding: 1em;
+    font-size: 0.95em;
+    line-height: 1.6;
+    color: #333333;
+    background-color: #f9f9f9;
+    border-left: 3px solid #cccccc;
+}
+
+.page-description p {
+    margin: 0.5em 0;
+    padding: 0;
+}
+
+.page-exif {
+    display: block;
+    margin: 1.5em 0;
+    padding: 0;
+    font-size: 0.85em;
+    clear: both;
+}
+
+.exif-list {
+    display: block;
+    padding: 1em;
+    background-color: #f5f5f5;
+    border-left: 3px solid #e0e0e0;
+}
+
+.exif-item {
+    display: block;
+    margin: 0.5em 0;
+    padding: 0.25em 0;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+.exif-item strong {
+    font-weight: 700;
+    color: #222222;
+}
+'''
+        else:
+            # Default/legacy EPUB styling
+            return '''/* Photobook EPUB Styles - Compatible with all readers */
 * {
     margin: 0;
     padding: 0;

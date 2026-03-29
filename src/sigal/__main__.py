@@ -361,8 +361,8 @@ def export_epub(source, output, title, verbose):
     logger = logging.getLogger(__name__)
 
     try:
-        # Build EPUB
-        builder = EPUBBuilder(title=title, album_path=source_path)
+        # Build EPUB with photobook theme
+        builder = EPUBBuilder(title=title, album_path=source_path, theme='photobook')
 
         # Collect media
         image_exts = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}

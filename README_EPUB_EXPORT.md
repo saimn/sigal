@@ -25,11 +25,241 @@ A Python CLI tool for generating EPUB ebooks from photo galleries, with support 
 pip install sigal
 ```
 
-### For development
+## Build Instructions for Sigal with EPUB Export
+
+The new `export-epub` command is already integrated into Sigal's CLI. Here's how to build and install it:
+
+### **Option 1: Editable Installation (Development)**
+
+This is best for local development:
+
 ```bash
 cd /path/to/sigal
 pip install -e .
 ```
+
+This installs Sigal in "editable" mode, meaning:
+- The `sigal` command is immediately available
+- Changes to the code take effect immediately (no reinstall needed)
+- All dependencies are installed
+
+### **Option 2: Standard Installation (Production)**
+
+```bash
+cd /path/to/sigal
+pip install .
+```
+
+This installs Sigal normally. Any code changes would require reinstalling.
+
+### **Option 3: Using Build System**
+
+```bash
+cd /path/to/sigal
+pip install build
+python -m build
+# Creates distribution files in dist/ directory
+```
+
+---
+
+## Verify the Installation
+
+### Check if command is available:
+```bash
+which sigal
+# Should show: /opt/homebrew/bin/sigal
+
+sigal --help
+# Should show all commands including export-epub
+```
+
+### Verify export-epub command:
+```bash
+sigal export-epub --help
+```
+
+Output should show:
+```
+Usage: sigal export-epub SOURCE [OPTIONS]
+
+  Export photo album as EPUB ebook.
+
+Options:
+  -o, --output PATH   Output EPUB file path
+  -t, --title TEXT    EPUB title
+  -v, --verbose       Verbose output
+  --help              Show this message.
+```
+
+---
+
+## Quick Test After Installation
+
+```bash
+# Create test album
+mkdir -p ~/test-photos
+cp ~/Pictures/*.jpg ~/test-photos/
+
+# Use the new command
+sigal export-epub ~/test-photos -t "Test Album" -v
+
+# Verify output
+ls -lh ~/test-photos.epub
+```
+
+---
+
+## Project Structure Overview
+
+```
+/Users/hwang/github/sigal/
+├── pyproject.toml              ← Build configuration
+├── src/sigal/
+│   ├── __main__.py             ← CLI entry point (updated with export-epub)
+│   ├── epub_exporter.py        ← EPUB generation engine (NEW)
+│   ├── gallery.py
+│   ├── image.py
+│   ├── video.py
+│   ├── plugins/
+│   │   └── photobook_cli.py    ← Alternative CLI (optional)
+│   └── themes/
+│       └── photobook/
+│           └── static/js/
+│               └── photobook-epub.js  ← Browser-based EPUB export
+├── tests/
+├── docs/
+└── tox.ini
+```
+
+---
+
+## Build Configuration Details
+
+The pyproject.toml shows:
+
+```toml
+[project.scripts]
+sigal = "sigal.__main__:main"  # Entry point for sigal command
+
+[project]
+requires-python = ">=3.11"
+dependencies = [
+    "blinker",
+    "click",              # ← CLI framework
+    "Jinja2>=2.7",
+    "Markdown",
+    "Pillow>=10.0.0",     # ← Image processing (used by EPUB exporter)
+    "pilkit",
+    "natsort",
+]
+```
+
+All required dependencies are already listed.
+
+---
+
+## Optional: Add ffmpeg for Video Thumbnails
+
+To use video thumbnail extraction, install ffmpeg:
+
+```bash
+# macOS
+brew install ffmpeg
+
+# Verify
+ffmpeg -version
+ffprobe -version
+```
+
+---
+
+## Available Commands After Installation
+
+```bash
+# Build gallery (original Sigal command)
+sigal build
+
+# Serve gallery locally
+sigal serve
+
+# Set metadata
+sigal set_meta
+
+# NEW - Export EPUB
+sigal export-epub ./photos -t "My Album"
+```
+
+---
+
+## Dependencies Summary
+
+| Package | Purpose | Already Installed |
+|---------|---------|------------------|
+| click | CLI framework | ✅ Yes (in pyproject.toml) |
+| Pillow | Image processing | ✅ Yes (required) |
+| Jinja2 | Template engine | ✅ Yes |
+| Markdown | Format parsing | ✅ Yes |
+| ffmpeg | Video thumbnails | ❌ Optional (install separately) |
+
+---
+
+## Installation Troubleshooting
+
+### Issue: "No module named 'sigal'"
+```bash
+# Make sure you're in the right directory
+cd /Users/hwang/github/sigal
+
+# Reinstall in editable mode
+pip install -e .
+```
+
+### Issue: "command not found: sigal"
+```bash
+# Check if pip is installing to correct location
+which python3
+pip3 install -e .  # Use pip3 explicitly
+
+# Verify installation
+pip3 show sigal
+```
+
+### Issue: Changes not reflected
+```bash
+# If using editable install, changes should be immediate
+# If not working, reinstall:
+pip uninstall sigal
+pip install -e .
+```
+
+---
+
+## Recommended Workflow
+
+1. **Install in editable mode** (one-time):
+   ```bash
+   cd /Users/hwang/github/sigal
+   pip install -e .
+   ```
+
+2. **Make changes** to source files if needed
+
+3. **Test immediately**:
+   ```bash
+   sigal export-epub ~/test-photos
+   ```
+
+4. **Changes take effect automatically** (no reinstall needed with `-e` flag)
+
+5. **When ready for distribution**, build package:
+   ```bash
+   python -m build
+   ```
+
+---
+
+**The EPUB export command is already integrated and ready to use!** Just install Sigal and you're good to go. 🚀
 
 ### Install ffmpeg
 **macOS:**
