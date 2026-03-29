@@ -38,6 +38,42 @@
     }
 
     /**
+     * Parse simple markdown and format as HTML
+     */
+    function formatDescription(text) {
+        if (!text) return '';
+        // Escape XML first
+        text = escapeXml(text);
+        // Replace double newlines with paragraph breaks
+        let html = text
+            .replace(/\n\n+/g, '</p><p>')
+            .replace(/\n/g, '<br/>');
+        return '<p>' + html + '</p>';
+    }
+
+    /**
+     * Format EXIF data as structured HTML
+     */
+    function formatExif(exifText) {
+        if (!exifText) return '';
+        exifText = escapeXml(exifText);
+        // Split by common delimiters and format as structured list
+        const lines = exifText.split(/[\n,]/g).map(x => x.trim()).filter(x => x);
+        let html = '<div class="exif-list">';
+        lines.forEach(function(line) {
+            // Try to parse "Label: Value" format
+            const match = line.match(/^([^:]+):\s*(.+)$/);
+            if (match) {
+                html += '<div class="exif-item"><strong>' + match[1] + ':</strong> ' + match[2] + '</div>';
+            } else {
+                html += '<div class="exif-item">' + line + '</div>';
+            }
+        });
+        html += '</div>';
+        return html;
+    }
+
+    /**
      * Get the album title from the page
      */
     function getAlbumTitle() {
@@ -46,6 +82,39 @@
             return heading.textContent.trim();
         }
         return 'Photo Book';
+    }
+
+    /**
+     * Parse simple markdown and format as HTML
+     */
+    function formatDescription(text) {
+        if (!text) return '';
+        // Replace line breaks with <br/>
+        let html = escapeXml(text)
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br/>');
+        return '<p>' + html + '</p>';
+    }
+
+    /**
+     * Format EXIF data as structured HTML
+     */
+    function formatExif(exifText) {
+        if (!exifText) return '';
+        // Split by common delimiters and format as structured list
+        const lines = exifText.split(/[\n,]/g).map(x => x.trim()).filter(x => x);
+        let html = '<div class="exif-list">';
+        lines.forEach(function(line) {
+            // Try to parse "Label: Value" format
+            const match = line.match(/^([^:]+):\s*(.+)$/);
+            if (match) {
+                html += '<div class="exif-item"><strong>' + escapeXml(match[1]) + ':</strong> ' + escapeXml(match[2]) + '</div>';
+            } else {
+                html += '<div class="exif-item">' + escapeXml(line) + '</div>';
+            }
+        });
+        html += '</div>';
+        return html;
     }
 
     /**
@@ -107,7 +176,9 @@
                 // Extract text content, not HTML, to avoid XML encoding issues
                 const description = captionDiv ? (captionDiv.querySelector('.book-description')?.textContent || '') : '';
                 const filename = captionDiv ? (captionDiv.querySelector('.book-filename')?.textContent || '') : '';
-                const exifText = captionDiv ? (captionDiv.querySelector('.book-exif')?.textContent || '') : '';
+                const exifObject = captionDiv ? captionDiv.querySelector('.book-exif') : null;
+                const exifText = exifObject ? exifObject.textContent || '' : '';
+                const exifHtml = exifObject ? exifObject.innerHTML || '' : '';
 
                 mediaList.push({
                     index: index,
@@ -116,6 +187,7 @@
                     description: description,
                     filename: filename,
                     exif: exifText,
+                    exifHtml: exifHtml,
                     isImage: !!img,
                     isVideo: !!video
                 });
@@ -395,14 +467,14 @@
         const nowDate = new Date().toISOString();
 
         return `<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/" version="3.0" unique-identifier="uuid" xml:lang="en">
+<package xmlns="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:opf="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uuid" xml:lang="en" dir="ltr">
   <metadata>
     <dc:identifier id="uuid">urn:uuid:${uuid}</dc:identifier>
     <dc:title>${escapeXml(title)}</dc:title>
-    <dc:creator>Sigal Photo Gallery</dc:creator>
+    <dc:creator opf:role="aut">Sigal Photo Gallery</dc:creator>
     <dc:language>en</dc:language>
-    <dc:issued>${nowDate}</dc:issued>
-    <meta property="dcterms:modified" xmlns:dcterms="http://purl.org/dc/terms/">${nowDate}</meta>
+    <dcterms:issued>${nowDate}</dcterms:issued>
+    <meta property="dcterms:modified">${nowDate}</meta>
   </metadata>
   <manifest>
 ${manifestItems}  </manifest>
@@ -540,22 +612,58 @@ body {
     clear: both;
 }
 
-.exif-item {
+.exif-list {
     display: block;
-    margin: 0.5em 0;
     padding: 0.5em;
     background-color: #f9f9f9;
     border-left: 0.2em solid #ddd;
 }
 
-.exif-label {
+.exif-item {
+    display: block;
+    margin: 0.5em 0;
+    padding: 0.25em 0;
+    word-break: break-word;
+}
+
+.exif-item strong {
     font-weight: bold;
     color: #333;
 }
 
-.exif-value {
-    color: #666;
+.video-container {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+
+.video-poster {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.video-link-overlay {
+    text-align: center;
+    margin-top: 0.75em;
+}
+
+.video-link-btn {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid #000;
+    font-weight: bold;
+    font-size: 0.95em;
+}
+
+.video-link-btn:visited {
+    color: #fff;
 }`;
+    
     }
 
     /**
@@ -569,21 +677,31 @@ body {
             mediaHtml = `    <div class="page-media" role="figure">
       <img src="../images/image_${idx}.jpg" alt="${escapeXml(media.title)}"/>
     </div>`;
+        } else if (media.isVideo) {
+            // For videos, show thumbnail with link to external video file
+            mediaHtml = `    <div class="page-media" role="figure">
+      <div class="video-container">
+        <img src="../images/image_${idx}.jpg" alt="${escapeXml(media.title)} - click to download video" class="video-poster"/>
+        <div class="video-link-overlay">
+          <a href="../videos/video_${idx}.mp4" class="video-link-btn" epub:type="link">Download Video</a>
+        </div>
+      </div>
+    </div>`;
         }
 
         let descriptionHtml = '';
         if (media.description && media.description.trim()) {
-            descriptionHtml = `    <div class="page-description">${escapeXml(media.description)}</div>`;
+            descriptionHtml = `    <div class="page-description">${formatDescription(media.description)}</div>`;
         }
 
         let filenameHtml = '';
         if (media.filename && media.filename.trim()) {
-            filenameHtml = `    <div class="page-filename">${escapeXml(media.filename)}</div>`;
+            filenameHtml = `    <div class="page-filename"><strong>File:</strong> ${escapeXml(media.filename)}</div>`;
         }
 
         let exifHtml = '';
         if (media.exif && media.exif.trim()) {
-            exifHtml = `    <div class="page-exif">${escapeXml(media.exif)}</div>`;
+            exifHtml = `    <div class="page-exif">${formatExif(media.exif)}</div>`;
         }
 
         return `<?xml version="1.0" encoding="UTF-8"?>
@@ -711,13 +829,13 @@ ${exifHtml}
                 // Create XHTML page
                 xhtmlFolder.file('page_' + idx + '.xhtml', createXhtmlPage(media, idx));
 
-                // Process image if available
-                if (media.isImage && media.url) {
+                // Process image or video poster
+                if ((media.isImage || media.isVideo) && media.url) {
                     return fetchImageAsBlob(media.url).then(function(imageBytes) {
-                        console.log('Successfully loaded image', idx, 'size:', imageBytes.length);
+                        console.log('Successfully loaded media', idx, 'size:', imageBytes.length);
                         imagesFolder.file('image_' + idx + '.jpg', imageBytes);
                     }).catch(function(err) {
-                        console.warn('Failed to load image ' + idx + ':', err.message);
+                        console.warn('Failed to load media ' + idx + ':', err.message);
                         // Continue without this image
                     });
                 }
