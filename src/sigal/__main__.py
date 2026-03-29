@@ -360,44 +360,16 @@ def export_epub(source, output, title, verbose):
     logger = logging.getLogger(__name__)
 
     try:
-        from .gallery import Gallery
-        from .settings import read_settings
-        from .utils import init_plugins
-        import tempfile
+        from .epub_exporter import export_photobook_album_to_epub
         
-        # Create settings with photobook theme
-        settings = read_settings(None)
-        settings['source'] = str(source_path)
-        settings['theme'] = 'photobook'
-        settings['destination'] = str(pathlib.Path(tempfile.gettempdir()) / 'sigal_epub_build')
+        click.echo("Building album with photobook theme...")
         
-        # Initialize plugins and build gallery
-        init_plugins(settings)
-        gallery = Gallery(settings, show_progress=False)
-        
-        click.echo(f"Found {len(gallery.albums)} album(s)")
-        
-        # Build EPUB from gallery using photobook theme
-        if gallery.albums:
-            album = next(iter(gallery.albums.values()))
-            click.echo(f"Generating EPUB from album: {album.title}")
-            
-            if album.medias:
-                from .epub_exporter import build_photobook_epub
-                
-                if build_photobook_epub(album, title or album.title, output_path):
-                    click.echo(f"✓ EPUB created: {output_path}")
-                    click.echo(f"  Title: {title or album.title}")
-                    click.echo(f"  Media: {len(album.medias)} items")
-                    click.echo(f"  Size: {output_path.stat().st_size / (1024*1024):.1f} MB")
-                else:
-                    click.echo("Error: Failed to create EPUB", err=True)
-                    sys.exit(1)
-            else:
-                click.echo("Error: Album has no media", err=True)
-                sys.exit(1)
+        if export_photobook_album_to_epub(source_path, output_path, title):
+            click.echo(f"✓ EPUB created: {output_path}")
+            click.echo(f"  Title: {title or source_path.name}")
+            click.echo(f"  Size: {output_path.stat().st_size / (1024*1024):.1f} MB")
         else:
-            click.echo("Error: No albums found", err=True)
+            click.echo("Error: Failed to create EPUB", err=True)
             sys.exit(1)
 
     except Exception as e:

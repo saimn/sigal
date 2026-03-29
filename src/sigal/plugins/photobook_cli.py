@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 def export_epub_command(source: str, output: str, title: str, verbose: bool) -> None:
     """Export photo album as EPUB ebook with photobook theme.
     
+    Builds the album with the photobook theme, then exports to EPUB format.
+    
     SOURCE is the directory containing photos/videos.
     
     Examples:
@@ -30,6 +32,8 @@ def export_epub_command(source: str, output: str, title: str, verbose: bool) -> 
         sigal export-epub ./my-album -o ~/Books/album.epub -t "My Vacation"
         sigal export-epub ./photos -v
     """
+    from sigal.epub_exporter import export_photobook_album_to_epub
+    
     source_path = pathlib.Path(source).resolve()
     
     if not source_path.exists():
@@ -58,46 +62,16 @@ def export_epub_command(source: str, output: str, title: str, verbose: bool) -> 
         logging.basicConfig(level=logging.INFO)
     
     try:
-        from sigal.gallery import Gallery
-        from sigal.settings import read_settings
-        from sigal.utils import init_plugins
-        
-        # Create settings with photobook theme
-        settings = read_settings(None)
-        settings['source'] = str(source_path)
-        settings['theme'] = 'photobook'
-        settings['destination'] = str(pathlib.Path(tempfile.gettempdir()) / 'sigal_epub_build')
-        
         click.echo("Building album with photobook theme...")
         
-        # Initialize plugins and build gallery
-        init_plugins(settings)
-        gallery = Gallery(settings, show_progress=False)
-        
-        if not gallery.albums:
-            click.echo("Error: No albums found", err=True)
-            raise SystemExit(1)
-        
-        # Get first album
-        album = next(iter(gallery.albums.values()))
-        click.echo(f"✓ Album built: {album.title}")
-        click.echo(f"  Media count: {len(album.medias)}")
-        
-        if not album.medias:
-            click.echo("Error: Album has no media", err=True)
-            raise SystemExit(1)
-        
-        # Build EPUB from gallery album
-        click.echo(f"Generating EPUB: {output_path.name}...")
-        with click.progressbar(length=100, label='Building EPUB') as bar:
-            bar.update(30)
+        with click.progressbar(length=100, label='Generating EPUB') as bar:
+            bar.update(20)
             
-            if build_photobook_epub(album, title, output_path):
-                bar.update(70)
+            if export_photobook_album_to_epub(source_path, output_path, title):
+                bar.update(80)
                 click.echo("\n✓ EPUB created successfully")
                 click.echo(f"  Path: {output_path}")
                 click.echo(f"  Title: {title}")
-                click.echo(f"  Media: {len(album.medias)} items")
                 click.echo(f"  Size: {output_path.stat().st_size / (1024*1024):.1f} MB")
             else:
                 click.echo("\nError: Failed to create EPUB", err=True)

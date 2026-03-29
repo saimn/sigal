@@ -811,8 +811,8 @@ def build_photobook_epub(album, title: str, output_path: pathlib.Path) -> bool:
     # Extract media from album with all metadata
     for media in album.medias:
         try:
-            # Get media file path
-            media_path = pathlib.Path(media.src_path) / media.src_filename
+            # Get media file path (src_path already includes filename)
+            media_path = pathlib.Path(media.src_path)
             
             # Extract description and EXIF
             description = getattr(media, 'description', '')
@@ -860,3 +860,80 @@ def build_photobook_epub(album, title: str, output_path: pathlib.Path) -> bool:
     
     # Build EPUB
     return builder.build(output_path)
+
+
+def export_photobook_album_to_epub(source_path: pathlib.Path,
+                                   output_path: pathlib.Path,
+                                   title: Optional[str] = None,
+                                   settings: Optional[Dict] = None) -> bool:
+    """Export a photo album to EPUB by first building it with photobook theme
+    
+    This function:
+    1. Builds the album using Gallery with photobook theme
+    2. Extracts the built photobook HTML/media
+    3. Generates EPUB from the photobook view
+    
+    Args:
+        source_path: Source photo directory
+        output_path: Output EPUB path
+        title: Optional EPUB title
+        settings: Optional custom settings dict
+        
+    Returns:
+        True if successful
+    """
+    from .gallery import Gallery
+    from .settings import read_settings
+    from .utils import init_plugins
+    
+    if not source_path.exists():
+        logger.error(f"Source directory not found: {source_path}")
+        return False
+    
+    # Create settings with photobook theme
+    if settings is None:
+        settings = read_settings(None)
+    
+    settings['source'] = str(source_path)
+    settings['theme'] = 'photobook'
+    
+    # Use temp directory for build output
+    temp_build_dir = pathlib.Path(tempfile.mkdtemp(prefix='sigal_epub_'))
+    settings['destination'] = str(temp_build_dir)
+    
+    try:
+        # Initialize plugins and build gallery
+        init_plugins(settings)
+        gallery = Gallery(settings, show_progress=False)
+        
+        logger.info(f"Building album with {len(gallery.albums)} album(s)")
+        
+        # Build the gallery (generates HTML files with photobook theme)
+        gallery.build(force=True)
+        
+        # Get first album
+        if not gallery.albums:
+            logger.error("No albums found after building")
+            return False
+        
+        album = next(iter(gallery.albums.values()))
+        
+        # Determine title
+        epub_title = title or album.title or source_path.name
+        
+        logger.info(f"Built album: {album.title} with {len(album.medias)} media")
+        
+        # Now export the photobook album to EPUB
+        return build_photobook_epub(album, epub_title, output_path)
+        
+    except Exception as e:
+        logger.error(f"Error exporting album to EPUB: {e}")
+        return False
+    finally:
+        # Clean up temp directory
+        if temp_build_dir.exists():
+            try:
+                shutil.rmtree(temp_build_dir)
+                logger.debug(f"Cleaned up temp directory: {temp_build_dir}")
+            except Exception as e:
+                logger.warning(f"Failed to clean up temp directory: {e}")
