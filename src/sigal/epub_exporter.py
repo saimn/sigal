@@ -787,3 +787,76 @@ def create_epub_from_directory(source_dir: pathlib.Path,
     else:
         logger.error("No media files found in directory")
         return False
+
+
+def build_photobook_epub(album, title: str, output_path: pathlib.Path) -> bool:
+    """Build EPUB from a Sigal album using photobook theme structure
+    
+    Args:
+        album: Album object from Gallery
+        title: Title for the EPUB
+        output_path: Path where EPUB file will be saved
+        
+    Returns:
+        True if successful
+    """
+    import zipfile
+    
+    if not album.medias:
+        logger.error("Album has no media")
+        return False
+    
+    builder = EPUBBuilder(title=title, theme='photobook')
+    
+    # Extract media from album with all metadata
+    for media in album.medias:
+        try:
+            # Get media file path
+            media_path = pathlib.Path(media.src_path) / media.src_filename
+            
+            # Extract description and EXIF
+            description = getattr(media, 'description', '')
+            exif_text = ''
+            
+            # Collect EXIF data if available
+            if hasattr(media, 'exif'):
+                exif_dict = media.exif or {}
+                exif_parts = []
+                if exif_dict.get('datetime'):
+                    exif_parts.append(f"Date: {exif_dict['datetime']}")
+                if exif_dict.get('Make') or exif_dict.get('Model'):
+                    exif_parts.append(f"Camera: {exif_dict.get('Make', '')} {exif_dict.get('Model', '')}".strip())
+                if exif_dict.get('iso'):
+                    exif_parts.append(f"ISO: {exif_dict['iso']}")
+                if exif_dict.get('exposure'):
+                    exif_parts.append(f"Exposure: {exif_dict['exposure']}")
+                if exif_dict.get('fstop'):
+                    exif_parts.append(f"F-stop: {exif_dict['fstop']}")
+                if exif_dict.get('focal'):
+                    exif_parts.append(f"Focal: {exif_dict['focal']}")
+                exif_text = '\n'.join(exif_parts)
+            
+            # Create media file entry
+            mf = MediaFile(
+                path=media_path,
+                title=getattr(media, 'title', media.src_filename),
+                description=description,
+                exif=exif_text,
+                is_video=(media.type == 'video')
+            )
+            
+            if mf.path.exists():
+                builder.add_media(mf)
+            else:
+                logger.warning(f"Media file not found: {mf.path}")
+                
+        except Exception as e:
+            logger.warning(f"Error processing media {media}: {e}")
+            continue
+    
+    if not builder.media_list:
+        logger.error("No valid media files in album")
+        return False
+    
+    # Build EPUB
+    return builder.build(output_path)

@@ -5,8 +5,9 @@ Provides command-line interface for EPUB export functionality.
 
 import pathlib
 import logging
+import tempfile
 import click
-from sigal.epub_exporter import EPUBBuilder, MediaFile, VideoThumbnailGenerator
+from sigal.epub_exporter import build_photobook_epub
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 @click.option('-v', '--verbose', is_flag=True, 
               help='Verbose output')
 def export_epub_command(source: str, output: str, title: str, verbose: bool) -> None:
-    """Export photo album as EPUB ebook.
+    """Export photo album as EPUB ebook with photobook theme.
     
     SOURCE is the directory containing photos/videos.
     
@@ -56,62 +57,56 @@ def export_epub_command(source: str, output: str, title: str, verbose: bool) -> 
     else:
         logging.basicConfig(level=logging.INFO)
     
-    with click.progressbar(label='Building EPUB', show_eta=False) as bar:
-        try:
-            # Check for required tools
-            duration = VideoThumbnailGenerator.get_video_duration(source_path)
-            has_ffmpeg = duration is not None or True  # ffprobe may not work but ffmpeg might
-            
-            if not has_ffmpeg:
-                click.echo("Warning: ffmpeg not found. Video thumbnails will use placeholders.", err=True)
-            
-            # Build EPUB
-            builder = EPUBBuilder(title=title, album_path=source_path)
-            
-            # Collect media
-            image_exts = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
-            video_exts = {'.mp4', '.webm', '.mv', '.avi', '.mov'}
-            
-            media_files = sorted([f for f in source_path.iterdir() if f.is_file()])
-            
-            for media_file in media_files:
-                suffix = media_file.suffix.lower()
-                if suffix in image_exts:
-                    builder.add_media(MediaFile(
-                        path=media_file,
-                        title=media_file.stem,
-                        is_video=False
-                    ))
-                elif suffix in video_exts:
-                    builder.add_media(MediaFile(
-                        path=media_file,
-                        title=media_file.stem,
-                        is_video=True
-                    ))
-            
+    try:
+        from sigal.gallery import Gallery
+        from sigal.settings import read_settings
+        from sigal.utils import init_plugins
+        
+        # Create settings with photobook theme
+        settings = read_settings(None)
+        settings['source'] = str(source_path)
+        settings['theme'] = 'photobook'
+        settings['destination'] = str(pathlib.Path(tempfile.gettempdir()) / 'sigal_epub_build')
+        
+        click.echo("Building album with photobook theme...")
+        
+        # Initialize plugins and build gallery
+        init_plugins(settings)
+        gallery = Gallery(settings, show_progress=False)
+        
+        if not gallery.albums:
+            click.echo("Error: No albums found", err=True)
+            raise SystemExit(1)
+        
+        # Get first album
+        album = next(iter(gallery.albums.values()))
+        click.echo(f"✓ Album built: {album.title}")
+        click.echo(f"  Media count: {len(album.medias)}")
+        
+        if not album.medias:
+            click.echo("Error: Album has no media", err=True)
+            raise SystemExit(1)
+        
+        # Build EPUB from gallery album
+        click.echo(f"Generating EPUB: {output_path.name}...")
+        with click.progressbar(length=100, label='Building EPUB') as bar:
             bar.update(30)
             
-            if not builder.media_list:
-                click.echo("Error: No media files found in source directory", err=True)
-                raise SystemExit(1)
-            
-            click.echo(f"Found {len(builder.media_list)} media file(s)")
-            
-            # Build EPUB
-            if builder.build(output_path):
+            if build_photobook_epub(album, title, output_path):
                 bar.update(70)
-                click.echo(f"✓ EPUB created: {output_path}")
+                click.echo("\n✓ EPUB created successfully")
+                click.echo(f"  Path: {output_path}")
                 click.echo(f"  Title: {title}")
-                click.echo(f"  Media: {len(builder.media_list)} items")
+                click.echo(f"  Media: {len(album.medias)} items")
                 click.echo(f"  Size: {output_path.stat().st_size / (1024*1024):.1f} MB")
             else:
-                click.echo("Error: Failed to create EPUB", err=True)
+                click.echo("\nError: Failed to create EPUB", err=True)
                 raise SystemExit(1)
                 
-        except Exception as e:
-            click.echo(f"Error: {e}", err=True)
-            logger.exception("EPUB export failed")
-            raise SystemExit(1)
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        logger.exception("EPUB export failed")
+        raise SystemExit(1)
 
 
 @click.command('extract-video-thumbnail')
@@ -131,6 +126,8 @@ def extract_video_thumbnail_command(video: str, output: str, timestamp: float, v
         sigal extract-video-thumbnail video.mp4 thumbnail.jpg
         sigal extract-video-thumbnail video.mp4 thumb.jpg -t 5.0
     """
+    from sigal.epub_exporter import VideoThumbnailGenerator
+    
     video_path = pathlib.Path(video).resolve()
     output_path = pathlib.Path(output).resolve()
     

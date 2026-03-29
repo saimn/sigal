@@ -35,7 +35,6 @@ from .gallery import Gallery
 from .log import init_logging
 from .settings import read_settings
 from .utils import copy, init_plugins
-from .epub_exporter import EPUBBuilder, MediaFile, VideoThumbnailGenerator
 
 try:
     from .version import __version__
@@ -361,44 +360,44 @@ def export_epub(source, output, title, verbose):
     logger = logging.getLogger(__name__)
 
     try:
-        # Build EPUB with photobook theme
-        builder = EPUBBuilder(title=title, album_path=source_path, theme='photobook')
-
-        # Collect media
-        image_exts = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
-        video_exts = {'.mp4', '.webm', '.mv', '.avi', '.mov'}
-
-        media_files = sorted([f for f in source_path.iterdir() if f.is_file()])
-
-        for media_file in media_files:
-            suffix = media_file.suffix.lower()
-            if suffix in image_exts:
-                builder.add_media(MediaFile(
-                    path=media_file,
-                    title=media_file.stem,
-                    is_video=False
-                ))
-            elif suffix in video_exts:
-                builder.add_media(MediaFile(
-                    path=media_file,
-                    title=media_file.stem,
-                    is_video=True
-                ))
-
-        if not builder.media_list:
-            click.echo("Error: No media files found in source directory", err=True)
-            sys.exit(1)
-
-        click.echo(f"Found {len(builder.media_list)} media file(s)")
-
-        # Build EPUB
-        if builder.build(output_path):
-            click.echo(f"✓ EPUB created: {output_path}")
-            click.echo(f"  Title: {title}")
-            click.echo(f"  Media: {len(builder.media_list)} items")
-            click.echo(f"  Size: {output_path.stat().st_size / (1024*1024):.1f} MB")
+        from .gallery import Gallery
+        from .settings import read_settings
+        from .utils import init_plugins
+        import tempfile
+        
+        # Create settings with photobook theme
+        settings = read_settings(None)
+        settings['source'] = str(source_path)
+        settings['theme'] = 'photobook'
+        settings['destination'] = str(pathlib.Path(tempfile.gettempdir()) / 'sigal_epub_build')
+        
+        # Initialize plugins and build gallery
+        init_plugins(settings)
+        gallery = Gallery(settings, show_progress=False)
+        
+        click.echo(f"Found {len(gallery.albums)} album(s)")
+        
+        # Build EPUB from gallery using photobook theme
+        if gallery.albums:
+            album = next(iter(gallery.albums.values()))
+            click.echo(f"Generating EPUB from album: {album.title}")
+            
+            if album.medias:
+                from .epub_exporter import build_photobook_epub
+                
+                if build_photobook_epub(album, title or album.title, output_path):
+                    click.echo(f"✓ EPUB created: {output_path}")
+                    click.echo(f"  Title: {title or album.title}")
+                    click.echo(f"  Media: {len(album.medias)} items")
+                    click.echo(f"  Size: {output_path.stat().st_size / (1024*1024):.1f} MB")
+                else:
+                    click.echo("Error: Failed to create EPUB", err=True)
+                    sys.exit(1)
+            else:
+                click.echo("Error: Album has no media", err=True)
+                sys.exit(1)
         else:
-            click.echo("Error: Failed to create EPUB", err=True)
+            click.echo("Error: No albums found", err=True)
             sys.exit(1)
 
     except Exception as e:
