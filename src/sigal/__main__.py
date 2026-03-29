@@ -312,45 +312,28 @@ def set_meta(target, keys, overwrite=False):
 
 
 @main.command()
-@argument("source", type=click.Path(exists=True, file_okay=False, dir_okay=True))
+@argument("source", type=click.Path(exists=True, file_okay=False, dir_okay=True), required=False)
 @option("-o", "--output", type=click.Path(), default=None,
-        help="Output EPUB file path (defaults to album_name.epub in source directory)")
+        help="Output EPUB file path (defaults to destination/album.epub)")
 @option("-t", "--title", default=None,
-        help="EPUB title (defaults to album folder name)")
+        help="EPUB title (defaults from config or album folder name)")
+@option("-c", "--config", type=click.Path(exists=True, file_okay=True), 
+        default=_DEFAULT_CONFIG_FILE,
+        help="Configuration file path (default: sigal.conf.py)")
 @option("-v", "--verbose", is_flag=True,
         help="Verbose output")
-def export_epub(source, output, title, verbose):
-    """Export photo album as EPUB ebook.
+def export_epub(source, output, title, config, verbose):
+    """Export built photo album as EPUB ebook using photobook theme.
 
-    SOURCE is the directory containing photos/videos.
+    Reads sigal.conf.py, builds the album with photobook theme,
+    then exports to EPUB using the "Photo Book" view mode.
 
     Examples:
 
-        sigal export-epub ./my-album
-        sigal export-epub ./my-album -o ~/Books/album.epub -t "My Vacation"
-        sigal export-epub ./photos -v
+        sigal export-epub
+        sigal export-epub -c myconfig.py -o ~/Books/album.epub
+        sigal export-epub ./photos -t "My Vacation" -v
     """
-    source_path = pathlib.Path(source).resolve()
-
-    if not source_path.exists():
-        click.echo(f"Error: Source directory not found: {source_path}", err=True)
-        sys.exit(1)
-
-    # Determine output path
-    if output:
-        output_path = pathlib.Path(output).resolve()
-    else:
-        output_path = source_path.parent / f"{source_path.name}.epub"
-
-    if output_path.exists():
-        if not click.confirm(f"Output file exists: {output_path}\nOverwrite?"):
-            click.echo("Aborted.")
-            sys.exit(0)
-
-    # Set title
-    if not title:
-        title = source_path.name
-
     # Set logging
     if verbose:
         logging.basicConfig(level=logging.DEBUG)
@@ -360,14 +343,52 @@ def export_epub(source, output, title, verbose):
     logger = logging.getLogger(__name__)
 
     try:
-        from .epub_exporter import export_photobook_album_to_epub
+        from .epub_exporter import build_album_and_export_epub
         
-        click.echo("Building album with photobook theme...")
+        # Read settings from config
+        if not os.path.isfile(config):
+            click.echo(f"Error: Settings file not found: {config}", err=True)
+            sys.exit(1)
         
-        if export_photobook_album_to_epub(source_path, output_path, title):
-            click.echo(f"✓ EPUB created: {output_path}")
-            click.echo(f"  Title: {title or source_path.name}")
-            click.echo(f"  Size: {output_path.stat().st_size / (1024*1024):.1f} MB")
+        settings = read_settings(config)
+        
+        # Override source if provided
+        if source:
+            settings['source'] = os.path.abspath(source)
+        
+        # Validate source directory
+        if not settings['source'] or not os.path.isdir(settings['source']):
+            click.echo(f"Error: Source directory not found: {settings['source']}", err=True)
+            sys.exit(1)
+        
+        # Force photobook theme
+        settings['theme'] = 'photobook'
+        
+        # Determine output EPUB path
+        if output:
+            epub_output_path = pathlib.Path(output).resolve()
+        else:
+            # Default to destination/album.epub
+            dest_dir = pathlib.Path(settings['destination']).resolve()
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            album_name = pathlib.Path(settings['source']).name
+            epub_output_path = dest_dir / f"{album_name}.epub"
+        
+        if epub_output_path.exists():
+            if not click.confirm(f"Output file exists: {epub_output_path}\nOverwrite?"):
+                click.echo("Aborted.")
+                sys.exit(0)
+        
+        click.echo(f"Source directory: {settings['source']}")
+        click.echo(f"Build destination: {settings['destination']}")
+        click.echo(f"EPUB output: {epub_output_path}")
+        click.echo(f"Theme: photobook")
+        click.echo("\nBuilding album with photobook theme...")
+        
+        if build_album_and_export_epub(settings, epub_output_path, title):
+            click.echo(f"✓ EPUB created: {epub_output_path}")
+            click.echo(f"  Title: {title or pathlib.Path(settings['source']).name}")
+            click.echo(f"  Size: {epub_output_path.stat().st_size / (1024*1024):.1f} MB")
         else:
             click.echo("Error: Failed to create EPUB", err=True)
             sys.exit(1)

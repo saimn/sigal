@@ -862,11 +862,73 @@ def build_photobook_epub(album, title: str, output_path: pathlib.Path) -> bool:
     return builder.build(output_path)
 
 
+def build_album_and_export_epub(settings: Dict,
+                                output_path: pathlib.Path,
+                                title: Optional[str] = None) -> bool:
+    """Build album with photobook theme and export to EPUB
+    
+    Uses the settings dict (from sigal.conf.py) to:
+    1. Build the album with Gallery and photobook theme to destination folder
+    2. Extract the photobook view and build EPUB
+    
+    Args:
+        settings: Settings dictionary from read_settings()
+        output_path: Output EPUB path
+        title: Optional EPUB title override
+        
+    Returns:
+        True if successful
+    """
+    from .gallery import Gallery
+    from .utils import init_plugins
+    
+    source_path = pathlib.Path(settings['source'])
+    
+    if not source_path.exists():
+        logger.error(f"Source directory not found: {source_path}")
+        return False
+    
+    # Force photobook theme
+    settings['theme'] = 'photobook'
+    
+    try:
+        # Initialize plugins and build gallery
+        logger.info(f"Building album from: {source_path}")
+        init_plugins(settings)
+        gallery = Gallery(settings, show_progress=False)
+        
+        logger.info(f"Found {len(gallery.albums)} album(s)")
+        
+        # Build the gallery (generates HTML files with photobook theme to destination)
+        gallery.build(force=True)
+        
+        # Get first album
+        if not gallery.albums:
+            logger.error("No albums found after building")
+            return False
+        
+        album = next(iter(gallery.albums.values()))
+        
+        # Determine title
+        epub_title = title or album.title or source_path.name
+        
+        logger.info(f"Built album: {album.title} with {len(album.medias)} media")
+        
+        # Now export the photobook album to EPUB
+        return build_photobook_epub(album, epub_title, output_path)
+        
+    except Exception as e:
+        logger.error(f"Error building album and exporting to EPUB: {e}")
+        return False
+
+
 def export_photobook_album_to_epub(source_path: pathlib.Path,
                                    output_path: pathlib.Path,
                                    title: Optional[str] = None,
                                    settings: Optional[Dict] = None) -> bool:
-    """Export a photo album to EPUB by first building it with photobook theme
+    """DEPRECATED: Use build_album_and_export_epub instead
+    
+    Build EPUB from a photo album by first building it with photobook theme
     
     This function:
     1. Builds the album using Gallery with photobook theme
