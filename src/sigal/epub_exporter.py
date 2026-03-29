@@ -114,11 +114,11 @@ class EPUBBuilder:
     def __init__(self, title: str = "Photo Gallery", 
                  album_path: Optional[pathlib.Path] = None,
                  theme: str = "default",
-                 leaflet_provider: str = "OpenStreetMap.Mapnik"):
+                 map_provider: str = "openstreetmap"):
         self.title = title
         self.album_path = album_path or pathlib.Path.cwd()
         self.theme = theme
-        self.leaflet_provider = leaflet_provider
+        self.map_provider = map_provider  # 'openstreetmap' or 'googlemaps'
         self.uuid = str(uuid_module.uuid4())
         self.media_list: List[MediaFile] = []
         self.temp_dir = None
@@ -225,11 +225,10 @@ class EPUBBuilder:
                             if lon_dir == 'W':
                                 lon_val = -lon_val
                             
-                            # Create map link based on leaflet provider
-                            if 'Mapbox' in self.leaflet_provider:
-                                map_url = f"https://www.mapbox.com/maps?q={lat_val},{lon_val}&z=14"
-                            elif 'Google' in self.leaflet_provider:
-                                map_url = f"https://maps.google.com/?q={lat_val},{lon_val}"
+                            # Create map link based on photobook_map_provider setting
+                            # 'openstreetmap' or 'googlemaps'
+                            if self.map_provider.lower() == 'googlemaps':
+                                map_url = f"https://www.google.com/maps/?q={lat_val},{lon_val}"
                             else:
                                 # Default to OpenStreetMap
                                 map_url = f"https://www.openstreetmap.org/?mlat={lat_val}&mlon={lon_val}&zoom=14"
@@ -978,14 +977,14 @@ def create_epub_from_directory(source_dir: pathlib.Path,
 
 
 def build_photobook_epub(album, title: str, output_path: pathlib.Path, 
-                         leaflet_provider: str = "OpenStreetMap.Mapnik") -> bool:
+                         map_provider: str = "openstreetmap") -> bool:
     """Build EPUB from a Sigal album using photobook theme structure
     
     Args:
         album: Album object from Gallery
         title: Title for the EPUB
         output_path: Path where EPUB file will be saved
-        leaflet_provider: Map provider for GPS links (e.g., 'OpenStreetMap.Mapnik')
+        map_provider: Map provider for GPS links ('openstreetmap' or 'googlemaps')
         
     Returns:
         True if successful
@@ -996,7 +995,7 @@ def build_photobook_epub(album, title: str, output_path: pathlib.Path,
         logger.error("Album has no media")
         return False
     
-    builder = EPUBBuilder(title=title, theme='photobook', leaflet_provider=leaflet_provider)
+    builder = EPUBBuilder(title=title, theme='photobook', map_provider=map_provider)
     
     # Extract media from album with all metadata
     for media in album.medias:
@@ -1112,11 +1111,12 @@ def build_album_and_export_epub(settings: Dict,
         
         logger.info(f"Built album: {album.title} with {len(album.medias)} media")
         
-        # Get leaflet provider setting (for GPS map links)
-        leaflet_provider = settings.get('leaflet_provider', 'OpenStreetMap.Mapnik')
+        # Get photobook_map_provider setting (same as photobook theme uses)
+        # Defaults to 'openstreetmap', can also be 'googlemaps'
+        map_provider = settings.get('photobook_map_provider', 'openstreetmap')
         
         # Now export the photobook album to EPUB
-        return build_photobook_epub(album, epub_title, output_path, leaflet_provider)
+        return build_photobook_epub(album, epub_title, output_path, map_provider)
         
     except Exception as e:
         logger.error(f"Error building album and exporting to EPUB: {e}")
