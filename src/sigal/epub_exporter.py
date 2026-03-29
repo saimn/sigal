@@ -179,14 +179,14 @@ class EPUBBuilder:
         return f'<p>{html}</p>'
     
     def _format_exif(self, exif_text: str, source_file: Optional[str] = None) -> str:
-        """Format EXIF data as structured HTML matching photobook theme
+        """Format EXIF data as structured HTML matching photobook theme book-exif structure
         
         Args:
             exif_text: Newline-separated EXIF data in "Label: Value" format
             source_file: Optional source file path for download link
             
         Returns:
-            HTML formatted EXIF data
+            HTML formatted EXIF data using book-exif-item structure
         """
         if not exif_text and not source_file:
             return ''
@@ -195,7 +195,8 @@ class EPUBBuilder:
         
         # Add source file link first if available
         if source_file:
-            lines.append(f'<div class="exif-item"><strong>Source:</strong> <a href="{source_file}" class="source-link">{pathlib.Path(source_file).name}</a></div>')
+            filename = pathlib.Path(source_file).name
+            lines.append(f'      <div class="book-exif-item"><strong>Source:</strong> <a href="{source_file}" class="source-link">{filename}</a></div>')
         
         # Parse EXIF lines
         if exif_text:
@@ -239,20 +240,20 @@ class EPUBBuilder:
                                     # Default to OpenStreetMap
                                     map_url = f"https://www.openstreetmap.org/?mlat={lat_val}&mlon={lon_val}&zoom=14"
                                 
-                                lines.append(f'<div class="exif-item"><strong>{label}:</strong> <a href="{map_url}" class="gps-link">{value}</a></div>')
+                                lines.append(f'      <div class="book-exif-item"><strong>{label}:</strong> <a href="{map_url}" class="gps-link">{value}</a></div>')
                                 continue
                         except (ValueError, IndexError):
                             pass  # Fall through to default formatting
                     
                     # Default formatting for non-GPS lines
-                    lines.append(f'<div class="exif-item"><strong>{label}:</strong> <span>{value}</span></div>')
+                    lines.append(f'      <div class="book-exif-item"><strong>{label}:</strong> <span>{value}</span></div>')
                 else:
-                    lines.append(f'<div class="exif-item">{line}</div>')
+                    lines.append(f'      <div class="book-exif-item">{line}</div>')
         
         if not lines:
             return ''
         
-        return '<div class="exif-list">' + ''.join(lines) + '</div>'
+        return '\n'.join(lines)
     
     def _create_container_xml(self) -> str:
         """Create META-INF/container.xml"""
@@ -322,31 +323,48 @@ class EPUBBuilder:
 </html>'''
     
     def _create_page_xhtml(self, media: MediaFile, idx: int) -> str:
-        """Create individual page XHTML"""
-        # Media content
+        """Create individual page XHTML using photobook book-view structure"""
+        
+        # Build book-entry structure matching photobook theme
+        book_media_html = ''
         if media.is_video:
-            media_html = f'''    <div class="page-media" role="figure">
-      <div class="video-container">
-        <img src="../images/image_{idx}.jpg" alt="{self._escape_xml(media.title)}" class="video-poster"/>
-        <div class="video-link-overlay">
-          <p class="video-note">⚠ Video content cannot be played in EPUB readers</p>
-        </div>
-      </div>
+            book_media_html = f'''    <div class="book-media">
+      <video controls class="book-video" poster="../images/image_{idx}.jpg">
+        <source src="../sources/{media.path.name}" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
     </div>'''
         else:
-            media_html = f'''    <div class="page-media" role="figure">
-      <img src="../images/image_{idx}.jpg" alt="{self._escape_xml(media.title)}"/>
+            book_media_html = f'''    <div class="book-media">
+      <img src="../images/image_{idx}.jpg" alt="{self._escape_xml(media.title)}" class="book-image" />
     </div>'''
         
-        # Description
+        # Description section
         description_html = ''
         if media.description:
-            description_html = f'    <div class="page-description">{self._format_description(media.description)}</div>'
+            description_html = f'''    <div class="book-description">
+      {self._format_description(media.description)}
+    </div>
+'''
         
-        # EXIF - now includes filename as a clickable source link
+        # Filename section - clickable to extract from EPUB
+        filename_html = ''
+        if media.source_file or media.filename:
+            filename_link = media.source_file or f'../sources/{media.filename}'
+            filename_html = f'''    <div class="book-filename">
+      <strong>File:</strong> <a href="{filename_link}" class="source-link">{self._escape_xml(media.filename)}</a>
+    </div>
+'''
+        
+        # EXIF section using book-exif structure
         exif_html = ''
         if media.exif or media.source_file:
-            exif_html = f'    <div class="page-exif">{self._format_exif(media.exif, media.source_file)}</div>'
+            exif_content = self._format_exif(media.exif, media.source_file)
+            if exif_content:
+                exif_html = f'''    <div class="book-exif">
+{exif_content}
+    </div>
+'''
         
         return f'''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -358,20 +376,89 @@ class EPUBBuilder:
     <link rel="stylesheet" type="text/css" href="../style/style.css"/>
   </head>
   <body>
-    <article class="page" epub:type="bodymatter chapter">
-{media_html}
-      <section class="page-caption">
-        <h1 class="page-title">{self._escape_xml(media.title)}</h1>
-{description_html}
-{exif_html}
-      </section>
-    </article>
+    <div class="book-entry">
+{book_media_html}
+      <div class="book-caption">
+        <h2>{self._escape_xml(media.title)}</h2>
+{description_html}{filename_html}{exif_html}      </div>
+    </div>
   </body>
 </html>'''
     
     def _create_style_css(self) -> str:
-        """Create OEBPS/style/style.css with theme-specific styling"""
+        """Create OEBPS/style/style.css - load from photobook theme or use fallback
+        
+        For photobook theme, loads CSS from the theme directory.
+        For other themes, returns minimal compatible CSS.
+        """
         if self.theme == 'photobook':
+            # Try to load CSS from photobook theme
+            try:
+                import os
+                # Find theme CSS - check multiple possible locations
+                theme_css_paths = [
+                    pathlib.Path(__file__).parent / 'themes' / 'photobook' / 'static' / 'css' / 'style.css',
+                    pathlib.Path('src/sigal/themes/photobook/static/css/style.css'),
+                    pathlib.Path('themes/photobook/static/css/style.css'),
+                ]
+                
+                for theme_css_path in theme_css_paths:
+                    if theme_css_path.exists():
+                        logger.info(f"Loading photobook theme CSS from: {theme_css_path}")
+                        css_content = theme_css_path.read_text(encoding='utf-8')
+                        
+                        # Add EPUB-specific overrides for interactive elements
+                        epub_overrides = '''
+/* EPUB-specific overrides */
+.photobook-controls,
+.photobook-nav,
+#outline-btn, #slides-btn, #book-btn, #epub-export-btn,
+.photobook-nav-controls,
+#prev-btn, #next-btn,
+.page-counter {
+    display: none;
+}
+
+#outline-view,
+#slides-view {
+    display: none !important;
+}
+
+#book-view {
+    display: block !important;
+}
+
+.photobook-view.active {
+    display: block !important;
+}
+
+.continuous-book {
+    display: block;
+}
+
+.book-entry {
+    page-break-after: always;
+    page-break-inside: avoid;
+    margin: 0;
+    padding: 2em 1.5em;
+}
+
+/* Make source file links work in EPUB */
+.book-filename a,
+.source-link,
+.gps-link {
+    color: #0066cc;
+    text-decoration: underline;
+    cursor: pointer;
+}
+'''
+                        return css_content + epub_overrides
+                    
+                logger.warning("Photobook theme CSS not found, using fallback")
+            except Exception as e:
+                logger.warning(f"Could not load theme CSS: {e}")
+            
+            # Fallback for photobook theme
             return '''/* Photobook Theme EPUB Styles */
 * {
     margin: 0;
