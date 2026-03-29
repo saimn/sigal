@@ -32,6 +32,7 @@ class MediaFile:
     description: str = ""
     exif: str = ""
     is_video: bool = False
+    filename: str = ""  # Original filename for display
     
     def exists(self) -> bool:
         return self.path.exists()
@@ -111,10 +112,12 @@ class EPUBBuilder:
     
     def __init__(self, title: str = "Photo Gallery", 
                  album_path: Optional[pathlib.Path] = None,
-                 theme: str = "default"):
+                 theme: str = "default",
+                 leaflet_provider: str = "OpenStreetMap.Mapnik"):
         self.title = title
         self.album_path = album_path or pathlib.Path.cwd()
         self.theme = theme
+        self.leaflet_provider = leaflet_provider
         self.uuid = str(uuid_module.uuid4())
         self.media_list: List[MediaFile] = []
         self.temp_dir = None
@@ -179,15 +182,54 @@ class EPUBBuilder:
         if not exif_text:
             return ''
         
-        exif_text = self._escape_xml(exif_text)
-        lines = [x.strip() for x in exif_text.split('\n') if x.strip()]
+        exif_escaped = self._escape_xml(exif_text)
+        lines = [x.strip() for x in exif_escaped.split('\n') if x.strip()]
         
         html = '<div class="exif-list">'
         for line in lines:
             # Try to parse "Label: Value" format
             if ':' in line:
                 parts = line.split(':', 1)
-                html += f'<div class="exif-item"><strong>{parts[0].strip()}:</strong> {parts[1].strip()}</div>'
+                label = parts[0].strip()
+                value = parts[1].strip()
+                
+                # Check if this is a Location (GPS) line
+                if label.lower() == 'location':
+                    # Parse GPS coordinates: "N37.770000, W122.410000"
+                    try:
+                        coords = value.split(',')
+                        if len(coords) == 2:
+                            lat_str = coords[0].strip()
+                            lon_str = coords[1].strip()
+                            
+                            # Parse latitude (N/S prefix)
+                            lat_dir = lat_str[0]
+                            lat_val = float(lat_str[1:])
+                            if lat_dir == 'S':
+                                lat_val = -lat_val
+                            
+                            # Parse longitude (E/W prefix)
+                            lon_dir = lon_str[0]
+                            lon_val = float(lon_str[1:])
+                            if lon_dir == 'W':
+                                lon_val = -lon_val
+                            
+                            # Create map link based on leaflet provider
+                            if 'Mapbox' in self.leaflet_provider:
+                                map_url = f"https://www.mapbox.com/maps?q={lat_val},{lon_val}&z=14"
+                            elif 'Google' in self.leaflet_provider:
+                                map_url = f"https://maps.google.com/?q={lat_val},{lon_val}"
+                            else:
+                                # Default to OpenStreetMap
+                                map_url = f"https://www.openstreetmap.org/?mlat={lat_val}&mlon={lon_val}&zoom=14"
+                            
+                            html += f'<div class="exif-item"><strong>{label}:</strong> <a href="{map_url}">{value}</a></div>'
+                            continue
+                    except (ValueError, IndexError):
+                        pass  # Fall through to default formatting
+                
+                # Default formatting for non-GPS lines
+                html += f'<div class="exif-item"><strong>{label}:</strong> {value}</div>'
             else:
                 html += f'<div class="exif-item">{line}</div>'
         html += '</div>'
@@ -287,6 +329,11 @@ class EPUBBuilder:
         if media.exif:
             exif_html = f'    <div class="page-exif">{self._format_exif(media.exif)}</div>'
         
+        # Filename
+        filename_html = ''
+        if media.filename:
+            filename_html = f'    <div class="page-filename"><em>File: {self._escape_xml(media.filename)}</em></div>'
+        
         return f'''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
@@ -301,6 +348,7 @@ class EPUBBuilder:
 {media_html}
       <section class="page-caption">
         <h1 class="page-title">{self._escape_xml(media.title)}</h1>
+{filename_html}
 {description_html}
 {exif_html}
       </section>
@@ -469,6 +517,20 @@ html, body {
     font-weight: 700;
     color: #222222;
 }
+
+.page-filename {
+    display: block;
+    margin: 1em 0;
+    padding: 0;
+    font-size: 0.90em;
+    color: #666666;
+    clear: both;
+}
+
+.page-filename em {
+    font-style: italic;
+    color: #555555;
+}
 '''
         else:
             # Default/legacy EPUB styling
@@ -619,6 +681,19 @@ body {
 .exif-item strong {
     font-weight: bold;
     color: #333;
+}
+
+.page-filename {
+    display: block;
+    margin: 1em 0;
+    padding: 0;
+    font-size: 0.90em;
+    color: #666;
+}
+
+.page-filename em {
+    font-style: italic;
+    color: #555;
 }
 '''
     
@@ -819,13 +894,15 @@ def create_epub_from_directory(source_dir: pathlib.Path,
         return False
 
 
-def build_photobook_epub(album, title: str, output_path: pathlib.Path) -> bool:
+def build_photobook_epub(album, title: str, output_path: pathlib.Path, 
+                         leaflet_provider: str = "OpenStreetMap.Mapnik") -> bool:
     """Build EPUB from a Sigal album using photobook theme structure
     
     Args:
         album: Album object from Gallery
         title: Title for the EPUB
         output_path: Path where EPUB file will be saved
+        leaflet_provider: Map provider for GPS links (e.g., 'OpenStreetMap.Mapnik')
         
     Returns:
         True if successful
@@ -836,11 +913,16 @@ def build_photobook_epub(album, title: str, output_path: pathlib.Path) -> bool:
         logger.error("Album has no media")
         return False
     
-    builder = EPUBBuilder(title=title, theme='photobook')
+    builder = EPUBBuilder(title=title, theme='photobook', leaflet_provider=leaflet_provider)
     
     # Extract media from album with all metadata
     for media in album.medias:
         try:
+            # Skip videos - they cannot be played in EPUB readers
+            if media.type == 'video':
+                logger.info(f"Skipping video: {media.src_filename}")
+                continue
+            
             # Get media file path (src_path already includes filename)
             media_path = pathlib.Path(media.src_path)
             
@@ -878,7 +960,8 @@ def build_photobook_epub(album, title: str, output_path: pathlib.Path) -> bool:
                 title=getattr(media, 'title', media.src_filename),
                 description=description,
                 exif=exif_text,
-                is_video=(media.type == 'video')
+                is_video=False,  # Videos are skipped above
+                filename=media.src_filename
             )
             
             if mf.path.exists():
@@ -950,8 +1033,11 @@ def build_album_and_export_epub(settings: Dict,
         
         logger.info(f"Built album: {album.title} with {len(album.medias)} media")
         
+        # Get leaflet provider setting (for GPS map links)
+        leaflet_provider = settings.get('leaflet_provider', 'OpenStreetMap.Mapnik')
+        
         # Now export the photobook album to EPUB
-        return build_photobook_epub(album, epub_title, output_path)
+        return build_photobook_epub(album, epub_title, output_path, leaflet_provider)
         
     except Exception as e:
         logger.error(f"Error building album and exporting to EPUB: {e}")
