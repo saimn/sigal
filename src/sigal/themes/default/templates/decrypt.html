@@ -2,7 +2,6 @@
 <script src="{{ theme.url }}/decrypt.js"></script>
 <script>
     Decryptor.init({
-        password: "{{ encrypt_options.filtered_password }}",
         sw_script: "{{ theme.url }}/../sw.js",
         galleryId: "{{ encrypt_options.galleryId }}",
         gcm_tag: "{{ encrypt_options.escaped_gcm_tag }}",
