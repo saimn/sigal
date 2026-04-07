@@ -3,7 +3,7 @@
     <a href='{{ media.big_url }}'>Full size</a>
   {%- endif -%}
   {%- if media.description -%}
-    <br>{{ media.description }}
+    <br>{{ media.description|e }}
   {%- endif -%}
   {%- if media.exif -%}
     <div class='film-meta'>
