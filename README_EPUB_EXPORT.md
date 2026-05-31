@@ -113,7 +113,7 @@ ls -lh ~/test-photos.epub
 ## Project Structure Overview
 
 ```
-/Users/hwang/github/sigal/
+sigal/
 ├── pyproject.toml              ← Build configuration
 ├── src/sigal/
 │   ├── __main__.py             ← CLI entry point (updated with export-epub)
@@ -209,7 +209,7 @@ sigal export-epub ./photos -t "My Album"
 ### Issue: "No module named 'sigal'"
 ```bash
 # Make sure you're in the right directory
-cd /Users/hwang/github/sigal
+cd sigal
 
 # Reinstall in editable mode
 pip install -e .
@@ -239,7 +239,7 @@ pip install -e .
 
 1. **Install in editable mode** (one-time):
    ```bash
-   cd /Users/hwang/github/sigal
+   cd sigal
    pip install -e .
    ```
 
@@ -542,7 +542,7 @@ Time depends on:
 
 To contribute to the EPUB exporter:
 
-1. Edit `/Users/hwang/github/sigal/src/sigal/epub_exporter.py`
+1. Edit `src/sigal/epub_exporter.py`
 2. Update CSS in `_create_style_css()` method
 3. Modify templates (XHTML) in `_create_package_opf()`, `_create_nav_xhtml()`, etc.
 4. Test with multiple EPUB readers
