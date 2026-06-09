@@ -48,7 +48,7 @@ Javascript libraries:
 .. _galleria: https://github.com/GalleriaJS/galleria
 .. _colorbox: http://www.jacklmoore.com/colorbox
 .. _photoswipe: http://photoswipe.com
-.. _galleria demo: http://saimon.org/sigal-demo/galleria/
-.. _colorbox demo: http://saimon.org/sigal-demo/colorbox/
-.. _photoswipe demo: http://saimon.org/sigal-demo/photoswipe/
+.. _galleria demo: https://saimn.github.io/sigal-demo/galleria/
+.. _colorbox demo: https://saimn.github.io/sigal-demo/colorbox/
+.. _photoswipe demo: https://saimn.github.io/sigal-demo/photoswipe/
 .. _Jinja2: https://palletsprojects.com/p/jinja/

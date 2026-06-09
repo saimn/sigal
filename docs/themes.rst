@@ -13,12 +13,12 @@ Sigal comes with three themes, located in the ``sigal/themes`` folder:
 
 **colorbox**:
     `source <http://www.jacklmoore.com/colorbox>`__, `demo
-    <http://saimon.org/sigal-demo/colorbox/>`__. This theme uses a Swipe plugin
+    <https://saimn.github.io/sigal-demo/colorbox/>`__. This theme uses a Swipe plugin
     to browse pictures on touch devices.
 
 **galleria**:
     `source <http://galleria.io/>`__, `demo
-    <http://saimon.org/sigal-demo/galleria/>`__. This theme is based on the
+    <https://saimn.github.io/sigal-demo/galleria/>`__. This theme is based on the
     classic theme, pictures can be browsed with left/right keys, fullscreen
     support is available with the `f` key, and a map can be shown with the `m`
     key if the ``show_map`` setting is True. The ``leaflet_provider`` setting
@@ -27,7 +27,7 @@ Sigal comes with three themes, located in the ``sigal/themes`` folder:
 
 **photoswipe**:
     `source <http://photoswipe.com/>`__, `demo
-    <http://saimon.org/sigal-demo/photoswipe/>`__.
+    <https://saimn.github.io/sigal-demo/photoswipe/>`__.
 
 The ``themes`` folder also includes a ``default`` theme. This theme cannot be
 used on its own, instead, it contains Jinja2 templates that are used by the
