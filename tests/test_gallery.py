@@ -10,6 +10,7 @@ from PIL import Image as PILImage
 
 from sigal.gallery import Album, Gallery, Image, Media, Video
 from sigal.video import SubprocessException
+from sigal.writer import AlbumListPageWriter, AlbumPageWriter
 
 try:
     from pillow_heif import HeifImagePlugin  # noqa: F401
@@ -224,6 +225,40 @@ def test_album_url_uses_output_filename(settings):
     album = Album("dir1", settings, ["test1"], [], gal)
 
     assert album.url == "dir1/index.html"
+
+
+def test_breadcrumb_does_not_link_current_album(settings, tmp_path):
+    settings["source"] = os.path.join(CURRENT_DIR, "sample", "pictures")
+    settings["destination"] = str(tmp_path)
+    settings["theme"] = "photoswipe"
+    gal = Gallery(settings, ncpu=1)
+
+    parent = Album("dir1", settings, [], [], gal)
+    album = Album("dir1/test1", settings, [], [], gal)
+    gal.albums = {"dir1": parent, "dir1/test1": album}
+
+    writer = AlbumPageWriter(settings, index_title="Sigal test gallery")
+    breadcrumb = writer.template.environment.get_template("breadcrumb.html")
+    html = breadcrumb.render(album=album)
+
+    assert '<span>An example sub-category</span>' in html
+    assert 'href="index.html">An example sub-category</a>' not in html
+
+
+def test_photobook_album_list_includes_root_description(settings, tmp_path):
+    settings["source"] = os.path.join(CURRENT_DIR, "sample", "pictures")
+    settings["destination"] = str(tmp_path)
+    settings["theme"] = "photobook"
+    gal = Gallery(settings, ncpu=1)
+
+    root_album = Album(".", settings, ["dir1"], [], gal)
+    child_album = Album("dir1", settings, [], [], gal)
+    gal.albums = {".": root_album, "dir1": child_album}
+
+    writer = AlbumListPageWriter(settings, index_title="Sigal test gallery")
+    html = writer.template.render(**writer.generate_context(root_album))
+
+    assert "This gallery was generated with" in html
 
 
 def test_albums_sort(settings):

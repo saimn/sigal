@@ -3,6 +3,11 @@
 {% block content %}
 <div class="photobook-index">
   <h2>Albums</h2>
+  {% if album.description %}
+  <div class="album-description">
+    {{ album.description }}
+  </div>
+  {% endif %}
   <div class="album-outline">
     {% for alb in album.albums %}
     <div class="album-item">
