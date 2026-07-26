@@ -62,6 +62,7 @@ _DEFAULT_CONFIG = {
     "keep_orig": False,
     "html_language": "en",
     "leaflet_provider": "OpenStreetMap.Mapnik",
+    "photobook_map_provider": "googlemaps",
     "links": "",
     "locale": "",
     "make_thumbs": True,

@@ -48,6 +48,7 @@ def test_default_theme():
 
     settings = read_settings()
     assert settings["theme"] == "photobook"
+    assert settings["photobook_map_provider"] == "googlemaps"
 
 
 def test_theme_path(tmpdir):

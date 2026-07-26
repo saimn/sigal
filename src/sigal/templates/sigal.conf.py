@@ -24,6 +24,10 @@ source = "pictures"
 # directory
 theme = "photobook"
 
+# Photobook map provider for GPS coordinates.
+# Options: 'openstreetmap' or 'googlemaps'
+photobook_map_provider = "googlemaps"
+
 # Theme for galleria (https://galleriajs.github.io/themes/)
 # galleria_theme = 'classic'
 
