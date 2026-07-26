@@ -80,7 +80,12 @@
           {% endif %}
           
           <div class="media-filename">
-            <strong>File:</strong> {{ media.src_filename }}
+            <strong>File:</strong>
+            {% if media.type == "image" %}
+              <a href="{{ media.url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">{{ media.src_filename }}</a>
+            {% else %}
+              {{ media.src_filename }}
+            {% endif %}
           </div>
           
           {% if media.exif %}
