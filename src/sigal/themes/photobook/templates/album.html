@@ -37,18 +37,16 @@
     {% for media in album.medias %}
     <div class="photobook-page" data-media-index="{{ loop.index0 }}" data-media-url="{{ media.url }}" data-media-type="{{ media.type }}" data-media-mime="{{ media.mime }}" data-media-title="{{ media.title }}" data-media-filename="{{ media.src_filename }}">
       <div class="photobook-page-content">
-        <div class="photobook-media clickable-media" role="button" tabindex="0" aria-label="Click to open full size image in a new tab">
+        <div class="photobook-media clickable-media" role="button" tabindex="0" aria-label="Click to open full size image">
           {% if media.type == "image" %}
-            <a href="{{ media.url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
-              <img src="{{ media.url }}" alt="{{ media.title }}" class="photobook-image" />
-            </a>
+            <img src="{{ media.url }}" alt="{{ media.title }}" class="photobook-image" />
           {% elif media.type == "video" %}
             <video controls class="photobook-video">
               <source src="{{ media.url }}" type="{{ media.mime }}" />
               Your browser does not support the video tag.
             </video>
           {% endif %}
-          <div class="viewer-hint">Click the image to open full size in a new tab</div>
+          <div class="viewer-hint">Click to view full size</div>
         </div>
         
         <!-- Hidden metadata for viewer -->
@@ -82,12 +80,7 @@
           {% endif %}
           
           <div class="media-filename">
-            <strong>File:</strong>
-            {% if media.url %}
-              <a href="{{ media.url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">{{ media.src_filename }}</a>
-            {% else %}
-              {{ media.src_filename }}
-            {% endif %}
+            <strong>File:</strong> {{ media.src_filename }}
           </div>
           
           {% if media.exif %}
