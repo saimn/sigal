@@ -446,14 +446,23 @@
         viewerImage.style.display = 'none';
         viewerVideo.style.display = 'none';
 
+        // Update media display and viewer links
+        const viewerImageLink = document.getElementById('viewer-image-link');
         if (media.type === 'image') {
             viewerImage.src = media.url;
             viewerImage.style.display = 'block';
+            if (viewerImageLink) {
+                viewerImageLink.href = media.url;
+            }
         } else if (media.type === 'video') {
             viewerVideoSource.src = media.url;
             viewerVideoSource.type = media.mime;
             viewerVideo.load();
             viewerVideo.style.display = 'block';
+            if (viewerImageLink) {
+                // disable image link for videos
+                viewerImageLink.href = '#';
+            }
         }
 
         // Update info
@@ -477,12 +486,14 @@
             }
         }
 
-        // Update filename section
+        // Update filename section and make it a link to the full-size file
         const filenameSection = document.getElementById('viewer-filename-section');
         const filenameContent = document.getElementById('viewer-filename');
-        if (filenameSection && filenameContent) {
+        const filenameLink = document.getElementById('viewer-filename-link');
+        if (filenameSection && filenameContent && filenameLink) {
             if (media.filename) {
                 filenameContent.textContent = media.filename;
+                filenameLink.href = media.url || '#';
                 filenameSection.style.display = 'block';
             } else {
                 filenameSection.style.display = 'none';

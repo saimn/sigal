@@ -216,7 +216,9 @@
     <button id="viewer-close" class="viewer-close" aria-label="Close viewer" title="Close (ESC)">&times;</button>
     
     <div class="viewer-content">
-      <img id="viewer-image" class="viewer-image" style="display: none;" alt="Full size image" />
+      <a id="viewer-image-link" href="#" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
+        <img id="viewer-image" class="viewer-image" style="display: none;" alt="Full size image" />
+      </a>
       <video id="viewer-video" class="viewer-video" controls style="display: none;">
         <source id="viewer-video-source" />
         Your browser does not support the video tag.
@@ -239,7 +241,7 @@
       
       <!-- Filename Section -->
       <div id="viewer-filename-section" class="viewer-section viewer-filename-section" style="display: none;">
-        <strong>File:</strong> <span id="viewer-filename"></span>
+        <strong>File:</strong> <a id="viewer-filename-link" href="#" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><span id="viewer-filename"></span></a>
       </div>
       
       <!-- EXIF Section -->
