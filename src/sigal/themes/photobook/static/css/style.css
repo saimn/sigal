@@ -360,6 +360,28 @@ body {
     min-width: 80px;
 }
 
+/* Make filename links readable against the light caption background */
+.media-filename a {
+    color: #222222; /* strong contrast, easy to read */
+    text-decoration: none;
+    font-weight: 500;
+}
+.media-filename a:hover {
+    color: #0a66c2;
+    text-decoration: underline;
+}
+
+/* Viewer filename link (light text on dark overlay) */
+.viewer-filename-section a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+}
+.viewer-filename-section a:hover {
+    color: #e6f2ff;
+    text-decoration: underline;
+}
+
 .media-exif {
     margin: 15px 0;
 }
