@@ -43,6 +43,7 @@ except ImportError:
     __version__ = None
 
 _DEFAULT_CONFIG_FILE = "sigal.conf.py"
+_DEFAULT_ALBUM_METADATA = ["Title", "Thumbnail", "Author", "Sort"]
 
 
 @click.group()
@@ -56,6 +57,26 @@ def main():
     """
 
 
+def _write_default_album_metadata(path):
+    title = path.name or pathlib.Path.cwd().name
+    metadata_lines = [f"Title: {title}"]
+    metadata_lines.extend(f"{key}:" for key in _DEFAULT_ALBUM_METADATA[1:])
+    (path / "index.md").write_text("\n".join(metadata_lines) + "\n", encoding="utf-8")
+
+
+def _init_album_metadata(root):
+    root = pathlib.Path(root)
+    if not root.exists():
+        root.mkdir(parents=True, exist_ok=True)
+
+    if not (root / "index.md").exists():
+        _write_default_album_metadata(root)
+
+    for directory in sorted(path for path in root.rglob("*") if path.is_dir()):
+        if not (directory / "index.md").exists():
+            _write_default_album_metadata(directory)
+
+
 @main.command()
 @argument("path", default=_DEFAULT_CONFIG_FILE)
 def init(path):
@@ -67,8 +88,10 @@ def init(path):
         print("Found an existing config file, will abort to keep it safe.")
         sys.exit(1)
 
+    path.parent.mkdir(parents=True, exist_ok=True)
     conf = pathlib.Path(__file__).parent / "templates" / "sigal.conf.py"
-    path.write_text(conf.read_text())
+    path.write_text(conf.read_text(), encoding="utf-8")
+    _init_album_metadata(path.parent)
     print(f"Sample config file created: {path}")
 
 

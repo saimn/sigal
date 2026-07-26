@@ -24,6 +24,25 @@ def test_init(tmpdir):
     )
 
 
+def test_init_creates_default_album_metadata(tmpdir):
+    gallery_dir = tmpdir.mkdir("gallery")
+    gallery_dir.mkdir("albums")
+    gallery_dir.mkdir("albums", "subalbum")
+    config_file = str(gallery_dir.join("sigal.conf.py"))
+    runner = CliRunner()
+
+    result = runner.invoke(init, [config_file])
+
+    assert result.exit_code == 0
+    assert gallery_dir.join("index.md").read() == "Title: gallery\nThumbnail:\nAuthor:\nSort:\n"
+    assert gallery_dir.join("albums", "index.md").read() == (
+        "Title: albums\nThumbnail:\nAuthor:\nSort:\n"
+    )
+    assert gallery_dir.join("albums", "subalbum", "index.md").read() == (
+        "Title: subalbum\nThumbnail:\nAuthor:\nSort:\n"
+    )
+
+
 def test_build(tmpdir, disconnect_signals):
     runner = CliRunner()
     config_file = str(tmpdir.join("sigal.conf.py"))

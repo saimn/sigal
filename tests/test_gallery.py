@@ -219,6 +219,13 @@ def test_album(path, album, settings, tmpdir):
     assert len(a) == len(album["medias"])
 
 
+def test_album_url_uses_output_filename(settings):
+    gal = Gallery(settings, ncpu=1)
+    album = Album("dir1", settings, ["test1"], [], gal)
+
+    assert album.url == "dir1/index.html"
+
+
 def test_albums_sort(settings):
     gal = Gallery(settings, ncpu=1)
     album = REF["dir1"]

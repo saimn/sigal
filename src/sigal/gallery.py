@@ -383,8 +383,8 @@ class Album:
 
         self.logger = logging.getLogger(__name__)
 
-        # optionally add index.html to the URLs
-        self.url_ext = self.output_file if settings["index_in_url"] else ""
+        # Use the generated output page as the album link target.
+        self.url_ext = self.output_file
 
         self.index_url = (
             url_from_path(os.path.relpath(settings["destination"], self.dst_path))
@@ -680,7 +680,7 @@ class Album:
             return []
 
         path = self.path
-        breadcrumb = [((self.url_ext or "."), self.title)]
+        breadcrumb = [(self.url_ext, self.title)]
 
         while True:
             path = os.path.normpath(os.path.join(path, ".."))
