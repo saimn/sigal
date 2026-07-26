@@ -43,6 +43,13 @@ def test_img_sizes(tmpdir):
     assert settings["thumb_size"] == (150, 200)
 
 
+def test_default_theme():
+    """Test that the default theme is photobook."""
+
+    settings = read_settings()
+    assert settings["theme"] == "photobook"
+
+
 def test_theme_path(tmpdir):
     """Test that image size is swaped if needed."""
 

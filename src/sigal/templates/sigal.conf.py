@@ -20,9 +20,9 @@ source = "pictures"
 # destination = '_build'
 
 # Theme :
-# - colorbox (default), galleria, photoswipe, or the path to a custom theme
+# - photobook (default), colorbox, galleria, photoswipe, or the path to a custom theme
 # directory
-theme = "galleria"
+theme = "photobook"
 
 # Theme for galleria (https://galleriajs.github.io/themes/)
 # galleria_theme = 'classic'

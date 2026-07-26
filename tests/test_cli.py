@@ -16,6 +16,7 @@ def test_init(tmpdir):
     assert result.exit_code == 0
     assert result.output.startswith("Sample config file created:")
     assert os.path.isfile(config_file)
+    assert 'theme = "photobook"' in open(config_file).read()
 
     result = runner.invoke(init, [config_file])
     assert result.exit_code == 1

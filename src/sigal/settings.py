@@ -81,7 +81,7 @@ _DEFAULT_CONFIG = {
     "site_logo": "",
     "show_map": False,
     "source": "",
-    "theme": "colorbox",
+    "theme": "photobook",
     "thumb_dir": "thumbnails",
     "thumb_fit": True,
     "thumb_fit_centering": (0.5, 0.5),
