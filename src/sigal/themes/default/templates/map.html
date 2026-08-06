@@ -603,20 +603,22 @@
     if (!markersData || markersData.length === 0) return;
     var title = "{{ album.title | escape }}";
     var xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-      '<gpx version="1.1" creator="Sigal" xmlns="http://www.topografix.com/GPX/1/1">\n' +
+      '<gpx version="1.1" creator="Sigal" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n' +
       '  <metadata><name>' + escapeXml(title) + '</name></metadata>\n';
 
     markersData.forEach(function(m) {
+      var isoDate = toIso8601(m.datetime);
       xml += '  <wpt lat="' + m.lat + '" lon="' + m.lng + '">\n' +
         '    <name>Stop #' + m.step + ': ' + escapeXml(m.caption) + '</name>\n' +
-        (m.datetime ? '    <time>' + m.datetime + '</time>\n' : '') +
+        (isoDate ? '    <time>' + isoDate + '</time>\n' : '') +
         '  </wpt>\n';
     });
 
     xml += '  <trk>\n    <name>' + escapeXml(title) + ' Route</name>\n    <trkseg>\n';
     markersData.forEach(function(m) {
+      var isoDate = toIso8601(m.datetime);
       xml += '      <trkpt lat="' + m.lat + '" lon="' + m.lng + '">\n' +
-        (m.datetime ? '        <time>' + m.datetime + '</time>\n' : '') +
+        (isoDate ? '        <time>' + isoDate + '</time>\n' : '') +
         '      </trkpt>\n';
     });
     xml += '    </trkseg>\n  </trk>\n</gpx>';
@@ -628,8 +630,16 @@
     if (!markersData || markersData.length === 0) return;
     var title = "{{ album.title | escape }}";
     var xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-      '<kml xmlns="http://www.opengis.net/kml/2.2">\n  <Document>\n' +
-      '    <name>' + escapeXml(title) + '</name>\n';
+      '<kml xmlns="http://www.opengis.net/kml/2.2">\n' +
+      '  <Document>\n' +
+      '    <name>' + escapeXml(title) + '</name>\n' +
+      '    <description>Trip itinerary route for ' + escapeXml(title) + '</description>\n' +
+      '    <Style id="routeStyle">\n' +
+      '      <LineStyle>\n' +
+      '        <color>ffeb6325</color>\n' +
+      '        <width>5</width>\n' +
+      '      </LineStyle>\n' +
+      '    </Style>\n';
 
     markersData.forEach(function(m) {
       xml += '    <Placemark>\n' +
@@ -639,11 +649,23 @@
     });
 
     var coords = markersData.map(function(m) { return m.lng + ',' + m.lat + ',0'; }).join(' ');
-    xml += '    <Placemark>\n      <name>' + escapeXml(title) + ' Route Line</name>\n' +
+    xml += '    <Placemark>\n' +
+      '      <name>' + escapeXml(title) + ' Route Line</name>\n' +
+      '      <styleUrl>#routeStyle</styleUrl>\n' +
       '      <LineString><coordinates>' + coords + '</coordinates></LineString>\n' +
-      '    </Placemark>\n  </Document>\n</kml>';
+      '    </Placemark>\n' +
+      '  </Document>\n</kml>';
 
     downloadRouteFile(xml, (title || 'route').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.kml', 'application/vnd.google-earth.kml+xml');
+  }
+
+  function toIso8601(str) {
+    if (!str) return null;
+    var d = new Date(str);
+    if (!isNaN(d.getTime())) {
+      return d.toISOString();
+    }
+    return null;
   }
 
   function downloadRouteFile(content, filename, contentType) {

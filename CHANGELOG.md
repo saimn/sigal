@@ -98,3 +98,19 @@ Inspecting the photobook theme templates to confirm where the trip map should be
   • Header Alignment (src/sigal/themes/default/templates/map.html):
       • Moved the � GPX an d � KML export buttons directly inside the � JOURNEY ROUTE header badge container (.itinerary-badge-title).
       • Added CSS rules (margin-left: 8px; display: inline-flex; flex-shrink: 0;) so the export buttons sit neatly on the right side of the header before the step chips.
+
+---
+  I have updated both the GPX and KML exporters to be fully compliant with Google Maps / Google My Maps requirements.
+
+  ### Fixes Applied for Google Maps Compatibility
+
+  1. XML Declaration (<?xml version="1.0" encoding="UTF-8"?>):
+      • Fixed the GPX XML header to use standard version="1.0". Google Maps rejects files declaring XML version="1.1".
+  2. Schema & Namespace Specifications:
+      • Added full GPX 1.1 schema declarations (xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.
+      topografix.com/GPX/1/1/gpx.xsd") so Google Maps XML validation passes.
+  3. ISO 8601 UTC Timestamp Formatting:
+      • Ensured all <time> tags in GPX use strict ISO 8601 UTC strings (YYYY-MM-DDTHH:MM:SSZ), resolving parsing errors triggered by arbitrary datetime string formats.
+  4. KML Document & Styling Structure:
+      • Enclosed KML placemarks inside a standard <Document> root with a <Style> block (LineStyle width and color) and formatted coordinates as longitude,latitude,0 separated
+      by spaces.

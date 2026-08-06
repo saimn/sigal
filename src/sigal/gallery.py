@@ -25,6 +25,7 @@
 # IN THE SOFTWARE.
 
 import fnmatch
+import html
 import io
 import logging
 import multiprocessing
@@ -922,16 +923,27 @@ class Album:
             )
         return route
 
+    def _format_iso_time(self, val):
+        if isinstance(val, datetime):
+            return val.strftime("%Y-%m-%dT%H:%M:%SZ")
+        if isinstance(val, str) and val:
+            try:
+                dt = datetime.fromisoformat(val)
+                return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+            except Exception:
+                return None
+        return None
+
     @cached_property
     def gpx(self):
-        """Generate GPX XML format string for the album route."""
+        """Generate GPX XML format string for the album route, compatible with Google Maps."""
         if not self.map_markers:
             return ""
 
-        title = self.title
+        title = html.escape(self.title)
         lines = [
             '<?xml version="1.0" encoding="UTF-8"?>',
-            '<gpx version="1.1" creator="Sigal" xmlns="http://www.topografix.com/GPX/1/1">',
+            '<gpx version="1.1" creator="Sigal" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">',
             "  <metadata>",
             f"    <name>{title}</name>",
             "  </metadata>",
@@ -941,12 +953,14 @@ class Album:
             lat = marker["lat"]
             lon = marker["lon"]
             step = marker["step"]
-            caption = marker["caption"]
-            dt = marker["datetime"]
+            caption = html.escape(marker["caption"])
+            dt = marker.get("datetime", "")
+            iso_t = self._format_iso_time(dt)
+
             lines.append(f'  <wpt lat="{lat}" lon="{lon}">')
             lines.append(f"    <name>Stop #{step}: {caption}</name>")
-            if dt:
-                lines.append(f"    <time>{dt}</time>")
+            if iso_t:
+                lines.append(f"    <time>{iso_t}</time>")
             lines.append("  </wpt>")
 
         lines.append("  <trk>")
@@ -955,10 +969,11 @@ class Album:
         for marker in self.map_markers:
             lat = marker["lat"]
             lon = marker["lon"]
-            dt = marker["datetime"]
+            dt = marker.get("datetime", "")
+            iso_t = self._format_iso_time(dt)
             lines.append(f'      <trkpt lat="{lat}" lon="{lon}">')
-            if dt:
-                lines.append(f"        <time>{dt}</time>")
+            if iso_t:
+                lines.append(f"        <time>{iso_t}</time>")
             lines.append("      </trkpt>")
         lines.append("    </trkseg>")
         lines.append("  </trk>")
@@ -968,23 +983,30 @@ class Album:
 
     @cached_property
     def kml(self):
-        """Generate KML XML format string for the album route."""
+        """Generate KML XML format string for the album route, compatible with Google Maps."""
         if not self.map_markers:
             return ""
 
-        title = self.title
+        title = html.escape(self.title)
         lines = [
             '<?xml version="1.0" encoding="UTF-8"?>',
             '<kml xmlns="http://www.opengis.net/kml/2.2">',
             "  <Document>",
             f"    <name>{title}</name>",
+            f"    <description>Trip itinerary route for {title}</description>",
+            '    <Style id="routeStyle">',
+            "      <LineStyle>",
+            "        <color>ffeb6325</color>",
+            "        <width>5</width>",
+            "      </LineStyle>",
+            "    </Style>",
         ]
 
         for marker in self.map_markers:
             lat = marker["lat"]
             lon = marker["lon"]
             step = marker["step"]
-            caption = marker["caption"]
+            caption = html.escape(marker["caption"])
             lines.append("    <Placemark>")
             lines.append(f"      <name>Stop #{step}: {caption}</name>")
             lines.append("      <Point>")
@@ -997,6 +1019,7 @@ class Album:
         )
         lines.append("    <Placemark>")
         lines.append(f"      <name>{title} Route Line</name>")
+        lines.append("      <styleUrl>#routeStyle</styleUrl>")
         lines.append("      <LineString>")
         lines.append(f"        <coordinates>{coords}</coordinates>")
         lines.append("      </LineString>")
