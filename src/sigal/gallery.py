@@ -922,6 +922,91 @@ class Album:
             )
         return route
 
+    @cached_property
+    def gpx(self):
+        """Generate GPX XML format string for the album route."""
+        if not self.map_markers:
+            return ""
+
+        title = self.title
+        lines = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<gpx version="1.1" creator="Sigal" xmlns="http://www.topografix.com/GPX/1/1">',
+            "  <metadata>",
+            f"    <name>{title}</name>",
+            "  </metadata>",
+        ]
+
+        for marker in self.map_markers:
+            lat = marker["lat"]
+            lon = marker["lon"]
+            step = marker["step"]
+            caption = marker["caption"]
+            dt = marker["datetime"]
+            lines.append(f'  <wpt lat="{lat}" lon="{lon}">')
+            lines.append(f"    <name>Stop #{step}: {caption}</name>")
+            if dt:
+                lines.append(f"    <time>{dt}</time>")
+            lines.append("  </wpt>")
+
+        lines.append("  <trk>")
+        lines.append(f"    <name>{title} Route</name>")
+        lines.append("    <trkseg>")
+        for marker in self.map_markers:
+            lat = marker["lat"]
+            lon = marker["lon"]
+            dt = marker["datetime"]
+            lines.append(f'      <trkpt lat="{lat}" lon="{lon}">')
+            if dt:
+                lines.append(f"        <time>{dt}</time>")
+            lines.append("      </trkpt>")
+        lines.append("    </trkseg>")
+        lines.append("  </trk>")
+        lines.append("</gpx>")
+
+        return "\n".join(lines)
+
+    @cached_property
+    def kml(self):
+        """Generate KML XML format string for the album route."""
+        if not self.map_markers:
+            return ""
+
+        title = self.title
+        lines = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<kml xmlns="http://www.opengis.net/kml/2.2">',
+            "  <Document>",
+            f"    <name>{title}</name>",
+        ]
+
+        for marker in self.map_markers:
+            lat = marker["lat"]
+            lon = marker["lon"]
+            step = marker["step"]
+            caption = marker["caption"]
+            lines.append("    <Placemark>")
+            lines.append(f"      <name>Stop #{step}: {caption}</name>")
+            lines.append("      <Point>")
+            lines.append(f"        <coordinates>{lon},{lat},0</coordinates>")
+            lines.append("      </Point>")
+            lines.append("    </Placemark>")
+
+        coords = " ".join(
+            f'{marker["lon"]},{marker["lat"]},0' for marker in self.map_markers
+        )
+        lines.append("    <Placemark>")
+        lines.append(f"      <name>{title} Route Line</name>")
+        lines.append("      <LineString>")
+        lines.append(f"        <coordinates>{coords}</coordinates>")
+        lines.append("      </LineString>")
+        lines.append("    </Placemark>")
+
+        lines.append("  </Document>")
+        lines.append("</kml>")
+
+        return "\n".join(lines)
+
     @property
     def show_map(self):
         """Check if we have at least one media with GPS location in the album."""

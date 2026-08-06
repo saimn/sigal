@@ -74,3 +74,19 @@ Inspecting the photobook theme templates to confirm where the trip map should be
   5. Test Coverage (tests/test_gallery.py):
       • Added unit test test_polarsteps_map_route_and_creation_date_grouping verifying location grouping by creation date, itinerary route ordering, and template rendering.
       All 109 tests pass.
+
+---
+  I have added the GPX and KML route export functionality for sharing trip itineraries.
+
+  ### Summary of Export Features
+
+  1. Static GPX & KML Route File Generation (src/sigal/gallery.py, src/sigal/writer.py):
+      • Added Album.gpx and Album.kml properties that generate standard GPX 1.1 (<gpx>, <wpt>, <trk>, <trkpt>) and KML 2.2 (<kml>, <Placemark>, <Point>, <LineString>) route
+      files.
+      • Updated AbstractWriter.write() in writer.py to automatically write route.gpx and route.kml into the output directory whenever map routes exist.
+  2. One-Click Map UI Export Buttons (src/sigal/themes/default/templates/map.html):
+      • Added � GPX and � KML export action buttons in the map itinerary bar.
+    • Clicking these buttons in the browser dynamically generates and triggers an instant download of the route itinerary in .gpx or .kml format.
+  3. Test Suite Verification (tests/test_gallery.py):
+      • Added automated tests verifying GPX/KML XML output and file writing during gallery build. All 106 tests pass.
+

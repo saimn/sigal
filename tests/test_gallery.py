@@ -726,8 +726,26 @@ def test_polarsteps_map_route_and_creation_date_grouping(settings, tmp_path):
 
     assert "sigal-map-container" in html
     assert "itinerary-bar" in html
+    assert "exportRouteGPX" in html
+    assert "exportRouteKML" in html
     assert "loc-album-modal" in html
     assert "loc-lightbox" in html
     assert "Eiffel Tower" in html
     assert "Louvre Museum" in html
+
+    # Check GPX and KML generation
+    assert "<gpx" in album.gpx
+    assert '<wpt lat="48.8566" lon="2.3522">' in album.gpx
+    assert "<kml" in album.kml
+    assert "<coordinates>2.3522,48.8566,0</coordinates>" in album.kml
+
+    # Test file writing
+    album.dst_path = str(tmp_path)
+    album.output_file = "index.html"
+    writer.write(album)
+    assert (tmp_path / "route.gpx").is_file()
+    assert (tmp_path / "route.kml").is_file()
+    assert "<gpx" in (tmp_path / "route.gpx").read_text()
+    assert "<kml" in (tmp_path / "route.kml").read_text()
+
 

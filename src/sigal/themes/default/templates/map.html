@@ -307,7 +307,31 @@
     width: 40px; height: 40px;
     border-radius: 50%;
     font-size: 24px;
+  .itinerary-export-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+  .export-btn:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
   }
 </style>
 
@@ -325,6 +349,14 @@
       <span style="font-size: 0.75rem; opacity: 0.7;">({{ marker.count }})</span>
     </div>
     {% endfor %}
+    <div class="itinerary-export-actions">
+      <button class="export-btn" onclick="exportRouteGPX()" title="Export route itinerary as GPX file">
+        <span>📥 GPX</span>
+      </button>
+      <button class="export-btn" onclick="exportRouteKML()" title="Export route itinerary as KML file">
+        <span>📥 KML</span>
+      </button>
+    </div>
   </div>
   {% endif %}
 
@@ -565,6 +597,71 @@
       }
     }
   });
+
+  function exportRouteGPX() {
+    if (!markersData || markersData.length === 0) return;
+    var title = "{{ album.title | escape }}";
+    var xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<gpx version="1.1" creator="Sigal" xmlns="http://www.topografix.com/GPX/1/1">\n' +
+      '  <metadata><name>' + escapeXml(title) + '</name></metadata>\n';
+
+    markersData.forEach(function(m) {
+      xml += '  <wpt lat="' + m.lat + '" lon="' + m.lng + '">\n' +
+        '    <name>Stop #' + m.step + ': ' + escapeXml(m.caption) + '</name>\n' +
+        (m.datetime ? '    <time>' + m.datetime + '</time>\n' : '') +
+        '  </wpt>\n';
+    });
+
+    xml += '  <trk>\n    <name>' + escapeXml(title) + ' Route</name>\n    <trkseg>\n';
+    markersData.forEach(function(m) {
+      xml += '      <trkpt lat="' + m.lat + '" lon="' + m.lng + '">\n' +
+        (m.datetime ? '        <time>' + m.datetime + '</time>\n' : '') +
+        '      </trkpt>\n';
+    });
+    xml += '    </trkseg>\n  </trk>\n</gpx>';
+
+    downloadRouteFile(xml, (title || 'route').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.gpx', 'application/gpx+xml');
+  }
+
+  function exportRouteKML() {
+    if (!markersData || markersData.length === 0) return;
+    var title = "{{ album.title | escape }}";
+    var xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<kml xmlns="http://www.opengis.net/kml/2.2">\n  <Document>\n' +
+      '    <name>' + escapeXml(title) + '</name>\n';
+
+    markersData.forEach(function(m) {
+      xml += '    <Placemark>\n' +
+        '      <name>Stop #' + m.step + ': ' + escapeXml(m.caption) + '</name>\n' +
+        '      <Point><coordinates>' + m.lng + ',' + m.lat + ',0</coordinates></Point>\n' +
+        '    </Placemark>\n';
+    });
+
+    var coords = markersData.map(function(m) { return m.lng + ',' + m.lat + ',0'; }).join(' ');
+    xml += '    <Placemark>\n      <name>' + escapeXml(title) + ' Route Line</name>\n' +
+      '      <LineString><coordinates>' + coords + '</coordinates></LineString>\n' +
+      '    </Placemark>\n  </Document>\n</kml>';
+
+    downloadRouteFile(xml, (title || 'route').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.kml', 'application/vnd.google-earth.kml+xml');
+  }
+
+  function downloadRouteFile(content, filename, contentType) {
+    var blob = new Blob([content], { type: contentType });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }
+
+  function escapeXml(str) {
+    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
 </script>
 {% endif %}
 
