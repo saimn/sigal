@@ -25,4 +25,4 @@ except ImportError:
     # package is not installed
     __version__ = None
 
-__url__ = "https://github.com/saimn/sigal"
+__url__ = "https://github.com/howardrotterdam/sigal"

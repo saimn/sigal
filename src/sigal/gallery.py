@@ -25,12 +25,29 @@
 # IN THE SOFTWARE.
 
 import fnmatch
+import html
 import io
 import logging
+import math
 import multiprocessing
+
+def calculate_bearing(lat1, lon1, lat2, lon2):
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    delta_lambda = math.radians(lon2 - lon1)
+    y = math.sin(delta_lambda) * math.cos(phi2)
+    x = math.cos(phi1) * math.sin(phi2) - math.sin(phi1) * math.cos(phi2) * math.cos(delta_lambda)
+    theta = math.atan2(y, x)
+    bearing = (math.degrees(theta) + 360) % 360
+    return round(bearing, 1)
+
+def cardinal_direction(bearing):
+    dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+    idx = int((bearing + 22.5) // 45) % 8
+    return dirs[idx]
 import os
 import pickle
 import random
+import re
 import sys
 from collections import defaultdict
 from datetime import datetime
@@ -228,6 +245,11 @@ class Media:
             meta.update(read_markdown(self.markdown_metadata_filepath))
         return meta
 
+    @property
+    def gps(self):
+        """GPS coordinates if available for this media."""
+        return None
+
     @cached_property
     def file_metadata(self):
         """Type-specific metadata"""
@@ -246,10 +268,12 @@ class Image(Media):
         super().__init__(filename, path, settings)
         imgformat = settings.get("img_format")
 
-        if imgformat and IMG_EXTENSIONS.ext2format[self.src_ext] != imgformat.upper():
-            # Find the extension that should match img_format
-            ext = IMG_EXTENSIONS.format2ext[imgformat.upper()]
-            self.dst_filename = self.basename + ext
+        if imgformat:
+            current_format = IMG_EXTENSIONS.ext2format.get(self.src_ext)
+            if current_format != imgformat.upper():
+                # Find the extension that should match img_format
+                ext = IMG_EXTENSIONS.format2ext[imgformat.upper()]
+                self.dst_filename = self.basename + ext
 
     @cached_property
     def date(self):
@@ -292,6 +316,41 @@ class Image(Media):
         """If not `None`, contains the raw EXIF tags."""
         if self.src_ext in EXIF_EXTENSIONS:
             return self.file_metadata["exif"]
+
+    @property
+    def gps(self):
+        if self.exif and self.exif.get("gps"):
+            return self.exif["gps"]
+
+        gps = None
+        for key in ("gps", "GPS", "location", "Location"):
+            if key in self.meta:
+                gps = self.meta[key]
+                break
+
+        if not gps:
+            return None
+
+        if isinstance(gps, list):
+            gps = gps[0]
+
+        if isinstance(gps, str):
+            parts = re.split(r"[;,\s]+", gps.strip())
+            if len(parts) >= 2:
+                try:
+                    lat = float(parts[0])
+                    lon = float(parts[1])
+                    return {"lat": lat, "lon": lon}
+                except ValueError:
+                    return None
+
+        if isinstance(gps, dict):
+            lat = gps.get("lat") or gps.get("latitude")
+            lon = gps.get("lon") or gps.get("longitude")
+            if lat is not None and lon is not None:
+                return {"lat": float(lat), "lon": float(lon)}
+
+        return None
 
     @cached_property
     def size(self):
@@ -345,6 +404,39 @@ class Video(Media):
         # If no date is found in the metadata, return the file date.
         return self._get_file_date()
 
+    @property
+    def gps(self):
+        gps = None
+
+        for key in ("gps", "GPS", "location", "Location"):
+            if key in self.meta:
+                gps = self.meta[key]
+                break
+
+        if not gps:
+            return None
+
+        if isinstance(gps, list):
+            gps = gps[0]
+
+        if isinstance(gps, str):
+            parts = re.split(r"[;,\s]+", gps.strip())
+            if len(parts) >= 2:
+                try:
+                    lat = float(parts[0])
+                    lon = float(parts[1])
+                    return {"lat": lat, "lon": lon}
+                except ValueError:
+                    return None
+
+        if isinstance(gps, dict):
+            lat = gps.get("lat") or gps.get("latitude")
+            lon = gps.get("lon") or gps.get("longitude")
+            if lat is not None and lon is not None:
+                return {"lat": float(lat), "lon": float(lon)}
+
+        return None
+
 
 class Album:
     """Gather all informations on an album.
@@ -383,8 +475,8 @@ class Album:
 
         self.logger = logging.getLogger(__name__)
 
-        # optionally add index.html to the URLs
-        self.url_ext = self.output_file if settings["index_in_url"] else ""
+        # Use the generated output page as the album link target.
+        self.url_ext = self.output_file
 
         self.index_url = (
             url_from_path(os.path.relpath(settings["destination"], self.dst_path))
@@ -680,7 +772,7 @@ class Album:
             return []
 
         path = self.path
-        breadcrumb = [((self.url_ext or "."), self.title)]
+        breadcrumb = [(self.url_ext, self.title)]
 
         while True:
             path = os.path.normpath(os.path.join(path, ".."))
@@ -693,10 +785,315 @@ class Album:
         breadcrumb.reverse()
         return breadcrumb
 
+    @cached_property
+    def all_medias(self):
+        """All medias contained in this album and its sub-albums."""
+        medias = list(self.medias)
+        for album in self.albums:
+            medias.extend(album.all_medias)
+        return medias
+
+    def relative_url(self, target_path):
+        """Return a URL relative to the current album path."""
+        if target_path.startswith("./"):
+            target_path = target_path[2:]
+        start = self.path if self.path != "." else "."
+        return url_from_path(os.path.relpath(target_path, start))
+
+    @cached_property
+    def gps_medias(self):
+        """Return list of (media, gps_dict) tuples for all media in the album and its sub-albums.
+        If a media lacks EXIF or metadata GPS/timestamp, use file creation date to group it
+        at the location of other media from the same creation date / nearest timestamp.
+        """
+        all_m = list(self.all_medias)
+        if not all_m:
+            return []
+
+        explicit = []
+        no_gps = []
+        for media in all_m:
+            if media.gps:
+                explicit.append((media, media.gps))
+            else:
+                no_gps.append(media)
+
+        if not explicit:
+            return []
+
+        date_to_explicit = defaultdict(list)
+        for media, gps in explicit:
+            m_date = media.date or datetime.min
+            d_key = m_date.date() if isinstance(m_date, datetime) else m_date
+            date_to_explicit[d_key].append((media, gps))
+
+        results = list(explicit)
+        for media in no_gps:
+            m_date = media.date or datetime.min
+            d_key = m_date.date() if isinstance(m_date, datetime) else m_date
+            assigned_gps = None
+
+            if d_key in date_to_explicit:
+                candidates = date_to_explicit[d_key]
+                closest = min(
+                    candidates,
+                    key=lambda item: abs(
+                        ((item[0].date or datetime.min) - m_date).total_seconds()
+                    ),
+                )
+                assigned_gps = closest[1]
+            else:
+                closest = min(
+                    explicit,
+                    key=lambda item: abs(
+                        ((item[0].date or datetime.min) - m_date).total_seconds()
+                    ),
+                )
+                assigned_gps = closest[1]
+
+            if assigned_gps:
+                results.append((media, assigned_gps))
+
+        results.sort(key=lambda item: item[0].date or datetime.min)
+        return results
+
+    @cached_property
+    def map_markers(self):
+        groups = {}
+        for media, gps in self.gps_medias:
+            key = (round(gps["lat"], 6), round(gps["lon"], 6))
+            groups.setdefault(key, []).append(media)
+
+        # Sort group locations chronologically by earliest media date
+        sorted_groups = sorted(
+            groups.items(),
+            key=lambda item: min(m.date or datetime.min for m in item[1]),
+        )
+
+        markers = []
+        step = 1
+        for (lat, lon), medias in sorted_groups:
+            medias.sort(key=lambda m: getattr(m, "date", None) or datetime.min)
+            first = medias[0]
+            items = []
+            for media in medias:
+                big_val = getattr(media, "big", None)
+                media_type = getattr(media, "type", "image")
+                dst_fn = getattr(media, "dst_filename", getattr(media, "thumb_name", ""))
+                desc_val = getattr(media, "description", "")
+                title_val = getattr(media, "title", getattr(media, "basename", ""))
+                thumb_fn = getattr(media, "thumb_name", "")
+                m_path = getattr(media, "path", "")
+                m_date = getattr(media, "date", None)
+                items.append(
+                    {
+                        "thumbnail": self.relative_url(
+                            os.path.join(m_path, thumb_fn)
+                        ),
+                        "dst_url": self.relative_url(
+                            os.path.join(m_path, dst_fn)
+                        ),
+                        "big_url": self.relative_url(
+                            os.path.join(m_path, big_val)
+                        )
+                        if big_val
+                        else "",
+                        "type": media_type,
+                        "caption": title_val,
+                        "description": desc_val,
+                        "datetime": m_date.strftime(self.settings["datetime_format"])
+                        if m_date
+                        else "",
+                        "album_url": self.relative_url(
+                            os.path.join(m_path, self.settings["output_filename"])
+                        ),
+                    }
+                )
+            first_title = getattr(first, "title", getattr(first, "basename", ""))
+            markers.append(
+                {
+                    "lat": lat,
+                    "lon": lon,
+                    "step": step,
+                    "count": len(medias),
+                    "url": items[0]["thumbnail"],
+                    "caption": first_title,
+                    "datetime": items[0]["datetime"],
+                    "album_url": items[0]["album_url"],
+                    "items": items,
+                }
+            )
+            step += 1
+
+        for i in range(len(markers)):
+            if i < len(markers) - 1:
+                b = calculate_bearing(
+                    markers[i]["lat"],
+                    markers[i]["lon"],
+                    markers[i + 1]["lat"],
+                    markers[i + 1]["lon"],
+                )
+                cd = cardinal_direction(b)
+                markers[i]["next_bearing"] = b
+                markers[i]["next_direction"] = cd
+            else:
+                markers[i]["next_bearing"] = None
+                markers[i]["next_direction"] = ""
+
+        return markers
+
+    @cached_property
+    def route(self):
+        route = []
+        for marker in self.map_markers:
+            route.append(
+                {
+                    "lat": marker["lat"],
+                    "lon": marker["lon"],
+                }
+            )
+        return route
+
+    def _format_iso_time(self, val):
+        if isinstance(val, datetime):
+            return val.strftime("%Y-%m-%dT%H:%M:%SZ")
+        if isinstance(val, str) and val:
+            try:
+                dt = datetime.fromisoformat(val)
+                return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+            except Exception:
+                return None
+        return None
+
+    @cached_property
+    def gpx(self):
+        """Generate GPX XML format string for the album route, compatible with Google Maps."""
+        if not self.map_markers:
+            return ""
+
+        title = html.escape(self.title)
+        lines = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<gpx version="1.1" creator="Sigal" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">',
+            "  <metadata>",
+            f"    <name>{title}</name>",
+            "  </metadata>",
+        ]
+
+        for marker in self.map_markers:
+            lat = marker["lat"]
+            lon = marker["lon"]
+            step = marker["step"]
+            caption = html.escape(marker["caption"])
+            dt = marker.get("datetime", "")
+            iso_t = self._format_iso_time(dt)
+            next_dir = marker.get("next_direction", "")
+            next_b = marker.get("next_bearing")
+
+            lines.append(f'  <wpt lat="{lat}" lon="{lon}">')
+            lines.append(f"    <name>Stop #{step}: {caption}</name>")
+            if iso_t:
+                lines.append(f"    <time>{iso_t}</time>")
+            if next_dir and next_b is not None:
+                lines.append(f"    <cmt>Heading to Stop #{step + 1}: {next_dir} ({next_b}°)</cmt>")
+                lines.append(f"    <desc>Timestamp: {dt or 'N/A'} | Next direction: {next_dir} ({next_b}°)</desc>")
+            elif dt:
+                lines.append(f"    <desc>Timestamp: {dt}</desc>")
+            lines.append("  </wpt>")
+
+        lines.append("  <trk>")
+        lines.append(f"    <name>{title} Route</name>")
+        lines.append("    <trkseg>")
+        for marker in self.map_markers:
+            lat = marker["lat"]
+            lon = marker["lon"]
+            dt = marker.get("datetime", "")
+            iso_t = self._format_iso_time(dt)
+            next_dir = marker.get("next_direction", "")
+            next_b = marker.get("next_bearing")
+            lines.append(f'      <trkpt lat="{lat}" lon="{lon}">')
+            if iso_t:
+                lines.append(f"        <time>{iso_t}</time>")
+            if next_b is not None:
+                lines.append(f"        <cmt>Heading: {next_b}° ({next_dir})</cmt>")
+            lines.append("      </trkpt>")
+        lines.append("    </trkseg>")
+        lines.append("  </trk>")
+        lines.append("</gpx>")
+
+        return "\n".join(lines)
+
+    @cached_property
+    def kml(self):
+        """Generate KML XML format string for the album route, compatible with Google Maps."""
+        if not self.map_markers:
+            return ""
+
+        title = html.escape(self.title)
+        lines = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<kml xmlns="http://www.opengis.net/kml/2.2">',
+            "  <Document>",
+            f"    <name>{title}</name>",
+            f"    <description>Trip itinerary route for {title}</description>",
+            '    <Style id="routeStyle">',
+            "      <LineStyle>",
+            "        <color>ffeb6325</color>",
+            "        <width>5</width>",
+            "      </LineStyle>",
+            "    </Style>",
+        ]
+
+        for marker in self.map_markers:
+            lat = marker["lat"]
+            lon = marker["lon"]
+            step = marker["step"]
+            caption = html.escape(marker["caption"])
+            dt = marker.get("datetime", "")
+            iso_t = self._format_iso_time(dt)
+            next_dir = marker.get("next_direction", "")
+            next_b = marker.get("next_bearing")
+
+            lines.append("    <Placemark>")
+            lines.append(f"      <name>Stop #{step}: {caption}</name>")
+            if iso_t:
+                lines.append("      <TimeStamp>")
+                lines.append(f"        <when>{iso_t}</when>")
+                lines.append("      </TimeStamp>")
+
+            desc_parts = [f"<b>Stop #{step}: {caption}</b>"]
+            if dt:
+                desc_parts.append(f"Time: {dt}")
+            if next_dir and next_b is not None:
+                desc_parts.append(f"Direction to next stop: {next_dir} ({next_b}°)")
+            desc_html = html.escape("<br/>".join(desc_parts))
+            lines.append(f"      <description>{desc_html}</description>")
+
+            lines.append("      <Point>")
+            lines.append(f"        <coordinates>{lon},{lat},0</coordinates>")
+            lines.append("      </Point>")
+            lines.append("    </Placemark>")
+
+        coords = " ".join(
+            f'{marker["lon"]},{marker["lat"]},0' for marker in self.map_markers
+        )
+        lines.append("    <Placemark>")
+        lines.append(f"      <name>{title} Route Line</name>")
+        lines.append("      <styleUrl>#routeStyle</styleUrl>")
+        lines.append("      <LineString>")
+        lines.append(f"        <coordinates>{coords}</coordinates>")
+        lines.append("      </LineString>")
+        lines.append("    </Placemark>")
+
+        lines.append("  </Document>")
+        lines.append("</kml>")
+
+        return "\n".join(lines)
+
     @property
     def show_map(self):
-        """Check if we have at least one photo with GPS location in the album"""
-        return any(image.has_location() for image in self.images)
+        """Check if we have at least one media with GPS location in the album."""
+        return bool(self.map_markers)
 
     @cached_property
     def zip(self):

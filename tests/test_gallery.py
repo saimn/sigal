@@ -7,9 +7,11 @@ from os.path import join
 
 import pytest
 from PIL import Image as PILImage
+from types import SimpleNamespace
 
 from sigal.gallery import Album, Gallery, Image, Media, Video
 from sigal.video import SubprocessException
+from sigal.writer import AlbumListPageWriter, AlbumPageWriter
 
 try:
     from pillow_heif import HeifImagePlugin  # noqa: F401
@@ -217,6 +219,220 @@ def test_album(path, album, settings, tmpdir):
         assert list(a.videos) == []
         assert [m.dst_filename for m in a.medias] == album["medias"]
     assert len(a) == len(album["medias"])
+
+
+def test_album_url_uses_output_filename(settings):
+    gal = Gallery(settings, ncpu=1)
+    album = Album("dir1", settings, ["test1"], [], gal)
+
+    assert album.url == "dir1/index.html"
+
+
+def test_build_with_multiprocessing(settings, tmp_path):
+    settings["source"] = os.path.join(CURRENT_DIR, "sample", "pictures")
+    settings["destination"] = str(tmp_path)
+    settings["theme"] = "photobook"
+
+    gal = Gallery(settings, ncpu=2)
+    gal.build()
+
+    assert os.path.isfile(os.path.join(settings["destination"], "index.html"))
+
+
+def test_album_map_markers_and_route(settings):
+    class FakeMedia:
+        def __init__(self, path, thumb_name, gps, date, title):
+            self.path = path
+            self.thumb_name = thumb_name
+            self.gps = gps
+            self.date = date
+            self.title = title
+
+    gal = SimpleNamespace(albums={})
+    album = Album("loc", settings, [], [], gal)
+    album.medias = [
+        FakeMedia("loc", "thumb1.jpg", {"lat": 1.0, "lon": 2.0}, datetime.datetime(2020, 1, 1), "First"),
+        FakeMedia("loc", "thumb2.jpg", {"lat": 1.0, "lon": 2.0}, datetime.datetime(2020, 1, 2), "Second"),
+        FakeMedia("loc", "thumb3.jpg", {"lat": 2.0, "lon": 3.0}, datetime.datetime(2020, 1, 3), "Third"),
+    ]
+
+    markers = album.map_markers
+    assert len(markers) == 2
+    assert markers[0]["lat"] == 1.0
+    assert markers[0]["lon"] == 2.0
+    assert markers[0]["items"][0]["caption"] == "First"
+    assert markers[0]["items"][1]["caption"] == "Second"
+    assert markers[1]["lat"] == 2.0
+    assert markers[1]["items"][0]["caption"] == "Third"
+
+    assert album.route == [{"lat": 1.0, "lon": 2.0}, {"lat": 2.0, "lon": 3.0}]
+
+
+def test_map_template_uses_items_key_across_themes(settings, tmp_path):
+    settings["destination"] = str(tmp_path)
+    settings["show_map"] = True
+    settings["map_height"] = "200px"
+    settings["leaflet_provider"] = "OpenStreetMap"
+    settings["datetime_format"] = "%Y-%m-%d"
+
+    album = SimpleNamespace(
+        show_map=True,
+        map_markers=[
+            {
+                "lat": 1.0,
+                "lon": 2.0,
+                "url": "thumb1.jpg",
+                "caption": "First",
+                "datetime": "2020-01-01",
+                "album_url": "./loc/index.html",
+                "items": [
+                    {
+                        "thumbnail": "thumb1.jpg",
+                        "caption": "First",
+                        "datetime": "2020-01-01",
+                        "album_url": "./loc/index.html",
+                    }
+                ],
+            }
+        ],
+        route=[{"lat": 1.0, "lon": 2.0}],
+    )
+
+    for theme in ["colorbox", "photobook", "galleria", "photoswipe"]:
+        settings["theme"] = theme
+        writer = AlbumPageWriter(settings, index_title="Sigal test gallery")
+        template = writer.template.environment.get_template("map.html")
+        html = template.render(album=album, settings=settings)
+
+        assert "items: [" in html
+        assert 'caption: "First"' in html
+        assert 'thumbnail: "thumb1.jpg"' in html
+
+
+def test_photobook_theme_renders_trip_map_feature(settings, tmp_path):
+    settings["destination"] = str(tmp_path)
+    settings["theme"] = "photobook"
+    settings["show_map"] = True
+    settings["map_height"] = "200px"
+    settings["leaflet_provider"] = "OpenStreetMap"
+
+    album = SimpleNamespace(
+        title="Test album",
+        description="Test description",
+        dst_path=str(tmp_path),
+        index_url="./index.html",
+        show_map=True,
+        map_markers=[
+            {
+                "lat": 1.0,
+                "lon": 2.0,
+                "url": "thumb1.jpg",
+                "caption": "First",
+                "datetime": "2020-01-01",
+                "album_url": "./loc/index.html",
+                "items": [
+                    {
+                        "thumbnail": "thumb1.jpg",
+                        "caption": "First",
+                        "datetime": "2020-01-01",
+                        "album_url": "./loc/index.html",
+                    }
+                ],
+            }
+        ],
+        route=[{"lat": 1.0, "lon": 2.0}],
+        medias=[],
+    )
+
+    writer = AlbumPageWriter(settings, index_title="Sigal test gallery")
+    html = writer.template.render(**writer.generate_context(album))
+    assert '<div id="mapid"' in html
+    assert 'leaflet/leaflet.js' in html
+
+    list_album = SimpleNamespace(
+        title="Root album",
+        description="",
+        dst_path=str(tmp_path),
+        index_url="index.html",
+        show_map=True,
+        map_markers=album.map_markers,
+        route=album.route,
+        albums=[
+            SimpleNamespace(
+                url="dir1/index.html",
+                thumbnail="./dir1/thumbnails/11.tn.jpg",
+                name="dir1",
+                title="Dir1",
+            )
+        ],
+    )
+
+    list_writer = AlbumListPageWriter(settings, index_title="Sigal test gallery")
+    list_html = list_writer.template.render(**list_writer.generate_context(list_album))
+    assert '<div id="mapid"' in list_html
+
+
+def test_photobook_theme_album_page_renders_map_with_sample_media(settings, tmp_path):
+    from sigal.gallery import Image
+
+    settings["destination"] = str(tmp_path)
+    settings["theme"] = "photobook"
+    settings["show_map"] = True
+    settings["map_height"] = "200px"
+    settings["leaflet_provider"] = "OpenStreetMap"
+
+    gal = Gallery(settings, ncpu=1)
+    album = Album("dir1/test1", settings, [], ["11.jpg"], gal)
+    assert len(album.medias) == 1
+
+    media = album.medias[0]
+    media.exif = {
+        "gps": {"lat": 48.8566, "lon": 2.3522},
+        "dateobj": datetime.datetime(2020, 1, 1, 12, 0, 0),
+        "datetime": "2020-01-01",
+    }
+
+    writer = AlbumPageWriter(settings, index_title="Sigal test gallery")
+    html = writer.template.render(**writer.generate_context(album))
+
+    assert '<div id="mapid"' in html
+    assert "items: [" in html
+    assert "L.map('mapid'" in html
+    assert ".photoLayer" not in html or "photoLayer.add(photos).addTo(map);" in html
+
+
+def test_breadcrumb_does_not_link_current_album(settings, tmp_path):
+    settings["source"] = os.path.join(CURRENT_DIR, "sample", "pictures")
+    settings["destination"] = str(tmp_path)
+    settings["theme"] = "photoswipe"
+    gal = Gallery(settings, ncpu=1)
+
+    parent = Album("dir1", settings, [], [], gal)
+    album = Album("dir1/test1", settings, [], [], gal)
+    gal.albums = {"dir1": parent, "dir1/test1": album}
+
+    writer = AlbumPageWriter(settings, index_title="Sigal test gallery")
+    breadcrumb = writer.template.environment.get_template("breadcrumb.html")
+    html = breadcrumb.render(album=album)
+
+    assert '<span>An example sub-category</span>' in html
+    assert 'href="index.html">An example sub-category</a>' not in html
+
+
+def test_photobook_album_list_includes_root_description(settings, tmp_path):
+    settings["source"] = os.path.join(CURRENT_DIR, "sample", "pictures")
+    settings["destination"] = str(tmp_path)
+    settings["theme"] = "photobook"
+    gal = Gallery(settings, ncpu=1)
+
+    root_album = Album(".", settings, ["dir1"], [], gal)
+    child_album = Album("dir1", settings, [], [], gal)
+    gal.albums = {".": root_album, "dir1": child_album}
+
+    writer = AlbumListPageWriter(settings, index_title="Sigal test gallery")
+    html = writer.template.render(**writer.generate_context(root_album))
+
+    assert "This gallery was generated with" in html
 
 
 def test_albums_sort(settings):
@@ -436,6 +652,7 @@ def test_ignores(settings, tmp_path):
 @pytest.mark.parametrize("thumbnail", ["outdoor.heic", "outdoor.tn.jpg"])
 def test_thumbnail_with_img_format(settings, tmp_path, thumbnail):
     """Test that outdoor.heic is correctly converted as jpg and used as thumbnail"""
+    pytest.importorskip("pillow_heif")
     src_path = tmp_path / "pictures"
     src_path.mkdir()
     shutil.copytree(
@@ -455,3 +672,80 @@ def test_thumbnail_with_img_format(settings, tmp_path, thumbnail):
     assert (tmp_path / "build" / "test1" / "outdoor.tn.jpg").is_file()
     index = (tmp_path / "build" / "index.html").read_text()
     assert 'src="./test1/outdoor.tn.jpg" class="album_thumb"' in index
+
+
+def test_polarsteps_map_route_and_creation_date_grouping(settings, tmp_path):
+    class CustomFakeMedia:
+        def __init__(self, path, filename, thumb_name, gps, date, title):
+            self.path = path
+            self.src_filename = filename
+            self.dst_filename = filename
+            self.thumb_name = thumb_name
+            self.gps = gps
+            self.date = date
+            self.title = title
+            self.type = "image"
+            self.description = "Test description"
+            self.big = None
+
+    gal = SimpleNamespace(albums={})
+    album = Album("trip", settings, [], [], gal)
+
+    # Media 1 has GPS location; Media 2 has NO GPS, but has creation date on the same day
+    m1 = CustomFakeMedia("trip", "img1.jpg", "thumb1.jpg", {"lat": 48.8566, "lon": 2.3522}, datetime.datetime(2026, 8, 1, 10, 0, 0), "Eiffel Tower")
+    m2 = CustomFakeMedia("trip", "img2.jpg", "thumb2.jpg", None, datetime.datetime(2026, 8, 1, 14, 0, 0), "Louvre Museum")
+    m3 = CustomFakeMedia("trip", "img3.jpg", "thumb3.jpg", {"lat": 45.7640, "lon": 4.8357}, datetime.datetime(2026, 8, 2, 11, 0, 0), "Lyon City")
+
+    album.medias = [m1, m2, m3]
+
+    markers = album.map_markers
+    assert len(markers) == 2
+    # Stop 1 (Paris) should group m1 and m2 together
+    assert markers[0]["lat"] == 48.8566
+    assert markers[0]["count"] == 2
+    assert len(markers[0]["items"]) == 2
+    assert markers[0]["items"][0]["caption"] == "Eiffel Tower"
+    assert markers[0]["items"][1]["caption"] == "Louvre Museum"
+
+    # Stop 2 (Lyon)
+    assert markers[1]["lat"] == 45.7640
+    assert markers[1]["count"] == 1
+
+    # Check route
+    assert len(album.route) == 2
+    assert album.route[0] == {"lat": 48.8566, "lon": 2.3522}
+    assert album.route[1] == {"lat": 45.7640, "lon": 4.8357}
+
+    # Render map template
+    settings["destination"] = str(tmp_path)
+    settings["show_map"] = True
+    settings["theme"] = "photobook"
+    writer = AlbumPageWriter(settings, index_title="Test Gallery")
+    template = writer.template.environment.get_template("map.html")
+    html = template.render(album=album, settings=settings)
+
+    assert "sigal-map-container" in html
+    assert "itinerary-bar" in html
+    assert "exportRouteGPX" in html
+    assert "exportRouteKML" in html
+    assert "loc-album-modal" in html
+    assert "loc-lightbox" in html
+    assert "Eiffel Tower" in html
+    assert "Louvre Museum" in html
+
+    # Check GPX and KML generation
+    assert "<gpx" in album.gpx
+    assert '<wpt lat="48.8566" lon="2.3522">' in album.gpx
+    assert "<kml" in album.kml
+    assert "<coordinates>2.3522,48.8566,0</coordinates>" in album.kml
+
+    # Test file writing
+    album.dst_path = str(tmp_path)
+    album.output_file = "index.html"
+    writer.write(album)
+    assert (tmp_path / "route.gpx").is_file()
+    assert (tmp_path / "route.kml").is_file()
+    assert "<gpx" in (tmp_path / "route.gpx").read_text()
+    assert "<kml" in (tmp_path / "route.kml").read_text()
+
+

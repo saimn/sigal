@@ -1,0 +1,1242 @@
+/* Photobook Theme CSS */
+/* UTF-8 charset is defined in HTML head */
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: #ffffff;
+    color: #333333;
+}
+
+body {
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+/* Container and Layout */
+.photobook-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+}
+
+.photobook-header {
+    padding: 20px 0 30px 0;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 30px;
+}
+
+.photobook-header h1 {
+    margin: 0 0 15px 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #222222;
+}
+
+.photobook-header h1 a {
+    color: #222222;
+    text-decoration: none;
+}
+
+.photobook-header h1 a:hover {
+    color: #555555;
+}
+
+.site-logo {
+    max-height: 60px;
+    margin-bottom: 10px;
+}
+
+.photobook-main {
+    flex: 1;
+    padding: 20px 0;
+}
+
+.photobook-footer {
+    padding: 30px 0 20px 0;
+    border-top: 2px solid #e0e0e0;
+    margin-top: 30px;
+    font-size: 14px;
+    color: #666666;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* Navigation Controls */
+.photobook-controls {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.photobook-nav {
+    display: flex;
+    gap: 10px;
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.outline-button,
+.slides-button,
+.book-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    color: #333333;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+}
+
+.outline-button:hover,
+.slides-button:hover,
+.book-button:hover {
+    background-color: #eeeeee;
+    border-color: #999999;
+}
+
+.outline-button.active,
+.slides-button.active,
+.book-button.active {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #333333;
+}
+
+/* View Controllers */
+.photobook-view {
+    display: none;
+}
+
+.photobook-view.active {
+    display: block;
+}
+
+/* Outline/Index View */
+.photobook-index h2 {
+    font-size: 24px;
+    margin: 0 0 20px 0;
+    color: #222222;
+}
+
+.album-description {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-left: 4px solid #cccccc;
+    margin-bottom: 30px;
+    border-radius: 2px;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.outline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.outline-item {
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.outline-item:active {
+    transform: scale(0.98);
+}
+
+.outline-item:hover {
+    transform: scale(1.05);
+}
+
+.outline-thumb {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.outline-caption {
+    font-size: 13px;
+    color: #666666;
+    word-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Album List View */
+.photobook-index.albums h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+
+.album-outline {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 30px;
+}
+
+.album-item {
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.album-item:hover {
+    transform: scale(0.98);
+}
+
+.album-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.album-thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border: 2px solid #dddddd;
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.album-title {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: #222222;
+}
+
+.album-item:hover .album-title {
+    color: #0066cc;
+}
+
+/* Photo Book View */
+.photobook-pages {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+}
+
+.photobook-page {
+    display: none;
+    page-break-after: always;
+    break-after: always;
+}
+
+.photobook-page.active {
+    display: block;
+}
+
+.photobook-page-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+    padding: 30px;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    min-height: 600px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+    .photobook-page-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        min-height: auto;
+    }
+}
+
+.photobook-media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.photobook-image {
+    max-width: 100%;
+    max-height: 600px;
+    width: auto;
+    height: auto;
+    display: block;
+}
+
+.photobook-video {
+    max-width: 100%;
+    max-height: 600px;
+    width: 100%;
+    height: auto;
+    background-color: #000000;
+    border-radius: 4px;
+}
+
+.photobook-caption {
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 600px;
+}
+
+.photobook-caption h3 {
+    margin: 0 0 15px 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #222222;
+}
+
+.media-description {
+    margin: 15px 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #444444;
+    background-color: #f9f9f9;
+    padding: 12px;
+    border-left: 3px solid #cccccc;
+    border-radius: 2px;
+}
+
+.media-filename {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 3px;
+    font-size: 14px;
+    border-left: 2px solid #cccccc;
+    word-break: break-all;
+}
+
+.media-filename strong {
+    color: #333333;
+    display: inline-block;
+    min-width: 80px;
+}
+
+/* Make filename links readable against the light caption background */
+.media-filename a {
+    color: #222222; /* strong contrast, easy to read */
+    text-decoration: none;
+    font-weight: 500;
+}
+.media-filename a:hover {
+    color: #0a66c2;
+    text-decoration: underline;
+}
+
+/* Viewer filename link (light text on dark overlay) */
+.viewer-filename-section a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+}
+.viewer-filename-section a:hover {
+    color: #e6f2ff;
+    text-decoration: underline;
+}
+
+.media-exif {
+    margin: 15px 0;
+}
+
+.exif-item {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 3px;
+    font-size: 14px;
+    border-left: 2px solid #cccccc;
+}
+
+.exif-item strong {
+    color: #333333;
+    display: inline-block;
+    min-width: 80px;
+}
+
+.exif-item span {
+    display: inline-block;
+    margin-right: 10px;
+    color: #666666;
+}
+
+.gps-link {
+    color: #0066cc;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.gps-link:hover {
+    text-decoration: underline;
+}
+
+/* Continuous Photo Book View */
+.continuous-book {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 20px 0;
+}
+
+.book-controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.export-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    color: #333333;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    min-height: 44px;
+}
+
+.export-button:hover {
+    background-color: #eeeeee;
+    border-color: #999999;
+    color: #222222;
+}
+
+.export-button:active {
+    background-color: #dddddd;
+}
+
+.export-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.book-entry {
+    page-break-after: always;
+    break-after: always;
+    padding: 30px;
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+}
+
+.book-media {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.book-image,
+.book-video {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.book-video {
+    background-color: #000000;
+    border-radius: 4px;
+}
+
+.book-caption {
+    padding: 10px 0;
+}
+
+.book-caption h2 {
+    margin: 0 0 15px 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #222222;
+}
+
+.book-description {
+    margin: 15px 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #444444;
+    background-color: #f9f9f9;
+    padding: 12px;
+    border-left: 3px solid #cccccc;
+    border-radius: 2px;
+}
+
+.book-filename {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 3px;
+    font-size: 14px;
+    border-left: 2px solid #cccccc;
+    word-break: break-all;
+}
+
+.book-filename strong {
+    color: #333333;
+    display: inline-block;
+    min-width: 80px;
+}
+
+.book-exif {
+    margin: 15px 0;
+}
+
+.book-exif-item {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 3px;
+    font-size: 14px;
+    border-left: 2px solid #cccccc;
+}
+
+.book-exif-item strong {
+    color: #333333;
+    display: inline-block;
+    min-width: 80px;
+}
+
+.book-exif-item span {
+    display: inline-block;
+    margin-right: 10px;
+    color: #666666;
+}
+
+/* Navigation Controls */
+.photobook-nav-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.nav-button {
+    padding: 12px 24px;
+    font-size: 15px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    color: #333333;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    min-height: 44px;
+}
+
+.nav-button:hover {
+    background-color: #eeeeee;
+    border-color: #999999;
+    color: #222222;
+}
+
+.nav-button:active {
+    background-color: #dddddd;
+}
+
+.page-counter {
+    font-size: 16px;
+    color: #333333;
+    font-weight: 500;
+    min-width: 100px;
+    text-align: center;
+}
+
+/* Links and Download */
+.download-zip {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.download-zip a {
+    color: #0066cc;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.download-zip a:hover {
+    text-decoration: underline;
+}
+
+/* Footer Links */
+.links-section {
+    margin: 15px 0;
+}
+
+.links-section a {
+    color: #0066cc;
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+.links-section a:hover {
+    text-decoration: underline;
+}
+
+/* Print Styles */
+@media print {
+    .photobook-controls,
+    .photobook-nav-controls,
+    .photobook-footer {
+        display: none;
+    }
+
+    .photobook-page {
+        display: block !important;
+        page-break-after: always;
+        break-after: always;
+    }
+
+    .photobook-caption {
+        max-height: none;
+        overflow: visible;
+    }
+
+    .book-entry {
+        page-break-after: always;
+        break-after: always;
+    }
+
+    .continuous-book {
+        gap: 0;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .photobook-container {
+        padding: 15px;
+    }
+
+    .photobook-header {
+        padding: 15px 0 20px 0;
+    }
+
+    .photobook-header h1 {
+        font-size: 24px;
+    }
+
+    body {
+        font-size: 15px;
+    }
+
+    .book-controls {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+
+    .export-button {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    .outline-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+    }
+
+    .outline-thumb {
+        height: 120px;
+    }
+
+    .album-outline {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 20px;
+    }
+
+    .album-thumbnail {
+        height: 150px;
+    }
+
+    .photobook-page-content {
+        padding: 15px;
+        gap: 15px;
+        min-height: auto;
+    }
+
+    .photobook-image,
+    .photobook-video {
+        max-height: 400px;
+    }
+
+    .photobook-caption {
+        max-height: 400px;
+    }
+
+    .photobook-caption h3 {
+        font-size: 18px;
+    }
+
+    .photobook-nav-controls {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .nav-button {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+
+    .continuous-book {
+        gap: 20px;
+    }
+
+    .book-entry {
+        padding: 15px;
+    }
+
+    .book-media {
+        margin-bottom: 15px;
+    }
+
+    .book-image,
+    .book-video {
+        max-height: 400px;
+    }
+
+    .book-caption h2 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .photobook-container {
+        padding: 10px;
+    }
+
+    .photobook-header h1 {
+        font-size: 20px;
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    .book-controls {
+        padding: 8px;
+        margin-bottom: 12px;
+    }
+
+    .export-button {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .outline-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 8px;
+    }
+
+    .outline-thumb {
+        height: 80px;
+    }
+
+    .photobook-page-content {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 15px;
+    }
+
+    .photobook-caption {
+        max-height: 300px;
+    }
+
+    .photobook-caption h3 {
+        font-size: 16px;
+    }
+
+    .page-counter {
+        font-size: 14px;
+    }
+
+    .continuous-book {
+        gap: 15px;
+    }
+
+    .book-entry {
+        padding: 10px;
+    }
+
+    .book-image,
+    .book-video {
+        max-height: 300px;
+    }
+
+    .book-caption h2 {
+        font-size: 18px;
+    }
+
+    .nav-button {
+        padding: 10px 12px;
+        font-size: 13px;
+        min-height: 44px;
+    }
+
+    .page-counter {
+        min-width: 80px;
+        font-size: 13px;
+    }
+
+    .photobook-nav-controls {
+        gap: 10px;
+    }
+}
+
+/* Media Viewer Modal */
+.media-viewer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.media-viewer.active {
+    display: flex;
+}
+
+.viewer-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.viewer-content {
+    flex: 0 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 95vw;
+    max-height: 65vh;
+    margin-bottom: 10px;
+}
+
+.viewer-image,
+.viewer-video {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.viewer-video {
+    background-color: #000;
+    border-radius: 4px;
+}
+
+.viewer-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: #ffffff;
+    font-size: 40px;
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.3s ease;
+    z-index: 10001;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.viewer-close:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.viewer-close:active {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.viewer-nav {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.viewer-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: #ffffff;
+    font-size: 40px;
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+    pointer-events: all;
+    padding: 0;
+    line-height: 1;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.viewer-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.viewer-nav-btn:active {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.viewer-prev-btn {
+    left: 20px;
+}
+
+.viewer-next-btn {
+    right: 20px;
+}
+
+.viewer-info {
+    text-align: center;
+    color: #ffffff;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 95vw;
+    max-height: 30vh;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.viewer-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    max-width: 600px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.viewer-counter {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.viewer-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 13px;
+}
+
+.viewer-description-section {
+    max-height: 150px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.viewer-description {
+    color: rgba(255, 255, 255, 0.9);
+    word-wrap: break-word;
+}
+
+.viewer-filename-section {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px;
+    border-radius: 3px;
+    border-left: 2px solid rgba(255, 255, 255, 0.3);
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    word-break: break-all;
+    display: inline-block;
+    min-width: 200px;
+}
+
+.viewer-filename-section strong {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    display: inline-block;
+    min-width: 70px;
+}
+
+.viewer-exif-section {
+    font-size: 12px;
+}
+
+.viewer-exif-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.viewer-exif-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px;
+    border-radius: 3px;
+    border-left: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.viewer-exif-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    display: inline-block;
+    min-width: 70px;
+}
+
+.viewer-exif-value {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.viewer-exif-gps {
+    margin-top: 5px;
+}
+
+.viewer-gps-link {
+    color: #66ccff;
+    text-decoration: none;
+}
+
+.viewer-gps-link:hover {
+    text-decoration: underline;
+}
+
+.clickable-media {
+    cursor: pointer;
+    position: relative;
+    transition: opacity 0.2s ease;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.clickable-media:hover {
+    opacity: 0.85;
+}
+
+.viewer-hint {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.clickable-media:hover .viewer-hint {
+    opacity: 1;
+}
+
+/* Responsive Media Viewer */
+@media (max-width: 768px) {
+    .viewer-close {
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 30px;
+    }
+
+    .viewer-nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 30px;
+    }
+
+    .viewer-prev-btn {
+        left: 10px;
+    }
+
+    .viewer-next-btn {
+        right: 10px;
+    }
+
+    .viewer-title {
+        font-size: 16px;
+    }
+
+    .viewer-counter {
+        font-size: 13px;
+    }
+
+    .viewer-section {
+        font-size: 12px;
+    }
+
+    .viewer-exif-items {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .media-viewer {
+        padding: 10px;
+    }
+
+    .viewer-close {
+        top: 5px;
+        right: 5px;
+        width: 35px;
+        height: 35px;
+        font-size: 24px;
+    }
+
+    .viewer-nav-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 24px;
+    }
+
+    .viewer-prev-btn {
+        left: 5px;
+    }
+
+    .viewer-next-btn {
+        right: 5px;
+    }
+
+    .viewer-content {
+        max-height: 70vh;
+        margin-bottom: 10px;
+    }
+
+    .viewer-title {
+        font-size: 14px;
+    }
+
+    .viewer-counter {
+        font-size: 12px;
+    }
+
+    .viewer-section {
+        font-size: 11px;
+        max-height: 100px;
+    }
+
+    .viewer-description-section {
+        max-height: 80px;
+    }
+
+    .viewer-exif-items {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+
+    .viewer-exif-item {
+        padding: 5px;
+        font-size: 11px;
+    }
+}

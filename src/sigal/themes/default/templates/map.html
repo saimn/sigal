@@ -1,5 +1,400 @@
 {% if settings.show_map and album.show_map %}
-<div id="mapid" style="height: {{ settings.map_height }};"></div>
+<style>
+  /* CSS for Polarsteps / FindPenguins style map & Location Album View */
+  .sigal-map-container {
+    position: relative;
+    margin: 1.5rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background: #f8fafc;
+  }
+  .itinerary-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .itinerary-badge-title {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .itinerary-step-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .itinerary-step-chip:hover, .itinerary-step-chip.active {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  }
+  .itinerary-step-num {
+    background: rgba(0,0,0,0.12);
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+  .itinerary-step-chip.active .itinerary-step-num {
+    background: rgba(255,255,255,0.25);
+  }
+
+  /* Custom Leaflet Polarsteps Markers */
+  .polarsteps-marker-icon {
+    background: transparent;
+    border: none;
+  }
+  .polarsteps-marker-card {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    background: #1e293b;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .polarsteps-marker-card:hover {
+    transform: scale(1.18);
+    z-index: 999 !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+  }
+  .polarsteps-marker-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .polarsteps-badge-step {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 8px;
+    line-height: 1.2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .polarsteps-badge-count {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(15, 23, 42, 0.85);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 8px;
+    line-height: 1.2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  /* Location Album Modal */
+  .loc-album-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(8px);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: locFadeIn 0.25s ease-out;
+  }
+  @keyframes locFadeIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .loc-album-card {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 860px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  .loc-album-header {
+    padding: 16px 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .loc-album-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .loc-album-subtitle {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .loc-album-close {
+    background: #f1f5f9;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    color: #475569;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .loc-album-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .loc-album-body {
+    padding: 20px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  .loc-item-card {
+    position: relative;
+    background: #f1f5f9;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .loc-item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  }
+  .loc-item-thumb-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 75%; /* 4:3 aspect ratio */
+    background: #cbd5e1;
+  }
+  .loc-item-thumb {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .loc-item-video-icon {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px; height: 40px;
+    background: rgba(15, 23, 42, 0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 18px;
+    pointer-events: none;
+  }
+  .loc-item-meta {
+    padding: 10px 12px;
+  }
+  .loc-item-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .loc-item-date {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  /* Fullscreen Lightbox within Modal */
+  .loc-lightbox {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 100000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .loc-lightbox-content {
+    max-width: 90vw;
+    max-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .loc-lightbox-media {
+    max-width: 90vw;
+    max-height: 80vh;
+    border-radius: 8px;
+    object-fit: contain;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .loc-lightbox-caption {
+    margin-top: 16px;
+    color: #f8fafc;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+  .loc-lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.15);
+    color: #ffffff;
+    border: none;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .loc-lightbox-nav:hover {
+    background: rgba(255,255,255,0.3);
+  }
+  .loc-lightbox-prev { left: 24px; }
+  .loc-lightbox-next { right: 24px; }
+  .loc-lightbox-close {
+    position: absolute;
+    top: 20px; right: 24px;
+    background: rgba(255,255,255,0.15);
+    color: #ffffff;
+    border: none;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+  .itinerary-export-actions {
+    margin-left: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+  .export-btn:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  }
+</style>
+
+<div class="sigal-map-container">
+  {% if album.route %}
+  <div class="itinerary-bar" id="itinerary-bar">
+    <div class="itinerary-badge-title">
+      <span>🧭 Journey Route</span>
+      <span style="font-weight: 400; font-size: 0.8rem; color: #64748b;">({{ album.map_markers | length }} Stops)</span>
+      <div class="itinerary-export-actions">
+        <button class="export-btn" onclick="exportRouteGPX()" title="Export route itinerary as GPX file">
+          <span>📥 GPX</span>
+        </button>
+        <button class="export-btn" onclick="exportRouteKML()" title="Export route itinerary as KML file">
+          <span>📥 KML</span>
+        </button>
+      </div>
+    </div>
+    {% for marker in album.map_markers %}
+    <div class="itinerary-step-chip" onclick="focusMapStep({{ loop.index0 }})" title="{% if marker.datetime %}Time: {{ marker.datetime }}{% endif %}{% if marker.next_direction %} | Next: {{ marker.next_direction }} ({{ marker.next_bearing }}°){% endif %}">
+      <span class="itinerary-step-num">#{{ marker.step }}</span>
+      <span>{{ marker.caption }}</span>
+      {% if marker.datetime %}
+      <span style="font-size: 0.75rem; color: #64748b;">🕒 {{ marker.datetime }}</span>
+      {% endif %}
+      {% if marker.next_direction %}
+      <span style="font-size: 0.75rem; color: #2563eb; font-weight: 700;">➔ {{ marker.next_direction }}</span>
+      {% endif %}
+      <span style="font-size: 0.75rem; opacity: 0.7;">({{ marker.count }})</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div id="mapid" style="height: {{ settings.map_height }};"></div>
+</div>
+
+<!-- Location Album View Modal -->
+<div id="loc-album-modal" class="loc-album-overlay" onclick="if(event.target === this) closeLocAlbumModal()">
+  <div class="loc-album-card">
+    <div class="loc-album-header">
+      <div>
+        <div class="loc-album-title" id="loc-modal-title">Location Title</div>
+        <div class="loc-album-subtitle" id="loc-modal-subtitle">Sub info</div>
+      </div>
+      <button class="loc-album-close" onclick="closeLocAlbumModal()">&times;</button>
+    </div>
+    <div class="loc-album-body" id="loc-modal-grid">
+      <!-- Media items will be rendered here -->
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox Modal for Location Album View -->
+<div id="loc-lightbox" class="loc-lightbox">
+  <button class="loc-lightbox-close" onclick="closeLocLightbox()">&times;</button>
+  <button class="loc-lightbox-nav loc-lightbox-prev" onclick="navLocLightbox(-1)">&#10094;</button>
+  <button class="loc-lightbox-nav loc-lightbox-next" onclick="navLocLightbox(1)">&#10095;</button>
+  <div class="loc-lightbox-content" id="loc-lightbox-media-container"></div>
+  <div class="loc-lightbox-caption" id="loc-lightbox-caption"></div>
+</div>
+
 <script charset="utf-8">
   var map = L.map('mapid', {
     fullscreenControl: true,
@@ -9,27 +404,337 @@
   });
   L.tileLayer.provider('{{ settings.leaflet_provider }}').addTo(map);
 
-  var photoLayer = L.photo.cluster({ spiderfyDistanceMultiplier: 1.2 })
-                   .on('click', function (evt) {
-    evt.layer.bindPopup(L.Util.template('<img src="{url}"/></a><p>{caption}</p>', evt.layer.photo), {
-      className: 'leaflet-popup-photo',
-      minWidth: 400
-    }).openPopup();
+  var markersData = [];
+  {% for marker in album.map_markers %}
+  markersData.push({
+    lat: {{ marker.lat }},
+    lng: {{ marker.lon }},
+    step: {{ marker.step }},
+    count: {{ marker.count }},
+    url: "{{ marker.url }}",
+    thumbnail: "{{ marker.url }}",
+    caption: "{{ marker.caption }}",
+    datetime: "{{ marker.datetime }}",
+    next_direction: "{{ marker.next_direction }}",
+    next_bearing: {{ marker.next_bearing if marker.next_bearing is not none else 'null' }},
+    album_url: "{{ marker.album_url }}",
+    items: [
+      {% for item in marker['items'] %}
+      {
+        thumbnail: "{{ item.thumbnail }}",
+        dst_url: "{{ item.dst_url }}",
+        big_url: "{{ item.big_url }}",
+        type: "{{ item.type }}",
+        caption: "{{ item.caption }}",
+        description: "{{ item.description }}",
+        datetime: "{{ item.datetime }}",
+        album_url: "{{ item.album_url }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  });
+  {% endfor %}
+
+  // Preserved photos array for backward compatibility
+  var photos = markersData;
+
+  var leafletMarkers = [];
+
+  markersData.forEach(function(marker, idx) {
+    var iconHtml = '<div class="polarsteps-marker-card">' +
+      '<img src="' + marker.url + '" class="polarsteps-marker-img" alt="' + marker.caption + '" />' +
+      '<span class="polarsteps-badge-step">#' + marker.step + '</span>' +
+      (marker.count > 1 ? '<span class="polarsteps-badge-count">' + marker.count + '</span>' : '') +
+      '</div>';
+
+    var customIcon = L.divIcon({
+      html: iconHtml,
+      className: 'polarsteps-marker-icon',
+      iconSize: [48, 48],
+      iconAnchor: [24, 24]
+    });
+
+    var markerPin = L.marker([marker.lat, marker.lng], { icon: customIcon }).addTo(map);
+
+    var tooltipTxt = '<strong>Stop #' + marker.step + ': ' + marker.caption + '</strong><br>';
+    if (marker.datetime) tooltipTxt += '🕒 ' + marker.datetime + '<br>';
+    tooltipTxt += '(' + marker.count + ' media)';
+    if (marker.next_direction) tooltipTxt += '<br>➔ Next stop: ' + marker.next_direction + ' (' + marker.next_bearing + '°)';
+
+    markerPin.bindTooltip(tooltipTxt, {
+      direction: 'top',
+      offset: [0, -20]
+    });
+
+    markerPin.on('click', function() {
+      openLocAlbumModal(idx);
+    });
+
+    leafletMarkers.push(markerPin);
   });
 
-  var photos = [];
-  {% for media in album.medias %}
-    {% if media.exif and media.exif.gps %}
-    photos.push({
-      lat: {{ media.exif.gps.lat }},
-      lng: {{ media.exif.gps.lon }},
-      url: "{{ media.thumbnail }}",
-      caption: "{{ media.title }}",
-      thumbnail: "{{ media.thumbnail }}",
+  {% if album.route %}
+  var routeLatLngs = [
+    {% for point in album.route %}
+      [{{ point.lat }}, {{ point.lon }}]{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ];
+  var routeLine = L.polyline(routeLatLngs, {
+    color: '#2563eb',
+    weight: 4,
+    opacity: 0.85,
+    lineCap: 'round',
+    lineJoin: 'round'
+  }).addTo(map);
+
+  // Render travel direction arrows along route segments
+  for (var i = 0; i < routeLatLngs.length - 1; i++) {
+    var p1 = routeLatLngs[i];
+    var p2 = routeLatLngs[i + 1];
+    var midLat = (p1[0] + p2[0]) / 2;
+    var midLng = (p1[1] + p2[1]) / 2;
+    var bearing = calculateJsBearing(p1[0], p1[1], p2[0], p2[1]);
+
+    var arrowIcon = L.divIcon({
+      html: '<div style="transform: rotate(' + (bearing - 90) + 'deg); font-size: 16px; color: #2563eb; text-shadow: 0 0 3px #ffffff, 0 0 5px #ffffff; line-height: 1; font-weight: bold;">➤</div>',
+      className: 'route-arrow-icon',
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
     });
+    L.marker([midLat, midLng], { icon: arrowIcon, interactive: false }).addTo(map);
+  }
+  {% endif %}
+
+  function calculateJsBearing(lat1, lon1, lat2, lon2) {
+    var phi1 = lat1 * Math.PI / 180, phi2 = lat2 * Math.PI / 180;
+    var deltaLambda = (lon2 - lon1) * Math.PI / 180;
+    var y = Math.sin(deltaLambda) * Math.cos(phi2);
+    var x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(deltaLambda);
+    var theta = Math.atan2(y, x);
+    return (theta * 180 / Math.PI + 360) % 360;
+  }
+
+  if (leafletMarkers.length > 0) {
+    var featureGroup = L.featureGroup(leafletMarkers);
+    {% if album.route %}
+    featureGroup.addLayer(routeLine);
     {% endif %}
-  {% endfor %}
-  photoLayer.add(photos).addTo(map);
-  map.fitBounds(photoLayer.getBounds());
+    map.fitBounds(featureGroup.getBounds().pad(0.1));
+  }
+
+  function focusMapStep(idx) {
+    if (idx >= 0 && idx < markersData.length) {
+      var m = markersData[idx];
+      map.flyTo([m.lat, m.lng], Math.max(map.getZoom(), 12), { duration: 0.8 });
+      // Update active chip
+      var chips = document.querySelectorAll('.itinerary-step-chip');
+      chips.forEach(function(c, i) {
+        if (i === idx) c.classList.add('active');
+        else c.classList.remove('active');
+      });
+      openLocAlbumModal(idx);
+    }
+  }
+
+  var currentMarkerItems = [];
+  var currentLightboxIdx = 0;
+
+  function openLocAlbumModal(markerIdx) {
+    var m = markersData[markerIdx];
+    if (!m) return;
+
+    currentMarkerItems = m.items || [];
+    var dirInfo = m.next_direction ? ' • ➔ Heading ' + m.next_direction + ' (' + m.next_bearing + '°)' : '';
+    document.getElementById('loc-modal-title').innerHTML = '<span style="color: #2563eb;">Stop #' + m.step + '</span> • ' + m.caption + dirInfo;
+    document.getElementById('loc-modal-subtitle').textContent = (m.datetime ? m.datetime + ' • ' : '') + m.count + ' photo(s)/video(s) taken at this location';
+
+    var gridEl = document.getElementById('loc-modal-grid');
+    gridEl.innerHTML = '';
+
+    currentMarkerItems.forEach(function(item, itemIdx) {
+      var card = document.createElement('div');
+      card.className = 'loc-item-card';
+      card.onclick = function() { openLocLightbox(itemIdx); };
+
+      var videoBadge = item.type === 'video' ? '<div class="loc-item-video-icon">&#9654;</div>' : '';
+
+      card.innerHTML = '<div class="loc-item-thumb-wrapper">' +
+        '<img src="' + item.thumbnail + '" class="loc-item-thumb" alt="' + item.caption + '" />' +
+        videoBadge +
+        '</div>' +
+        '<div class="loc-item-meta">' +
+        '<div class="loc-item-title">' + (item.caption || 'Media') + '</div>' +
+        '<div class="loc-item-date">' + (item.datetime || '') + '</div>' +
+        '</div>';
+
+      gridEl.appendChild(card);
+    });
+
+    document.getElementById('loc-album-modal').style.display = 'flex';
+  }
+
+  function closeLocAlbumModal() {
+    document.getElementById('loc-album-modal').style.display = 'none';
+  }
+
+  function openLocLightbox(itemIdx) {
+    currentLightboxIdx = itemIdx;
+    renderLocLightboxMedia();
+    document.getElementById('loc-lightbox').style.display = 'flex';
+  }
+
+  function closeLocLightbox() {
+    document.getElementById('loc-lightbox').style.display = 'none';
+    var container = document.getElementById('loc-lightbox-media-container');
+    container.innerHTML = '';
+  }
+
+  function navLocLightbox(dir) {
+    if (currentMarkerItems.length === 0) return;
+    currentLightboxIdx = (currentLightboxIdx + dir + currentMarkerItems.length) % currentMarkerItems.length;
+    renderLocLightboxMedia();
+  }
+
+  function renderLocLightboxMedia() {
+    var item = currentMarkerItems[currentLightboxIdx];
+    if (!item) return;
+
+    var container = document.getElementById('loc-lightbox-media-container');
+    container.innerHTML = '';
+
+    var mediaUrl = item.big_url || item.dst_url || item.thumbnail;
+
+    if (item.type === 'video') {
+      var video = document.createElement('video');
+      video.src = mediaUrl;
+      video.controls = true;
+      video.autoplay = true;
+      video.className = 'loc-lightbox-media';
+      container.appendChild(video);
+    } else {
+      var img = document.createElement('img');
+      img.src = mediaUrl;
+      img.alt = item.caption;
+      img.className = 'loc-lightbox-media';
+      container.appendChild(img);
+    }
+
+    document.getElementById('loc-lightbox-caption').innerHTML =
+      '<strong>' + item.caption + '</strong> (' + (currentLightboxIdx + 1) + ' of ' + currentMarkerItems.length + ')' +
+      (item.datetime ? ' &bull; ' + item.datetime : '') +
+      (item.description ? '<br><span style="font-size:0.85rem; opacity:0.8;">' + item.description + '</span>' : '');
+  }
+
+  document.addEventListener('keydown', function(e) {
+    var lb = document.getElementById('loc-lightbox');
+    if (lb && lb.style.display === 'flex') {
+      if (e.key === 'ArrowLeft') navLocLightbox(-1);
+      if (e.key === 'ArrowRight') navLocLightbox(1);
+      if (e.key === 'Escape') closeLocLightbox();
+    } else {
+      var modal = document.getElementById('loc-album-modal');
+      if (modal && modal.style.display === 'flex') {
+        if (e.key === 'Escape') closeLocAlbumModal();
+      }
+    }
+  });
+
+  function exportRouteGPX() {
+    if (!markersData || markersData.length === 0) return;
+    var title = "{{ album.title | escape }}";
+    var xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<gpx version="1.1" creator="Sigal" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n' +
+      '  <metadata><name>' + escapeXml(title) + '</name></metadata>\n';
+
+    markersData.forEach(function(m) {
+      var isoDate = toIso8601(m.datetime);
+      xml += '  <wpt lat="' + m.lat + '" lon="' + m.lng + '">\n' +
+        '    <name>Stop #' + m.step + ': ' + escapeXml(m.caption) + '</name>\n' +
+        (isoDate ? '    <time>' + isoDate + '</time>\n' : '') +
+        (m.next_direction ? '    <cmt>Heading to Stop #' + (m.step + 1) + ': ' + m.next_direction + ' (' + m.next_bearing + '°)</cmt>\n' : '') +
+        '    <desc>Timestamp: ' + (m.datetime || 'N/A') + (m.next_direction ? ' | Next direction: ' + m.next_direction + ' (' + m.next_bearing + '°)' : '') + '</desc>\n' +
+        '  </wpt>\n';
+    });
+
+    xml += '  <trk>\n    <name>' + escapeXml(title) + ' Route</name>\n    <trkseg>\n';
+    markersData.forEach(function(m) {
+      var isoDate = toIso8601(m.datetime);
+      xml += '      <trkpt lat="' + m.lat + '" lon="' + m.lng + '">\n' +
+        (isoDate ? '        <time>' + isoDate + '</time>\n' : '') +
+        (m.next_direction ? '        <cmt>Heading: ' + m.next_direction + ' (' + m.next_bearing + '°)</cmt>\n' : '') +
+        '      </trkpt>\n';
+    });
+    xml += '    </trkseg>\n  </trk>\n</gpx>';
+
+    downloadRouteFile(xml, (title || 'route').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.gpx', 'application/gpx+xml');
+  }
+
+  function exportRouteKML() {
+    if (!markersData || markersData.length === 0) return;
+    var title = "{{ album.title | escape }}";
+    var xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<kml xmlns="http://www.opengis.net/kml/2.2">\n' +
+      '  <Document>\n' +
+      '    <name>' + escapeXml(title) + '</name>\n' +
+      '    <description>Trip itinerary route for ' + escapeXml(title) + '</description>\n' +
+      '    <Style id="routeStyle">\n' +
+      '      <LineStyle>\n' +
+      '        <color>ffeb6325</color>\n' +
+      '        <width>5</width>\n' +
+      '      </LineStyle>\n' +
+      '    </Style>\n';
+
+    markersData.forEach(function(m) {
+      var isoDate = toIso8601(m.datetime);
+      var desc = 'Stop #' + m.step + ': ' + escapeXml(m.caption);
+      if (m.datetime) desc += '<br/>Time: ' + escapeXml(m.datetime);
+      if (m.next_direction) desc += '<br/>Direction to next stop: ' + m.next_direction + ' (' + m.next_bearing + '°)';
+
+      xml += '    <Placemark>\n' +
+        '      <name>Stop #' + m.step + ': ' + escapeXml(m.caption) + '</name>\n' +
+        (isoDate ? '      <TimeStamp><when>' + isoDate + '</when></TimeStamp>\n' : '') +
+        '      <description>' + escapeXml(desc) + '</description>\n' +
+        '      <Point><coordinates>' + m.lng + ',' + m.lat + ',0</coordinates></Point>\n' +
+        '    </Placemark>\n';
+    });
+
+    var coords = markersData.map(function(m) { return m.lng + ',' + m.lat + ',0'; }).join(' ');
+    xml += '    <Placemark>\n' +
+      '      <name>' + escapeXml(title) + ' Route Line</name>\n' +
+      '      <styleUrl>#routeStyle</styleUrl>\n' +
+      '      <LineString><coordinates>' + coords + '</coordinates></LineString>\n' +
+      '    </Placemark>\n' +
+      '  </Document>\n</kml>';
+
+    downloadRouteFile(xml, (title || 'route').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.kml', 'application/vnd.google-earth.kml+xml');
+  }
+
+  function toIso8601(str) {
+    if (!str) return null;
+    var d = new Date(str);
+    if (!isNaN(d.getTime())) {
+      return d.toISOString();
+    }
+    return null;
+  }
+
+  function downloadRouteFile(content, filename, contentType) {
+    var blob = new Blob([content], { type: contentType });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }
+
+  function escapeXml(str) {
+    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
 </script>
 {% endif %}
+
