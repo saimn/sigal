@@ -352,9 +352,15 @@
       </div>
     </div>
     {% for marker in album.map_markers %}
-    <div class="itinerary-step-chip" onclick="focusMapStep({{ loop.index0 }})">
+    <div class="itinerary-step-chip" onclick="focusMapStep({{ loop.index0 }})" title="{% if marker.datetime %}Time: {{ marker.datetime }}{% endif %}{% if marker.next_direction %} | Next: {{ marker.next_direction }} ({{ marker.next_bearing }}°){% endif %}">
       <span class="itinerary-step-num">#{{ marker.step }}</span>
       <span>{{ marker.caption }}</span>
+      {% if marker.datetime %}
+      <span style="font-size: 0.75rem; color: #64748b;">🕒 {{ marker.datetime }}</span>
+      {% endif %}
+      {% if marker.next_direction %}
+      <span style="font-size: 0.75rem; color: #2563eb; font-weight: 700;">➔ {{ marker.next_direction }}</span>
+      {% endif %}
       <span style="font-size: 0.75rem; opacity: 0.7;">({{ marker.count }})</span>
     </div>
     {% endfor %}
@@ -409,6 +415,8 @@
     thumbnail: "{{ marker.url }}",
     caption: "{{ marker.caption }}",
     datetime: "{{ marker.datetime }}",
+    next_direction: "{{ marker.next_direction }}",
+    next_bearing: {{ marker.next_bearing if marker.next_bearing is not none else 'null' }},
     album_url: "{{ marker.album_url }}",
     items: [
       {% for item in marker['items'] %}
@@ -448,7 +456,12 @@
 
     var markerPin = L.marker([marker.lat, marker.lng], { icon: customIcon }).addTo(map);
 
-    markerPin.bindTooltip('<strong>Stop #' + marker.step + ': ' + marker.caption + '</strong><br>' + marker.datetime + ' (' + marker.count + ' media)', {
+    var tooltipTxt = '<strong>Stop #' + marker.step + ': ' + marker.caption + '</strong><br>';
+    if (marker.datetime) tooltipTxt += '🕒 ' + marker.datetime + '<br>';
+    tooltipTxt += '(' + marker.count + ' media)';
+    if (marker.next_direction) tooltipTxt += '<br>➔ Next stop: ' + marker.next_direction + ' (' + marker.next_bearing + '°)';
+
+    markerPin.bindTooltip(tooltipTxt, {
       direction: 'top',
       offset: [0, -20]
     });
@@ -473,7 +486,33 @@
     lineCap: 'round',
     lineJoin: 'round'
   }).addTo(map);
+
+  // Render travel direction arrows along route segments
+  for (var i = 0; i < routeLatLngs.length - 1; i++) {
+    var p1 = routeLatLngs[i];
+    var p2 = routeLatLngs[i + 1];
+    var midLat = (p1[0] + p2[0]) / 2;
+    var midLng = (p1[1] + p2[1]) / 2;
+    var bearing = calculateJsBearing(p1[0], p1[1], p2[0], p2[1]);
+
+    var arrowIcon = L.divIcon({
+      html: '<div style="transform: rotate(' + (bearing - 90) + 'deg); font-size: 16px; color: #2563eb; text-shadow: 0 0 3px #ffffff, 0 0 5px #ffffff; line-height: 1; font-weight: bold;">➤</div>',
+      className: 'route-arrow-icon',
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+    L.marker([midLat, midLng], { icon: arrowIcon, interactive: false }).addTo(map);
+  }
   {% endif %}
+
+  function calculateJsBearing(lat1, lon1, lat2, lon2) {
+    var phi1 = lat1 * Math.PI / 180, phi2 = lat2 * Math.PI / 180;
+    var deltaLambda = (lon2 - lon1) * Math.PI / 180;
+    var y = Math.sin(deltaLambda) * Math.cos(phi2);
+    var x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(deltaLambda);
+    var theta = Math.atan2(y, x);
+    return (theta * 180 / Math.PI + 360) % 360;
+  }
 
   if (leafletMarkers.length > 0) {
     var featureGroup = L.featureGroup(leafletMarkers);
@@ -505,8 +544,9 @@
     if (!m) return;
 
     currentMarkerItems = m.items || [];
-    document.getElementById('loc-modal-title').innerHTML = '<span style="color: #2563eb;">Stop #' + m.step + '</span> • ' + m.caption;
-    document.getElementById('loc-modal-subtitle').textContent = m.datetime + ' • ' + m.count + ' photo(s)/video(s) taken at this location';
+    var dirInfo = m.next_direction ? ' • ➔ Heading ' + m.next_direction + ' (' + m.next_bearing + '°)' : '';
+    document.getElementById('loc-modal-title').innerHTML = '<span style="color: #2563eb;">Stop #' + m.step + '</span> • ' + m.caption + dirInfo;
+    document.getElementById('loc-modal-subtitle').textContent = (m.datetime ? m.datetime + ' • ' : '') + m.count + ' photo(s)/video(s) taken at this location';
 
     var gridEl = document.getElementById('loc-modal-grid');
     gridEl.innerHTML = '';
@@ -611,6 +651,8 @@
       xml += '  <wpt lat="' + m.lat + '" lon="' + m.lng + '">\n' +
         '    <name>Stop #' + m.step + ': ' + escapeXml(m.caption) + '</name>\n' +
         (isoDate ? '    <time>' + isoDate + '</time>\n' : '') +
+        (m.next_direction ? '    <cmt>Heading to Stop #' + (m.step + 1) + ': ' + m.next_direction + ' (' + m.next_bearing + '°)</cmt>\n' : '') +
+        '    <desc>Timestamp: ' + (m.datetime || 'N/A') + (m.next_direction ? ' | Next direction: ' + m.next_direction + ' (' + m.next_bearing + '°)' : '') + '</desc>\n' +
         '  </wpt>\n';
     });
 
@@ -619,6 +661,7 @@
       var isoDate = toIso8601(m.datetime);
       xml += '      <trkpt lat="' + m.lat + '" lon="' + m.lng + '">\n' +
         (isoDate ? '        <time>' + isoDate + '</time>\n' : '') +
+        (m.next_direction ? '        <cmt>Heading: ' + m.next_direction + ' (' + m.next_bearing + '°)</cmt>\n' : '') +
         '      </trkpt>\n';
     });
     xml += '    </trkseg>\n  </trk>\n</gpx>';
@@ -642,8 +685,15 @@
       '    </Style>\n';
 
     markersData.forEach(function(m) {
+      var isoDate = toIso8601(m.datetime);
+      var desc = 'Stop #' + m.step + ': ' + escapeXml(m.caption);
+      if (m.datetime) desc += '<br/>Time: ' + escapeXml(m.datetime);
+      if (m.next_direction) desc += '<br/>Direction to next stop: ' + m.next_direction + ' (' + m.next_bearing + '°)';
+
       xml += '    <Placemark>\n' +
         '      <name>Stop #' + m.step + ': ' + escapeXml(m.caption) + '</name>\n' +
+        (isoDate ? '      <TimeStamp><when>' + isoDate + '</when></TimeStamp>\n' : '') +
+        '      <description>' + escapeXml(desc) + '</description>\n' +
         '      <Point><coordinates>' + m.lng + ',' + m.lat + ',0</coordinates></Point>\n' +
         '    </Placemark>\n';
     });

@@ -114,3 +114,24 @@ Inspecting the photobook theme templates to confirm where the trip map should be
   4. KML Document & Styling Structure:
       • Enclosed KML placemarks inside a standard <Document> root with a <Style> block (LineStyle width and color) and formatted coordinates as longitude,latitude,0 separated
       by spaces.
+
+---
+  I have added travel direction indicators and waypoint timestamps to both the interactive route map and the exported GPX and KML route files.
+
+  ### Summary of Enhancements
+
+  1. Route Map (map.html):
+      • Directional Segment Arrows (➤): Rendered midway along each route line segment on the map, rotated according to the exact bearing angle pointing from one stop to the
+      next.
+      • Waypoint Timestamps & Direction Indicators in Itinerary Chips: Each itinerary step chip displays the stop's media timestamp (� 2026-0 8-01 10:00 AM) and the cardinal
+      direction to the next stop (➔ NE).
+      • Map Marker Tooltips: Hovering over map marker pins displays the stop sequence, formatted timestamp, count of media items, and travel direction to the next stop (➔ Next
+      stop: NE (45.0°)).
+  2. GPX Export File (Album.gpx & JS exporter):
+      • Waypoint Timestamps: Formatted in standard ISO 8601 UTC format (<time>2026-08-01T10:00:00Z</time>) under each <wpt> and trackpoint <trkpt>.
+      • Travel Direction Metadata: Added <cmt> and <desc> fields detailing the heading bearing in degrees and cardinal direction (e.g., <cmt>Heading to Stop #2: NE (45.
+      0°)</cmt>).
+  3. KML Export File (Album.kml & JS exporter):
+      • Waypoint Timestamps: Uses standard KML <TimeStamp><when>2026-08-01T10:00:00Z</when></TimeStamp> elements.
+      • Rich HTML Placemark Descriptions: Formatted placemark <description> blocks containing the stop title, media timestamp, and direction to the next stop.
+

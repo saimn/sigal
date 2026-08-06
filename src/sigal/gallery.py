@@ -28,7 +28,22 @@ import fnmatch
 import html
 import io
 import logging
+import math
 import multiprocessing
+
+def calculate_bearing(lat1, lon1, lat2, lon2):
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    delta_lambda = math.radians(lon2 - lon1)
+    y = math.sin(delta_lambda) * math.cos(phi2)
+    x = math.cos(phi1) * math.sin(phi2) - math.sin(phi1) * math.cos(phi2) * math.cos(delta_lambda)
+    theta = math.atan2(y, x)
+    bearing = (math.degrees(theta) + 360) % 360
+    return round(bearing, 1)
+
+def cardinal_direction(bearing):
+    dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+    idx = int((bearing + 22.5) // 45) % 8
+    return dirs[idx]
 import os
 import pickle
 import random
@@ -909,6 +924,22 @@ class Album:
                 }
             )
             step += 1
+
+        for i in range(len(markers)):
+            if i < len(markers) - 1:
+                b = calculate_bearing(
+                    markers[i]["lat"],
+                    markers[i]["lon"],
+                    markers[i + 1]["lat"],
+                    markers[i + 1]["lon"],
+                )
+                cd = cardinal_direction(b)
+                markers[i]["next_bearing"] = b
+                markers[i]["next_direction"] = cd
+            else:
+                markers[i]["next_bearing"] = None
+                markers[i]["next_direction"] = ""
+
         return markers
 
     @cached_property
@@ -956,11 +987,18 @@ class Album:
             caption = html.escape(marker["caption"])
             dt = marker.get("datetime", "")
             iso_t = self._format_iso_time(dt)
+            next_dir = marker.get("next_direction", "")
+            next_b = marker.get("next_bearing")
 
             lines.append(f'  <wpt lat="{lat}" lon="{lon}">')
             lines.append(f"    <name>Stop #{step}: {caption}</name>")
             if iso_t:
                 lines.append(f"    <time>{iso_t}</time>")
+            if next_dir and next_b is not None:
+                lines.append(f"    <cmt>Heading to Stop #{step + 1}: {next_dir} ({next_b}°)</cmt>")
+                lines.append(f"    <desc>Timestamp: {dt or 'N/A'} | Next direction: {next_dir} ({next_b}°)</desc>")
+            elif dt:
+                lines.append(f"    <desc>Timestamp: {dt}</desc>")
             lines.append("  </wpt>")
 
         lines.append("  <trk>")
@@ -971,9 +1009,13 @@ class Album:
             lon = marker["lon"]
             dt = marker.get("datetime", "")
             iso_t = self._format_iso_time(dt)
+            next_dir = marker.get("next_direction", "")
+            next_b = marker.get("next_bearing")
             lines.append(f'      <trkpt lat="{lat}" lon="{lon}">')
             if iso_t:
                 lines.append(f"        <time>{iso_t}</time>")
+            if next_b is not None:
+                lines.append(f"        <cmt>Heading: {next_b}° ({next_dir})</cmt>")
             lines.append("      </trkpt>")
         lines.append("    </trkseg>")
         lines.append("  </trk>")
@@ -1007,8 +1049,26 @@ class Album:
             lon = marker["lon"]
             step = marker["step"]
             caption = html.escape(marker["caption"])
+            dt = marker.get("datetime", "")
+            iso_t = self._format_iso_time(dt)
+            next_dir = marker.get("next_direction", "")
+            next_b = marker.get("next_bearing")
+
             lines.append("    <Placemark>")
             lines.append(f"      <name>Stop #{step}: {caption}</name>")
+            if iso_t:
+                lines.append("      <TimeStamp>")
+                lines.append(f"        <when>{iso_t}</when>")
+                lines.append("      </TimeStamp>")
+
+            desc_parts = [f"<b>Stop #{step}: {caption}</b>"]
+            if dt:
+                desc_parts.append(f"Time: {dt}")
+            if next_dir and next_b is not None:
+                desc_parts.append(f"Direction to next stop: {next_dir} ({next_b}°)")
+            desc_html = html.escape("<br/>".join(desc_parts))
+            lines.append(f"      <description>{desc_html}</description>")
+
             lines.append("      <Point>")
             lines.append(f"        <coordinates>{lon},{lat},0</coordinates>")
             lines.append("      </Point>")
