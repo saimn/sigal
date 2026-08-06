@@ -276,4 +276,4 @@ This theme is part of Sigal and follows the same license terms.
 ## Support
 
 For issues or feature requests, visit:
-https://github.com/saimon-res/sigal
+https://github.com/saimn/sigal

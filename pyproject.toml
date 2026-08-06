@@ -40,7 +40,7 @@ docs = ["Sphinx>=4.1.0", "furo", "cryptography"]
 sigal = "sigal.__main__:main"
 
 [project.urls]
-repository = "https://github.com/saimn/sigal"
+repository = "https://github.com/howardrotterdam/sigal"
 documentation = "https://sigal.readthedocs.io/en/latest/"
 
 [tool.setuptools]
