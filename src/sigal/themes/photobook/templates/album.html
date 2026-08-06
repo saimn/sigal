@@ -17,7 +17,8 @@
     {{ album.description }}
   </div>
   {% endif %}
-  
+
+  {% include 'map.html' %}
   <div class="outline-grid">
     {% for media in album.medias %}
     <div class="outline-item" data-media-index="{{ loop.index0 }}">

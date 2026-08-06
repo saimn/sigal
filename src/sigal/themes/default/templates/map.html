@@ -11,25 +11,65 @@
 
   var photoLayer = L.photo.cluster({ spiderfyDistanceMultiplier: 1.2 })
                    .on('click', function (evt) {
-    evt.layer.bindPopup(L.Util.template('<img src="{url}"/></a><p>{caption}</p>', evt.layer.photo), {
+    var photo = evt.layer.photo;
+    var html = '';
+    if (photo.items && photo.items.length > 1) {
+      html += '<div class="leaflet-photo-group">';
+      photo.items.forEach(function(item) {
+        html += '<a href="' + item.album_url + '"><img src="' + item.thumbnail + '" alt="' + item.caption + '" /><div>' + item.caption + '</div><div>' + item.datetime + '</div></a>';
+      });
+      html += '</div>';
+    } else {
+      html += '<a href="' + photo.album_url + '"><img src="' + photo.thumbnail + '" alt="' + photo.caption + '" /></a>';
+      html += '<div><strong>' + photo.caption + '</strong></div>';
+      if (photo.datetime) {
+        html += '<div>' + photo.datetime + '</div>';
+      }
+    }
+    evt.layer.bindPopup(html, {
       className: 'leaflet-popup-photo',
-      minWidth: 400
+      minWidth: 300,
+      maxWidth: 500,
     }).openPopup();
   });
 
   var photos = [];
-  {% for media in album.medias %}
-    {% if media.exif and media.exif.gps %}
-    photos.push({
-      lat: {{ media.exif.gps.lat }},
-      lng: {{ media.exif.gps.lon }},
-      url: "{{ media.thumbnail }}",
-      caption: "{{ media.title }}",
-      thumbnail: "{{ media.thumbnail }}",
-    });
-    {% endif %}
+  {% for marker in album.map_markers %}
+  photos.push({
+    lat: {{ marker.lat }},
+    lng: {{ marker.lon }},
+    url: "{{ marker.url }}",
+    thumbnail: "{{ marker.url }}",
+    caption: "{{ marker.caption }}",
+    datetime: "{{ marker.datetime }}",
+    album_url: "{{ marker.album_url }}",
+    items: [
+      {% for item in marker.items %}
+      {
+        thumbnail: "{{ item.thumbnail }}",
+        caption: "{{ item.caption }}",
+        datetime: "{{ item.datetime }}",
+        album_url: "{{ item.album_url }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  });
   {% endfor %}
+
   photoLayer.add(photos).addTo(map);
-  map.fitBounds(photoLayer.getBounds());
+
+  {% if album.route %}
+  var route = L.polyline([
+    {% for point in album.route %}
+      [{{ point.lat }}, {{ point.lon }}]{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ], { color: '#0078d4', weight: 4, opacity: 0.7 }).addTo(map);
+  {% endif %}
+
+  var bounds = photoLayer.getBounds();
+  {% if album.route %}
+  bounds.extend(route.getBounds());
+  {% endif %}
+  map.fitBounds(bounds);
 </script>
 {% endif %}

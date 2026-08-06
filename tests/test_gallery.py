@@ -7,6 +7,7 @@ from os.path import join
 
 import pytest
 from PIL import Image as PILImage
+from types import SimpleNamespace
 
 from sigal.gallery import Album, Gallery, Image, Media, Video
 from sigal.video import SubprocessException

@@ -31,6 +31,7 @@ import multiprocessing
 import os
 import pickle
 import random
+import re
 import sys
 from collections import defaultdict
 from datetime import datetime
@@ -104,6 +105,7 @@ class Media:
         self.thumb_name = get_thumb(self.settings, self.dst_filename)
 
         self.logger = logging.getLogger(__name__)
+        self.album = None
 
         signals.media_initialized.send(self)
 
@@ -228,6 +230,11 @@ class Media:
             meta.update(read_markdown(self.markdown_metadata_filepath))
         return meta
 
+    @property
+    def gps(self):
+        """GPS coordinates if available for this media."""
+        return None
+
     @cached_property
     def file_metadata(self):
         """Type-specific metadata"""
@@ -293,6 +300,10 @@ class Image(Media):
         if self.src_ext in EXIF_EXTENSIONS:
             return self.file_metadata["exif"]
 
+    @property
+    def gps(self):
+        return self.exif.get("gps") if self.exif else None
+
     @cached_property
     def size(self):
         """The dimensions of the resized image."""
@@ -344,6 +355,39 @@ class Video(Media):
                 )
         # If no date is found in the metadata, return the file date.
         return self._get_file_date()
+
+    @property
+    def gps(self):
+        gps = None
+
+        for key in ("gps", "GPS", "location", "Location"):
+            if key in self.meta:
+                gps = self.meta[key]
+                break
+
+        if not gps:
+            return None
+
+        if isinstance(gps, list):
+            gps = gps[0]
+
+        if isinstance(gps, str):
+            parts = re.split(r"[;,\s]+", gps.strip())
+            if len(parts) >= 2:
+                try:
+                    lat = float(parts[0])
+                    lon = float(parts[1])
+                    return {"lat": lat, "lon": lon}
+                except ValueError:
+                    return None
+
+        if isinstance(gps, dict):
+            lat = gps.get("lat") or gps.get("latitude")
+            lon = gps.get("lon") or gps.get("longitude")
+            if lat is not None and lon is not None:
+                return {"lat": float(lat), "lon": float(lon)}
+
+        return None
 
 
 class Album:
@@ -413,6 +457,7 @@ class Album:
                     media = ret
 
             if media:
+                media.album = self
                 self.medias_count[media.type] += 1
                 medias.append(media)
 
@@ -693,10 +738,83 @@ class Album:
         breadcrumb.reverse()
         return breadcrumb
 
+    @cached_property
+    def all_medias(self):
+        """All medias contained in this album and its sub-albums."""
+        medias = list(self.medias)
+        for album in self.albums:
+            medias.extend(album.all_medias)
+        return medias
+
+    def relative_url(self, target_path):
+        """Return a URL relative to the current album path."""
+        if target_path.startswith("./"):
+            target_path = target_path[2:]
+        start = self.path if self.path != "." else "."
+        return url_from_path(os.path.relpath(target_path, start))
+
+    @cached_property
+    def gps_medias(self):
+        return sorted(
+            (media for media in self.all_medias if media.gps),
+            key=lambda media: media.date or datetime.min,
+        )
+
+    @cached_property
+    def map_markers(self):
+        groups = {}
+        for media in self.gps_medias:
+            key = (round(media.gps["lat"], 6), round(media.gps["lon"], 6))
+            groups.setdefault(key, []).append(media)
+
+        markers = []
+        for (lat, lon), medias in groups.items():
+            medias.sort(key=lambda m: m.date or datetime.min)
+            first = medias[0]
+            items = []
+            for media in medias:
+                items.append(
+                    {
+                        "thumbnail": self.relative_url(
+                            os.path.join(media.path, media.thumb_name)
+                        ),
+                        "caption": media.title,
+                        "datetime": media.date.strftime(self.settings["datetime_format"])
+                        if media.date
+                        else "",
+                        "album_url": self.relative_url(
+                            os.path.join(media.path, self.settings["output_filename"])
+                        ),
+                    }
+                )
+            markers.append(
+                {
+                    "lat": lat,
+                    "lon": lon,
+                    "url": items[0]["thumbnail"],
+                    "caption": first.title,
+                    "datetime": items[0]["datetime"],
+                    "album_url": items[0]["album_url"],
+                    "items": items,
+                }
+            )
+        return markers
+
+    @cached_property
+    def route(self):
+        route = []
+        last = None
+        for marker in self.map_markers:
+            point = (marker["lat"], marker["lon"])
+            if point != last:
+                route.append({"lat": marker["lat"], "lon": marker["lon"]})
+                last = point
+        return route
+
     @property
     def show_map(self):
-        """Check if we have at least one photo with GPS location in the album"""
-        return any(image.has_location() for image in self.images)
+        """Check if we have at least one media with GPS location in the album."""
+        return bool(self.map_markers)
 
     @cached_property
     def zip(self):
