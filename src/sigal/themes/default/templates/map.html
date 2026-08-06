@@ -308,10 +308,11 @@
     border-radius: 50%;
     font-size: 24px;
   .itinerary-export-actions {
-    margin-left: auto;
-    display: flex;
+    margin-left: 8px;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
   }
   .export-btn {
     display: inline-flex;
@@ -341,6 +342,14 @@
     <div class="itinerary-badge-title">
       <span>🧭 Journey Route</span>
       <span style="font-weight: 400; font-size: 0.8rem; color: #64748b;">({{ album.map_markers | length }} Stops)</span>
+      <div class="itinerary-export-actions">
+        <button class="export-btn" onclick="exportRouteGPX()" title="Export route itinerary as GPX file">
+          <span>📥 GPX</span>
+        </button>
+        <button class="export-btn" onclick="exportRouteKML()" title="Export route itinerary as KML file">
+          <span>📥 KML</span>
+        </button>
+      </div>
     </div>
     {% for marker in album.map_markers %}
     <div class="itinerary-step-chip" onclick="focusMapStep({{ loop.index0 }})">
@@ -349,14 +358,6 @@
       <span style="font-size: 0.75rem; opacity: 0.7;">({{ marker.count }})</span>
     </div>
     {% endfor %}
-    <div class="itinerary-export-actions">
-      <button class="export-btn" onclick="exportRouteGPX()" title="Export route itinerary as GPX file">
-        <span>📥 GPX</span>
-      </button>
-      <button class="export-btn" onclick="exportRouteKML()" title="Export route itinerary as KML file">
-        <span>📥 KML</span>
-      </button>
-    </div>
   </div>
   {% endif %}
 

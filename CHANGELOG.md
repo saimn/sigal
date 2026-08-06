@@ -90,3 +90,11 @@ Inspecting the photobook theme templates to confirm where the trip map should be
   3. Test Suite Verification (tests/test_gallery.py):
       • Added automated tests verifying GPX/KML XML output and file writing during gallery build. All 106 tests pass.
 
+---
+  I have updated the layout of the route export buttons.
+
+  ### Summary of Changes
+
+  • Header Alignment (src/sigal/themes/default/templates/map.html):
+      • Moved the � GPX an d � KML export buttons directly inside the � JOURNEY ROUTE header badge container (.itinerary-badge-title).
+      • Added CSS rules (margin-left: 8px; display: inline-flex; flex-shrink: 0;) so the export buttons sit neatly on the right side of the header before the step chips.
