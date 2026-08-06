@@ -228,6 +228,87 @@ def test_album_url_uses_output_filename(settings):
     assert album.url == "dir1/index.html"
 
 
+def test_build_with_multiprocessing(settings, tmp_path):
+    settings["source"] = os.path.join(CURRENT_DIR, "sample", "pictures")
+    settings["destination"] = str(tmp_path)
+    settings["theme"] = "photobook"
+
+    gal = Gallery(settings, ncpu=2)
+    gal.build()
+
+    assert os.path.isfile(os.path.join(settings["destination"], "index.html"))
+
+
+def test_album_map_markers_and_route(settings):
+    class FakeMedia:
+        def __init__(self, path, thumb_name, gps, date, title):
+            self.path = path
+            self.thumb_name = thumb_name
+            self.gps = gps
+            self.date = date
+            self.title = title
+
+    gal = SimpleNamespace(albums={})
+    album = Album("loc", settings, [], [], gal)
+    album.medias = [
+        FakeMedia("loc", "thumb1.jpg", {"lat": 1.0, "lon": 2.0}, datetime.datetime(2020, 1, 1), "First"),
+        FakeMedia("loc", "thumb2.jpg", {"lat": 1.0, "lon": 2.0}, datetime.datetime(2020, 1, 2), "Second"),
+        FakeMedia("loc", "thumb3.jpg", {"lat": 2.0, "lon": 3.0}, datetime.datetime(2020, 1, 3), "Third"),
+    ]
+
+    markers = album.map_markers
+    assert len(markers) == 2
+    assert markers[0]["lat"] == 1.0
+    assert markers[0]["lon"] == 2.0
+    assert markers[0]["items"][0]["caption"] == "First"
+    assert markers[0]["items"][1]["caption"] == "Second"
+    assert markers[1]["lat"] == 2.0
+    assert markers[1]["items"][0]["caption"] == "Third"
+
+    assert album.route == [{"lat": 1.0, "lon": 2.0}, {"lat": 2.0, "lon": 3.0}]
+
+
+def test_map_template_uses_items_key_across_themes(settings, tmp_path):
+    settings["destination"] = str(tmp_path)
+    settings["show_map"] = True
+    settings["map_height"] = "200px"
+    settings["leaflet_provider"] = "OpenStreetMap"
+    settings["datetime_format"] = "%Y-%m-%d"
+
+    album = SimpleNamespace(
+        show_map=True,
+        map_markers=[
+            {
+                "lat": 1.0,
+                "lon": 2.0,
+                "url": "thumb1.jpg",
+                "caption": "First",
+                "datetime": "2020-01-01",
+                "album_url": "./loc/index.html",
+                "items": [
+                    {
+                        "thumbnail": "thumb1.jpg",
+                        "caption": "First",
+                        "datetime": "2020-01-01",
+                        "album_url": "./loc/index.html",
+                    }
+                ],
+            }
+        ],
+        route=[{"lat": 1.0, "lon": 2.0}],
+    )
+
+    for theme in ["colorbox", "photobook", "galleria", "photoswipe"]:
+        settings["theme"] = theme
+        writer = AlbumPageWriter(settings, index_title="Sigal test gallery")
+        template = writer.template.environment.get_template("map.html")
+        html = template.render(album=album, settings=settings)
+
+        assert "items: [" in html
+        assert 'caption: "First"' in html
+        assert 'thumbnail: "thumb1.jpg"' in html
+
+
 def test_breadcrumb_does_not_link_current_album(settings, tmp_path):
     settings["source"] = os.path.join(CURRENT_DIR, "sample", "pictures")
     settings["destination"] = str(tmp_path)

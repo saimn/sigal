@@ -105,7 +105,6 @@ class Media:
         self.thumb_name = get_thumb(self.settings, self.dst_filename)
 
         self.logger = logging.getLogger(__name__)
-        self.album = None
 
         signals.media_initialized.send(self)
 
@@ -457,7 +456,6 @@ class Album:
                     media = ret
 
             if media:
-                media.album = self
                 self.medias_count[media.type] += 1
                 medias.append(media)
 

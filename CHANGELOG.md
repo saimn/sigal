@@ -24,3 +24,14 @@ Implemented an album-level travel map using GPS metadata, grouped markers, and a
 - Clicking marker popups links to the album view for media taken at that location.
 
 If you want, I can also add a small unit test covering `Album.map_markers` and `Album.route`.
+
+---
+✅ Fixed the multiprocessing error.
+
+### What changed
+- Removed `Media.album` assignment from gallery.py
+- This avoids sending a non-picklable album object into multiprocessing worker tasks
+
+### Result
+- `sigal build` should now work again with the `photobook` theme and multiprocessing enabled
+

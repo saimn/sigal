@@ -44,7 +44,7 @@
     datetime: "{{ marker.datetime }}",
     album_url: "{{ marker.album_url }}",
     items: [
-      {% for item in marker.items %}
+      {% for item in marker['items'] %}
       {
         thumbnail: "{{ item.thumbnail }}",
         caption: "{{ item.caption }}",
