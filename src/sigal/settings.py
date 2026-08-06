@@ -80,7 +80,7 @@ _DEFAULT_CONFIG = {
     "plugin_paths": [],
     "plugins": [],
     "site_logo": "",
-    "show_map": False,
+    "show_map": True,
     "source": "",
     "theme": "photobook",
     "thumb_dir": "thumbnails",

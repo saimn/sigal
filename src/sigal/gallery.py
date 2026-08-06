@@ -303,7 +303,38 @@ class Image(Media):
 
     @property
     def gps(self):
-        return self.exif.get("gps") if self.exif else None
+        if self.exif and self.exif.get("gps"):
+            return self.exif["gps"]
+
+        gps = None
+        for key in ("gps", "GPS", "location", "Location"):
+            if key in self.meta:
+                gps = self.meta[key]
+                break
+
+        if not gps:
+            return None
+
+        if isinstance(gps, list):
+            gps = gps[0]
+
+        if isinstance(gps, str):
+            parts = re.split(r"[;,\s]+", gps.strip())
+            if len(parts) >= 2:
+                try:
+                    lat = float(parts[0])
+                    lon = float(parts[1])
+                    return {"lat": lat, "lon": lon}
+                except ValueError:
+                    return None
+
+        if isinstance(gps, dict):
+            lat = gps.get("lat") or gps.get("latitude")
+            lon = gps.get("lon") or gps.get("longitude")
+            if lat is not None and lon is not None:
+                return {"lat": float(lat), "lon": float(lon)}
+
+        return None
 
     @cached_property
     def size(self):
@@ -755,60 +786,140 @@ class Album:
 
     @cached_property
     def gps_medias(self):
-        return sorted(
-            (media for media in self.all_medias if media.gps),
-            key=lambda media: media.date or datetime.min,
-        )
+        """Return list of (media, gps_dict) tuples for all media in the album and its sub-albums.
+        If a media lacks EXIF or metadata GPS/timestamp, use file creation date to group it
+        at the location of other media from the same creation date / nearest timestamp.
+        """
+        all_m = list(self.all_medias)
+        if not all_m:
+            return []
+
+        explicit = []
+        no_gps = []
+        for media in all_m:
+            if media.gps:
+                explicit.append((media, media.gps))
+            else:
+                no_gps.append(media)
+
+        if not explicit:
+            return []
+
+        date_to_explicit = defaultdict(list)
+        for media, gps in explicit:
+            m_date = media.date or datetime.min
+            d_key = m_date.date() if isinstance(m_date, datetime) else m_date
+            date_to_explicit[d_key].append((media, gps))
+
+        results = list(explicit)
+        for media in no_gps:
+            m_date = media.date or datetime.min
+            d_key = m_date.date() if isinstance(m_date, datetime) else m_date
+            assigned_gps = None
+
+            if d_key in date_to_explicit:
+                candidates = date_to_explicit[d_key]
+                closest = min(
+                    candidates,
+                    key=lambda item: abs(
+                        ((item[0].date or datetime.min) - m_date).total_seconds()
+                    ),
+                )
+                assigned_gps = closest[1]
+            else:
+                closest = min(
+                    explicit,
+                    key=lambda item: abs(
+                        ((item[0].date or datetime.min) - m_date).total_seconds()
+                    ),
+                )
+                assigned_gps = closest[1]
+
+            if assigned_gps:
+                results.append((media, assigned_gps))
+
+        results.sort(key=lambda item: item[0].date or datetime.min)
+        return results
 
     @cached_property
     def map_markers(self):
         groups = {}
-        for media in self.gps_medias:
-            key = (round(media.gps["lat"], 6), round(media.gps["lon"], 6))
+        for media, gps in self.gps_medias:
+            key = (round(gps["lat"], 6), round(gps["lon"], 6))
             groups.setdefault(key, []).append(media)
 
+        # Sort group locations chronologically by earliest media date
+        sorted_groups = sorted(
+            groups.items(),
+            key=lambda item: min(m.date or datetime.min for m in item[1]),
+        )
+
         markers = []
-        for (lat, lon), medias in groups.items():
-            medias.sort(key=lambda m: m.date or datetime.min)
+        step = 1
+        for (lat, lon), medias in sorted_groups:
+            medias.sort(key=lambda m: getattr(m, "date", None) or datetime.min)
             first = medias[0]
             items = []
             for media in medias:
+                big_val = getattr(media, "big", None)
+                media_type = getattr(media, "type", "image")
+                dst_fn = getattr(media, "dst_filename", getattr(media, "thumb_name", ""))
+                desc_val = getattr(media, "description", "")
+                title_val = getattr(media, "title", getattr(media, "basename", ""))
+                thumb_fn = getattr(media, "thumb_name", "")
+                m_path = getattr(media, "path", "")
+                m_date = getattr(media, "date", None)
                 items.append(
                     {
                         "thumbnail": self.relative_url(
-                            os.path.join(media.path, media.thumb_name)
+                            os.path.join(m_path, thumb_fn)
                         ),
-                        "caption": media.title,
-                        "datetime": media.date.strftime(self.settings["datetime_format"])
-                        if media.date
+                        "dst_url": self.relative_url(
+                            os.path.join(m_path, dst_fn)
+                        ),
+                        "big_url": self.relative_url(
+                            os.path.join(m_path, big_val)
+                        )
+                        if big_val
+                        else "",
+                        "type": media_type,
+                        "caption": title_val,
+                        "description": desc_val,
+                        "datetime": m_date.strftime(self.settings["datetime_format"])
+                        if m_date
                         else "",
                         "album_url": self.relative_url(
-                            os.path.join(media.path, self.settings["output_filename"])
+                            os.path.join(m_path, self.settings["output_filename"])
                         ),
                     }
                 )
+            first_title = getattr(first, "title", getattr(first, "basename", ""))
             markers.append(
                 {
                     "lat": lat,
                     "lon": lon,
+                    "step": step,
+                    "count": len(medias),
                     "url": items[0]["thumbnail"],
-                    "caption": first.title,
+                    "caption": first_title,
                     "datetime": items[0]["datetime"],
                     "album_url": items[0]["album_url"],
                     "items": items,
                 }
             )
+            step += 1
         return markers
 
     @cached_property
     def route(self):
         route = []
-        last = None
         for marker in self.map_markers:
-            point = (marker["lat"], marker["lon"])
-            if point != last:
-                route.append({"lat": marker["lat"], "lon": marker["lon"]})
-                last = point
+            route.append(
+                {
+                    "lat": marker["lat"],
+                    "lon": marker["lon"],
+                }
+            )
         return route
 
     @property

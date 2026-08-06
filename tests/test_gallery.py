@@ -672,3 +672,62 @@ def test_thumbnail_with_img_format(settings, tmp_path, thumbnail):
     assert (tmp_path / "build" / "test1" / "outdoor.tn.jpg").is_file()
     index = (tmp_path / "build" / "index.html").read_text()
     assert 'src="./test1/outdoor.tn.jpg" class="album_thumb"' in index
+
+
+def test_polarsteps_map_route_and_creation_date_grouping(settings, tmp_path):
+    class CustomFakeMedia:
+        def __init__(self, path, filename, thumb_name, gps, date, title):
+            self.path = path
+            self.src_filename = filename
+            self.dst_filename = filename
+            self.thumb_name = thumb_name
+            self.gps = gps
+            self.date = date
+            self.title = title
+            self.type = "image"
+            self.description = "Test description"
+            self.big = None
+
+    gal = SimpleNamespace(albums={})
+    album = Album("trip", settings, [], [], gal)
+
+    # Media 1 has GPS location; Media 2 has NO GPS, but has creation date on the same day
+    m1 = CustomFakeMedia("trip", "img1.jpg", "thumb1.jpg", {"lat": 48.8566, "lon": 2.3522}, datetime.datetime(2026, 8, 1, 10, 0, 0), "Eiffel Tower")
+    m2 = CustomFakeMedia("trip", "img2.jpg", "thumb2.jpg", None, datetime.datetime(2026, 8, 1, 14, 0, 0), "Louvre Museum")
+    m3 = CustomFakeMedia("trip", "img3.jpg", "thumb3.jpg", {"lat": 45.7640, "lon": 4.8357}, datetime.datetime(2026, 8, 2, 11, 0, 0), "Lyon City")
+
+    album.medias = [m1, m2, m3]
+
+    markers = album.map_markers
+    assert len(markers) == 2
+    # Stop 1 (Paris) should group m1 and m2 together
+    assert markers[0]["lat"] == 48.8566
+    assert markers[0]["count"] == 2
+    assert len(markers[0]["items"]) == 2
+    assert markers[0]["items"][0]["caption"] == "Eiffel Tower"
+    assert markers[0]["items"][1]["caption"] == "Louvre Museum"
+
+    # Stop 2 (Lyon)
+    assert markers[1]["lat"] == 45.7640
+    assert markers[1]["count"] == 1
+
+    # Check route
+    assert len(album.route) == 2
+    assert album.route[0] == {"lat": 48.8566, "lon": 2.3522}
+    assert album.route[1] == {"lat": 45.7640, "lon": 4.8357}
+
+    # Render map template
+    settings["destination"] = str(tmp_path)
+    settings["show_map"] = True
+    settings["theme"] = "photobook"
+    writer = AlbumPageWriter(settings, index_title="Test Gallery")
+    template = writer.template.environment.get_template("map.html")
+    html = template.render(album=album, settings=settings)
+
+    assert "sigal-map-container" in html
+    assert "itinerary-bar" in html
+    assert "loc-album-modal" in html
+    assert "loc-lightbox" in html
+    assert "Eiffel Tower" in html
+    assert "Louvre Museum" in html
+
