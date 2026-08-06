@@ -252,10 +252,12 @@ class Image(Media):
         super().__init__(filename, path, settings)
         imgformat = settings.get("img_format")
 
-        if imgformat and IMG_EXTENSIONS.ext2format[self.src_ext] != imgformat.upper():
-            # Find the extension that should match img_format
-            ext = IMG_EXTENSIONS.format2ext[imgformat.upper()]
-            self.dst_filename = self.basename + ext
+        if imgformat:
+            current_format = IMG_EXTENSIONS.ext2format.get(self.src_ext)
+            if current_format != imgformat.upper():
+                # Find the extension that should match img_format
+                ext = IMG_EXTENSIONS.format2ext[imgformat.upper()]
+                self.dst_filename = self.basename + ext
 
     @cached_property
     def date(self):

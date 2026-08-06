@@ -652,6 +652,7 @@ def test_ignores(settings, tmp_path):
 @pytest.mark.parametrize("thumbnail", ["outdoor.heic", "outdoor.tn.jpg"])
 def test_thumbnail_with_img_format(settings, tmp_path, thumbnail):
     """Test that outdoor.heic is correctly converted as jpg and used as thumbnail"""
+    pytest.importorskip("pillow_heif")
     src_path = tmp_path / "pictures"
     src_path.mkdir()
     shutil.copytree(
