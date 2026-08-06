@@ -35,3 +35,17 @@ If you want, I can also add a small unit test covering `Album.map_markers` and `
 ### Result
 - `sigal build` should now work again with the `photobook` theme and multiprocessing enabled
 
+---
+Inspecting the photobook theme templates to confirm where the trip map should be inserted.
+
+✅ Updated the photobook theme test coverage.
+
+## What changed
+- Added `test_photobook_theme_renders_trip_map_feature` in test_gallery.py
+- Confirms the photobook album and album list pages render map.html
+- Verifies Leaflet script reference and `mapid` map container are present
+
+## Verification
+- Ran `pytest -q test_gallery.py -k 'photobook_theme_renders_trip_map_feature or map_template_uses_items_key_across_themes or build_with_multiprocessing or album_map_markers_and_route'`
+- Result: `4 passed`
+

@@ -309,6 +309,98 @@ def test_map_template_uses_items_key_across_themes(settings, tmp_path):
         assert 'thumbnail: "thumb1.jpg"' in html
 
 
+def test_photobook_theme_renders_trip_map_feature(settings, tmp_path):
+    settings["destination"] = str(tmp_path)
+    settings["theme"] = "photobook"
+    settings["show_map"] = True
+    settings["map_height"] = "200px"
+    settings["leaflet_provider"] = "OpenStreetMap"
+
+    album = SimpleNamespace(
+        title="Test album",
+        description="Test description",
+        dst_path=str(tmp_path),
+        index_url="./index.html",
+        show_map=True,
+        map_markers=[
+            {
+                "lat": 1.0,
+                "lon": 2.0,
+                "url": "thumb1.jpg",
+                "caption": "First",
+                "datetime": "2020-01-01",
+                "album_url": "./loc/index.html",
+                "items": [
+                    {
+                        "thumbnail": "thumb1.jpg",
+                        "caption": "First",
+                        "datetime": "2020-01-01",
+                        "album_url": "./loc/index.html",
+                    }
+                ],
+            }
+        ],
+        route=[{"lat": 1.0, "lon": 2.0}],
+        medias=[],
+    )
+
+    writer = AlbumPageWriter(settings, index_title="Sigal test gallery")
+    html = writer.template.render(**writer.generate_context(album))
+    assert '<div id="mapid"' in html
+    assert 'leaflet/leaflet.js' in html
+
+    list_album = SimpleNamespace(
+        title="Root album",
+        description="",
+        dst_path=str(tmp_path),
+        index_url="index.html",
+        show_map=True,
+        map_markers=album.map_markers,
+        route=album.route,
+        albums=[
+            SimpleNamespace(
+                url="dir1/index.html",
+                thumbnail="./dir1/thumbnails/11.tn.jpg",
+                name="dir1",
+                title="Dir1",
+            )
+        ],
+    )
+
+    list_writer = AlbumListPageWriter(settings, index_title="Sigal test gallery")
+    list_html = list_writer.template.render(**list_writer.generate_context(list_album))
+    assert '<div id="mapid"' in list_html
+
+
+def test_photobook_theme_album_page_renders_map_with_sample_media(settings, tmp_path):
+    from sigal.gallery import Image
+
+    settings["destination"] = str(tmp_path)
+    settings["theme"] = "photobook"
+    settings["show_map"] = True
+    settings["map_height"] = "200px"
+    settings["leaflet_provider"] = "OpenStreetMap"
+
+    gal = Gallery(settings, ncpu=1)
+    album = Album("dir1/test1", settings, [], ["11.jpg"], gal)
+    assert len(album.medias) == 1
+
+    media = album.medias[0]
+    media.exif = {
+        "gps": {"lat": 48.8566, "lon": 2.3522},
+        "dateobj": datetime.datetime(2020, 1, 1, 12, 0, 0),
+        "datetime": "2020-01-01",
+    }
+
+    writer = AlbumPageWriter(settings, index_title="Sigal test gallery")
+    html = writer.template.render(**writer.generate_context(album))
+
+    assert '<div id="mapid"' in html
+    assert "items: [" in html
+    assert "L.map('mapid'" in html
+    assert ".photoLayer" not in html or "photoLayer.add(photos).addTo(map);" in html
+
+
 def test_breadcrumb_does_not_link_current_album(settings, tmp_path):
     settings["source"] = os.path.join(CURRENT_DIR, "sample", "pictures")
     settings["destination"] = str(tmp_path)
