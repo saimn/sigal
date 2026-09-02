@@ -79,7 +79,7 @@ def generate_media_pages(gallery):
         previous_medias = [None] + medias[:-1]
 
         # The media group allows us to easily get next and previous links
-        media_groups = zip(medias, next_medias, previous_medias)
+        media_groups = zip(medias, next_medias, previous_medias, strict=False)
 
         for media_group in media_groups:
             writer.write(album, media_group)

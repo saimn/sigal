@@ -408,7 +408,7 @@ class Album:
             # Allow modification of the media, including overriding the class
             # type for the media.
             result = signals.album_file.send(self, filename=f, media=media)
-            for recv, ret in result:
+            for _recv, ret in result:
                 if ret is not None:
                     media = ret
 
@@ -652,7 +652,7 @@ class Album:
 
         # use the thumbnail of their sub-directories
         if not self._thumbnail:
-            for path, album in self.gallery.get_albums(self.path):
+            for _path, album in self.gallery.get_albums(self.path):
                 if album.thumbnail:
                     self._thumbnail = _join_url(self.name, album.thumbnail)
                     self.logger.debug(
@@ -832,7 +832,7 @@ class Gallery:
         for name in self.albums[path].subdirs:
             subdir = os.path.normpath(join(path, name))
             yield subdir, self.albums[subdir]
-            for subname, album in self.get_albums(subdir):
+            for subname, _album in self.get_albums(subdir):
                 yield subname, self.albums[subdir]
 
     def build(self, force=False):
@@ -897,7 +897,9 @@ class Gallery:
 
         if any(result):
             failed_files = [
-                media for status, media in zip(result, media_list) if status != 0
+                media
+                for status, media in zip(result, media_list, strict=True)
+                if status != 0
             ]
             self.remove_files(failed_files)
 
@@ -965,7 +967,7 @@ def process_file(media):
 
     # Allow overriding of the processor
     result = signals.process_file.send(media, processor=processor)
-    for recv, ret in result:
+    for _recv, ret in result:
         if ret is not None:
             processor = ret
 

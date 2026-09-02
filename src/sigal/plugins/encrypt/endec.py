@@ -91,8 +91,8 @@ def decrypt(key: bytes, infile: BinaryIO, outfile: BinaryIO, tag: bytes):
     rawbytes = ciphertext.read()
     try:
         decrypted = aesgcm.decrypt(iv, rawbytes, tag)
-    except InvalidTag:
-        raise ValueError("Incorrect tag, iv, or corrupted ciphertext")
+    except InvalidTag as err:
+        raise ValueError("Incorrect tag, iv, or corrupted ciphertext") from err
     plaintext.write(decrypted)
 
 

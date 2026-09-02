@@ -158,7 +158,7 @@ def load_cache(settings):
             "Giving up encryption. You may have to delete and "
             "rebuild the entire gallery."
         )
-        raise Abort
+        raise Abort from e
 
 
 def save_cache(settings, cache):

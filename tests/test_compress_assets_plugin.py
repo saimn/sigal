@@ -33,7 +33,7 @@ def make_gallery(settings, tmpdir, method):
 
 
 def walk_destination(destination, suffixes, compress_suffix):
-    for path, dirs, files in os.walk(destination):
+    for path, _dirs, files in os.walk(destination):
         for file in files:
             original_filename = os.path.join(path, file)
             compressed_filename = f"{os.path.join(path, file)}.{compress_suffix}"

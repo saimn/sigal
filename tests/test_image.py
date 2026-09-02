@@ -64,7 +64,7 @@ def test_generate_image_imgformat(tmpdir):
     "Test the effects of the img_format setting on generate_image."
 
     dstfile = str(tmpdir.join(TEST_IMAGE))
-    for i, outfmt in enumerate(["JPEG", "PNG", "TIFF"]):
+    for _i, outfmt in enumerate(["JPEG", "PNG", "TIFF"]):
         settings = create_settings(
             img_size=(300, 300),
             img_processor="ResizeToFill",

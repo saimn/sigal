@@ -30,7 +30,7 @@ def test_media_page(settings, tmp_path, disconnect_signals):
 def test_nomedia(settings, tmp_path, disconnect_signals):
     _build_with_plugin(settings, "nomedia", tmp_path, "sigal.plugins.nomedia")
 
-    for path, dirs, files in os.walk(str(tmp_path)):
+    for path, _dirs, files in os.walk(str(tmp_path)):
         assert "ignore" not in path
         for file in files:
             assert "ignore" not in file

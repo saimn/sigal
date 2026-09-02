@@ -74,6 +74,7 @@ filterwarnings = [
 [tool.ruff.lint]
 select = [
   "E", "F", "W", # flake8
+  "B",           # bugbear
   "I",           # isort
   "UP",          # pyupgrade
 ]
