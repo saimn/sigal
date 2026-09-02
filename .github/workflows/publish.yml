@@ -1,14 +1,22 @@
-name: Publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+name: Wheel building
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     tags:
       - '*'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+    name: Build and publish
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -16,25 +24,14 @@ jobs:
     if: ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags')) || contains(github.event.pull_request.labels.*.name, 'Build wheels'))
 
     steps:
-    - uses: actions/checkout@v7
-      with:
-        fetch-depth: 0
-    - uses: actions/setup-python@v7
-      with:
-        python-version: "3.13"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-    - name: Install python-build and twine
-      run: python -m pip install build twine
+      - name: Build sdist
+        run: pipx run build --sdist --wheel .
 
-    - name: Build package
-      run: python -m build --sdist --wheel .
-
-    - name: List result
-      run: ls -l dist
-
-    - name: Check long_description
-      run: python -m twine check dist/*
-
-    - name: Publish distribution 📦 to PyPI
-      if: startsWith(github.ref, 'refs/tags')
-      uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish distribution 📦 to PyPI
+        if: startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
