@@ -159,7 +159,10 @@ def build(
     for key in ("source", "destination", "theme"):
         arg = locals()[key]
         if arg is not None:
-            settings[key] = os.path.abspath(arg)
+            if key == "theme":
+                settings[key] = arg
+            else:
+                settings[key] = os.path.abspath(arg)
         logger.info("%12s : %s", key.capitalize(), settings[key])
 
     if not settings["source"] or not os.path.isdir(settings["source"]):
