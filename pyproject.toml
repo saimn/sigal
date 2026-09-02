@@ -59,6 +59,18 @@ sigal = [
 [tool.setuptools_scm]
 write_to = "src/sigal/version.py"
 
+[tool.pytest]
+minversion = "9.0"
+log_level = "INFO"
+testpaths = ["tests"]
+strict = true
+addopts = ["-ra"]
+filterwarnings = [
+    # action:message:category:module:lineno
+    "error",
+    "ignore::ResourceWarning",
+]
+
 [tool.ruff.lint]
 select = [
   "E", "F", "W", # flake8
