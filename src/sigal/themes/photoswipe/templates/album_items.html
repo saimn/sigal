@@ -13,6 +13,9 @@
              {% if media.big %}
              data-big="{{ media.big_url }}"
              {%- endif -%}
+             {% if media.is_motion_photo %}
+             data-motion-video="{{ media.motion_video_url }}"
+             {%- endif -%}
           {% elif media.type == "video" %}
              data-pswp-type="video"
              data-pswp-width="800"

@@ -212,6 +212,14 @@ def process_image(media):
                 thumb_fit_centering=media.settings["thumb_fit_centering"],
             )
 
+        if getattr(media, "is_motion_photo", False):
+            try:
+                media.extract_motion_video()
+            except Exception as e:
+                logger.warning(
+                    "Failed to extract motion video for %s: %s", media.src_path, e
+                )
+
     return status.value
 
 

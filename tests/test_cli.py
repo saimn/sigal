@@ -16,11 +16,33 @@ def test_init(tmpdir):
     assert result.exit_code == 0
     assert result.output.startswith("Sample config file created:")
     assert os.path.isfile(config_file)
+    config_text = open(config_file).read()
+    assert 'theme = "photobook"' in config_text
+    assert 'photobook_map_provider = "googlemaps"' in config_text
 
     result = runner.invoke(init, [config_file])
     assert result.exit_code == 1
     assert (
         result.output == "Found an existing config file, will abort to keep it safe.\n"
+    )
+
+
+def test_init_creates_default_album_metadata(tmpdir):
+    gallery_dir = tmpdir.mkdir("gallery")
+    gallery_dir.mkdir("albums")
+    gallery_dir.mkdir("albums", "subalbum")
+    config_file = str(gallery_dir.join("sigal.conf.py"))
+    runner = CliRunner()
+
+    result = runner.invoke(init, [config_file])
+
+    assert result.exit_code == 0
+    assert gallery_dir.join("index.md").read() == "Title: gallery\nThumbnail:\nAuthor:\nSort:\n"
+    assert gallery_dir.join("albums", "index.md").read() == (
+        "Title: albums\nThumbnail:\nAuthor:\nSort:\n"
+    )
+    assert gallery_dir.join("albums", "subalbum", "index.md").read() == (
+        "Title: subalbum\nThumbnail:\nAuthor:\nSort:\n"
     )
 
 

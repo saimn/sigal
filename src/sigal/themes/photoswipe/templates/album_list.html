@@ -2,6 +2,7 @@
 
 {% block content %}
   <div class="album-list">
+  {% include 'map.html' %}
   {% for alb in album.albums %}
     <div class="menu-img thumbnail">
       <a href="{{ alb.url }}">

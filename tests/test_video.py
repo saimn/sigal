@@ -121,3 +121,40 @@ def test_second_pass_video(mock_generate_video_pass, fmt, tmpdir):
     # The second call to the method should have 4 args, with the outname
     args, kwargs = call_args_list[1]
     assert len(args) == 4
+
+
+def test_default_video_size():
+    """Default video_size should be None to avoid downscaling."""
+    settings = create_settings()
+    assert settings["video_size"] is None
+
+
+@pytest.mark.parametrize("fmt", ["webm", "mp4"])
+def test_generate_video_keeps_highest_resolution(tmpdir, fmt):
+    """When converting a video, highest original resolution must be kept (not reduced)."""
+    import subprocess
+
+    # Create a 640x480 source video (exceeding the legacy 480x360 limit)
+    src_video = str(tmpdir.join("highres_source.ogv"))
+    subprocess.run(
+        [
+            "ffmpeg", "-f", "lavfi", "-i", "testsrc=size=640x480:rate=1",
+            "-t", "0.2", "-y", src_video
+        ],
+        check=True,
+        capture_output=True,
+    )
+
+    size_src = video_size(src_video)
+    assert size_src == (640, 480)
+
+    dst_video = str(tmpdir.join(f"output.{fmt}"))
+    # Use default settings without specifying video_size
+    settings = create_settings(video_format=fmt)
+    generate_video(src_video, dst_video, settings)
+
+    size_dst = video_size(dst_video)
+    # Resolution must not be reduced
+    assert size_dst == (640, 480)
+    assert size_dst == size_src
+

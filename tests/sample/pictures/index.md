@@ -2,7 +2,7 @@ Title: Sigal test gallery
 
 ## This is a testing gallery for sigal.
 
-This gallery was generated with [sigal](https://github.com/saimn/sigal). You
+This gallery was generated with [sigal](https://github.com/howardrotterdam/sigal). You
 can use the *markdown* syntax to write stuff.
 
 ### Donec ut libero sed arcu vehicula ultricies a non tortor
