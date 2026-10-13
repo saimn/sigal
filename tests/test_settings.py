@@ -11,6 +11,7 @@ def test_read_settings(settings):
     assert settings["thumb_size"] == (200, 150)
     assert settings["thumb_suffix"] == ".tn"
     assert settings["source"] == os.path.join(CURRENT_DIR, "sample", "pictures")
+    assert settings["video_size"] is None
 
 
 def test_get_thumb(settings):
@@ -36,11 +37,20 @@ def test_img_sizes(tmpdir):
     """Test that image size is swaped if needed."""
 
     conf = tmpdir.join("sigal.conf.py")
-    conf.write("img_size = (600, 800)\nthumb_size = (150, 200)")
+    conf.write("img_size = (600, 800)\nthumb_size = (150, 200)\nvideo_size = (360, 480)")
 
     settings = read_settings(str(conf))
     assert settings["img_size"] == (800, 600)
     assert settings["thumb_size"] == (150, 200)
+    assert settings["video_size"] == (480, 360)
+
+
+def test_default_theme():
+    """Test that the default theme is photobook."""
+
+    settings = read_settings()
+    assert settings["theme"] == "photobook"
+    assert settings["photobook_map_provider"] == "googlemaps"
 
 
 def test_theme_path(tmpdir):

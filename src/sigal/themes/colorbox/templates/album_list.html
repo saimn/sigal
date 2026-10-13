@@ -5,6 +5,7 @@
   {% set nb_columns = (9 / column_size)|int %}
   {% set column_size_t = numbers[column_size] %}
 
+  {% include 'map.html' %}
   {% for alb in album.albums %}
     {% if loop.index % nb_columns == 1 %}
     <div id="albums" class="row">

@@ -1,0 +1,965 @@
+/**
+ * Photobook Theme EPUB Export
+ * Generates and exports the photo book as an EPUB file
+ */
+
+(function() {
+    'use strict';
+
+    // Check if JSZip is available (will be loaded via CDN)
+    const checkJsZip = function() {
+        return typeof JSZip !== 'undefined';
+    };
+
+    /**
+     * Generate a UUID-like identifier for EPUB
+     */
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0,
+                v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    /**
+     * Sanitize filename for UTF-8 safe export
+     */
+    function sanitizeFilename(filename) {
+        if (!filename) return 'photobook';
+        // Keep alphanumeric, spaces, hyphens, underscores
+        // Replace other special characters with underscore
+        return filename
+            .replace(/[\/:?*"<>|]/g, '_')  // Replace problematic characters
+            .replace(/\s+/g, '_')           // Replace spaces with underscore
+            .replace(/_+/g, '_')            // Collapse multiple underscores
+            .replace(/^_+|_+$/g, '')        // Remove leading/trailing underscores
+            .substring(0, 200);             // Limit filename length
+    }
+
+    /**
+     * Parse simple markdown and format as HTML
+     */
+    function formatDescription(text) {
+        if (!text) return '';
+        // Escape XML first
+        text = escapeXml(text);
+        // Replace double newlines with paragraph breaks
+        let html = text
+            .replace(/\n\n+/g, '</p><p>')
+            .replace(/\n/g, '<br/>');
+        return '<p>' + html + '</p>';
+    }
+
+    /**
+     * Format EXIF data as structured HTML
+     */
+    function formatExif(exifText) {
+        if (!exifText) return '';
+        exifText = escapeXml(exifText);
+        // Split by common delimiters and format as structured list
+        const lines = exifText.split(/[\n,]/g).map(x => x.trim()).filter(x => x);
+        let html = '<div class="exif-list">';
+        lines.forEach(function(line) {
+            // Try to parse "Label: Value" format
+            const match = line.match(/^([^:]+):\s*(.+)$/);
+            if (match) {
+                html += '<div class="exif-item"><strong>' + match[1] + ':</strong> ' + match[2] + '</div>';
+            } else {
+                html += '<div class="exif-item">' + line + '</div>';
+            }
+        });
+        html += '</div>';
+        return html;
+    }
+
+    /**
+     * Get the album title from the page
+     */
+    function getAlbumTitle() {
+        const heading = document.querySelector('.photobook-header h1 a') || document.querySelector('h1');
+        if (heading) {
+            return heading.textContent.trim();
+        }
+        return 'Photo Book';
+    }
+
+    /**
+     * Parse simple markdown and format as HTML
+     */
+    function formatDescription(text) {
+        if (!text) return '';
+        // Replace line breaks with <br/>
+        let html = escapeXml(text)
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br/>');
+        return '<p>' + html + '</p>';
+    }
+
+    /**
+     * Format EXIF data as structured HTML
+     */
+    function formatExif(exifText) {
+        if (!exifText) return '';
+        // Split by common delimiters and format as structured list
+        const lines = exifText.split(/[\n,]/g).map(x => x.trim()).filter(x => x);
+        let html = '<div class="exif-list">';
+        lines.forEach(function(line) {
+            // Try to parse "Label: Value" format
+            const match = line.match(/^([^:]+):\s*(.+)$/);
+            if (match) {
+                html += '<div class="exif-item"><strong>' + escapeXml(match[1]) + ':</strong> ' + escapeXml(match[2]) + '</div>';
+            } else {
+                html += '<div class="exif-item">' + escapeXml(line) + '</div>';
+            }
+        });
+        html += '</div>';
+        return html;
+    }
+
+    /**
+     * Convert relative URL to absolute URL
+     */
+    function getAbsoluteUrl(url) {
+        if (!url) return null;
+        if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+            return url;
+        }
+        // Create absolute URL from relative path
+        try {
+            const baseUrl = new URL('.', window.location.href).href;
+            const absoluteUrl = new URL(url, baseUrl).href;
+            console.log('Converted URL:', url, '→', absoluteUrl);
+            return absoluteUrl;
+        } catch (e) {
+            console.warn('Failed to parse URL:', url, e.message);
+            // Fallback: try simple concatenation
+            const baseUrl = window.location.protocol + '//' + window.location.host;
+            const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+            return baseUrl + basePath + (url.startsWith('/') ? url : '/' + url);
+        }
+    }
+
+    /**
+     * Get media data from the continuous book container
+     */
+    function collectMediaData() {
+        const mediaList = [];
+        const mediaElements = document.querySelectorAll('.book-entry');
+
+        console.log('Found', mediaElements.length, 'book entries');
+
+        mediaElements.forEach(function(entry, index) {
+            const mediaDiv = entry.querySelector('.book-media');
+            const captionDiv = entry.querySelector('.book-caption');
+
+            if (mediaDiv) {
+                const img = mediaDiv.querySelector('.book-image');
+                const video = mediaDiv.querySelector('.book-video');
+                let mediaUrl = null;
+                
+                if (img) {
+                    mediaUrl = img.src;
+                    console.log('Entry', index, ': Found image:', mediaUrl);
+                } else if (video) {
+                    const source = video.querySelector('source');
+                    if (source) {
+                        mediaUrl = source.src;
+                        console.log('Entry', index, ': Found video:', mediaUrl);
+                    }
+                }
+
+                // Convert to absolute URL
+                mediaUrl = getAbsoluteUrl(mediaUrl);
+
+                const title = captionDiv ? (captionDiv.querySelector('h2')?.textContent.trim() || 'Photo ' + (index + 1)) : 'Photo ' + (index + 1);
+                // Extract text content, not HTML, to avoid XML encoding issues
+                const description = captionDiv ? (captionDiv.querySelector('.book-description')?.textContent || '') : '';
+                const filename = captionDiv ? (captionDiv.querySelector('.book-filename')?.textContent || '') : '';
+                const exifObject = captionDiv ? captionDiv.querySelector('.book-exif') : null;
+                const exifText = exifObject ? exifObject.textContent || '' : '';
+                const exifHtml = exifObject ? exifObject.innerHTML || '' : '';
+
+                mediaList.push({
+                    index: index,
+                    url: mediaUrl,
+                    title: title,
+                    description: description,
+                    filename: filename,
+                    exif: exifText,
+                    exifHtml: exifHtml,
+                    isImage: !!img,
+                    isVideo: !!video
+                });
+            }
+        });
+
+        console.log('Collected media:', mediaList.length, 'items');
+        console.log('  Images:', mediaList.filter(m => m.isImage).length);
+        console.log('  Videos:', mediaList.filter(m => m.isVideo).length);
+        mediaList.forEach(function(m, idx) {
+            console.log('  [' + idx + ']', 'Type: ' + (m.isImage ? 'IMAGE' : 'VIDEO'), 'URL:', m.url);
+        });
+        
+        return mediaList;
+    }
+
+    /**
+     * Fetch image as blob with fallback for file:// protocol
+     */
+    function fetchImageAsBlob(url) {
+        return new Promise(function(resolve, reject) {
+            if (!url) {
+                reject(new Error('No URL provided'));
+                return;
+            }
+
+            console.log('Fetching image:', url);
+
+            // Check if this is a file:// URL (local file)
+            if (url.startsWith('file://')) {
+                console.log('Detected file:// protocol, using XMLHttpRequest');
+                loadImageViaXhr(url).then(resolve).catch(function(err) {
+                    console.warn('XHR failed, fallback to Image API:', err.message);
+                    loadImageViaImage(url).then(resolve).catch(reject);
+                });
+                return;
+            }
+
+            // Try direct fetch for http/https URLs
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'image/*'
+                },
+                mode: 'cors',
+                credentials: 'same-origin'
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    console.warn('HTTP ' + response.status + ' for image:', url);
+                    throw new Error('HTTP ' + response.status);
+                }
+                console.log('Response headers:', response.headers.get('content-type'), 'size:', response.headers.get('content-length'));
+                return response.blob();
+            })
+            .then(function(blob) {
+                console.log('Got blob, size:', blob.size, 'type:', blob.type);
+                
+                if (blob.size === 0) {
+                    throw new Error('Empty blob received');
+                }
+
+                // If it's a JPEG, use as-is
+                if (blob.type === 'image/jpeg' || url.toLowerCase().endsWith('.jpg')) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        resolve(new Uint8Array(reader.result));
+                    };
+                    reader.onerror = function() {
+                        reject(new Error('Failed to read JPEG blob'));
+                    };
+                    reader.readAsArrayBuffer(blob);
+                } else {
+                    // For other formats (PNG, WebP, etc.), convert to JPEG
+                    convertBlobToJpeg(blob).then(resolve).catch(reject);
+                }
+            })
+            .catch(function(err) {
+                console.error('Fetch failed for image:', url, 'error:', err.message);
+                reject(err);
+            });
+        });
+    }
+
+    /**
+     * Load image via XMLHttpRequest (works for file:// URLs)
+     */
+    function loadImageViaXhr(url) {
+        return new Promise(function(resolve, reject) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'blob';
+            
+            xhr.onload = function() {
+                if (xhr.status === 200 || xhr.status === 0) {  // status 0 is OK for file:// URLs
+                    const blob = xhr.response;
+                    console.log('Loaded via XHR, blob size:', blob.size, 'type:', blob.type);
+                    
+                    // If it's already a JPEG, use as-is
+                    if (blob.type === 'image/jpeg' || url.toLowerCase().endsWith('.jpg')) {
+                        const reader = new FileReader();
+                        reader.onload = function() {
+                            resolve(new Uint8Array(reader.result));
+                        };
+                        reader.onerror = function() {
+                            reject(new Error('Failed to read blob'));
+                        };
+                        reader.readAsArrayBuffer(blob);
+                    } else {
+                        // For PNG/WebP, convert to JPEG using canvas
+                        convertBlobToJpeg(blob).then(resolve).catch(reject);
+                    }
+                } else {
+                    reject(new Error('XHR failed with status ' + xhr.status));
+                }
+            };
+            
+            xhr.onerror = function() {
+                console.error('XHR request failed for:', url);
+                reject(new Error('XHR request failed'));
+            };
+            
+            xhr.ontimeout = function() {
+                reject(new Error('XHR request timeout'));
+            };
+            
+            xhr.send();
+        });
+    }
+
+    /**
+     * Convert blob to JPEG safely using object URL
+     */
+    function convertBlobToJpeg(blob) {
+        return new Promise(function(resolve, reject) {
+            // Create an object URL for the blob (safe, no CORS issues)
+            const objectUrl = URL.createObjectURL(blob);
+            console.log('Created object URL, loading image...');
+            
+            const img = new Image();
+            
+            img.onload = function() {
+                console.log('Image loaded from object URL, size:', img.width, 'x', img.height);
+                
+                // Create an offscreen canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    URL.revokeObjectURL(objectUrl);
+                    reject(new Error('Failed to get canvas context'));
+                    return;
+                }
+                
+                try {
+                    // Draw to canvas
+                    ctx.drawImage(img, 0, 0);
+                } catch (e) {
+                    console.error('Canvas drawing error:', e.message);
+                    URL.revokeObjectURL(objectUrl);
+                    reject(new Error('Canvas drawing failed: ' + e.message));
+                    return;
+                }
+                
+                // Convert to JPEG blob
+                canvas.toBlob(function(jpegBlob) {
+                    URL.revokeObjectURL(objectUrl);
+                    
+                    if (!jpegBlob) {
+                        reject(new Error('Failed to convert to JPEG'));
+                        return;
+                    }
+                    
+                    console.log('Converted to JPEG, size:', jpegBlob.size);
+                    const jpegReader = new FileReader();
+                    jpegReader.onload = function() {
+                        resolve(new Uint8Array(jpegReader.result));
+                    };
+                    jpegReader.onerror = function() {
+                        reject(new Error('Failed to read JPEG'));
+                    };
+                    jpegReader.readAsArrayBuffer(jpegBlob);
+                }, 'image/jpeg', 0.9);
+            };
+            
+            img.onerror = function() {
+                URL.revokeObjectURL(objectUrl);
+                console.error('Image load error from object URL');
+                reject(new Error('Failed to load image from object URL'));
+            };
+            
+            // Use object URL instead of file:// directly
+            img.src = objectUrl;
+        });
+    }
+
+    /**
+     * Load image via Image API and convert to JPEG (fallback for cross-origin)
+     */
+    function loadImageViaImage(url) {
+        return new Promise(function(resolve, reject) {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            
+            img.onload = function() {
+                console.log('Image loaded via Image API, size:', img.width, 'x', img.height);
+                
+                // Create a canvas with offscreen context
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    reject(new Error('Failed to get canvas context'));
+                    return;
+                }
+                
+                try {
+                    ctx.drawImage(img, 0, 0);
+                } catch (e) {
+                    console.warn('Canvas drawing failed (canvas tainted):', e.message);
+                    reject(new Error('Canvas became tainted'));
+                    return;
+                }
+                
+                canvas.toBlob(function(jpegBlob) {
+                    if (!jpegBlob) {
+                        reject(new Error('Failed to convert to JPEG'));
+                        return;
+                    }
+                    
+                    console.log('Converted to JPEG, size:', jpegBlob.size);
+                    const jpegReader = new FileReader();
+                    jpegReader.onload = function() {
+                        resolve(new Uint8Array(jpegReader.result));
+                    };
+                    jpegReader.onerror = function() {
+                        reject(new Error('Failed to read JPEG'));
+                    };
+                    jpegReader.readAsArrayBuffer(jpegBlob);
+                }, 'image/jpeg', 0.9);
+            };
+            
+            img.onerror = function() {
+                reject(new Error('Failed to load image'));
+            };
+            
+            img.src = url;
+        });
+    }
+
+    /**
+     * Create EPUB 3.0 package.opf metadata file
+     */
+    function createPackageOpf(title, uuid, mediaList) {
+        let manifestItems = '';
+        let spineItems = '';
+
+        // Add nav.xhtml to manifest
+        manifestItems += '    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>\n';
+
+        mediaList.forEach(function(media, idx) {
+            if (media.isImage) {
+                const imgId = 'img_' + idx;
+                manifestItems += '    <item id="' + imgId + '" href="images/image_' + idx + '.jpg" media-type="image/jpeg"/>\n';
+            }
+            const pageId = 'page_' + idx;
+            manifestItems += '    <item id="' + pageId + '" href="xhtml/page_' + idx + '.xhtml" media-type="application/xhtml+xml"/>\n';
+            spineItems += '    <itemref idref="' + pageId + '"/>\n';
+        });
+
+        manifestItems += '    <item id="style" href="style/style.css" media-type="text/css"/>\n';
+
+        const nowDate = new Date().toISOString();
+
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:opf="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uuid" xml:lang="en" dir="ltr">
+  <metadata>
+    <dc:identifier id="uuid">urn:uuid:${uuid}</dc:identifier>
+    <dc:title>${escapeXml(title)}</dc:title>
+    <dc:creator opf:role="aut">Sigal Photo Gallery</dc:creator>
+    <dc:language>en</dc:language>
+    <dcterms:issued>${nowDate}</dcterms:issued>
+    <meta property="dcterms:modified">${nowDate}</meta>
+  </metadata>
+  <manifest>
+${manifestItems}  </manifest>
+  <spine>
+${spineItems}  </spine>
+</package>`;
+    }
+
+    /**
+     * Create EPUB 3.0 navigation document (nav.xhtml)
+     */
+    function createNavXhtml(title, mediaList) {
+        let navItems = '';
+
+        mediaList.forEach(function(media, idx) {
+            const pageNum = idx + 1;
+            navItems += `    <li><a href="xhtml/page_${idx}.xhtml">${escapeXml(media.title)}</a></li>\n`;
+        });
+
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>${escapeXml(title)}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" type="text/css" href="style/style.css"/>
+  </head>
+  <body>
+    <nav epub:type="toc" id="toc">
+      <h1>Table of Contents</h1>
+      <ol>
+${navItems}      </ol>
+    </nav>
+  </body>
+</html>`;
+    }
+
+    /**
+     * Create CSS for EPUB pages
+     */
+    function createCss() {
+        return `/* Photobook EPUB Styles - Compatible with all readers */
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Georgia, serif;
+    font-size: 1em;
+    line-height: 1.5;
+    color: #000;
+    background-color: #fff;
+}
+
+.page {
+    display: block;
+    clear: both;
+    margin: 0;
+    padding: 1em;
+    page-break-after: always;
+    page-break-inside: avoid;
+}
+
+.page-media {
+    display: block;
+    clear: both;
+    text-align: center;
+    margin: 0 0 2em 0;
+    padding: 0;
+}
+
+.page-media img {
+    display: block;
+    max-width: 100%;
+    max-height: 70%;
+    height: auto;
+    width: auto;
+    margin: 0 auto;
+    padding: 0;
+    border: none;
+}
+
+.page-caption {
+    display: block;
+    clear: both;
+    margin: 2em 0 0 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+}
+
+.page-title {
+    display: block;
+    font-size: 1.3em;
+    font-weight: bold;
+    margin: 0 0 1em 0;
+    padding: 0;
+    color: #000;
+}
+
+.page-description {
+    display: block;
+    margin: 1em 0;
+    padding: 0.5em;
+    font-size: 0.95em;
+    line-height: 1.5;
+    color: #333;
+    border-left: 0.2em solid #ccc;
+}
+
+.page-filename {
+    display: block;
+    margin: 1em 0;
+    padding: 0.5em;
+    font-size: 0.9em;
+    color: #666;
+    background-color: #f9f9f9;
+    border-left: 0.2em solid #ddd;
+    word-break: break-word;
+    clear: both;
+}
+
+.page-exif {
+    display: block;
+    margin: 1em 0;
+    padding: 0;
+    font-size: 0.9em;
+    clear: both;
+}
+
+.exif-list {
+    display: block;
+    padding: 0.5em;
+    background-color: #f9f9f9;
+    border-left: 0.2em solid #ddd;
+}
+
+.exif-item {
+    display: block;
+    margin: 0.5em 0;
+    padding: 0.25em 0;
+    word-break: break-word;
+}
+
+.exif-item strong {
+    font-weight: bold;
+    color: #333;
+}
+
+.video-container {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+}
+
+.video-poster {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.video-link-overlay {
+    text-align: center;
+    margin-top: 0.75em;
+}
+
+.video-link-btn {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid #000;
+    font-weight: bold;
+    font-size: 0.95em;
+}
+
+.video-link-btn:visited {
+    color: #fff;
+}`;
+    
+    }
+
+    /**
+     * Create an XHTML page for each media
+     */
+    function createXhtmlPage(media, idx) {
+        const pageNum = idx + 1;
+        let mediaHtml = '';
+
+        if (media.isImage) {
+            mediaHtml = `    <div class="page-media" role="figure">
+      <img src="../images/image_${idx}.jpg" alt="${escapeXml(media.title)}"/>
+    </div>`;
+        } else if (media.isVideo) {
+            // For videos, show thumbnail with link to external video file
+            mediaHtml = `    <div class="page-media" role="figure">
+      <div class="video-container">
+        <img src="../images/image_${idx}.jpg" alt="${escapeXml(media.title)} - click to download video" class="video-poster"/>
+        <div class="video-link-overlay">
+          <a href="../videos/video_${idx}.mp4" class="video-link-btn" epub:type="link">Download Video</a>
+        </div>
+      </div>
+    </div>`;
+        }
+
+        let descriptionHtml = '';
+        if (media.description && media.description.trim()) {
+            descriptionHtml = `    <div class="page-description">${formatDescription(media.description)}</div>`;
+        }
+
+        let filenameHtml = '';
+        if (media.filename && media.filename.trim()) {
+            filenameHtml = `    <div class="page-filename"><strong>File:</strong> ${escapeXml(media.filename)}</div>`;
+        }
+
+        let exifHtml = '';
+        if (media.exif && media.exif.trim()) {
+            exifHtml = `    <div class="page-exif">${formatExif(media.exif)}</div>`;
+        }
+
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>${escapeXml(media.title)}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+  </head>
+  <body>
+    <article class="page" epub:type="bodymatter chapter">
+${mediaHtml}
+      <section class="page-caption">
+        <h1 class="page-title">${escapeXml(media.title)}</h1>
+${descriptionHtml}
+${filenameHtml}
+${exifHtml}
+      </section>
+    </article>
+  </body>
+</html>`;
+    }
+
+    /**
+     * Escape XML special characters
+     */
+    function escapeXml(str) {
+        if (!str) return '';
+        return str.replace(/[<>&'"]/g, function(c) {
+            switch (c) {
+                case '<': return '&lt;';
+                case '>': return '&gt;';
+                case '&': return '&amp;';
+                case "'": return '&apos;';
+                case '"': return '&quot;';
+            }
+        });
+    }
+
+    /**
+     * Load JSZip library dynamically if not present
+     */
+    function loadJsZip() {
+        return new Promise(function(resolve, reject) {
+            if (checkJsZip()) {
+                resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+            script.onload = function() {
+                if (checkJsZip()) {
+                    resolve();
+                } else {
+                    reject(new Error('JSZip failed to load'));
+                }
+            };
+            script.onerror = function() {
+                reject(new Error('Failed to load JSZip library'));
+            };
+            document.head.appendChild(script);
+        });
+    }
+
+    /**
+     * Main export function
+     */
+    function exportToEpub() {
+        const exportBtn = document.getElementById('epub-export-btn');
+        if (!exportBtn) return;
+
+        console.log('Starting EPUB export...');
+
+        // Disable button during export
+        exportBtn.disabled = true;
+        exportBtn.textContent = '⏳ Generating EPUB...';
+
+        loadJsZip().then(function() {
+            console.log('JSZip loaded successfully');
+            const title = getAlbumTitle();
+            const uuid = generateUUID();
+            console.log('Album title:', title);
+            
+            const mediaList = collectMediaData();
+
+            if (mediaList.length === 0) {
+                alert('No media found to export');
+                exportBtn.disabled = false;
+                exportBtn.textContent = '📕 Export EPUB';
+                return;
+            }
+
+            console.log('Total media items:', mediaList.length);
+            console.log('Images:', mediaList.filter(m => m.isImage).length);
+            console.log('Videos:', mediaList.filter(m => m.isVideo).length);
+
+            const zip = new JSZip();
+
+            // Add mimetype (must be first and uncompressed)
+            zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
+
+            // Create META-INF directory and container.xml
+            zip.folder('META-INF').file('container.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfile full-path="OEBPS/package.opf" media-type="application/oebps-package+xml"/>
+</container>`);
+
+            // Create OEBPS directory structure
+            const oebps = zip.folder('OEBPS');
+            oebps.file('package.opf', createPackageOpf(title, uuid, mediaList));
+            oebps.file('nav.xhtml', createNavXhtml(title, mediaList));
+
+            // Create style directory
+            oebps.folder('style').file('style.css', createCss());
+
+            // Create images directory and xhtml directory
+            const imagesFolder = oebps.folder('images');
+            const xhtmlFolder = oebps.folder('xhtml');
+
+            // Process media and create XHTML pages
+            const imagePromises = mediaList.map(function(media, idx) {
+                // Create XHTML page
+                xhtmlFolder.file('page_' + idx + '.xhtml', createXhtmlPage(media, idx));
+
+                // Process image or video poster
+                if ((media.isImage || media.isVideo) && media.url) {
+                    return fetchImageAsBlob(media.url).then(function(imageBytes) {
+                        console.log('Successfully loaded media', idx, 'size:', imageBytes.length);
+                        imagesFolder.file('image_' + idx + '.jpg', imageBytes);
+                    }).catch(function(err) {
+                        console.warn('Failed to load media ' + idx + ':', err.message);
+                        // Continue without this image
+                    });
+                }
+                return Promise.resolve();
+            });
+
+            console.log('Starting image download, total images:', mediaList.filter(m => m.isImage).length);
+
+            Promise.all(imagePromises).then(function() {
+                console.log('All images processed, generating EPUB...');
+                
+                // Validate structure
+                const structure = validateZipStructure(zip);
+                console.log('EPUB 3.0 will contain:');
+                console.log('  - Metadata files: mimetype=' + structure.mimetype + ', container=' + structure.container + ', opf=' + structure.opf);
+                console.log('  - Navigation: nav=' + structure.nav + ', css=' + structure.css);
+                console.log('  - Content: images=' + structure.images + ', xhtml pages=' + structure.xhtml);
+
+                // Generate EPUB file
+                zip.generateAsync({ type: 'blob', streamFiles: true }).then(function(blob) {
+                    console.log('EPUB generated successfully');
+                    console.log('  File size:', blob.size, 'bytes', '(' + Math.round(blob.size / 1024) + ' KB)');
+                    console.log('  MIME type:', blob.type);
+                    
+                    if (blob.size < 1000) {
+                        console.warn('WARNING: Generated file is very small. This might indicate a problem with image inclusion.');
+                    }
+                    
+                    // Create download link
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    // Use UTF-8 safe filename with special character replacement
+                    const sanitizedTitle = sanitizeFilename(title);
+                    link.download = sanitizedTitle + '.epub';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+
+                    // Re-enable button
+                    exportBtn.disabled = false;
+                    exportBtn.textContent = '📕 Export EPUB';
+                    
+                    const msg = 'EPUB exported successfully!\n' +
+                                'Size: ' + Math.round(blob.size / 1024) + ' KB\n' +
+                                'Images included: ' + structure.images + '\n' +
+                                'Pages: ' + structure.xhtml;
+                    alert(msg);
+                    console.log(msg.replace(/\n/g, ' | '));
+                }).catch(function(err) {
+                    console.error('Error generating EPUB:', err);
+                    alert('Error generating EPUB: ' + err.message);
+                    exportBtn.disabled = false;
+                    exportBtn.textContent = '📕 Export EPUB';
+                });
+            }).catch(function(err) {
+                console.error('Error processing images:', err);
+                alert('Error processing images: ' + err.message);
+                exportBtn.disabled = false;
+                exportBtn.textContent = '📕 Export EPUB';
+            });
+        }).catch(function(err) {
+            console.error('Error loading JSZip:', err);
+            alert('Error: Could not load required library. Please check your internet connection.\n' + err.message);
+            exportBtn.disabled = false;
+            exportBtn.textContent = '📕 Export EPUB';
+        });
+    }
+
+    /**
+     * Initialize EPUB export on page load
+     */
+    function init() {
+        const exportBtn = document.getElementById('epub-export-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', exportToEpub);
+            exportBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                exportToEpub();
+            });
+        }
+    }
+
+    /**
+     * Validate and log ZIP content structure
+     */
+    function validateZipStructure(zip) {
+        const structure = {
+            mimetype: false,
+            container: false,
+            opf: false,
+            nav: false,
+            css: false,
+            images: 0,
+            xhtml: 0
+        };
+
+        zip.forEach(function(relativePath, file) {
+            console.log('ZIP contains:', relativePath, '(' + file.dir + ')');
+            
+            if (relativePath === 'mimetype') structure.mimetype = true;
+            if (relativePath === 'META-INF/container.xml') structure.container = true;
+            if (relativePath === 'OEBPS/package.opf') structure.opf = true;
+            if (relativePath === 'OEBPS/nav.xhtml') structure.nav = true;
+            if (relativePath === 'OEBPS/style/style.css') structure.css = true;
+            if (relativePath.startsWith('OEBPS/images/')) structure.images++;
+            if (relativePath.startsWith('OEBPS/xhtml/')) structure.xhtml++;
+        });
+
+        console.log('ZIP Structure validation:', structure);
+        return structure;
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    // Export public API
+    window.PhotobookEpub = {
+        exportToEpub: exportToEpub
+    };
+
+})();

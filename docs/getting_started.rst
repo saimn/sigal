@@ -20,7 +20,9 @@ Build
   The next time you run ``sigal build``, only the new images will be processed.
   You can use the ``-f`` flag to force the reprocessing of all the images or the ``-a`` flag to force only the specified matching albums.
   Images (resp. videos) that are smaller than the size specified by the
-  ``img_size`` (resp. ``video_size``) setting will not be resized.
+  ``img_size`` (resp. ``video_size``) setting will not be resized. By default,
+  ``video_size`` is ``None``, which preserves the original video resolution
+  when converting videos to browser playable formats.
 
   You may also want to know how to specify information about :doc:`albums
   <album_information>` and :doc:`images <image_information>`.
