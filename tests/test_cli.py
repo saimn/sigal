@@ -150,6 +150,20 @@ def test_set_meta(tmpdir):
     assert os.path.isfile(str(tmpdir.join("test.md")))
     assert tmpdir.join("test.md").read() == "Title: testing\n"
 
+
+def test_set_meta_unicode(tmpdir):
+    testfile = tmpdir.join("unicode.jpg")
+    testfile.write("")
+
+    runner = CliRunner()
+    result = runner.invoke(set_meta, [str(testfile), "title", "Café 🎉"])
+
+    assert result.exit_code == 0
+    assert result.output.startswith("1 metadata key(s) written to")
+    metafile = tmpdir.join("unicode.md")
+    assert os.path.isfile(str(metafile))
+    assert metafile.read_text("utf-8") == "Title: Café 🎉\n"
+
     result = runner.invoke(set_meta, [str(testfile), "title"])
 
     assert result.exit_code == 1
