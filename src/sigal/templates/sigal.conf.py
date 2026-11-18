@@ -20,9 +20,13 @@ source = "pictures"
 # destination = '_build'
 
 # Theme :
-# - colorbox (default), galleria, photoswipe, or the path to a custom theme
+# - photobook (default), colorbox, galleria, photoswipe, or the path to a custom theme
 # directory
-theme = "galleria"
+theme = "photobook"
+
+# Photobook map provider for GPS coordinates.
+# Options: 'openstreetmap' or 'googlemaps'
+photobook_map_provider = "googlemaps"
 
 # Theme for galleria (https://galleriajs.github.io/themes/)
 # galleria_theme = 'classic'
@@ -34,7 +38,7 @@ theme = "galleria"
 # processing steps (resize, auto-orient, recompress, and any plugin-specific
 # step).
 # Originals will be symlinked if orig_link = True, else they will be copied.
-# use_orig = False
+use_orig = True
 
 # Path to a CSS file that can be used to customize themes
 # user_css =
@@ -207,9 +211,9 @@ ignore_files = []
 # mp4_options_second_pass = None
 
 
-# Size of resized video (default: (480, 360))
-# Set this to None if no resizing is desired on the video.
-# video_size = (480, 360)
+# Size of resized video (default: None, keeps original video resolution)
+# Set this to a tuple like (1920, 1080) or (480, 360) if resizing is desired.
+# video_size = None
 
 # If the desired video extension and filename are the same, the video will
 # not be converted. If a transcode to different quality is required,

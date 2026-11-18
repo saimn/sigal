@@ -161,6 +161,17 @@ class AbstractWriter:
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(page)
 
+        if album.show_map and album.route:
+            if album.gpx:
+                gpx_file = os.path.join(album.dst_path, "route.gpx")
+                with open(gpx_file, "w", encoding="utf-8") as f:
+                    f.write(album.gpx)
+
+            if album.kml:
+                kml_file = os.path.join(album.dst_path, "route.kml")
+                with open(kml_file, "w", encoding="utf-8") as f:
+                    f.write(album.kml)
+
 
 class AlbumListPageWriter(AbstractWriter):
     """Generate an html page for a directory of albums"""

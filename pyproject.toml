@@ -33,14 +33,14 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 all = ["brotli", "feedgenerator", "zopfli", "cryptography", "pillow-heif", "pdf2image"]
-tests = ["pytest", "pytest-cov"]
+tests = ["pytest", "pytest-cov", "prysk"]
 docs = ["Sphinx>=4.1.0", "furo", "cryptography"]
 
 [project.scripts]
 sigal = "sigal.__main__:main"
 
 [project.urls]
-repository = "https://github.com/saimn/sigal"
+repository = "https://github.com/howardrotterdam/sigal"
 documentation = "https://sigal.readthedocs.io/en/latest/"
 
 [tool.setuptools]

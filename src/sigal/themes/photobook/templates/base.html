@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="{{ settings.html_language }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{ album.title|striptags }} - {{ settings.title }}</title>
+    <meta name="description" content="">
+    <meta name="author" content="{{ album.author }}">
+
+    <link rel="stylesheet" href="{{ theme.url }}/css/style.css">
+    {% if user_css %}
+    <link rel="stylesheet" href="{{ theme.url }}/{{ user_css }}">
+    {% endif %}
+    {% include 'default_head.html' %}
+    {% block extra_head %}{% endblock extra_head %}
+    {% include 'analytics.html' %}
+  </head>
+  <body>
+    {% include 'decrypt.html' %}
+    {% include 'gtm.html' %}
+    
+    <div class="photobook-container">
+      <header class="photobook-header">
+        <h1><a href="{{ album.index_url }}">
+        {% if settings.site_logo %}
+        <img src="{{ theme.url }}/{{ settings.site_logo }}" alt="{{ index_title }}" class="site-logo">
+        {% else %}
+        {{ index_title }}
+        {% endif %}
+        </a></h1>
+        {% include 'breadcrumb.html' %}
+      </header>
+
+      <main class="photobook-main" role="main">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="photobook-footer">
+        {% include 'links.html' %}
+        {% include 'footer.html' %}
+      </footer>
+    </div>
+
+    {% block late_js %}{% endblock %}
+    {% include 'gtm.html' %}
+  </body>
+</html>

@@ -24,6 +24,7 @@
       <div class="{{ column_size_t }} columns thumbnail">
       {% if media.type == "image" %}
         <a class="gallery" title="{{ media.title }}" {{ img_description(media) }}
+        {% if media.is_motion_photo %}data-motion-video="{{ media.motion_video_url }}"{% endif %}
         {% if 'sigal.plugins.media_page' in settings.plugins %}
            href="{{ media.url }}.html" data-href="{{ media.url }}"
         {% else %}
