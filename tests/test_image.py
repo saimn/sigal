@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import pytest
 from PIL import Image as PILImage
+from PIL import ImageCms
 
 from sigal.gallery import Image
 from sigal.image import (
@@ -289,6 +290,31 @@ def test_exif_copy(tmpdir):
     generate_image(src_file, dst_file, settings)
     simple = get_exif_tags(get_exif_data(dst_file))
     assert not simple
+
+
+def test_icc_profile_kept(tmpdir):
+    "Test that the resized image and the thumbnail keep the ICC profile."
+
+    icc_profile = ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes()
+    src_file = str(tmpdir.join("profile.jpg"))
+    with PILImage.open(SRCFILE) as im:
+        im.save(src_file, icc_profile=icc_profile)
+
+    settings = create_settings(img_size=(300, 200))
+    dst_file = str(tmpdir.join("resized.jpg"))
+    generate_image(src_file, dst_file, settings, options={"quality": 85})
+    with PILImage.open(dst_file) as im:
+        assert im.info.get("icc_profile") == icc_profile
+
+    thumb_file = str(tmpdir.join("thumb.jpg"))
+    generate_thumbnail(src_file, thumb_file, (50, 50))
+    with PILImage.open(thumb_file) as im:
+        assert im.info.get("icc_profile") == icc_profile
+
+    # An image without a profile is still saved without one.
+    generate_image(SRCFILE, dst_file, settings)
+    with PILImage.open(dst_file) as im:
+        assert not im.info.get("icc_profile")
 
 
 def test_exif_gps(tmpdir):
