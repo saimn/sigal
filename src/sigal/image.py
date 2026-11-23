@@ -1,6 +1,7 @@
 # Copyright (c) 2009-2026 - Simon Conseil
 # Copyright (c) 2015 - François D.
 # Copyright (c) 2018 - Edwin Steele
+# Copyright (c) 2026 - Joseph Reagle
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -64,6 +65,17 @@ def _has_exif_tags(img):
     return hasattr(img, "info") and "exif" in img.info
 
 
+def _keep_icc_profile(icc_profile, options):
+    """Return the save options with the source image's ICC profile, if any.
+
+    The pixels are not converted to sRGB, so without its profile a wide-gamut
+    image (Display P3, Adobe RGB) is shown as sRGB, with washed-out colours.
+    """
+    if not icc_profile:
+        return options
+    return {**(options or {}), "icc_profile": icc_profile}
+
+
 def _read_image(file_path):
     # The image is already opened
     if isinstance(file_path, PILImage.Image):
@@ -99,6 +111,7 @@ def generate_image(source, outname, settings, options=None):
 
     img = _read_image(source)
     original_format = img.format
+    icc_profile = img.info.get("icc_profile")
     logger.debug("Read %s: %dx%d (%s)", source, *img.size, original_format)
 
     if settings["copy_exif_data"] and settings["autorotate_images"]:
@@ -151,6 +164,7 @@ def generate_image(source, outname, settings, options=None):
     outformat = settings.get("img_format") or img.format or original_format or "JPEG"
 
     logger.debug("Save resized image: %s, %dx%d (%s)", outname, *img.size, outformat)
+    options = _keep_icc_profile(icc_profile, options)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
@@ -161,6 +175,7 @@ def generate_thumbnail(
 
     logger = logging.getLogger(__name__)
     img = _read_image(source)
+    icc_profile = img.info.get("icc_profile")
     img = Transpose().process(img)
     original_format = img.format
     logger.debug("Read %s: %dx%d (%s)", source, *img.size, original_format)
@@ -178,6 +193,7 @@ def generate_thumbnail(
 
     outformat = img.format or original_format or "JPEG"
     logger.debug("Save thumbnail image: %s, %dx%d (%s)", outname, *img.size, outformat)
+    options = _keep_icc_profile(icc_profile, options)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 

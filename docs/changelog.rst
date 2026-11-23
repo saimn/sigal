@@ -7,6 +7,9 @@ Version 2.7dev
 
 Not released yet.
 
+- Keep the ICC colour profile in resized images and thumbnails, so wide-gamut
+  images (Display P3, Adobe RGB) no longer show washed-out colours.
+
 Version 2.6.1
 ~~~~~~~~~~~~~
 
