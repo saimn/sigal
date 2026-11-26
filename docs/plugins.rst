@@ -26,6 +26,11 @@ import the plugin before adding it to the list:
 The ``plugin_paths`` setting can be used to specify paths to search for plugins
 (if they are not in the python path).
 
+Configured plugins are also registered in each multiprocessing worker. This
+allows processing signals to work with the ``spawn`` and ``forkserver`` start
+methods, which do not inherit the parent process's signal receivers. Plugin
+``register()`` functions should therefore be safe to call in worker processes.
+
 Write a new plugin
 ------------------
 
