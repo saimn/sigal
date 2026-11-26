@@ -1,4 +1,9 @@
+# Copyright (c) 2026 - hassan
+
+import multiprocessing
 import os
+
+import pytest
 
 from sigal.gallery import Gallery
 from sigal.utils import init_plugins
@@ -63,3 +68,33 @@ def test_titleregexp(settings, tmp_path, disconnect_signals):
         settings, "dir1", tmp_path, "sigal.plugins.titleregexp", titleregexp=conf
     )
     assert gal.albums["test2"].title == "titleregexp 02"
+
+
+@pytest.mark.parametrize("start_method", multiprocessing.get_all_start_methods())
+@pytest.mark.parametrize("custom_plugin", [False, True])
+def test_nonmedia_files_multiprocessing(
+    settings, tmp_path, disconnect_signals, monkeypatch, start_method, custom_plugin
+):
+    context = multiprocessing.get_context(start_method)
+    monkeypatch.setattr("sigal.gallery.multiprocessing.Pool", context.Pool)
+    settings["source"] = os.path.join(settings["source"], "nonmedia_files")
+    settings["destination"] = str(tmp_path)
+    settings["plugins"] = ["sigal.plugins.nonmedia_files"]
+    settings["write_html"] = False
+    if custom_plugin:
+        plugin_path = tmp_path / "plugins"
+        plugin_path.mkdir()
+        (plugin_path / "custom_nonmedia.py").write_text(
+            "from sigal.plugins.nonmedia_files import register\n"
+        )
+        settings["plugins"] = ["custom_nonmedia"]
+        settings["plugin_paths"] = [str(plugin_path)]
+    settings["max_img_pixels"] = 100000000
+    init_plugins(settings)
+
+    gallery = Gallery(settings, ncpu=2)
+    gallery.build()
+
+    assert gallery.stats["nonmedia_failed"] == 0
+    assert (tmp_path / "dummy.pdf").is_file()
+    assert (tmp_path / "thumbnails" / "dummy.tn.jpg").is_file()

@@ -5,6 +5,7 @@
 # Copyright (c) 2017      - Mate Lakat
 # Copyright (c) 2018      - Edwin Steele
 # Copyright (c) 2021      - Tim AtLee
+# Copyright (c) 2026      - hassan
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -59,6 +60,7 @@ from .utils import (
     copy,
     get_mime,
     get_mod_date,
+    init_plugins,
     is_valid_html5_video,
     read_markdown,
     should_reprocess_album,
@@ -821,7 +823,7 @@ class Gallery:
             self.pool = multiprocessing.Pool(
                 processes=ncpu,
                 initializer=pool_init,
-                initargs=(self.settings["max_img_pixels"],),
+                initargs=(self.settings,),
             )
         else:
             self.pool = None
@@ -953,7 +955,9 @@ class Gallery:
                 yield f
 
 
-def pool_init(max_img_pixels):
+def pool_init(settings):
+    init_plugins(settings)
+    max_img_pixels = settings["max_img_pixels"]
     if max_img_pixels:
         PILImage.MAX_IMAGE_PIXELS = max_img_pixels
 
